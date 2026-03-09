@@ -794,7 +794,7 @@ function askFaith() {
 function askLanguage(faith) {
   onboardingStep = 2;
   const langs = faithData[faith]?.languages || ['Hindi','English'];
-  const msg = aiMessage(`<p>Which language do you prefer for your daily rituals?</p>`, false, false);
+  const msg = aiMessage(`<p>${faith === 'Muslim' ? 'Which language do you prefer for your daily ibadat?' : 'Which language do you prefer for your daily rituals?'}</p>`, false, false);
   const chipRow = document.createElement('div');
   chipRow.className = 'chip-row';
   langs.forEach(l => {
@@ -806,7 +806,8 @@ function askLanguage(faith) {
 
 function askRegion() {
   onboardingStep = 3;
-  const msg = aiMessage(`<p>Aap Bharat ke kaunse kshetra se hain? Isse main aapke liye bilkul sahi regional prayers, bhajans aur traditions suggest kar sakta hoon.</p>`, false, false);
+  const isMuslimReg = (userFaith || 'Hindu') === 'Muslim';
+  const msg = aiMessage(`<p>Aap Bharat ke kaunse kshetra se hain? Isse main aapke liye bilkul sahi regional ${isMuslimReg ? 'namaaz, tilawat aur traditions' : 'prayers, bhajans aur traditions'} suggest kar sakta hoon.</p>`, false, false);
   const chipRow = document.createElement('div');
   chipRow.className = 'chip-row';
   [['Uttar (North)', 'Uttar India'], ['Dakshin (South)', 'Dakshin India'], ['Paschim (West)', 'Paschim India'], ['Purv (East)', 'Purv India']].forEach(([label, val]) => {
@@ -846,7 +847,8 @@ function getSingersByFaith(faith) {
 
 function askDuration() {
   onboardingStep = 5;
-  const msg = aiMessage(`<p>How much time do you have for your daily ritual?</p>`, false, false);
+  const isMuslimDur = (userFaith || 'Hindu') === 'Muslim';
+  const msg = aiMessage(`<p>${isMuslimDur ? 'How much time do you have for your daily ibadat?' : 'How much time do you have for your daily ritual?'}</p>`, false, false);
   const chipRow = document.createElement('div');
   chipRow.className = 'chip-row';
   ['5 min','10 min','15 min','30 min','45 min'].forEach(d => {
@@ -906,7 +908,7 @@ function completeSetup() {
             <span class="profile-tag">${userFaith || 'Hindu'}</span>
             <span class="profile-tag">${userLanguage || 'Hindi'}</span>
             <span class="profile-tag">${userRegion || 'India'}</span>
-            <span class="profile-tag">${userDeity || 'Ganesh ji'}</span>
+            <span class="profile-tag">${userDeity || (userFaith === 'Muslim' ? 'Dhikr' : 'Ganesh ji')}</span>
             <span class="profile-tag">${userDuration || '15 min'}</span>
           </div>
           <p style="font-size:13px;color:var(--text-medium);margin-top:10px;line-height:1.55">${(userFaith === 'Muslim') ? `Ab main aapke liye personalised <strong>namaaz, dua aur ibadat guide</strong> suggest kar sakta hoon — bilkul <strong>${userSinger || 'aapki pasandida awaaz'}</strong> mein!` : `Ab main aapke liye <strong>${userDeity ? userDeity + ' ji' : 'aapke isht devta'}</strong> ke anusar personalised puja, mantras aur rituals suggest kar sakta hoon — bilkul <strong>${userSinger || 'aapki pasandida awaaz'}</strong> mein!`}</p>
@@ -1183,7 +1185,7 @@ function beginTodayRitual() {
   msg.style.animation = 'msgIn 350ms ease-out';
   msg.innerHTML = `${avatarHTML()}<div class="ai-content">
     <div class="ritual-card">
-      <div class="ritual-label">Today's Ritual — ${userDuration || '15 min'}</div>
+      <div class="ritual-label">${faith === 'Muslim' ? "Today's Ibadat" : "Today's Ritual"} — ${userDuration || '15 min'}</div>
       <div class="ritual-title">${getRitualTitle(faith)}</div>
       <div class="ritual-meta">${userDeity || tracks[0].name} • ${userLanguage || 'Hindi'}</div>
       <div class="ritual-tracks">${tracks.map((t,i) => `
@@ -1193,7 +1195,7 @@ function beginTodayRitual() {
           <div class="ritual-track-dur">${t.dur}</div>
         </div>`).join('')}
       </div>
-      <button class="ritual-begin-btn" onclick="startSacredMode()">${IC.play} Start Sacred Mode</button>
+      <button class="ritual-begin-btn" onclick="startSacredMode()">${IC.play} ${faith === 'Muslim' ? 'Ibadat Shuru Karen' : 'Start Sacred Mode'}</button>
     </div>
     ${feedbackHTML()}
   </div>`;
@@ -2651,9 +2653,10 @@ function showCustomizeRitual() {
   setTimeout(() => {
     removeThinking();
     const current = userDuration || '15 min';
-    const deity = userDeity || 'Lord Shiva';
-    const singer = userSinger || 'Anuradha Paudwal';
-    const msg = aiMessage(`<p>Aapki ritual mein kya change karna hai?</p><p style="font-size:12px;color:var(--text-low);margin-top:4px">Abhi: <strong>${current}</strong> · ${deity} · ${singer}</p>`, false);
+    const isMuslimCR = (userFaith || 'Hindu') === 'Muslim';
+    const deity = userDeity || (isMuslimCR ? 'Dhikr' : 'Lord Shiva');
+    const singer = userSinger || (isMuslimCR ? 'Mishary Rashid' : 'Anuradha Paudwal');
+    const msg = aiMessage(`<p>${isMuslimCR ? 'Aapki ibadat mein kya change karna hai?' : 'Aapki ritual mein kya change karna hai?'}</p><p style="font-size:12px;color:var(--text-low);margin-top:4px">Abhi: <strong>${current}</strong> · ${deity} · ${singer}</p>`, false);
     addChipsLater(msg.querySelector('.ai-content'), `
       <button class="chip" onclick="userMessage('Duration badlein');showCrDuration()">⏱️ Duration badlein</button>
       <button class="chip" onclick="userMessage('Track add karein');showCrAddTrack()">➕ Track add karein</button>
