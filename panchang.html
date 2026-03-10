@@ -83,11 +83,13 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 
 /* THINKING */
 .thinking-row{display:flex;align-items:center;gap:8px;animation:msgIn var(--dur-mod) var(--ease-decelerate);}
-.thinking-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--primary-20);display:flex;align-items:center;justify-content:center;}
+.thinking-icon{width:28px;height:28px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.thinking-icon video{width:100%;height:100%;object-fit:cover;}
 .thinking-dots{display:flex;gap:4px;}
 .thinking-dots span{width:6px;height:6px;border-radius:50%;background:var(--primary-50);animation:dotBounce 1.2s infinite;}
 .thinking-dots span:nth-child(2){animation-delay:.15s;}
 .thinking-dots span:nth-child(3){animation-delay:.3s;}
+.thinking-label{font-size:13px;color:var(--text-low);font-weight:400;letter-spacing:0.005em;}
 
 /* FEEDBACK */
 .feedback-row{display:flex;gap:2px;margin-top:8px;}
@@ -609,7 +611,7 @@ function avatarHTML() {
   return `<div class="ai-avatar"><video autoplay loop muted playsinline><source src="Assets/HelloJio_Listening_241.mp4" type="video/mp4"></video><div class="ai-avatar-dots" style="display:none"><div></div><div></div><div></div><div></div></div></div>`;
 }
 function thinkingAvatarHTML() {
-  return `<div class="thinking-avatar"><video autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover"><source src="Assets/HelloJio_Listening_241.mp4" type="video/mp4"></video></div>`;
+  return `<div class="thinking-icon"><video autoplay loop muted playsinline><source src="https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/animations/HelloJio_Listening_241.mp4" type="video/mp4"></video></div>`;
 }
 function feedbackHTML() {
   return `<div class="feedback-row"><button class="fb-btn">${IC.like}</button><button class="fb-btn">${IC.dislike}</button><button class="fb-btn">${IC.copy}</button><button class="fb-btn">${IC.share}</button></div>`;
@@ -684,7 +686,7 @@ function showThinking() {
   const row = document.createElement('div');
   row.className = 'thinking-row';
   row.id = 'thinkingRow';
-  row.innerHTML = `${thinkingAvatarHTML()}<div class="thinking-dots"><span></span><span></span><span></span></div>`;
+  row.innerHTML = `${thinkingAvatarHTML()}<div class="thinking-dots"><span></span><span></span><span></span></div><div class="thinking-label">Thinking...</div>`;
   CC.appendChild(row);
   scrollBottom();
   return row;
