@@ -1281,7 +1281,14 @@ function showPujaVidhi(faith) {
     };
     const singleFaithKey = { Muslim:'salah', Sikh:'nitnem', Jain:'pratikraman', Christian:'devotion' };
     const key = deityKeyMap[userDeity] || singleFaithKey[faith];
-    if (key) { showSpecificPujaVidhi(key, faith); return; }
+    if (key) {
+      const ackMsg = faith === 'Muslim'
+        ? `<p>Aapka ibadat focus <strong>${userDeity}</strong> hai — seedha guide dikha raha hoon! 🤲</p>`
+        : `<p>Aapne <strong>${userDeity} ji</strong> ko apna Ishta Devta chuna hai — seedha unki Puja Vidhi dikha raha hoon! 🙏</p>`;
+      aiMessage(ackMsg);
+      showSpecificPujaVidhi(key, faith);
+      return;
+    }
   }
   // Show deity selector first
   showThinking();
