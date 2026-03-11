@@ -3373,6 +3373,8 @@ function startSacredMode() {
   if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
   document.getElementById('sacredOverlay').style.display = 'flex';
   startSacredProgress();
+  ritualAudio.currentTime = 0;
+  ritualAudio.play();
 }
 
 function updateSacredTrack() {
@@ -3416,9 +3418,11 @@ function sacredPlayPause() {
   if (sacredIsPlaying) {
     if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
     bars.forEach(b => b.style.animationPlayState = 'running');
+    ritualAudio.play();
   } else {
     if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
     bars.forEach(b => b.style.animationPlayState = 'paused');
+    ritualAudio.pause();
   }
 }
 
@@ -3465,8 +3469,14 @@ function updateSacredTrackListUI() {
 function closeSacredMode() {
   clearInterval(sacredProgressInterval);
   sacredIsPlaying = false;
+  ritualAudio.pause();
+  ritualAudio.currentTime = 0;
   document.getElementById('sacredOverlay').style.display = 'none';
 }
+
+// ── Ritual Audio ──
+const ritualAudio = new Audio('hanuman-chalisa.mp3');
+ritualAudio.loop = true;
 
 // ── Init ──
 startWelcome();
