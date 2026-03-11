@@ -1272,6 +1272,17 @@ function showPanchang() {
 }
 
 function showPujaVidhi(faith) {
+  // If isht devta already known from onboarding — skip the selector
+  if (userDeity) {
+    const deityKeyMap = {
+      'Ganesh':'ganesh', 'Shiva':'shiv', 'Vishnu':'vishnu',
+      'Durga':'durga', 'Krishna':'krishna', 'Hanuman':'hanuman', 'Ram':'ram',
+      'Fajr Focus':'salah', 'Quran Study':'salah', 'Dhikr':'salah', 'Dua Collection':'salah',
+    };
+    const singleFaithKey = { Muslim:'salah', Sikh:'nitnem', Jain:'pratikraman', Christian:'devotion' };
+    const key = deityKeyMap[userDeity] || singleFaithKey[faith];
+    if (key) { showSpecificPujaVidhi(key, faith); return; }
+  }
   // Show deity selector first
   showThinking();
   setTimeout(() => {
@@ -1383,6 +1394,29 @@ function showSpecificPujaVidhi(deityKey, faith) {
           {name:'Lotus aur Tulsi Arpan', desc:'Lotus flowers aur Tulsi garland arpan karein.'},
           {name:'Ramcharit Manas Path', desc:'Ek doha ya Sunderkand padhein. Madhyan kaal (12 PM) vishesh phal.'},
           {name:'Aarti', desc:'"Jai Raghuveer Samartha" ya "Shri Ram Chandra Kripalu" gaayein. Diya se aarti karein.', mantra:'श्री राम जय राम जय जय राम'},
+        ]
+      },
+      krishna: {
+        title: 'Krishna Puja Vidhi — 7 Steps',
+        steps: [
+          {name:'Shuddhi', desc:'Snan karein aur peele vastr pahnen. Puja sthal ko Gangajal se shuddh karein.'},
+          {name:'Murti Sthapna', desc:'Bal Krishna ya Radha-Krishna ki murti sthaapit karein.', mantra:'ॐ नमो भगवते वासुदेवाय'},
+          {name:'Panchamrit Snan', desc:'Milk, curd, honey, sugar aur ghee se abhishek karein.'},
+          {name:'Tulsi aur Peele Pushp', desc:'Tulsi patra aur yellow flowers arpan karein — Krishna ko yellow priya hai.'},
+          {name:'Makhan-Mishri Bhog', desc:'Makhan aur mishri prasad ke roop mein arpan karein.'},
+          {name:'Bhagavad Gita Path', desc:'Ek shlok ya adhyaay padhein — vishesh roop se Chapter 2 (Sankhya Yoga).'},
+          {name:'Aarti aur Kirtan', desc:'"Govinda Bolo Hari Gopal Bolo" ya Hare Krishna Mahamantra gaayein.', mantra:'हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे'},
+        ]
+      },
+      hanuman: {
+        title: 'Hanuman Puja Vidhi — 6 Steps',
+        steps: [
+          {name:'Mangalwaar / Shanivar Vishesh', desc:'Hanuman ji ki puja Mangalwaar aur Shanivar ko vishesh phal deti hai. Laal vastr pahnen.', mantra:'ॐ हनुमते नमः'},
+          {name:'Sindoor aur Tel', desc:'Hanuman ji ko sindoor aur sarson tel arpan karein — unhe yeh priya hai.'},
+          {name:'Chameli Tel ka Diya', desc:'Chameli ke tel ka diya jalayein — shakti aur suraksha ke liye.'},
+          {name:'Hanuman Chalisa Path', desc:'Hanuman Chalisa ka paath karein — 11 ya 108 baar padhne se vishesh siddhi milti hai.'},
+          {name:'Besan Laddu Bhog', desc:'Besan ke laddu ya gud-chana prasad ke roop mein arpan karein.'},
+          {name:'Aarti', desc:'"Aarti Keejai Hanuman Lala Ki" gaayein. Ram naam ki jai bolein.', mantra:'जय हनुमान ज्ञान गुण सागर'},
         ]
       },
       salah: {title:'Salah (Namaz) Guide', steps: getPujaSteps('Muslim')},
