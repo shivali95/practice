@@ -419,7 +419,7 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
   <!-- Header Nav -->
   <div class="header-nav">
     <div class="header-left">
-      <button class="back-btn" aria-label="Back" onclick="window.location.href='https://sunit1986.github.io/design-prototypes/devotion-tools.html'">
+      <button class="back-btn" aria-label="Back" onclick="stopAllAudio(); window.location.href='https://sunit1986.github.io/design-prototypes/devotion-tools.html'">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
       </button>
       <div class="header-title-area">
@@ -1219,7 +1219,7 @@ function getRitualTitle(faith) {
 
 function getRitualTracks(faith) {
   const m = {
-    Hindu:[{name:'Om Jai Jagdish Hare',artist:'Anuradha Paudwal',dur:'4:22'},{name:'Ganesh Vandana',artist:'Shankar Mahadevan',dur:'3:45'},{name:'Hanuman Chalisa',artist:'Hariharan',dur:'5:18'}],
+    Hindu:[{name:'Om Jai Jagdish Hare (Aarti)',artist:'Lata Mangeshkar',dur:'4:22',audioSrc:'om-jai-jagdish.mp3',startAt:15},{name:'Hanuman Chalisa',artist:'Lata Mangeshkar',dur:'5:18',audioSrc:'hanuman-chalisa.mp3',startAt:0},{name:'Ganesh Vandana',artist:'Shankar Mahadevan',dur:'3:45'}],
     Muslim:[{name:'Surah Al-Fatiha',artist:'Mishary Rashid',dur:'1:12'},{name:'Morning Adhkar',artist:'Maher Zain',dur:'4:30'},{name:'Ya Nabi Salam',artist:'Sami Yusuf',dur:'5:02'}],
     Sikh:[{name:'Japji Sahib',artist:'Bhai Harjinder Singh',dur:'20:00'},{name:'Jaap Sahib',artist:'Bhai Nirmal Singh',dur:'6:30'},{name:'Anand Sahib',artist:'Traditional',dur:'8:15'}],
     Jain:[{name:'Navkar Mantra',artist:'Traditional',dur:'3:00'},{name:'Samayik Path',artist:'Sadhu Maharaj',dur:'48:00'},{name:'Pratikraman',artist:'Traditional',dur:'15:00'}],
@@ -3407,8 +3407,7 @@ function startSacredMode() {
   if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
   document.getElementById('sacredOverlay').style.display = 'flex';
   startSacredProgress();
-  ritualAudio.currentTime = 0;
-  ritualAudio.play();
+  playCurrentTrackAudio();
 }
 
 function updateSacredTrack() {
@@ -3452,11 +3451,11 @@ function sacredPlayPause() {
   if (sacredIsPlaying) {
     if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
     bars.forEach(b => b.style.animationPlayState = 'running');
-    ritualAudio.play();
+    resumeCurrentTrackAudio();
   } else {
     if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
     bars.forEach(b => b.style.animationPlayState = 'paused');
-    ritualAudio.pause();
+    pauseAllAudio();
   }
 }
 
@@ -3466,15 +3465,17 @@ function sacredNext() {
   updateSacredTrack();
   updateSacredTrackListUI();
   startSacredProgress();
+  if (sacredIsPlaying) playCurrentTrackAudio(); else stopAllAudio();
 }
 
 function sacredPrev() {
-  if (sacredProgressValue > 3) { sacredProgressValue = 0; startSacredProgress(); return; }
+  if (sacredProgressValue > 3) { sacredProgressValue = 0; startSacredProgress(); if (sacredIsPlaying) playCurrentTrackAudio(); return; }
   sacredTrackIndex = (sacredTrackIndex - 1 + sacredCurrentTracks.length) % sacredCurrentTracks.length;
   sacredProgressValue = 0;
   updateSacredTrack();
   updateSacredTrackListUI();
   startSacredProgress();
+  if (sacredIsPlaying) playCurrentTrackAudio(); else stopAllAudio();
 }
 
 function sacredJumpTo(idx) {
@@ -3483,6 +3484,7 @@ function sacredJumpTo(idx) {
   updateSacredTrack();
   updateSacredTrackListUI();
   startSacredProgress();
+  if (sacredIsPlaying) playCurrentTrackAudio(); else stopAllAudio();
 }
 
 function updateSacredTrackListUI() {
@@ -3503,14 +3505,38 @@ function updateSacredTrackListUI() {
 function closeSacredMode() {
   clearInterval(sacredProgressInterval);
   sacredIsPlaying = false;
-  ritualAudio.pause();
-  ritualAudio.currentTime = 0;
+  stopAllAudio();
   document.getElementById('sacredOverlay').style.display = 'none';
 }
 
 // ── Ritual Audio ──
-const ritualAudio = new Audio('hanuman-chalisa.mp3');
-ritualAudio.loop = true;
+const aartiAudio = new Audio('om-jai-jagdish.mp3');
+aartiAudio.loop = true;
+const hanumanAudio = new Audio('hanuman-chalisa.mp3');
+hanumanAudio.loop = true;
+
+function stopAllAudio() {
+  aartiAudio.pause();  aartiAudio.currentTime = 0;
+  hanumanAudio.pause(); hanumanAudio.currentTime = 0;
+}
+function pauseAllAudio() {
+  aartiAudio.pause();
+  hanumanAudio.pause();
+}
+function playCurrentTrackAudio() {
+  stopAllAudio();
+  const track = sacredCurrentTracks[sacredTrackIndex];
+  if (!track || !track.audioSrc) return;
+  const audio = track.audioSrc === 'hanuman-chalisa.mp3' ? hanumanAudio : aartiAudio;
+  audio.currentTime = track.startAt || 0;
+  audio.play();
+}
+function resumeCurrentTrackAudio() {
+  const track = sacredCurrentTracks[sacredTrackIndex];
+  if (!track || !track.audioSrc) return;
+  const audio = track.audioSrc === 'hanuman-chalisa.mp3' ? hanumanAudio : aartiAudio;
+  audio.play();
+}
 
 // ── Init ──
 startWelcome();
