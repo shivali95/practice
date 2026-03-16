@@ -368,6 +368,23 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 .query-item-text{font-size:13px;color:var(--text-high);line-height:1.35;flex:1;}
 .query-item-arrow{font-size:14px;color:var(--text-low);flex-shrink:0;}
 
+/* MUHURAT CARD */
+.muhurat-card{border:1px solid var(--stroke-subtle);border-radius:var(--shape-large);overflow:hidden;animation:cardIn var(--spring);width:100%;margin-top:8px;}
+.mc-header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(135deg,#1a0050,#3535f3);color:#fff;font-weight:700;font-size:14px;}
+.mc-icon{font-size:18px;}
+.mc-title{font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);}
+.mc-windows{padding:12px;display:flex;flex-direction:column;gap:10px;background:#fff;}
+.mc-window{border:1px solid var(--stroke-subtle);border-radius:var(--shape-medium);padding:12px;}
+.mc-window-best{border-color:var(--primary-50);background:linear-gradient(135deg,rgba(53,53,243,0.04),rgba(53,53,243,0.01));}
+.mc-window-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.mc-rank{font-size:11px;font-weight:800;color:var(--primary-50);min-width:40px;}
+.mc-time{font-size:15px;font-weight:800;color:#141414;flex:1;}
+.mc-quality-uttam{background:#e8fbef;color:#1a7a30;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--shape-pill);}
+.mc-quality-shubh{background:#fff8e8;color:#8a6200;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--shape-pill);}
+.mc-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.mc-tag{font-size:10px;color:var(--text-mid);background:var(--surface-ghost);border-radius:4px;padding:2px 6px;}
+.mc-footer{padding:10px 14px;background:var(--surface-ghost);display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--stroke-subtle);}
+
 /* RASHIFAL CARD */
 .rashifal-card{border:1px solid var(--stroke-subtle);border-radius:var(--shape-large);overflow:hidden;animation:cardIn var(--spring);width:100%;margin-top:8px;}
 .rc-header{padding:12px 14px 11px;background:linear-gradient(135deg,var(--astro-deep),#4a0082);display:flex;align-items:flex-start;justify-content:space-between;}
@@ -1416,6 +1433,13 @@ function triggerChip(value) {
     showCareerStudyQueries();
   } else if (v.includes('career_business')) {
     showCareerBusinessQueries();
+  } else if (v.includes('muhurat')) {
+    const key = v.replace('muhurat_', '').trim();
+    if (key === 'kundali_check') {
+      showThinkingThen(() => respondMuhuratKundaliCheck(), 2000);
+    } else {
+      showThinkingThen(() => respondMuhurat(key || 'daily'), 2000);
+    }
   } else {
     showThinkingThen(() => respondGeneral(value));
   }
@@ -2295,10 +2319,10 @@ function showSaathiMenu() {
         <div class="sm-card-label">Finance & Wealth</div>
         <div class="sm-card-sub">Paisa, property, investments</div>
       </button>
-      <button class="sm-card" onclick="userMessage('Health ke baare mein batao'); showQueryCategory('health')">
-        <div class="sm-card-icon">🌿</div>
-        <div class="sm-card-label">Health</div>
-        <div class="sm-card-sub">Wellbeing, routine, graha effects</div>
+      <button class="sm-card" onclick="userMessage('Shubh Muhurat dekhna chahta hoon'); showMuhuratMenu()">
+        <div class="sm-card-icon">🕰️</div>
+        <div class="sm-card-label">Shubh Muhurat</div>
+        <div class="sm-card-sub">Auspicious timings</div>
       </button>
       <button class="sm-card" onclick="userMessage('Life decisions mein guidance chahiye'); showQueryCategory('life')">
         <div class="sm-card-icon">🔮</div>
@@ -2406,6 +2430,176 @@ function showQueryCategory(key) {
     `<p>${cat.icon} <strong>${cat.label}</strong> ke baare mein kaunsa sawaal hai?</p>`,
     false, true, () => {
       setTimeout(() => { msg.querySelector('.ai-content').appendChild(card); scrollBottom(); }, 300);
+    }
+  );
+}
+
+// ── Shubh Muhurat ──────────────────────────────────────────────────────────
+const MUHURAT_DATA = {
+  marriage: {
+    title: 'Vivah Muhurat',
+    reviewedBadge: true,
+    windows: [
+      { time: '11:24 AM – 12:10 PM', quality: 'Uttam', tags: ['Shukla Paksha Panchami', 'Rohini Nakshatra', 'Abhijit Muhurat', 'No Rahu Kaal'] },
+      { time: '2:35 PM – 3:20 PM',   quality: 'Shubh',  tags: ['Punarvasu Nakshatra', 'Shukra Hora', 'Laghu Karana'] },
+      { time: '6:10 PM – 6:55 PM',   quality: 'Shubh',  tags: ['Sandhya Bela', 'Chandra Bala strong', 'Shubh Yoga'] },
+    ],
+  },
+  business: {
+    title: 'Vyapar Aarambh Muhurat',
+    reviewedBadge: false,
+    windows: [
+      { time: '9:48 AM – 10:36 AM', quality: 'Uttam', tags: ['Shukla Paksha Tritiya', 'Hasta Nakshatra', 'Budh Hora', 'No Rahu Kaal'] },
+      { time: '12:20 PM – 1:05 PM', quality: 'Shubh',  tags: ['Abhijit Muhurat', 'Shubh Yoga active', 'Mangal bali'] },
+      { time: '4:15 PM – 5:00 PM',  quality: 'Shubh',  tags: ['Guruvaar Hora', 'Chandra 11th house', 'Labh Muhurat'] },
+    ],
+  },
+  property: {
+    title: 'Sampatti Kharid Muhurat',
+    reviewedBadge: false,
+    windows: [
+      { time: '11:24 AM – 12:10 PM', quality: 'Uttam', tags: ['Rohini Nakshatra', 'Abhijit Muhurat', 'Shukra Hora', 'No Rahu Kaal'] },
+      { time: '2:35 PM – 3:20 PM',   quality: 'Shubh',  tags: ['Sthira Tithi', 'Guru Bali', 'Shubh Yoga'] },
+      { time: '6:10 PM – 6:55 PM',   quality: 'Shubh',  tags: ['Sandhya Bela', 'Chandra Bala strong', 'Labha Hora'] },
+    ],
+  },
+  vehicle: {
+    title: 'Vahan Kharid Muhurat',
+    reviewedBadge: false,
+    windows: [
+      { time: '10:10 AM – 10:58 AM', quality: 'Uttam', tags: ['Mrigashira Nakshatra', 'Mangal Hora', 'No Yamaghanta', 'Shukla Paksha'] },
+      { time: '1:30 PM – 2:15 PM',   quality: 'Shubh',  tags: ['Abhijit Muhurat', 'Budh bali', 'Chara Tithi'] },
+      { time: '5:20 PM – 6:05 PM',   quality: 'Shubh',  tags: ['Shukra Hora', 'Chandra Bala', 'Labh Yoga'] },
+    ],
+  },
+  gold: {
+    title: 'Sone ki Kharid Muhurat',
+    reviewedBadge: false,
+    windows: [
+      { time: '8:30 AM – 9:18 AM',  quality: 'Uttam', tags: ['Pushya Nakshatra', 'Shukra Hora', 'Shukla Paksha Dwitiya', 'No Rahu Kaal'] },
+      { time: '11:50 AM – 12:35 PM', quality: 'Shubh', tags: ['Abhijit Muhurat', 'Guru Bali', 'Dhana Yoga'] },
+      { time: '3:40 PM – 4:25 PM',  quality: 'Shubh',  tags: ['Budh Hora', 'Chara Tithi', 'Subha Yoga'] },
+    ],
+  },
+  daily: {
+    title: 'Aaj ka Shubh Muhurat',
+    reviewedBadge: false,
+    windows: [
+      { time: '7:12 AM – 8:00 AM',  quality: 'Uttam', tags: ['Brahma Muhurat', 'Surya Hora', 'No Rahu Kaal', 'Shubha Nakshatra'] },
+      { time: '11:24 AM – 12:10 PM', quality: 'Shubh', tags: ['Abhijit Muhurat', 'Chandra Bala', 'Labh Yoga'] },
+      { time: '4:48 PM – 5:36 PM',  quality: 'Shubh',  tags: ['Godhuli Bela', 'Shukra Hora', 'Sthira Yoga'] },
+    ],
+  },
+};
+
+function showMuhuratMenu() {
+  const MUHURAT_EVENTS = [
+    { icon: '💍', label: 'Marriage Muhurat',         key: 'marriage' },
+    { icon: '🏢', label: 'Business Launch Muhurat',   key: 'business' },
+    { icon: '🏠', label: 'Property Purchase Muhurat', key: 'property' },
+    { icon: '🚗', label: 'Vehicle Purchase Muhurat',  key: 'vehicle' },
+    { icon: '🪙', label: 'Gold Purchase Muhurat',     key: 'gold' },
+    { icon: '📅', label: 'Daily Shubh Muhurat',       key: 'daily' },
+  ];
+  const card = document.createElement('div');
+  card.className = 'query-list-card';
+  card.innerHTML = `
+    <div class="ql-header">
+      <span class="ql-header-icon">🕰️</span>
+      <span class="ql-header-title">Kaunse kaam ke liye shubh muhurat chahiye?</span>
+    </div>
+    <div class="ql-body">
+      ${MUHURAT_EVENTS.map(e => `
+        <div class="query-item" onclick="userMessage('${e.label} chahiye'); triggerChip('muhurat_${e.key}')">
+          <span class="query-item-icon">${e.icon}</span>
+          <span class="query-item-text">${e.label}</span>
+          <span class="query-item-arrow">›</span>
+        </div>`).join('')}
+    </div>
+  `;
+  const msg = aiMessage(
+    `<p>Kaunse kaam ke liye aap <strong>shubh muhurat</strong> dekhna chahte hain?</p>`,
+    false, false
+  );
+  setTimeout(() => { msg.querySelector('.ai-content').appendChild(card); scrollBottom(); }, 350);
+}
+
+function respondMuhurat(eventKey) {
+  const p = getProfile();
+  const name = userName || 'aap';
+  const md = MUHURAT_DATA[eventKey] || MUHURAT_DATA.daily;
+
+  const rs = document.createElement('div');
+  rs.className = 'reasoning-strip';
+  rs.innerHTML = `<div class="rs-label">Panchang basis</div><div class="rs-tags"><span class="rs-tag">Tithi · Nakshatra analysis</span><span class="rs-tag">Rahu Kaal excluded</span><span class="rs-tag">Hora Chakra</span><span class="rs-tag">Chandra Bala</span></div><div class="accuracy-badge">📜 Classical Panchang methodology · Verified calculations</div>`;
+
+  const verifiedFooter = (!isOnboarding
+    ? '<div class="verified-stamp"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg><span>Kundali Verified</span></div>'
+    : '') +
+    (md.reviewedBadge
+    ? '<div class="reviewed-badge">✦ Reviewed by Pt. Anil Sharma (22 yrs experience)</div>'
+    : '');
+
+  const mc = document.createElement('div');
+  mc.className = 'muhurat-card';
+  mc.innerHTML = `
+    <div class="mc-header"><span class="mc-icon">🕰️</span><span class="mc-title">${md.title} — Aaj ke liye</span></div>
+    <div class="mc-windows">
+      ${md.windows.map((w, i) => `
+        <div class="mc-window${i === 0 ? ' mc-window-best' : ''}">
+          <div class="mc-window-top">
+            <div class="mc-rank">${i === 0 ? '✦ Best' : '#' + (i + 1)}</div>
+            <div class="mc-time">${w.time}</div>
+            <div class="mc-quality-${w.quality === 'Uttam' ? 'uttam' : 'shubh'}">${w.quality}</div>
+          </div>
+          <div class="mc-tags">${w.tags.map(t => '<span class="mc-tag">✓ ' + t + '</span>').join('')}</div>
+        </div>`).join('')}
+    </div>
+    ${verifiedFooter ? '<div class="mc-footer">' + verifiedFooter + '</div>' : ''}
+  `;
+
+  const chipRow = document.createElement('div');
+  chipRow.className = 'chip-row';
+  chipRow.innerHTML = `
+    <button class="chip chip-appear-1" onclick="userMessage('Is din ka full Panchang dekhao'); triggerChip('panchang')">📅 Full Panchang dekhao</button>
+    <button class="chip chip-appear-2" onclick="userMessage('Aur muhurat dikhayein'); triggerChip('muhurat_${eventKey}')">🔄 Aur muhurat dikhayein</button>
+    <button class="chip chip-appear-3" onclick="userMessage('Kya yeh muhurat meri kundali ke hisaab se sahi hai?'); triggerChip('muhurat_kundali_check')">🪐 Kundali se match karein</button>
+    <button class="chip chip-appear-4 gold" onclick="showAstrologerOverlay()">✦ Astrologer se confirm karein</button>
+  `;
+
+  const intro = eventKey === 'daily'
+    ? `<p><strong>${name}</strong> ji, aaj ke liye shubh muhurat windows — Panchang ke anusar:</p>`
+    : `<p><strong>${name}</strong> ji, <strong>${md.title}</strong> ke liye aaj ke best muhurat windows hain:</p>`;
+
+  const msg = aiMessage(intro, false, true, () => {
+    setTimeout(() => { msg.querySelector('.ai-content').appendChild(rs);      scrollBottom(); }, 350);
+    setTimeout(() => { msg.querySelector('.ai-content').appendChild(mc);      scrollBottom(); }, 750);
+    setTimeout(() => { msg.querySelector('.ai-content').appendChild(chipRow); scrollBottom(); }, 1100);
+  });
+}
+
+function respondMuhuratKundaliCheck() {
+  const p = getProfile();
+  const name = userName || 'aap';
+  const isRahu = p.mahadasha === 'Rahu';
+
+  const rs = document.createElement('div');
+  rs.className = 'reasoning-strip';
+  rs.innerHTML = `<div class="rs-label">Kundali + Muhurat match</div><div class="rs-tags"><span class="rs-tag">${isRahu ? 'Vrishchik Lagna' : 'Kanya Lagna'}</span><span class="rs-tag">${p.mahadasha} Mahadasha</span><span class="rs-tag">Chandra Bala check</span><span class="rs-tag">Tara Bala check</span></div>`;
+
+  const chipRow = document.createElement('div');
+  chipRow.className = 'chip-row';
+  chipRow.innerHTML = `
+    <button class="chip chip-appear-1" onclick="userMessage('Shubh Muhurat dikhao'); showMuhuratMenu()">🕰️ Muhurat dekhein</button>
+    <button class="chip chip-appear-2 gold" onclick="showAstrologerOverlay()">✦ Astrologer se confirm karein</button>
+  `;
+
+  const msg = aiMessage(
+    `<p>Haan, <strong>${name}</strong> ji! Yeh muhurat aapki kundali ke hisaab se bhi <strong>favorable</strong> hai.</p>` +
+    `<p>${isRahu ? 'Aapke Rahu Mahadasha mein Rohini Nakshatra vishesh shubh hai — yeh muhurat aapke lagna se 5th house ko activate karta hai, jo success ka ghar hai.' : 'Aapke Shukra Mahadasha mein Shukra Hora ka muhurat triple shubh hota hai — lagna, dasha, aur tithi teeno align hain.'}</p>`,
+    false, true, () => {
+      setTimeout(() => { msg.querySelector('.ai-content').appendChild(rs);      scrollBottom(); }, 350);
+      setTimeout(() => { msg.querySelector('.ai-content').appendChild(chipRow); scrollBottom(); }, 750);
     }
   );
 }
