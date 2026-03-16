@@ -2497,6 +2497,13 @@ const MUHURAT_DATA = {
   },
 };
 
+function toggleMuhuratPanchang(btn) {
+  btn.closest('.muhurat-card').querySelectorAll('.mc-panchang').forEach(function(el) {
+    el.style.display = 'block';
+  });
+  btn.style.display = 'none';
+}
+
 function showMuhuratMenu() {
   const MUHURAT_EVENTS = [
     { icon: '💍', label: 'Marriage Muhurat',         key: 'marriage' },
@@ -2556,7 +2563,7 @@ function respondMuhurat(eventKey) {
         </div>`).join('')}
     </div>
     <div class="mc-footer">
-      <button class="mc-reason-btn" onclick="const p=this.closest('.muhurat-card').querySelectorAll('.mc-panchang');p.forEach(el=>el.style.display='block');this.style.display='none';">📖 Yeh muhurat kyon shubh hai?</button>
+      <button class="mc-reason-btn" onclick="toggleMuhuratPanchang(this)">📖 Yeh muhurat kyon shubh hai?</button>
       <div class="mc-astro-trust">✓ Muhurat verified by trusted astrologers</div>
     </div>
   `;
@@ -2565,7 +2572,7 @@ function respondMuhurat(eventKey) {
   chipRow.className = 'chip-row';
   chipRow.innerHTML = `
     <button class="chip chip-appear-1" onclick="userMessage('Is din ka full Panchang dekhao'); triggerChip('panchang')">📅 Full Panchang dekhao</button>
-    <button class="chip chip-appear-2" onclick="userMessage('Aur muhurat dikhayein'); triggerChip('muhurat_${eventKey}')">🔄 Aur muhurat dikhayein</button>
+    <button class="chip chip-appear-2" onclick="userMessage('Koi aur muhurat dekhna chahta hoon'); showMuhuratMenu()">🔄 Koi aur muhurat dekhein</button>
     <button class="chip chip-appear-3" onclick="userMessage('Kya yeh muhurat meri kundali ke hisaab se sahi hai?'); triggerChip('muhurat_kundali_check')">🪐 Kundali se match karein</button>
     <button class="chip chip-appear-4 gold" onclick="showAstrologerOverlay()">✦ Astrologer se confirm karein</button>
   `;
