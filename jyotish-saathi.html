@@ -866,7 +866,7 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 .ls-entry-option-title { font-size:15px; font-weight:700; color:var(--text-high); line-height:1.2; }
 .ls-entry-option-desc { font-size:12px; color:var(--text-low); margin-top:2px; }
 
-.ls-cta-bar { padding:10px 16px 16px; background:#fff; border-top:1px solid var(--stroke-subtle); flex-shrink:0; }
+.ls-cta-bar { display:none; }
 .ls-cta-btn { width:100%; padding:15px; background:var(--surface-bold,#3900ad);
   border:none; border-radius:var(--shape-pill); font-family:'JioType',sans-serif;
   font-size:15px; font-weight:700; color:#fff; cursor:pointer;
@@ -1097,9 +1097,9 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
       <div class="ls-section-label" style="padding-top:18px;">Apni Life Ke Baare Mein Jaanein</div>
       <div class="ls-section-subtitle">In sawaalon ke jawab aapki kundali mein hain</div>
       <div class="ls-life-q-list" id="lsLifeQList"></div>
-    </div>
-    <div class="ls-cta-bar">
-      <button class="ls-cta-btn" onclick="showLandingEntrySheet()">✦ Jyotish Saathi se baat karein</button>
+      <div style="padding:20px 16px 32px;">
+        <button class="ls-cta-btn" onclick="showLandingEntrySheet()">✦ Jyotish Saathi se baat karein</button>
+      </div>
     </div>
     <!-- entry sheet -->
     <div id="lsEntryBackdrop" class="ls-entry-backdrop" onclick="hideLandingEntrySheet()"></div>
