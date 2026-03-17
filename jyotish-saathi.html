@@ -774,6 +774,71 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 .ls-call-entry-title { font-size:15px; font-weight:700; color:#fff; }
 .ls-call-entry-desc { font-size:12px; color:rgba(255,255,255,0.65); margin-top:3px; line-height:1.4; }
 .ls-call-entry-arrow { font-size:22px; color:rgba(255,255,255,0.5); }
+
+/* ── SECTION 2: CURIOSITY HOOKS ── */
+.ls-day-theme { margin:14px 16px 0; border-radius:var(--shape-large);
+  background:linear-gradient(135deg,#1a0a5e,#3900ad); padding:16px;
+  cursor:pointer; border:none; width:calc(100% - 32px); font-family:'JioType',sans-serif;
+  display:flex; flex-direction:column; gap:6px; text-align:left;
+  transition:opacity var(--dur-quick); }
+.ls-day-theme:active { opacity:0.85; }
+.ls-day-theme-eyebrow { font-size:9px; font-weight:800; color:rgba(247,171,32,0.8);
+  text-transform:uppercase; letter-spacing:0.08em; }
+.ls-day-theme-title { font-size:16px; font-weight:900; color:#fff; line-height:1.25; }
+.ls-day-theme-desc { font-size:12px; color:rgba(255,255,255,0.65); line-height:1.45; margin-top:2px; }
+.ls-day-theme-cta { font-size:12px; color:rgba(247,171,32,0.9); font-weight:700; margin-top:4px; }
+
+.ls-topic-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 16px 0; }
+.ls-topic-card { background:#fff; border:1px solid var(--stroke-subtle);
+  border-radius:var(--shape-large); padding:14px 12px; cursor:pointer;
+  display:flex; flex-direction:column; gap:5px; font-family:'JioType',sans-serif;
+  transition:background var(--dur-quick); }
+.ls-topic-card:active { background:var(--surface-minimal,#f5f5f5); }
+.ls-topic-icon { font-size:20px; }
+.ls-topic-domain { font-size:9px; font-weight:800; color:var(--text-low);
+  text-transform:uppercase; letter-spacing:0.06em; }
+.ls-topic-verdict { font-size:13px; font-weight:700; color:var(--text-high); line-height:1.3; }
+.ls-topic-mood { font-size:10px; font-weight:700; margin-top:2px; }
+.ls-topic-mood.green   { color:#1a7a30; }
+.ls-topic-mood.warn    { color:#b85e00; }
+.ls-topic-mood.neutral { color:#3535f3; }
+
+.ls-avoid-banner { margin:12px 16px 0; border-radius:var(--shape-medium);
+  background:#fff8e6; border:1px solid rgba(184,94,0,0.25); padding:12px 14px;
+  cursor:pointer; font-family:'JioType',sans-serif; display:flex; align-items:flex-start; gap:10px;
+  transition:opacity var(--dur-quick); }
+.ls-avoid-banner:active { opacity:0.8; }
+.ls-avoid-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.ls-avoid-body { flex:1; }
+.ls-avoid-label { font-size:9px; font-weight:800; color:#b85e00;
+  text-transform:uppercase; letter-spacing:0.07em; margin-bottom:3px; }
+.ls-avoid-text { font-size:13px; color:var(--text-high); line-height:1.45; }
+.ls-avoid-cta { font-size:11px; color:var(--primary-50,#3535f3); font-weight:700; margin-top:5px; }
+
+/* ── SECTION 3: LIFE QUESTIONS ── */
+.ls-section-subtitle { font-size:12px; color:var(--text-low); padding:2px 16px 10px;
+  line-height:1.4; font-family:'JioType',sans-serif; }
+.ls-life-q-list { display:flex; flex-direction:column; padding:0 16px 16px; }
+.ls-life-q-item { display:flex; align-items:center; gap:12px; padding:14px 0;
+  border-bottom:1px solid var(--stroke-subtle); cursor:pointer; background:none;
+  border-left:none; border-right:none; border-top:none; width:100%;
+  font-family:'JioType',sans-serif; text-align:left; transition:background var(--dur-quick); }
+.ls-life-q-item:last-child { border-bottom:none; }
+.ls-life-q-item:active { background:var(--surface-minimal,#f5f5f5); }
+.ls-life-q-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+.ls-life-q-text { flex:1; font-size:14px; font-weight:600; color:var(--text-high); }
+.ls-life-q-arrow { font-size:20px; color:var(--text-low); }
+
+/* ── CTA BAR: 2-button layout ── */
+.ls-cta-row { display:flex; gap:10px; }
+.ls-cta-half { flex:1; padding:14px 8px; border:none; border-radius:var(--shape-pill);
+  font-family:'JioType',sans-serif; font-size:14px; font-weight:700; color:#fff;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:opacity var(--dur-quick); }
+.ls-cta-half:active { opacity:0.85; }
+.ls-cta-half.chat { background:var(--surface-bold,#3900ad); }
+.ls-cta-half.call { background:linear-gradient(135deg,#1a0a5e,#3d0096); }
+
 .ls-cta-bar { padding:10px 16px 16px; background:#fff; border-top:1px solid var(--stroke-subtle); flex-shrink:0; }
 .ls-cta-btn { width:100%; padding:15px; background:var(--surface-bold,#3900ad);
   border:none; border-radius:var(--shape-pill); font-family:'JioType',sans-serif;
@@ -991,9 +1056,35 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
         </div>
         <div class="ls-call-entry-arrow">›</div>
       </button>
+
+      <!-- ── SECTION 2: CURIOSITY HOOKS ── -->
+      <button class="ls-day-theme" onclick="_hideLandingAndStartChat({type:'topic',topic:'day_theme'})">
+        <div class="ls-day-theme-eyebrow">✦ Aaj Ka Din</div>
+        <div class="ls-day-theme-title" id="lsDayThemeTitle"></div>
+        <div class="ls-day-theme-desc" id="lsDayThemeDesc"></div>
+        <div class="ls-day-theme-cta">Aur detail mein jaanein →</div>
+      </button>
+      <div class="ls-section-label" style="padding-top:16px;">Aaj Kaisa Raha Aapka Din?</div>
+      <div class="ls-topic-grid" id="lsTopicGrid"></div>
+      <button class="ls-avoid-banner" onclick="_hideLandingAndStartChat({type:'topic',topic:'avoid'})">
+        <div class="ls-avoid-icon">⚠️</div>
+        <div class="ls-avoid-body">
+          <div class="ls-avoid-label">Aaj Kya Avoid Karein</div>
+          <div class="ls-avoid-text" id="lsAvoidText"></div>
+          <div class="ls-avoid-cta">Wajah jaanein →</div>
+        </div>
+      </button>
+
+      <!-- ── SECTION 3: LIFE QUESTIONS ── -->
+      <div class="ls-section-label" style="padding-top:18px;">Apni Life Ke Baare Mein Jaanein</div>
+      <div class="ls-section-subtitle">In sawaalon ke jawab aapki kundali mein hain</div>
+      <div class="ls-life-q-list" id="lsLifeQList"></div>
     </div>
     <div class="ls-cta-bar">
-      <button class="ls-cta-btn" onclick="enterChatFromLanding()">✦ Jyotish Saathi se baat karein</button>
+      <div class="ls-cta-row">
+        <button class="ls-cta-half chat" onclick="enterChatFromLanding()">💬 Chat</button>
+        <button class="ls-cta-half call" onclick="_hideLandingAndStartChat({type:'call'})">📞 Call</button>
+      </div>
     </div>
   </div>
 
@@ -3782,6 +3873,42 @@ const CALL_SCRIPT = [
   {role:'ai',   text:'Haan, bilkul. Abhi Rahu Antardasha chal rahi hai — yeh unexpected connections laata hai. Kundali banwao toh main exact timing bhi bata sakta hoon.'},
 ];
 
+const DAY_THEME = {
+  title: 'Naye Connections Ke Liye Best Hai Aaj',
+  desc:  'Networking, nayi jagah jaana, nayi logon se milna — sab aaj favourable hai.',
+};
+const AVOID_TODAY = 'Bade financial decisions aaj nahi lena — Mangal thoda unfavourable position mein hai.';
+const LANDING_TOPICS = [
+  { icon:'💼', domain:'Career',       verdict:'Decision lena sahi hai aaj', mood:'green',   key:'career' },
+  { icon:'❤️', domain:'Relationship', verdict:'Partner se baat karo aaj',  mood:'green',   key:'relationship' },
+  { icon:'💰', domain:'Money',        verdict:'Investment se bachein aaj',  mood:'warn',    key:'money' },
+  { icon:'🌿', domain:'Health',       verdict:'Rest lein, body suno aaj',  mood:'neutral', key:'health' },
+];
+const TOPIC_CHAT_DATA = {
+  career:       { userMsg:'Aaj career ke liye kaisa din hai?',       aiText:'Career ke liye aaj <strong>Green Day</strong> hai 💼 — planning aur decisions ke liye graha sthiti favorable hai. New projects start kar sakte ho, meetings productive rahegi.' },
+  relationship: { userMsg:'Aaj relationship ke liye kaisa din hai?', aiText:'Relationship ke liye aaj <strong>positive energy</strong> hai ❤️ — partner ke saath honest conversation ka sahi samay hai. Shukra ki position bilkul favorable hai.' },
+  money:        { userMsg:'Aaj paise ke liye kaisa din hai?',        aiText:'Money ke liye aaj <strong>thoda careful rehna</strong> chahiye ⚠️ — bade investments ya financial decisions avoid karein. Choti expenses pe nazar rakhein.' },
+  health:       { userMsg:'Aaj health ke liye kya dhyaan rakhein?',  aiText:'Health ke liye aaj <strong>rest aur recovery</strong> ka din hai 🌿 — body ke signals suno. Overexertion avoid karein, hydration pe dhyaan rakhein.' },
+  day_theme:    { userMsg:'Aaj ka din kaise rahega?',                aiText:'Aaj ka din <strong>naye connections ke liye best</strong> hai ✦ — networking, nayi jagah jaana, logon se milna sab aaj favorable hai. Is energy ko use karo.' },
+  avoid:        { userMsg:'Aaj kya avoid karein?',                   aiText:'Aaj <strong>bade financial decisions</strong> avoid karein ⚠️ — Mangal ki position thodi unfavorable hai. Existing commitments pe focus raho, naye contracts sign na karo.' },
+};
+const LANDING_LIFE_QS = [
+  { icon:'💍', text:'Meri shaadi kab hogi?',            key:'shaadi' },
+  { icon:'💼', text:'Mera career kaisa rahega?',        key:'career_future' },
+  { icon:'🏢', text:'Mujhe nayi job milegi kya?',       key:'job' },
+  { icon:'✈️', text:'Foreign travel ka yoga hai kya?',  key:'foreign_travel' },
+  { icon:'🏠', text:'Mera ghar kab banta hai?',         key:'ghar' },
+  { icon:'💕', text:'Love life kaisi rahegi?',          key:'love_life' },
+];
+const KUNDLI_TEASERS = {
+  shaadi:        'Shaadi ke yog generally 24–28 aur 30–34 ki umar mein strong hote hain. Exact timing ke liye Venus aur 7th house dekhna padega.',
+  career_future: 'Career mein 10th house aur Saturn ki position sabse important hoti hai. Is saal ka peak window April–June hai generally.',
+  job:           'Nayi job ke liye 6th house aur Jupiter ka transit dekhna hota hai. 2026 mein January–March aur August–October best window hai.',
+  foreign_travel:'Foreign travel ke yog 9th house aur Rahu se dekhe jaate hain. Kundali se exact muhurat bhi nikaala ja sakta hai.',
+  ghar:          'Property ke liye 4th house aur Mars ki sthiti dekhni hoti hai. Saturn transit ke saath 2026–27 generally good period hai.',
+  love_life:     'Love ke liye Venus aur 5th house ki position sabse important hai. Compatibility aur timing dono kundali se pata chalenge.',
+};
+
 // ── Landing Screen ──
 let _selectedRashi = -1;
 let _callTimerInterval = null;
@@ -3806,6 +3933,32 @@ function showLandingScreen() {
        <div class="ls-insight-card-value">${ins.value}</div>
        <div class="ls-insight-card-sub">${ins.sub}</div>
      </div>`).join('');
+
+  // Section 2 population
+  const dt = document.getElementById('lsDayThemeTitle');
+  const dd = document.getElementById('lsDayThemeDesc');
+  const av = document.getElementById('lsAvoidText');
+  if (dt) dt.textContent = DAY_THEME.title;
+  if (dd) dd.textContent = DAY_THEME.desc;
+  if (av) av.textContent = AVOID_TODAY;
+
+  const tg = document.getElementById('lsTopicGrid');
+  if (tg) tg.innerHTML = LANDING_TOPICS.map(t =>
+    `<div class="ls-topic-card" onclick="_hideLandingAndStartChat({type:'topic',topic:'${t.key}'})">
+       <div class="ls-topic-icon">${t.icon}</div>
+       <div class="ls-topic-domain">${t.domain}</div>
+       <div class="ls-topic-verdict">${t.verdict}</div>
+       <div class="ls-topic-mood ${t.mood}">${t.mood==='green'?'✓ Favorable':t.mood==='warn'?'⚠ Careful':'→ Neutral'}</div>
+     </div>`).join('');
+
+  // Section 3 population
+  const lq = document.getElementById('lsLifeQList');
+  if (lq) lq.innerHTML = LANDING_LIFE_QS.map(q =>
+    `<button class="ls-life-q-item" onclick="_hideLandingAndStartChat({type:'life_q',key:'${q.key}',text:decodeURIComponent('${encodeURIComponent(q.text)}')})">
+       <div class="ls-life-q-icon">${q.icon}</div>
+       <div class="ls-life-q-text">${q.text}</div>
+       <div class="ls-life-q-arrow">›</div>
+     </button>`).join('');
 }
 
 function landingRashiTapped(i) {
@@ -3848,6 +4001,8 @@ function _hideLandingAndStartChat(ctx) {
     else if (ctx.type==='rashifal') _startChatRashifal(ctx.rashi);
     else if (ctx.type==='insight')  _startChatInsight(ctx.context);
     else if (ctx.type==='call')     showCallScreen();
+    else if (ctx.type==='topic')    _startChatTopic(ctx.topic);
+    else if (ctx.type==='life_q')   _startChatLifeQuestion(ctx.key, ctx.text);
   }, 360);
 }
 
@@ -3880,6 +4035,53 @@ function _startChatInsight(context) {
       scrollBottom();
     }, 1400);
   }, 400);
+}
+
+function _startChatTopic(topicKey) {
+  const data = TOPIC_CHAT_DATA[topicKey] || TOPIC_CHAT_DATA.day_theme;
+  setTimeout(() => {
+    userMessage(data.userMsg);
+    showThinkingThen(() => {
+      const msg = aiMessage(data.aiText, false, false);
+      const cr = document.createElement('div'); cr.className='chip-row';
+      cr.innerHTML = `
+        <button class="chip chip-appear-1" onclick="userMessage('Career ke liye kaisa din?'); _startChatTopic('career')">Career aaj</button>
+        <button class="chip chip-appear-2" onclick="userMessage('Relationship ke baare mein?'); _startChatTopic('relationship')">Relationship</button>
+        <button class="chip chip-appear-3" onclick="userMessage('Aaj ka rashifal batao'); triggerChip('rashifal')">Aaj ka rashifal</button>
+        <button class="chip chip-appear-4 cta" onclick="showLifeAdviceSheet()">Life ke baare mein aur puchna hai</button>`;
+      msg.querySelector('.ai-content').appendChild(cr);
+      scrollBottom();
+    }, 1400);
+  }, 400);
+}
+
+function _startChatLifeQuestion(qKey, qText) {
+  setTimeout(() => {
+    userMessage(qText);
+    showThinkingThen(() => {
+      const msg = aiMessage(
+        `<p>${qText} — iska sahi jawab dene ke liye mujhe <strong>aapki kundali</strong> dekhni hogi 🔮</p>
+         <p>Kundali se main aapke graha sthiti, dasha period aur planetary positions dekh ke <strong>exact guidance</strong> de sakta hoon.</p>`,
+        false, false);
+      const cr = document.createElement('div'); cr.className='chip-row';
+      cr.innerHTML = `
+        <button class="chip cta chip-appear-1" onclick="chipTap('get_started')">✦ Kundali Banao</button>
+        <button class="chip chip-appear-2" onclick="_kundliTeaser('${qKey}')">Pehle thoda aur jaanna hai</button>`;
+      msg.querySelector('.ai-content').appendChild(cr);
+      scrollBottom();
+    }, 1600);
+  }, 400);
+}
+
+function _kundliTeaser(qKey) {
+  const teaser = KUNDLI_TEASERS[qKey] || 'Iska jawab graha sthiti pe depend karta hai. Kundali banao toh main exact guidance de sakta hoon.';
+  showThinkingThen(() => {
+    const msg = aiMessage(`<p>${teaser}</p><p>Accurate guidance ke liye kundali banao 🔮</p>`, false, false);
+    const cr = document.createElement('div'); cr.className='chip-row';
+    cr.innerHTML = `<button class="chip cta chip-appear-1" onclick="chipTap('get_started')">✦ Kundali Banao</button>`;
+    msg.querySelector('.ai-content').appendChild(cr);
+    scrollBottom();
+  }, 1400);
 }
 
 // ── Life Advice Sheet ──
