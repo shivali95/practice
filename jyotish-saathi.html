@@ -3886,12 +3886,12 @@ function closeNotifPreviewModal() {
 
 // ── Landing Screen Data ──
 const RASHIS = [
-  {sym:'♈',name:'मेष',en:'Mesh'},{sym:'♉',name:'वृषभ',en:'Vrishabh'},
-  {sym:'♊',name:'मिथुन',en:'Mithun'},{sym:'♋',name:'कर्क',en:'Kark'},
-  {sym:'♌',name:'सिंह',en:'Simha'},{sym:'♍',name:'कन्या',en:'Kanya'},
-  {sym:'♎',name:'तुला',en:'Tula'},{sym:'♏',name:'वृश्चिक',en:'Vrishchik'},
-  {sym:'♐',name:'धनु',en:'Dhanu'},{sym:'♑',name:'मकर',en:'Makar'},
-  {sym:'♒',name:'कुम्भ',en:'Kumbh'},{sym:'♓',name:'मीन',en:'Meen'},
+  {sym:'♈',name:'मेष',en:'Aries'},{sym:'♉',name:'वृषभ',en:'Taurus'},
+  {sym:'♊',name:'मिथुन',en:'Gemini'},{sym:'♋',name:'कर्क',en:'Cancer'},
+  {sym:'♌',name:'सिंह',en:'Leo'},{sym:'♍',name:'कन्या',en:'Virgo'},
+  {sym:'♎',name:'तुला',en:'Libra'},{sym:'♏',name:'वृश्चिक',en:'Scorpio'},
+  {sym:'♐',name:'धनु',en:'Sagittarius'},{sym:'♑',name:'मकर',en:'Capricorn'},
+  {sym:'♒',name:'कुम्भ',en:'Aquarius'},{sym:'♓',name:'मीन',en:'Pisces'},
 ];
 const LANDING_INSIGHTS = [
   {icon:'🎨',label:"Today's Lucky Colour", value:'Green',          sub:'Auspicious for growth',   context:'lucky_colour'},
@@ -3979,7 +3979,7 @@ function showLandingScreen() {
   document.getElementById('lsZodiacScroll').innerHTML = RASHIS.map((r,i) =>
     `<button class="ls-rashi-btn" id="lsR${i}" onclick="landingRashiTapped(${i})">
        <div class="ls-rashi-icon">${r.sym}</div>
-       <div class="ls-rashi-name">${r.name}</div>
+       <div class="ls-rashi-name">${r.en}</div>
      </button>`).join('');
 
   document.getElementById('lsInsightGrid').innerHTML = LANDING_INSIGHTS.map(ins =>
