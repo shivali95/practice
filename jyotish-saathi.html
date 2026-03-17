@@ -804,16 +804,16 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 .ls-topic-mood.neutral { color:#3535f3; }
 
 .ls-avoid-banner { margin:12px 16px 0; border-radius:var(--shape-medium);
-  background:#fff8e6; border:1px solid rgba(184,94,0,0.25); padding:12px 14px;
+  background:#e8e8fc; border:1px solid rgba(53,53,243,0.12); padding:12px 14px;
   cursor:pointer; font-family:'JioType',sans-serif; display:flex; align-items:flex-start; gap:10px;
-  transition:opacity var(--dur-quick); }
-.ls-avoid-banner:active { opacity:0.8; }
-.ls-avoid-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  transition:background var(--dur-quick); }
+.ls-avoid-banner:active { background:#d0d0fa; }
+.ls-avoid-icon { flex-shrink:0; margin-top:1px; color:#3535f3; }
 .ls-avoid-body { flex:1; }
-.ls-avoid-label { font-size:9px; font-weight:800; color:#b85e00;
+.ls-avoid-label { font-size:9px; font-weight:800; color:#3535f3;
   text-transform:uppercase; letter-spacing:0.07em; margin-bottom:3px; }
 .ls-avoid-text { font-size:13px; color:var(--text-high); line-height:1.45; }
-.ls-avoid-cta { font-size:11px; color:var(--primary-50,#3535f3); font-weight:700; margin-top:5px; }
+.ls-avoid-cta { font-size:11px; color:#3535f3; font-weight:700; margin-top:5px; }
 
 /* ── SECTION 3: LIFE QUESTIONS ── */
 .ls-section-subtitle { font-size:12px; color:var(--text-low); padding:2px 16px 10px;
@@ -1064,16 +1064,16 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
         <div class="ls-day-theme-desc" id="lsDayThemeDesc"></div>
         <div class="ls-day-theme-cta">Aur detail mein jaanein →</div>
       </button>
-      <div class="ls-section-label" style="padding-top:16px;">Aaj Kaisa Raha Aapka Din?</div>
-      <div class="ls-topic-grid" id="lsTopicGrid"></div>
       <button class="ls-avoid-banner" onclick="_hideLandingAndStartChat({type:'topic',topic:'avoid'})">
-        <div class="ls-avoid-icon">⚠️</div>
+        <svg class="ls-avoid-icon" viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm2 12h-4a1 1 0 010-2h1v-3h-1a1 1 0 010-2h2a1 1 0 011 1v4h1a1 1 0 010 2z" fill="currentColor"/></svg>
         <div class="ls-avoid-body">
-          <div class="ls-avoid-label">Aaj Kya Avoid Karein</div>
+          <div class="ls-avoid-label">Aaj Ka Dhyaan</div>
           <div class="ls-avoid-text" id="lsAvoidText"></div>
-          <div class="ls-avoid-cta">Wajah jaanein →</div>
+          <div class="ls-avoid-cta">Kyun? Jaanein →</div>
         </div>
       </button>
+      <div class="ls-section-label" style="padding-top:16px;">Aaj Kaisa Raha Aapka Din?</div>
+      <div class="ls-topic-grid" id="lsTopicGrid"></div>
 
       <!-- ── SECTION 3: LIFE QUESTIONS ── -->
       <div class="ls-section-label" style="padding-top:18px;">Apni Life Ke Baare Mein Jaanein</div>
