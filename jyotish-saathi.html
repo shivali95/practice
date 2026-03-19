@@ -4171,16 +4171,23 @@ function _startChatRashifal(rashiName) {
 
 function _startChatInsight(context) {
   const data = INSIGHT_CHAT_DATA[context] || INSIGHT_CHAT_DATA.lucky_colour;
+  const allInsightChips = [
+    { label:"Today's lucky colour",  ctx:'lucky_colour',  msg:"What is today's lucky colour?" },
+    { label:"Today's lucky number",  ctx:'lucky_number',  msg:"What is today's lucky number?" },
+    { label:"Today's lucky time",    ctx:'lucky_time',    msg:"What is today's lucky time?" },
+    { label:"Today's Shubh Muhurat", ctx:'shubh_muhurat', msg:"What is today's Shubh Muhurat?" },
+  ];
+  const chips = allInsightChips.filter(c => c.ctx !== context).slice(0, 2);
   setTimeout(() => {
     userMessage(data.userMsg);
     showThinkingThen(() => {
       const msg = aiMessage(data.aiText, false, false);
       const cr = document.createElement('div'); cr.className='chip-row';
-      cr.innerHTML = `
-        <button class="chip chip-appear-1" onclick="userMessage('What is today\'s lucky colour?'); _startChatInsight('lucky_colour')">Today's lucky colour</button>
-        <button class="chip chip-appear-2" onclick="userMessage('Show today\'s Rashifal'); triggerChip('rashifal')">Today's Rashifal</button>
-        <button class="chip chip-appear-3" onclick="userMessage('Send me daily updates'); showUpdatesManager()">Send me daily updates</button>
-        <button class="chip chip-appear-4 cta" onclick="showLifeAdviceSheet()">Ask more about my life</button>`;
+      cr.innerHTML = chips.map((c, i) =>
+        `<button class="chip chip-appear-${i+1}" onclick="userMessage('${c.msg}'); _startChatInsight('${c.ctx}')">${c.label}</button>`
+      ).join('') +
+        `<button class="chip chip-appear-${chips.length+1}" onclick="userMessage('Show today\\'s Rashifal'); triggerChip('rashifal')">Today's Rashifal</button>` +
+        `<button class="chip chip-appear-${chips.length+2} cta" onclick="showLifeAdviceSheet()">Ask more about my life</button>`;
       msg.querySelector('.ai-content').appendChild(cr);
       scrollBottom();
     }, 1400);
