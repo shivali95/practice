@@ -4184,9 +4184,9 @@ function _startChatInsight(context) {
       const msg = aiMessage(data.aiText, false, false);
       const cr = document.createElement('div'); cr.className='chip-row';
       cr.innerHTML = chips.map((c, i) =>
-        `<button class="chip chip-appear-${i+1}" onclick="userMessage('${c.msg}'); _startChatInsight('${c.ctx}')">${c.label}</button>`
+        `<button class="chip chip-appear-${i+1}" onclick="_startChatInsight('${c.ctx}')">${c.label}</button>`
       ).join('') +
-        `<button class="chip chip-appear-${chips.length+1}" onclick="userMessage('Show today\\'s Rashifal'); triggerChip('rashifal')">Today's Rashifal</button>` +
+        `<button class="chip chip-appear-${chips.length+1}" onclick="triggerChip('rashifal')">Today's Rashifal</button>` +
         `<button class="chip chip-appear-${chips.length+2} cta" onclick="showLifeAdviceSheet()">Ask more about my life</button>`;
       msg.querySelector('.ai-content').appendChild(cr);
       scrollBottom();
