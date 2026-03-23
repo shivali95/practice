@@ -523,7 +523,7 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 
       <!-- STATE 1: Full image card view -->
       <div class="fwd-preview-card" id="fwdPreviewCard">
-        <img class="fwd-preview-card-bg" id="fwdCardImg" src="" alt="" onerror="this.style.display='none'">
+        <img class="fwd-preview-card-bg" id="fwdCardImg" src="" alt="" onerror="this.style.display='none';document.getElementById('fwdPreviewCard').style.background=window._currentFwdBg||'#111'">
         <div class="fwd-preview-grad"></div>
         <button class="fwd-close-btn" onclick="closeFwdSheet()">✕</button>
         <!-- Message text overlaid on image -->
@@ -3612,7 +3612,7 @@ const devotionalForwardsHindu = [
   {
     id: 'suprabhat',
     deity: 'Suprabhat 🌸',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/Sunrise_through_flowers.jpg',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg',
     bg: 'linear-gradient(135deg,#1b5e20,#388e3c)',
     cardTitle: 'सुप्रभात 🌸\nGood Morning',
     message: '"दुआ" मिले बड़ों से..\n"साथ" मिले अपनों से..\n"खुशियाँ" मिले जग से..\n"रहमत" मिले रब से..\n\nयही दुआ है प्रभु से..\nसब खुश रहें 🙏\n\nसुप्रभात — Good Morning!',
@@ -3717,6 +3717,7 @@ function openFwdCard(id) {
   if (!f) return;
   window._currentFwdId = id;
   window._fwdOrigMsg = f.message;
+  window._currentFwdBg = f.bg;
 
   // Set card image — use <img> tag (no background-image CSS bugs)
   const imgEl = document.getElementById('fwdCardImg');
