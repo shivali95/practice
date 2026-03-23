@@ -399,6 +399,49 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 @keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes successPop{0%{transform:scale(0.85);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+
+/* ── DEVOTIONAL FORWARDS ──────────────────────── */
+.fwd-section{width:100%;}
+.fwd-day-badge{display:inline-flex;align-items:center;gap:6px;background:var(--secondary-20);border:1.5px solid var(--secondary-30);border-radius:var(--shape-pill);padding:5px 12px;font-size:11px;font-weight:700;color:var(--secondary-60);margin-bottom:10px;}
+.fwd-scroll-row{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px;width:100%;}
+.fwd-scroll-row::-webkit-scrollbar{display:none;}
+.fwd-card{flex-shrink:0;width:140px;height:188px;border-radius:var(--shape-large);overflow:hidden;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;transition:transform 0.15s var(--ease-standard);border:1px solid var(--stroke-subtle);}
+.fwd-card:active{transform:scale(0.95);}
+.fwd-card-emoji{font-size:54px;position:relative;z-index:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.25));}
+.fwd-card-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,0.75) 100%);}
+.fwd-card-text{position:absolute;bottom:0;left:0;right:0;padding:10px 11px;z-index:2;}
+.fwd-card-msg{font-size:10.5px;font-weight:700;color:#fff;line-height:1.4;}
+.fwd-card-sub{font-size:9.5px;color:rgba(255,255,255,0.62);margin-top:3px;font-weight:500;}
+.fwd-card-tap-hint{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.38);border-radius:var(--shape-pill);padding:3px 7px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.85);z-index:3;text-transform:uppercase;letter-spacing:0.03em;}
+/* Forward bottom sheet */
+.fwd-sheet-overlay{position:absolute;inset:0;z-index:250;background:rgba(0,0,0,0.52);display:none;align-items:flex-end;}
+.fwd-sheet-overlay.open{display:flex;}
+.fwd-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:88%;overflow-y:auto;}
+.fwd-sheet.slide-in{animation:sheetUp 320ms var(--ease-decelerate);}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.fwd-sheet-handle{width:36px;height:4px;background:var(--grey-40);border-radius:2px;margin:12px auto 6px;}
+.fwd-sheet-hero{width:100%;height:196px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.fwd-sheet-hero-emoji{font-size:68px;position:relative;z-index:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.22));}
+.fwd-sheet-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 20%,rgba(0,0,0,0.68) 100%);}
+.fwd-sheet-hero-name{position:absolute;bottom:14px;left:20px;right:20px;z-index:2;font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.02em;}
+.fwd-sheet-body{padding:16px 18px 28px;}
+.fwd-msg-box{background:var(--surface-ghost);border-radius:var(--shape-medium);padding:14px 15px;margin-bottom:14px;}
+.fwd-msg-label{font-size:10px;font-weight:800;color:var(--text-low);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.fwd-msg-text{font-size:14px;font-weight:600;color:var(--text-high);line-height:1.6;white-space:pre-line;}
+.fwd-edit-area{margin-bottom:14px;display:none;}
+.fwd-edit-area.open{display:block;}
+.fwd-edit-label{font-size:11px;font-weight:700;color:var(--text-low);margin-bottom:7px;}
+.fwd-edit-input{width:100%;background:var(--surface-ghost);border:2px solid transparent;border-radius:var(--shape-medium);padding:12px 14px;font-family:'JioType',sans-serif;font-size:14px;font-weight:500;color:var(--text-high);line-height:1.5;resize:none;outline:none;min-height:90px;}
+.fwd-edit-input:focus{border-color:var(--primary-30);}
+.fwd-actions{display:flex;flex-direction:column;gap:10px;}
+.fwd-action-sec{display:flex;gap:8px;}
+.fwd-action-btn{flex:1;padding:11px 10px;border:1.5px solid var(--stroke-minimal);border-radius:var(--shape-pill);background:var(--surface);font-family:'JioType',sans-serif;font-size:12px;font-weight:600;color:var(--text-high);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;}
+.fwd-action-btn:active{background:var(--surface-ghost);transform:scale(0.97);}
+.fwd-wa-btn{width:100%;padding:15px;border:none;border-radius:var(--shape-pill);background:#25D366;font-family:'JioType',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;}
+.fwd-wa-btn:active{opacity:0.85;}
+/* Toast */
+.fwd-toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:var(--grey-100);color:#fff;border-radius:var(--shape-medium);padding:11px 18px;font-size:13px;font-weight:600;white-space:nowrap;z-index:400;opacity:0;transition:opacity 0.22s;pointer-events:none;display:flex;align-items:center;gap:7px;font-family:'JioType',sans-serif;}
+.fwd-toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -461,6 +504,46 @@ body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Devotional Forwards Bottom Sheet -->
+  <div class="fwd-sheet-overlay" id="fwdSheetOverlay" onclick="closeFwdSheet()">
+    <div class="fwd-sheet slide-in" id="fwdSheet" onclick="event.stopPropagation()">
+      <div class="fwd-sheet-handle"></div>
+      <div class="fwd-sheet-hero">
+        <div id="fwdHeroBg" style="position:absolute;inset:0;"></div>
+        <span class="fwd-sheet-hero-emoji" id="fwdHeroEmoji"></span>
+        <div class="fwd-sheet-hero-overlay"></div>
+        <div class="fwd-sheet-hero-name" id="fwdHeroName"></div>
+      </div>
+      <div class="fwd-sheet-body">
+        <div class="fwd-msg-box">
+          <div class="fwd-msg-label">Message Preview</div>
+          <div class="fwd-msg-text" id="fwdMsgText"></div>
+        </div>
+        <div class="fwd-edit-area" id="fwdEditArea">
+          <div class="fwd-edit-label">✏️ Message edit karein:</div>
+          <textarea class="fwd-edit-input" id="fwdEditInput" rows="4"></textarea>
+          <button onclick="applyFwdEdit()" style="margin-top:8px;padding:9px 20px;border:none;border-radius:var(--shape-pill);background:var(--primary-50);color:#fff;font-family:'JioType',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">✓ Apply Changes</button>
+        </div>
+        <div class="fwd-actions">
+          <div class="fwd-action-sec">
+            <button class="fwd-action-btn" onclick="toggleFwdEdit()">✏️ Edit Message</button>
+            <button class="fwd-action-btn" onclick="addNameFwd()">👤 Add My Name</button>
+          </div>
+          <button class="fwd-wa-btn" onclick="shareFwd()">
+            <svg viewBox="0 0 30 30" width="22" height="22" fill="#fff"><path d="M15 3C8.373 3 3 8.373 3 15c0 2.016.53 3.912 1.463 5.545L3 27l6.637-1.438A11.946 11.946 0 0015 27c6.627 0 12-5.373 12-12S21.627 3 15 3zm.016 2c5.523 0 9.984 4.476 9.984 10 0 5.523-4.461 10-9.984 10a9.944 9.944 0 01-4.977-1.33l-.352-.21-3.651.791.812-3.555-.23-.368A9.944 9.944 0 015.016 15c0-5.524 4.46-10 10-10zm-2.99 5a.93.93 0 00-.674.303c-.23.252-.879.859-.879 2.094 0 1.234.9 2.427 1.025 2.594.125.168 1.749 2.748 4.293 3.748 2.543.999 2.543.666 3.002.624.46-.04 1.484-.607 1.692-1.192.21-.584.21-1.086.147-1.191-.063-.104-.23-.167-.48-.293-.25-.126-1.484-.734-1.714-.817-.23-.083-.398-.126-.565.125-.168.25-.648.817-.795.984-.146.168-.293.188-.544.063-.25-.125-1.057-.39-2.012-1.24-.744-.663-1.244-1.48-1.39-1.73-.147-.25-.015-.386.11-.51.113-.11.25-.292.375-.439.125-.146.167-.25.25-.417.084-.167.042-.313-.02-.439-.063-.125-.565-1.367-.775-1.868-.196-.481-.4-.418-.566-.426a10.1 10.1 0 00-.48-.01z"/></svg>
+            Share on WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forward Share Toast -->
+  <div class="fwd-toast" id="fwdToast">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <span id="fwdToastMsg">Forward WhatsApp pe share ho gaya! 🎉</span>
   </div>
 </div>
 
@@ -961,6 +1044,13 @@ function showAllOptions() {
         <div class="option-label">${isMuslim ? 'Namaaz Guide' : 'Puja Vidhi'}</div>
         <div class="option-sub">Step by step guide</div>
       </button>
+      <button class="option-card" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;background:var(--secondary-20);border-color:var(--secondary-30);" onclick="triggerChip('devotional forwards')">
+        <div class="option-icon" style="background:linear-gradient(135deg,#e65100,#f7ab20);flex-shrink:0">${IC.fire}</div>
+        <div style="flex:1">
+          <div class="option-label" style="color:var(--secondary-60)">Aaj ke Devotional Forwards 📤</div>
+          <div class="option-sub">Parivaar ko WhatsApp par bhejein — ek tap mein!</div>
+        </div>
+      </button>
     </div>
   </div>`;
   CC.appendChild(msg);
@@ -1171,6 +1261,7 @@ function handleResponse(q) {
   if (q.includes('ekadashi mantra') || q.includes('vishnu mantra')) { showEkadashiMantra(); return; }
   if (q.includes('ekadashi')) { showEkadashiInfo(); return; }
   if (q.includes('rahu') || q.includes('muhurat')) { showRahuKaal(); return; }
+  if (q.includes('forward') || q.includes('devotional forward') || q.includes('whatsapp') || q.includes('sandesh') || q.includes('aaj ke')) { showDevoForwards(); return; }
 
   // Generic AI response
   showGenericResponse(q, faith);
@@ -3464,6 +3555,214 @@ function closeSacredMode() {
   clearInterval(sacredProgressInterval);
   sacredIsPlaying = false;
   document.getElementById('sacredOverlay').style.display = 'none';
+}
+
+// ── DEVOTIONAL FORWARDS ──────────────────────────────────────────────────
+
+const devotionalForwardsHindu = [
+  {
+    id: 'hanuman', deity: 'Hanuman Ji 🚩', emoji: '🚩',
+    bg: 'linear-gradient(135deg,#b71c1c,#e64a19)',
+    message: 'जय श्री राम 🙏\n\nमंगलवार को हनुमान जी\nआपकी रक्षा करें\nआपके हर कष्ट दूर हों\n\n— परिवार को भेजें',
+    preview: 'जय श्री राम 🙏 हनुमान जी का आशीर्वाद', sub: 'Hanuman Ji Blessing'
+  },
+  {
+    id: 'morning', deity: '🌅 Shuprabhaat', emoji: '🌅',
+    bg: 'linear-gradient(135deg,#e65100,#f9a825)',
+    message: '🌅 सुप्रभात!\n\nहर सुबह एक नई शुरुआत है\nआज का दिन मंगलमय हो,\nसुख-शांति से भरा हो!\n\nजय माता दी 🙏',
+    preview: '🌅 सुप्रभात — आज का दिन मंगलमय हो!', sub: 'Good Morning Blessing'
+  },
+  {
+    id: 'ganesh', deity: 'Ganesh Ji 🐘', emoji: '🐘',
+    bg: 'linear-gradient(135deg,#4a148c,#7b1fa2)',
+    message: '🐘 श्री गणेशाय नमः!\n\nगणपति बप्पा आपकी हर\nमनोकामना पूरी करें\nनई शुरुआत में सफलता\nमिले सदा 🙏',
+    preview: '🐘 गणपति बप्पा का आशीर्वाद', sub: 'Ganesh Ji Blessing'
+  },
+  {
+    id: 'shiv', deity: 'Shiv Ji 🔱', emoji: '🔱',
+    bg: 'linear-gradient(135deg,#1a237e,#283593)',
+    message: '🔱 ॐ नमः शिवाय!\n\nशंकर जी आपके सभी\nकष्ट हरें, शांति और\nसमृद्धि दें हर दिन\n\nहर हर महादेव 🙏',
+    preview: '🔱 ॐ नमः शिवाय — शांति मिले', sub: 'Shiv Ji Blessing'
+  }
+];
+
+const devotionalForwardsMuslim = [
+  {
+    id: 'dua_morning', deity: '🤲 Subah ki Dua', emoji: '🤲',
+    bg: 'linear-gradient(135deg,#1b5e20,#2e7d32)',
+    message: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ\n\n🤲 Subah ki Dua\nAllah aapko khushiyan de\naur dil ko sukoon mile\n\nAmeen 🌙',
+    preview: '🤲 Bismillah — Subah ki dua', sub: 'Morning Dua'
+  },
+  {
+    id: 'alhamdulillah', deity: '🕌 Shukr ki Dua', emoji: '🕌',
+    bg: 'linear-gradient(135deg,#0d47a1,#1565c0)',
+    message: 'الحمد لله\n\nShukr hai Allah ka\nhazaron nematein di hain\nAaj bhi meherbaan hain\n\nJazakAllah Khair 🤲',
+    preview: 'الحمد لله — Shukr ki Dua', sub: 'Gratitude Dua'
+  },
+  {
+    id: 'quran_ayat', deity: '📖 Quran Ayat', emoji: '📖',
+    bg: 'linear-gradient(135deg,#004d40,#00695c)',
+    message: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا\n\nBeshak mushkil ke saath\nasaani bhi hai\n\n— Al Quran 94:6 🌙',
+    preview: '📖 Quran — Mushkil ke baad asaani', sub: 'Quran Verse'
+  },
+  {
+    id: 'mubarak', deity: '🌙 Islamic Greeting', emoji: '🌙',
+    bg: 'linear-gradient(135deg,#311b92,#4527a0)',
+    message: 'Assalamu Alaikum 🌙\n\nAllah aapke ghar mein\nkhushiyan aur barakat\nlaaye hamesha\n\nAmeen 🤲',
+    preview: '🌙 Assalamu Alaikum — Barakat miley', sub: 'Islamic Greeting'
+  }
+];
+
+let currentFwdData = {};
+
+function showDevoForwards() {
+  const faith = userFaith || 'Hindu';
+  const isMuslim = faith === 'Muslim';
+  const forwards = isMuslim ? devotionalForwardsMuslim : devotionalForwardsHindu;
+
+  // Populate lookup map
+  currentFwdData = {};
+  forwards.forEach(f => { currentFwdData[f.id] = f; });
+
+  // Day context
+  const dayNames = ['Ravivar','Somvar','Mangalwar','Budhwar','Guruvar','Shukravar','Shanivar'];
+  const dayContexts = [
+    'Aaj Ravivar hai — Surya dev ki aradhana ka din',
+    'Aaj Somvar hai — Shiv ji ke bhakton ke liye khaas din',
+    'Aaj Mangalwar hai — Hanuman ji ka ashirwad aap par bana rahe',
+    'Aaj Budhwar hai — Ganesh ji ki pooja ka shubh din',
+    'Aaj Guruvar hai — Vishnu ji ki bhakti ka din',
+    'Aaj Shukravar hai — Devi Maa ki shakti aapke saath',
+    'Aaj Shanivar hai — Hanuman ji ki seva ka khaas din'
+  ];
+  const today = new Date().getDay();
+  const dayCtx = isMuslim ? 'Aaj ke Islamic devotional forwards apne parivaar tak pahunchayein' : dayContexts[today];
+  const dayLabel = isMuslim ? 'Aaj ka Din' : dayNames[today];
+  const dateStr = new Date().toLocaleDateString('hi-IN', {day:'numeric', month:'long'});
+
+  const msg = document.createElement('div');
+  msg.className = 'ai-msg';
+  msg.style.animation = 'msgIn 350ms var(--ease-decelerate)';
+
+  const cardsHTML = forwards.map(f => `
+    <div class="fwd-card" onclick="openFwdCard('${f.id}')">
+      <div style="position:absolute;inset:0;background:${f.bg};"></div>
+      <span class="fwd-card-emoji">${f.emoji}</span>
+      <div class="fwd-card-overlay"></div>
+      <div class="fwd-card-tap-hint">Tap</div>
+      <div class="fwd-card-text">
+        <div class="fwd-card-msg">${f.preview}</div>
+        <div class="fwd-card-sub">${f.sub}</div>
+      </div>
+    </div>
+  `).join('');
+
+  msg.innerHTML = `${avatarHTML()}<div class="ai-content">
+    <div class="fwd-section">
+      <div class="fwd-day-badge">📅 ${dayLabel} — ${dateStr}</div>
+      <div class="ai-text" style="margin-bottom:10px">
+        <p><strong>${dayCtx}</strong></p>
+        <p style="color:var(--text-low);font-size:13px;margin-top:4px">Yeh devotional forwards apne parivaar aur dosto ko bhejein — WhatsApp par ek tap mein! 🙏</p>
+      </div>
+      <div class="fwd-scroll-row">${cardsHTML}</div>
+    </div>
+    ${feedbackHTML()}
+  </div>`;
+
+  CC.appendChild(msg);
+  scrollToNew(msg);
+  addChipsLater(msg.querySelector('.ai-content'), `
+    <button class="chip" onclick="showAllOptions()">✨ Sabhi Features</button>
+    <button class="chip" onclick="triggerChip('mantra')">${isMuslim ? 'Aaj ki Dua' : 'Aaj ka Mantra'}</button>
+    <button class="chip" onclick="triggerChip('puja vidhi')">${isMuslim ? 'Namaaz Guide' : 'Puja Vidhi'}</button>
+  `);
+}
+
+function openFwdCard(id) {
+  const f = currentFwdData[id];
+  if (!f) return;
+  window._currentFwdId = id;
+
+  // Populate sheet
+  document.getElementById('fwdHeroBg').style.background = f.bg;
+  document.getElementById('fwdHeroEmoji').textContent = f.emoji;
+  document.getElementById('fwdHeroName').textContent = f.deity;
+  document.getElementById('fwdMsgText').textContent = f.message;
+  document.getElementById('fwdEditInput').value = f.message;
+  document.getElementById('fwdEditArea').classList.remove('open');
+
+  // Animate sheet in fresh each open
+  const sheet = document.getElementById('fwdSheet');
+  sheet.classList.remove('slide-in');
+  void sheet.offsetWidth; // force reflow
+  sheet.classList.add('slide-in');
+
+  document.getElementById('fwdSheetOverlay').classList.add('open');
+}
+
+function closeFwdSheet() {
+  document.getElementById('fwdSheetOverlay').classList.remove('open');
+}
+
+function toggleFwdEdit() {
+  const area = document.getElementById('fwdEditArea');
+  const isOpen = area.classList.toggle('open');
+  if (isOpen) {
+    document.getElementById('fwdEditInput').focus();
+    // Scroll sheet to show edit area
+    document.getElementById('fwdSheet').scrollTo({ top: 400, behavior: 'smooth' });
+  }
+}
+
+function applyFwdEdit() {
+  const val = document.getElementById('fwdEditInput').value;
+  document.getElementById('fwdMsgText').textContent = val;
+  // Update the data store too
+  if (window._currentFwdId && currentFwdData[window._currentFwdId]) {
+    currentFwdData[window._currentFwdId].message = val;
+  }
+  document.getElementById('fwdEditArea').classList.remove('open');
+  showFwdToast('✏️ Message update ho gaya!');
+}
+
+function addNameFwd() {
+  const msgEl = document.getElementById('fwdMsgText');
+  const editEl = document.getElementById('fwdEditInput');
+  const currentMsg = msgEl.textContent;
+  // Don't add name if already added
+  if (currentMsg.includes('— From ')) { showFwdToast('👤 Naam pehle se add hai!'); return; }
+  const name = (userFaith === 'Muslim') ? 'Aapka Parivaar' : 'Aapka Parivaar 🙏';
+  const updated = currentMsg + '\n\n— From ' + name;
+  msgEl.textContent = updated;
+  editEl.value = updated;
+  if (window._currentFwdId && currentFwdData[window._currentFwdId]) {
+    currentFwdData[window._currentFwdId].message = updated;
+  }
+  showFwdToast('👤 Naam add ho gaya!');
+}
+
+function shareFwd() {
+  closeFwdSheet();
+  setTimeout(() => {
+    showFwdToast('WhatsApp pe share ho raha hai... ✅');
+    // Show a followup in chat after share
+    setTimeout(() => {
+      const faith = userFaith || 'Hindu';
+      const msg = aiMessage(`<p>🎉 Forward share ho gaya! Aapke parivaar tak bhakti ka sandesh pahunch gaya.</p><p style="margin-top:6px;font-size:13px;color:var(--text-low)">Kal ke forwards ke liye kal phir yahan aaiyega — roze naye devotional messages tayyar hote hain!</p>`, false, false);
+      addChipsLater(msg.querySelector('.ai-content'), `
+        <button class="chip" onclick="triggerChip('devotional forwards')">📤 Aur Forwards Dekhein</button>
+        <button class="chip" onclick="showAllOptions()">✨ Sabhi Features</button>
+      `);
+      scrollBottom();
+    }, 800);
+  }, 300);
+}
+
+function showFwdToast(text) {
+  const toast = document.getElementById('fwdToast');
+  document.getElementById('fwdToastMsg').textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
 // ── Init ──
