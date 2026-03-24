@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Sarkar Saathi — Awaaz</title>
+<style>
+@font-face{font-family:'JioType';font-weight:400;src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2');}
+@font-face{font-family:'JioType';font-weight:500;src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2');}
+@font-face{font-family:'JioType';font-weight:700;src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2');}
+@font-face{font-family:'JioType';font-weight:900;src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2');}
+
+:root{
+  --surface:#ffffff;
+  --text-high:#0c0d10;--text-low:rgba(25,27,30,0.55);
+  --gov-blue:#003580;--gov-blue-mid:#1a4fa8;--gov-blue-bg:#e8eefb;--gov-blue-light:#dce7ff;
+  --gov-green:#1a6b3c;--gov-green-bg:#e6f4ec;--gov-green-20:#c3e6d2;
+  --gov-red:#e53935;--gov-orange:#b85e00;--gov-orange-bg:#fff3e0;
+  --stroke:#e3e3e4;--stroke-light:rgba(36,38,43,0.10);
+  --shape-pill:999px;--shape-large:16px;--shape-medium:12px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior:none;touch-action:manipulation;}
+body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;background:#d4d8e0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 0;}
+@media(max-width:768px){body{background:#fff!important;padding:0!important;}.phone-frame{width:100%!important;height:100vh!important;height:100dvh!important;border-radius:0!important;box-shadow:none!important;}}
+
+.phone-frame{width:360px;height:800px;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:32px;box-shadow:0 24px 80px rgba(0,0,0,0.18);}
+
+/* ═══════════════════════════════
+   VOICE LANDING SCREEN
+   ═══════════════════════════════ */
+.voice-landing{
+  position:absolute;inset:0;z-index:500;
+  background:linear-gradient(170deg,#00113a 0%,#001f60 40%,#003580 70%,#1a4fa8 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 32px;gap:0;
+}
+@keyframes vlExit{to{opacity:0;transform:translateY(-36px) scale(0.97)}}
+.voice-landing.exiting{animation:vlExit 380ms cubic-bezier(0.4,0,1,1) forwards;pointer-events:none;}
+
+.vl-logo{font-size:48px;margin-bottom:18px;filter:drop-shadow(0 6px 20px rgba(0,0,0,0.35));}
+.vl-name{font-size:34px;font-weight:900;color:#fff;letter-spacing:-0.04em;margin-bottom:6px;}
+.vl-tagline{font-size:13px;color:rgba(255,255,255,0.55);font-weight:500;text-align:center;line-height:1.6;margin-bottom:60px;}
+.vl-badge-row{display:flex;gap:8px;margin-bottom:52px;}
+.vl-badge{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:var(--shape-pill);padding:4px 12px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;}
+
+/* Mic orb on landing */
+.vl-orb-wrap{position:relative;width:130px;height:130px;display:flex;align-items:center;justify-content:center;margin-bottom:26px;}
+.vl-ring{position:absolute;border-radius:50%;border:2.5px solid rgba(255,255,255,0.2);animation:vlRing 2.8s ease-out infinite;}
+.vl-ring-1{width:130px;height:130px;animation-delay:0s;}
+.vl-ring-2{width:170px;height:170px;animation-delay:0.7s;}
+.vl-ring-3{width:210px;height:210px;animation-delay:1.4s;}
+@keyframes vlRing{0%{opacity:.65;transform:scale(0.82)}100%{opacity:0;transform:scale(1)}}
+
+.vl-mic-btn{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(145deg,#ffffff,#e8f0ff);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.8);
+  position:relative;z-index:2;
+  transition:transform 120ms ease,box-shadow 120ms ease;
+}
+.vl-mic-btn:active{transform:scale(0.91);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.vl-mic-btn svg{width:40px;height:40px;fill:var(--gov-blue);}
+
+.vl-hint{font-size:15px;color:rgba(255,255,255,0.8);font-weight:600;letter-spacing:0.01em;margin-bottom:12px;}
+.vl-sub-hint{font-size:12px;color:rgba(255,255,255,0.4);}
+
+/* ═══════════════════════════════
+   HEADER
+   ═══════════════════════════════ */
+.v-header{
+  height:56px;padding:0 12px;
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--stroke-light);
+  background:#fff;
+}
+.v-back{width:40px;height:40px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;}
+.v-back:active{background:#f0f0f0;}
+.v-back svg{width:24px;height:24px;fill:#170054;}
+.v-title-wrap{flex:1;}
+.v-title{font-size:16px;font-weight:700;color:var(--text-high);}
+.v-sub{font-size:11px;color:var(--text-low);}
+.v-lang-badge{background:var(--gov-blue-bg);color:var(--gov-blue);border-radius:var(--shape-pill);padding:4px 11px;font-size:11px;font-weight:700;}
+
+/* ═══════════════════════════════
+   CONVERSATION AREA
+   ═══════════════════════════════ */
+.conv-area{
+  flex:1;overflow-y:auto;overflow-x:clip;
+  padding:16px 14px 8px;
+  display:flex;flex-direction:column;gap:12px;
+  scrollbar-width:none;
+}
+.conv-area::-webkit-scrollbar{display:none;}
+
+/* AI bubble */
+.ai-turn{display:flex;gap:8px;align-items:flex-end;animation:bubbleIn 280ms ease-out;}
+.ai-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gov-blue),var(--gov-blue-mid));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.ai-bubble{
+  background:var(--gov-blue-bg);border:1.5px solid rgba(0,53,128,0.08);
+  border-radius:18px 18px 18px 4px;
+  padding:12px 15px;
+  max-width:248px;
+  font-size:14px;line-height:1.6;color:var(--text-high);font-weight:500;
+  position:relative;
+}
+.ai-bubble.active-speaking{border-color:var(--gov-blue);background:var(--gov-blue-light);}
+/* wave animation inside speaking bubble */
+.ai-bubble .wave-inline{display:inline-flex;gap:2px;align-items:flex-end;height:14px;margin-left:6px;vertical-align:middle;}
+.wi-bar{width:3px;border-radius:2px;background:var(--gov-blue);animation:waveB 0.75s ease-in-out infinite;}
+.wi-bar:nth-child(1){height:5px;animation-delay:0s;}
+.wi-bar:nth-child(2){height:10px;animation-delay:.12s;}
+.wi-bar:nth-child(3){height:14px;animation-delay:.24s;}
+.wi-bar:nth-child(4){height:10px;animation-delay:.36s;}
+.wi-bar:nth-child(5){height:5px;animation-delay:.48s;}
+@keyframes waveB{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+
+/* User bubble */
+.user-turn{display:flex;justify-content:flex-end;animation:bubbleIn 200ms ease-out;}
+.user-bubble{
+  background:var(--gov-blue);color:#fff;
+  border-radius:18px 18px 4px 18px;
+  padding:12px 15px;max-width:220px;
+  font-size:14px;line-height:1.55;font-weight:500;
+}
+
+/* Listening bubble */
+.listen-bubble{display:flex;gap:8px;align-items:flex-end;animation:bubbleIn 180ms ease-out;}
+.listen-inner{
+  background:#fff;border:2px solid var(--gov-red);
+  border-radius:18px 18px 18px 4px;
+  padding:11px 15px;
+  display:flex;align-items:center;gap:8px;
+}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--gov-red);animation:ldotA 1.1s infinite;}
+.ldot:nth-child(2){animation-delay:.18s;}
+.ldot:nth-child(3){animation-delay:.36s;}
+@keyframes ldotA{0%,80%,100%{transform:scale(0.55);opacity:.4}40%{transform:scale(1);opacity:1}}
+.listen-text{font-size:13px;color:var(--gov-red);font-weight:700;}
+
+@keyframes bubbleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Transcript text (what mic heard) ── */
+.heard-tag{display:inline-block;margin-top:6px;background:rgba(0,53,128,0.07);border-radius:8px;padding:4px 9px;font-size:11px;color:var(--gov-blue);font-weight:600;}
+
+/* ─── SCHEME CARD ─── */
+.sv-scheme-card{border-radius:16px;border:1px solid var(--stroke);animation:cardPop 400ms cubic-bezier(0,0,0.2,1);width:100%;}
+.svc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:15px 15px 0 0;color:#fff;}
+.svc-icon{font-size:24px;flex-shrink:0;}
+.svc-name{font-size:14px;font-weight:800;line-height:1.25;}
+.svc-min{font-size:10px;opacity:.72;margin-top:2px;}
+.svc-body{background:#fff;border-radius:0 0 15px 15px;padding:13px 14px;}
+.svc-amt{font-size:26px;font-weight:900;color:var(--text-high);letter-spacing:-0.03em;}
+.svc-detail{font-size:12px;color:var(--text-low);margin-top:2px;margin-bottom:10px;}
+.svc-tag{display:inline-block;background:var(--gov-green-bg);color:var(--gov-green);border-radius:var(--shape-pill);padding:3px 10px;font-size:11px;font-weight:700;margin-bottom:11px;}
+.svc-why{font-size:11px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.svc-reason-list{font-size:12px;color:#1a1a1a;line-height:1.7;margin-bottom:12px;padding-left:14px;}
+.svc-cta{width:100%;background:var(--gov-blue);color:#fff;border:none;border-radius:var(--shape-pill);padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;}
+.svc-cta:active{opacity:.85;}
+
+/* ─── DOC UPLOAD CARD ─── */
+.sv-doc-card{border-radius:14px;border:1px solid var(--stroke);background:#fff;animation:cardPop 400ms cubic-bezier(0,0,0.2,1);width:100%;}
+.dvc-head{background:var(--gov-blue);color:#fff;padding:11px 14px;font-size:13px;font-weight:700;border-radius:13px 13px 0 0;}
+.dvc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--stroke-light);}
+.dvc-row:last-of-type{border-bottom:none;}
+.dvc-icon{font-size:18px;flex-shrink:0;}
+.dvc-body{flex:1;min-width:0;}
+.dvc-name{font-size:13px;font-weight:700;color:var(--text-high);}
+.dvc-hint{font-size:11px;color:var(--text-low);margin-top:1px;}
+.dvc-hint.ok{color:var(--gov-green);font-weight:600;}
+.dvc-upload-btn{flex-shrink:0;background:var(--gov-blue-bg);color:var(--gov-blue);border:1.5px solid var(--gov-blue);border-radius:var(--shape-pill);padding:5px 12px;font-size:11px;font-weight:700;font-family:'JioType',sans-serif;cursor:pointer;}
+.dvc-upload-btn.done{background:var(--gov-green-bg);color:var(--gov-green);border-color:var(--gov-green-20);cursor:default;}
+.dvc-verify-wrap{padding:11px 14px;border-top:1px solid var(--stroke-light);}
+.dvc-verify-btn{width:100%;background:var(--gov-blue);color:#fff;border:none;border-radius:var(--shape-pill);padding:11px;font-size:13px;font-weight:700;font-family:'JioType',sans-serif;cursor:pointer;}
+.dvc-verify-btn:disabled{opacity:.38;cursor:default;}
+
+/* ─── RESULT CARD (doc check) ─── */
+.doc-result-card{border-radius:14px;border:1px solid var(--stroke);animation:cardPop 400ms ease-out;width:100%;}
+.dr-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--stroke-light);}
+.dr-row:last-child{border-bottom:none;}
+.dr-ico{font-size:18px;flex-shrink:0;margin-top:1px;}
+.dr-body{flex:1;}
+.dr-name{font-size:13px;font-weight:700;color:var(--text-high);}
+.dr-msg{font-size:12px;margin-top:2px;line-height:1.4;}
+.dr-ok .dr-msg{color:var(--gov-green);}
+.dr-warn{background:#fffbf0;}
+.dr-warn .dr-msg{color:var(--gov-orange);}
+
+/* ─── WARN BOX ─── */
+.warn-box{background:#fde8e8;border:2px solid var(--gov-red);border-radius:13px;padding:14px 15px;animation:cardPop 400ms ease-out;width:100%;}
+.wb-head{font-size:11px;font-weight:800;color:var(--gov-red);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.wb-body{font-size:13px;font-weight:600;color:#6b0000;line-height:1.55;}
+.wb-foot{font-size:12px;color:var(--gov-red);margin-top:8px;font-style:italic;}
+
+@keyframes cardPop{from{opacity:0;transform:translateY(14px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ═══════════════════════════════
+   MIC BOTTOM BAR
+   ═══════════════════════════════ */
+.mic-bottom{
+  flex-shrink:0;
+  padding:10px 20px 18px;
+  background:#fff;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  border-top:1px solid var(--stroke-light);
+}
+.mic-status{font-size:12px;font-weight:700;height:18px;letter-spacing:.01em;transition:color 200ms;}
+.mic-btn-wrap{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;}
+.mb-ring{position:absolute;border-radius:50%;border:2px solid;animation:mbRing 1.4s ease-out infinite;opacity:0;}
+.mb-ring-1{width:72px;height:72px;}
+.mb-ring-2{width:92px;height:92px;animation-delay:.45s;}
+@keyframes mbRing{0%{opacity:.65;transform:scale(.78)}100%{opacity:0;transform:scale(1)}}
+.main-mic{
+  width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;
+  transition:background 200ms,transform 100ms;
+  box-shadow:0 4px 16px rgba(0,0,0,0.18);
+}
+.main-mic:active{transform:scale(.91);}
+.main-mic svg{width:28px;height:28px;}
+.main-mic.m-idle{background:var(--gov-blue);}
+.main-mic.m-idle svg{fill:#fff;}
+.main-mic.m-listening{background:var(--gov-red);}
+.main-mic.m-listening svg{fill:#fff;}
+.main-mic.m-speaking{background:var(--gov-blue-mid);}
+.main-mic.m-speaking svg{fill:#fff;}
+.main-mic.m-processing{background:#888;cursor:not-allowed;}
+.main-mic.m-processing svg{fill:#fff;}
+.mic-hint{font-size:11px;color:var(--text-low);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+
+  <!-- ── STATUS BAR ── -->
+  <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#fff;">
+    <span style="font-size:15px;font-weight:700;color:#0c0d10;">9:41</span>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#0c0d10"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#0c0d10"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <!-- ── VOICE LANDING ── -->
+  <div class="voice-landing" id="voiceLanding">
+    <div class="vl-logo">🏛️</div>
+    <div class="vl-name">Sarkar Saathi</div>
+    <div class="vl-tagline">Sarkari yojana ki poori jaankari<br>Hindi mein, sirf awaaz se</div>
+    <div class="vl-badge-row">
+      <span class="vl-badge">🇮🇳 Jio Omni AI</span>
+      <span class="vl-badge">हिंदी</span>
+    </div>
+    <div class="vl-orb-wrap">
+      <div class="vl-ring vl-ring-1"></div>
+      <div class="vl-ring vl-ring-2"></div>
+      <div class="vl-ring vl-ring-3"></div>
+      <button class="vl-mic-btn" onclick="startVoiceConv()" id="vlBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+      </button>
+    </div>
+    <div class="vl-hint">Tap karke baat karo</div>
+    <div class="vl-sub-hint" style="margin-top:8px;">Awaaz se scheme dhundho — koi reading nahi</div>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <div class="v-header" id="vHeader" style="display:none;">
+    <button class="v-back" onclick="goBack()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <div class="v-title-wrap">
+      <div class="v-title">Sarkar Saathi</div>
+      <div class="v-sub">AI Sarkari Guide</div>
+    </div>
+    <span class="v-lang-badge">हिंदी</span>
+  </div>
+
+  <!-- ── CONVERSATION ── -->
+  <div class="conv-area" id="convArea" style="display:none;"></div>
+
+  <!-- ── MIC BOTTOM ── -->
+  <div class="mic-bottom" id="micBottom" style="display:none;">
+    <div class="mic-status" id="micStatus" style="color:var(--text-low);">Tap karke baat karo</div>
+    <div class="mic-btn-wrap">
+      <div class="mb-ring mb-ring-1" id="mbr1" style="display:none;border-color:rgba(229,57,53,.38);"></div>
+      <div class="mb-ring mb-ring-2" id="mbr2" style="display:none;border-color:rgba(229,57,53,.22);"></div>
+      <button class="main-mic m-idle" id="mainMic" onclick="handleMicTap()">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+      </button>
+    </div>
+    <div class="mic-hint" id="micHint">🎙 Tap karein aur bolein</div>
+  </div>
+
+</div><!-- phone-frame -->
+
+<script>
+'use strict';
+
+// ── Elements ──
+const CA   = document.getElementById('convArea');
+const mic  = document.getElementById('mainMic');
+const stat = document.getElementById('micStatus');
+const hint = document.getElementById('micHint');
+const r1   = document.getElementById('mbr1');
+const r2   = document.getElementById('mbr2');
+
+// ── Speech ──
+const synth = window.speechSynthesis;
+let reco = null;
+let hindiVoice = null;
+let isSpeaking = false;
+let isListening = false;
+let listenTimer = null;
+
+// ── Conversation state ──
+// userTurnIdx tracks which user input we're waiting for:
+// 0 = opening intent, 1 = occupation, 2 = income, 3 = docs confirmation
+let userTurnIdx = 0;
+let conversationActive = false;
+let docUploads = {};
+
+// ── Scripted conversation lines ──
+const SC = {
+  greet:
+    'Namaste! Main Sarkar Saathi hoon — aapka sarkari yojana mein madad karne wala saathi. ' +
+    'Bataiye, aapko kya madad chahiye?',
+
+  ack_intent:
+    'Zaroor madad karunga! ' +
+    'Aapke liye sahi scheme dhundhne ke liye mujhe bas do teen sawaal poochhne hain.',
+
+  q_occ:
+    'Pehla sawaal — aap kya kaam karte hain? ' +
+    'Kheti karte hain, ya koi naukri ya business?',
+
+  ack_farmer:
+    'Achha, aap kisan hain. Bahut achha.',
+
+  q_income:
+    'Ab bataiye — ghar ki saal bhar ki kamaai karib kitni hai? ' +
+    'Ek lakh se kam hai, ya ek se do lakh ke beech?',
+
+  ack_income:
+    'Samajh gaya. Ruko, main aapke liye scheme dhundh raha hoon...',
+
+  scheme_intro:
+    'Mujhe ek shandar scheme mili hai aapke liye! ' +
+    'PM Kisan Samman Nidhi — isme aapko har saal chha hazaar rupaye milenge, ' +
+    'teen installments mein, seedha aapke bank account mein. ' +
+    'Yeh scheme bilkul aap jaise chote aur seemant kisanon ke liye bani hai — ' +
+    'sarkaar ki taraf se guaranteed paisa, har saal.',
+
+  ask_docs:
+    'Kya aap jaanna chahenge ki is scheme ke liye kaun se documents chahiye? ' +
+    'Main poori madad karunga.',
+
+  docs_speak:
+    'Is scheme ke liye teen documents chahiye. ' +
+    'Pehla — Aadhaar card. ' +
+    'Doosra — Zameen ka record, matlab Khatauni. ' +
+    'Teesra — Bank passbook. ' +
+    'Inhe upload karo — main check karunga ki sab sahi hai.',
+
+  verify_scanning:
+    'Aapke documents scan ho rahe hain...',
+
+  verify_result:
+    'Dekha main ne. Do documents bilkul theek hain. ' +
+    'Lekin zameen ke record mein naam mein thoda antar hai — ' +
+    'Ramesh Kuma likha hai jabki Aadhaar mein Ramesh Kumar hai. ' +
+    'Yeh tehsil office mein free mein sahi ho jaata hai, sirf saat se das din mein. ' +
+    'Uske baad apply karo — scheme ka paisa seedha account mein aayega.',
+};
+
+// ── Voice loading ──
+function loadVoices() {
+  const voices = synth.getVoices();
+  hindiVoice =
+    voices.find(v => v.lang === 'hi-IN' && /male/i.test(v.name)) ||
+    voices.find(v => v.lang === 'hi-IN') ||
+    voices.find(v => v.lang.startsWith('hi')) ||
+    null;
+}
+if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speak(text, onDone) {
+  synth.cancel();
+  if (!text) { onDone && onDone(); return; }
+  const utt = new SpeechSynthesisUtterance(text);
+  if (hindiVoice) utt.voice = hindiVoice;
+  utt.lang  = 'hi-IN';
+  utt.rate  = 0.90;
+  utt.pitch = 0.93;
+  utt.volume = 1.0;
+  isSpeaking = true;
+  setMicState('speaking');
+  utt.onend = () => { isSpeaking = false; setMicState('idle'); onDone && onDone(); };
+  utt.onerror = () => { isSpeaking = false; setMicState('idle'); onDone && onDone(); };
+  synth.speak(utt);
+}
+
+// ── Mic state ──
+function setMicState(s) {
+  mic.className = 'main-mic m-' + s;
+  if (s === 'listening') {
+    r1.style.display = ''; r2.style.display = '';
+    stat.textContent  = '🔴 Sun raha hoon...';
+    stat.style.color  = 'var(--gov-red)';
+    hint.textContent  = 'Boliye, main dhyan se sun raha hoon';
+  } else if (s === 'speaking') {
+    r1.style.display = 'none'; r2.style.display = 'none';
+    stat.textContent  = '🔊 Bol raha hoon...';
+    stat.style.color  = 'var(--gov-blue)';
+    hint.textContent  = 'Sarkar Saathi bol raha hai...';
+  } else if (s === 'processing') {
+    r1.style.display = 'none'; r2.style.display = 'none';
+    stat.textContent  = '⏳ Scheme dhundh raha hoon...';
+    stat.style.color  = 'var(--gov-blue)';
+    hint.textContent  = 'Ek pal ruko...';
+  } else {
+    r1.style.display = 'none'; r2.style.display = 'none';
+    stat.textContent  = 'Tap karke baat karo';
+    stat.style.color  = 'var(--text-low)';
+    hint.textContent  = '🎙 Tap karein aur bolein';
+  }
+}
+
+// ── DOM helpers ──
+function addAI(text, speaking) {
+  const d = document.createElement('div');
+  d.className = 'ai-turn';
+  const wave = speaking
+    ? `<span class="wave-inline"><span class="wi-bar"></span><span class="wi-bar"></span><span class="wi-bar"></span><span class="wi-bar"></span><span class="wi-bar"></span></span>`
+    : '';
+  d.innerHTML = `<div class="ai-av">🏛</div>
+    <div class="ai-bubble${speaking ? ' active-speaking' : ''}">${text}${wave}</div>`;
+  CA.appendChild(d);
+  scrollCA();
+  return d;
+}
+
+function addUser(text) {
+  const d = document.createElement('div');
+  d.className = 'user-turn';
+  d.innerHTML = `<div class="user-bubble">${text}</div>`;
+  CA.appendChild(d);
+  scrollCA();
+}
+
+function addListenBubble() {
+  removeListenBubble();
+  const d = document.createElement('div');
+  d.className = 'listen-bubble'; d.id = 'lb';
+  d.innerHTML = `<div class="ai-av" style="background:var(--gov-red);">🎙</div>
+    <div class="listen-inner">
+      <span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>
+      <span class="listen-text">Sun raha hoon...</span>
+    </div>`;
+  CA.appendChild(d); scrollCA();
+}
+
+function removeListenBubble() {
+  const lb = document.getElementById('lb');
+  if (lb) lb.remove();
+}
+
+function scrollCA() {
+  setTimeout(() => CA.scrollTo({ top: CA.scrollHeight, behavior:'smooth' }), 60);
+}
+
+// ── Widgets ──
+function addSchemeCard() {
+  const c = document.createElement('div');
+  c.className = 'sv-scheme-card';
+  c.innerHTML = `
+    <div class="svc-head" style="background:#1a6b3c;">
+      <span class="svc-icon">🌾</span>
+      <div>
+        <div class="svc-name">PM Kisan Samman Nidhi</div>
+        <div class="svc-min">Ministry of Agriculture, India</div>
+      </div>
+    </div>
+    <div class="svc-body">
+      <div class="svc-amt">₹6,000 / saal</div>
+      <div class="svc-detail">Teen installments mein — seedha bank account mein</div>
+      <div class="svc-tag">✦ High Confidence Match</div>
+      <div class="svc-why">Aap kyun qualify karte hain</div>
+      <ul class="svc-reason-list">
+        <li>Occupation: Kisan ✓</li>
+        <li>Saal ki kamaai ₹80,000 — limit ₹2,00,000 se kam ✓</li>
+        <li>Zameen 1.5 hectare — 2 hectare se kam ✓</li>
+      </ul>
+      <button class="svc-cta" onclick="userSaysYesDocs()">📋 Documents check karo →</button>
+    </div>`;
+  CA.appendChild(c); scrollCA();
+}
+
+function addDocCard() {
+  docUploads = {};
+  const c = document.createElement('div');
+  c.className = 'sv-doc-card';
+  c.innerHTML = `
+    <div class="dvc-head">📤 Documents upload karo — PM Kisan</div>
+    <div class="dvc-row">
+      <span class="dvc-icon">🪪</span>
+      <div class="dvc-body">
+        <div class="dvc-name">Aadhaar Card</div>
+        <div class="dvc-hint" id="dh-aadh">Tap to upload ya scan karo</div>
+      </div>
+      <button class="dvc-upload-btn" id="db-aadh" onclick="uploadDV('aadh')">📤 Upload</button>
+    </div>
+    <div class="dvc-row">
+      <span class="dvc-icon">📜</span>
+      <div class="dvc-body">
+        <div class="dvc-name">Zameen ka Record (Khatauni)</div>
+        <div class="dvc-hint" id="dh-land">Tap to upload ya scan karo</div>
+      </div>
+      <button class="dvc-upload-btn" id="db-land" onclick="uploadDV('land')">📤 Upload</button>
+    </div>
+    <div class="dvc-row">
+      <span class="dvc-icon">🏦</span>
+      <div class="dvc-body">
+        <div class="dvc-name">Bank Passbook</div>
+        <div class="dvc-hint" id="dh-bank">Tap to upload ya scan karo</div>
+      </div>
+      <button class="dvc-upload-btn" id="db-bank" onclick="uploadDV('bank')">📤 Upload</button>
+    </div>
+    <div class="dvc-verify-wrap">
+      <button class="dvc-verify-btn" id="verifyBtn" disabled onclick="runVerify()">Verify Karo</button>
+    </div>`;
+  CA.appendChild(c); scrollCA();
+}
+
+function uploadDV(key) {
+  docUploads[key] = true;
+  const btn = document.getElementById('db-' + key);
+  const hint2 = document.getElementById('dh-' + key);
+  if (btn) { btn.textContent = '✓ Ho gaya'; btn.className = 'dvc-upload-btn done'; }
+  if (hint2) { hint2.textContent = 'Document upload ho gaya'; hint2.className = 'dvc-hint ok'; }
+  const all = docUploads.aadh && docUploads.land && docUploads.bank;
+  const vb = document.getElementById('verifyBtn');
+  if (vb) {
+    if (all) { vb.disabled = false; vb.textContent = '✓ Verify Karo'; }
+    else {
+      const rem = ['aadh','land','bank'].filter(k => !docUploads[k]).length;
+      vb.textContent = `${rem} aur upload karo`;
+    }
+  }
+}
+
+function runVerify() {
+  addUser('Verify karo');
+  const vb = document.getElementById('verifyBtn');
+  if (vb) { vb.disabled = true; vb.style.opacity = '.5'; }
+
+  setTimeout(() => {
+    const scanBubble = addAI(SC.verify_scanning, true);
+    speak(SC.verify_scanning, () => {
+      scanBubble.querySelector('.ai-bubble').classList.remove('active-speaking');
+      scanBubble.querySelector('.wave-inline')?.remove();
+      setTimeout(() => showDocResults(), 1600);
+    });
+  }, 400);
+}
+
+function showDocResults() {
+  // Doc result card
+  const c = document.createElement('div');
+  c.className = 'doc-result-card';
+  c.innerHTML = `
+    <div style="background:var(--gov-blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:13px 13px 0 0;">📋 Documents — PM Kisan</div>
+    <div class="dr-row dr-ok">
+      <span class="dr-ico">✅</span>
+      <div class="dr-body">
+        <div class="dr-name">Aadhaar Card</div>
+        <div class="dr-msg">Verified — Ramesh Kumar, Lucknow UP ✓</div>
+      </div>
+    </div>
+    <div class="dr-row dr-warn">
+      <span class="dr-ico">⚠️</span>
+      <div class="dr-body">
+        <div class="dr-name">Zameen ka Record (Khatauni)</div>
+        <div class="dr-msg" style="color:var(--gov-orange);">Naam mein antar: "Ramesh Kuma" vs "Ramesh Kumar" — theek karwana hoga</div>
+      </div>
+    </div>
+    <div class="dr-row dr-ok">
+      <span class="dr-ico">✅</span>
+      <div class="dr-body">
+        <div class="dr-name">Bank Passbook</div>
+        <div class="dr-msg">Verified — SBI, A/C XXXX1234 ✓</div>
+      </div>
+    </div>`;
+  CA.appendChild(c); scrollCA();
+
+  setTimeout(() => {
+    // Warning box
+    const w = document.createElement('div');
+    w.className = 'warn-box';
+    w.innerHTML = `
+      <div class="wb-head">⚠ Ek issue mila — Theek karna zaroori</div>
+      <div class="wb-body">Zameen ke record mein aapka naam galat hai. Agar aisa apply kiya to scheme reject ho sakti hai.</div>
+      <div class="wb-foot">Tehsil office mein FREE mein 7-10 din mein sahi ho jaata hai.</div>`;
+    CA.appendChild(w); scrollCA();
+
+    setTimeout(() => {
+      const rb = addAI(SC.verify_result, true);
+      speak(SC.verify_result, () => {
+        rb.querySelector('.ai-bubble').classList.remove('active-speaking');
+        rb.querySelector('.wave-inline')?.remove();
+        setMicState('idle');
+        setTimeout(() => {
+          addAI('Naam theek karwao, phir apply karo — <strong>₹6,000 seedha account mein aayega</strong> 🎉');
+        }, 600);
+      });
+    }, 500);
+  }, 400);
+}
+
+// ── Recognition setup ──
+function setupReco() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  reco = new SR();
+  reco.lang = 'hi-IN';
+  reco.continuous = false;
+  reco.interimResults = false;
+  reco.maxAlternatives = 3;
+}
+
+function startListening() {
+  if (isListening) return;
+  isListening = true;
+  setMicState('listening');
+  addListenBubble();
+
+  if (!reco) {
+    // No speech API — demo tap-to-advance after 2.5 s
+    listenTimer = setTimeout(() => stopListening(null), 2500);
+    return;
+  }
+  try {
+    reco.onresult = e => stopListening(e.results[0][0].transcript);
+    reco.onerror  = () => stopListening(null);
+    reco.onend    = () => { if (isListening) stopListening(null); };
+    reco.start();
+    listenTimer = setTimeout(() => { if (isListening) stopListening(null); }, 6000);
+  } catch(e) { stopListening(null); }
+}
+
+function stopListening(text) {
+  clearTimeout(listenTimer);
+  isListening = false;
+  removeListenBubble();
+  setMicState('idle');
+  try { reco && reco.stop(); } catch(e) {}
+  processUserTurn(userTurnIdx, text);
+  userTurnIdx++;
+}
+
+// ── Conversation turn processor ──
+// Maps recognized speech to natural Hindi responses
+const DEFAULT_SAYS = [
+  'Mujhe government scheme ke baare mein jaanna hai', // turn 0
+  'Kheti karta hoon, kisan hoon main',                 // turn 1
+  'Ek lakh se kam hai saal ki kamaai',                 // turn 2
+  'Haan batao, kaunse documents chahiye',              // turn 3
+];
+
+function processUserTurn(idx, raw) {
+  const said = raw || DEFAULT_SAYS[idx] || '...';
+  addUser(said);
+
+  if (idx === 0) {
+    // User stated intent → ack + ask occupation
+    setTimeout(() => {
+      const b = addAI(SC.ack_intent);
+      speak(SC.ack_intent, () => {
+        setTimeout(() => {
+          const b2 = addAI(SC.q_occ, true);
+          speak(SC.q_occ, () => {
+            b2.querySelector('.ai-bubble').classList.remove('active-speaking');
+            b2.querySelector('.wave-inline')?.remove();
+            setMicState('idle');
+          });
+        }, 350);
+      });
+    }, 400);
+
+  } else if (idx === 1) {
+    // User said occupation → ack + ask income
+    setTimeout(() => {
+      const b = addAI(SC.ack_farmer);
+      speak(SC.ack_farmer, () => {
+        setTimeout(() => {
+          const b2 = addAI(SC.q_income, true);
+          speak(SC.q_income, () => {
+            b2.querySelector('.ai-bubble').classList.remove('active-speaking');
+            b2.querySelector('.wave-inline')?.remove();
+            setMicState('idle');
+          });
+        }, 320);
+      });
+    }, 400);
+
+  } else if (idx === 2) {
+    // User said income → ack + process + show scheme
+    setTimeout(() => {
+      const b = addAI(SC.ack_income, true);
+      setMicState('processing');
+      speak(SC.ack_income, () => {
+        b.querySelector('.ai-bubble').classList.remove('active-speaking');
+        b.querySelector('.wave-inline')?.remove();
+        setTimeout(() => {
+          // Scheme intro spoken while card appears
+          const sb = addAI(SC.scheme_intro, true);
+          addSchemeCard();          // card appears immediately
+          speak(SC.scheme_intro, () => {
+            sb.querySelector('.ai-bubble').classList.remove('active-speaking');
+            sb.querySelector('.wave-inline')?.remove();
+            setTimeout(() => {
+              const ab = addAI(SC.ask_docs, true);
+              speak(SC.ask_docs, () => {
+                ab.querySelector('.ai-bubble').classList.remove('active-speaking');
+                ab.querySelector('.wave-inline')?.remove();
+                setMicState('idle');
+              });
+            }, 500);
+          });
+        }, 800);
+      });
+    }, 400);
+
+  } else if (idx === 3) {
+    // User said yes to docs
+    userSaysYesDocs_inner();
+  }
+}
+
+function userSaysYesDocs() {
+  // Called from scheme card CTA button
+  if (userTurnIdx <= 3) {
+    addUser(DEFAULT_SAYS[3]);
+    userTurnIdx = 4;
+    userSaysYesDocs_inner();
+  }
+}
+
+function userSaysYesDocs_inner() {
+  setTimeout(() => {
+    const b = addAI(SC.docs_speak, true);
+    addDocCard();
+    speak(SC.docs_speak, () => {
+      b.querySelector('.ai-bubble').classList.remove('active-speaking');
+      b.querySelector('.wave-inline')?.remove();
+      setMicState('idle');
+    });
+  }, 400);
+}
+
+// ── Mic tap handler ──
+function handleMicTap() {
+  if (isSpeaking) {
+    // Tap while app is speaking → skip / interrupt
+    synth.cancel(); isSpeaking = false; setMicState('idle');
+    return;
+  }
+  if (isListening) { stopListening(null); return; }
+  if (!conversationActive) return;
+  if (userTurnIdx > 3) return; // conversation done
+  startListening();
+}
+
+// ── Entry / Exit ──
+function startVoiceConv() {
+  const land = document.getElementById('voiceLanding');
+  land.classList.add('exiting');
+  setTimeout(() => {
+    land.style.display = 'none';
+    document.getElementById('vHeader').style.display  = 'flex';
+    document.getElementById('convArea').style.display  = 'flex';
+    document.getElementById('micBottom').style.display = 'flex';
+    conversationActive = true;
+    userTurnIdx = 0;
+    setupReco();
+    // Greet immediately
+    setTimeout(() => {
+      const gb = addAI(SC.greet, true);
+      speak(SC.greet, () => {
+        gb.querySelector('.ai-bubble').classList.remove('active-speaking');
+        gb.querySelector('.wave-inline')?.remove();
+        setMicState('idle');
+      });
+    }, 450);
+  }, 380);
+}
+
+function goBack() {
+  synth.cancel();
+  try { reco && reco.stop(); } catch(e) {}
+  isListening = false; isSpeaking = false;
+  conversationActive = false;
+  userTurnIdx = 0; docUploads = {};
+  CA.innerHTML = '';
+  document.getElementById('vHeader').style.display  = 'none';
+  document.getElementById('convArea').style.display  = 'none';
+  document.getElementById('micBottom').style.display = 'none';
+  const land = document.getElementById('voiceLanding');
+  land.style.display = 'flex';
+  land.classList.remove('exiting');
+  setMicState('idle');
+}
+</script>
+</body>
+</html>
