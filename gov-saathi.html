@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Sarkar Saathi — Jio Omni AI</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+:root {
+  --surface:#ffffff; --surface-ghost:#eeeeef; --surface-ghost-icon:#e7e9ff;
+  --surface-bold:#3900ad; --surface-minimal:#f5f5f6; --surface-moderate:#e3e3e4;
+  --text-high:#0c0d10; --text-medium:#191b1e; --text-low:rgba(25,27,30,0.65);
+  --text-on-bold:#ffffff; --icon-medium:#170054; --icon-high:#0c0d10;
+  --primary-20:#e8e8fc; --primary-30:#9999ff; --primary-50:#3535f3;
+  --primary-60:#000093; --primary-70:#00004c;
+  --secondary-20:#fef7e9; --secondary-30:#ffe3ae; --secondary-50:#f7ab20; --secondary-60:#ac660c;
+  --success:#25ab21; --success-20:#e6f7e6;
+  --error:#fa2f40; --error-20:#fde8ea;
+  --grey-100:#141414; --grey-80:rgba(0,0,0,0.66); --grey-60:#b5b5b5; --grey-40:#e0e0e0; --grey-20:#f5f5f5;
+  --shape-4xl:23px; --shape-pill:999px; --shape-large:16px; --shape-medium:12px; --shape-small:8px; --shape-xsmall:4px;
+  --spacing-2xs:6px; --spacing-xs:8px; --spacing-s:12px; --spacing-m:16px; --spacing-l:20px; --spacing-xl:24px;
+  --stroke-minimal:rgba(36,38,43,0.13); --stroke-subtle:rgba(36,38,43,0.12);
+  --spring:350ms linear(0,0.3667,0.8271,1.0379,1.0652,1.0332,1.006,0.9961,0.996,0.9984,0.9999,1);
+  --ease-standard:cubic-bezier(0.4,0.0,0.2,1); --ease-decelerate:cubic-bezier(0.0,0.0,0.2,1);
+  --dur-quick:150ms; --dur-mod:250ms; --dur-del:350ms;
+  /* Gov domain tokens */
+  --gov-green:#1a6b3c; --gov-green-bg:#e6f4ec; --gov-green-20:#c3e6d2;
+  --gov-blue:#003580;  --gov-blue-bg:#e8eefb; --gov-blue-mid:#1a4fa8;
+  --gov-red:#c0170f;   --gov-red-bg:#fde8e8;
+  --gov-orange:#b85e00; --gov-orange-bg:#fff3e0;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior:none;touch-action:manipulation;}
+body{font-family:'JioType',-apple-system,BlinkMacSystemFont,sans-serif;background:#e8e8e8;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 0;}
+@media(max-width:768px){body{background:#fff!important;padding:0!important;align-items:stretch!important;}.phone-frame{width:100%!important;height:100vh!important;height:100dvh!important;border-radius:0!important;box-shadow:none!important;}}
+
+.phone-frame{width:360px;height:800px;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:32px;box-shadow:0 24px 80px rgba(0,0,0,0.15);}
+
+/* STATUS BAR */
+.status-bar{height:52px;padding:14px 24px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--surface);}
+.status-bar .time{font-size:15px;font-weight:600;color:var(--text-high);}
+.status-bar .icons{display:flex;gap:6px;align-items:center;}
+.status-bar .icons svg{width:16px;height:16px;fill:var(--text-high);}
+
+/* HEADER */
+.header-nav{height:56px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--surface-moderate);background:var(--surface);}
+.header-left{display:flex;align-items:center;gap:8px;}
+.back-btn{width:40px;height:40px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;transition:background var(--dur-quick) var(--ease-standard);}
+.back-btn:active{background:var(--grey-20);}
+.back-btn svg{width:24px;height:24px;fill:var(--icon-medium);}
+.header-title-area{flex:1;}
+.header-title{font-size:16px;font-weight:500;color:var(--text-high);line-height:1;}
+.header-domain{font-size:12px;color:var(--text-low);line-height:1.3;}
+.header-right{display:flex;gap:4px;}
+.icon-btn-ghost{width:36px;height:36px;border-radius:var(--shape-pill);display:flex;align-items:center;justify-content:center;background:var(--surface-ghost);border:none;cursor:pointer;}
+.icon-btn-ghost svg{width:20px;height:20px;fill:var(--icon-medium);}
+
+/* CHAT CONTAINER */
+.chat-container{flex:1;overflow-y:auto;overflow-x:clip;padding:16px;display:flex;flex-direction:column;gap:16px;scrollbar-width:none;}
+.chat-container::-webkit-scrollbar{display:none;}
+
+/* AI MESSAGE */
+.ai-msg{display:flex;gap:8px;align-items:flex-start;animation:msgIn var(--dur-del) var(--ease-decelerate);}
+.ai-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;margin-top:2px;background:linear-gradient(135deg,var(--gov-blue),var(--gov-blue-mid));display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;font-weight:800;}
+.ai-content{flex:1;max-width:calc(100% - 40px);min-width:0;}
+.ai-text{font-size:14px;line-height:1.5;color:var(--text-high);letter-spacing:-0.005em;}
+.ai-text p{margin-bottom:8px;}
+.ai-text p:last-child{margin-bottom:0;}
+.ai-text strong{font-weight:700;}
+
+/* USER MESSAGE */
+.user-msg{display:flex;justify-content:flex-end;animation:msgIn var(--dur-del) var(--ease-decelerate);}
+.user-bubble{max-width:270px;background:var(--surface-ghost);color:var(--text-high);padding:12px 16px;border-radius:24px 24px 0 24px;font-size:14px;line-height:1.4;letter-spacing:-0.005em;font-weight:500;}
+
+/* THINKING */
+.thinking-row{display:flex;align-items:center;gap:8px;animation:msgIn var(--dur-mod) var(--ease-decelerate);}
+.thinking-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gov-blue),var(--gov-blue-mid));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:800;}
+.thinking-dots{display:flex;gap:4px;}
+.thinking-dots span{width:6px;height:6px;border-radius:50%;background:var(--gov-blue);animation:dotBounce 1.2s infinite;}
+.thinking-dots span:nth-child(2){animation-delay:.15s;}
+.thinking-dots span:nth-child(3){animation-delay:.3s;}
+
+/* FEEDBACK */
+.feedback-row{display:flex;gap:2px;margin-top:8px;}
+.fb-btn{width:29px;height:29px;border-radius:var(--shape-pill);background:var(--surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.fb-btn svg{width:16px;height:16px;fill:var(--icon-high);}
+
+/* CHIPS */
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;width:100%;}
+.chip-row.scroll{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px;}
+.chip-row.scroll::-webkit-scrollbar{display:none;}
+@keyframes chipAppear{0%{opacity:0;transform:translateY(5px) scale(0.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.chip-appear-1{animation:chipAppear 220ms var(--ease-decelerate) 0ms both}
+.chip-appear-2{animation:chipAppear 220ms var(--ease-decelerate) 70ms both}
+.chip-appear-3{animation:chipAppear 220ms var(--ease-decelerate) 140ms both}
+.chip-appear-4{animation:chipAppear 220ms var(--ease-decelerate) 210ms both}
+.chip-appear-5{animation:chipAppear 220ms var(--ease-decelerate) 280ms both}
+.chip-appear-6{animation:chipAppear 220ms var(--ease-decelerate) 350ms both}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:1.5px solid var(--stroke-minimal);border-radius:var(--shape-pill);background:var(--surface);font-family:'JioType',sans-serif;font-size:13px;font-weight:500;color:var(--text-high);cursor:pointer;transition:all var(--dur-quick) var(--ease-standard);letter-spacing:-0.005em;white-space:nowrap;flex-shrink:0;}
+.chip:active{transform:scale(0.97);}
+.chip:hover{border-color:var(--primary-30);background:var(--primary-20);}
+.chip.cta{background:var(--gov-blue);border-color:var(--gov-blue);color:#fff;font-weight:700;}
+.chip.cta:hover{background:var(--gov-blue-mid);}
+.chip.success{background:var(--gov-green-bg);border-color:var(--gov-green-20);color:var(--gov-green);font-weight:600;}
+
+/* BOTTOM INPUT */
+.bottom-widget{width:100%;padding:2px 12px 8px;background:var(--surface);flex-shrink:0;}
+.bw-container{background:var(--surface-ghost);border-radius:var(--shape-4xl);padding:var(--spacing-2xs);display:flex;flex-direction:column;}
+.bw-input{padding:12px 8px;}
+.bw-real-input{flex:1;border:none;outline:none;font-family:'JioType',sans-serif;font-size:14px;color:var(--text-high);background:transparent;width:100%;}
+.bw-real-input::placeholder{color:var(--text-low);}
+.bw-actions{display:flex;justify-content:space-between;align-items:center;height:43px;}
+.bw-left{display:flex;gap:2px;}
+.wib{width:36px;height:36px;border-radius:var(--shape-pill);display:flex;align-items:center;justify-content:center;background:var(--surface-ghost-icon);border:none;cursor:pointer;}
+.wib svg{width:20px;height:20px;fill:var(--icon-medium);}
+.speak-btn{background:var(--surface-bold);border:none;border-radius:var(--shape-pill);padding:12px 20px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.speak-btn svg{width:18px;height:18px;fill:var(--text-on-bold);}
+.speak-btn span{font-family:'JioType',sans-serif;font-weight:700;font-size:16px;color:var(--text-on-bold);}
+.bw-send{width:36px;height:36px;border-radius:50%;border:none;background:var(--gov-blue);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.bw-send svg{width:18px;height:18px;fill:#fff;}
+.bw-send.hidden-send{display:none;}
+
+/* ═══════════════════════════════════
+   LANDING SCREEN
+   ═══════════════════════════════════ */
+.gs-land{position:absolute;inset:0;z-index:500;background:#fff;display:flex;flex-direction:column;overflow:hidden;font-family:'JioType',sans-serif;}
+@keyframes gsLandExit{to{opacity:0;transform:translateY(-32px)}}
+.gs-land.exiting{animation:gsLandExit 300ms var(--ease-standard) forwards;pointer-events:none;}
+.gs-scroll{flex:1;overflow-y:auto;scrollbar-width:none;}
+.gs-scroll::-webkit-scrollbar{display:none;}
+.gs-brand-header{background:linear-gradient(160deg,#001f50,var(--gov-blue),#1a4fa8);padding:20px 20px 18px;}
+.gs-brand-name{font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.03em;}
+.gs-brand-tagline{font-size:13px;color:rgba(255,255,255,0.65);margin-top:4px;font-weight:500;}
+.gs-brand-sub{display:flex;align-items:center;gap:6px;margin-top:12px;}
+.gs-gov-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:var(--shape-pill);padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;}
+.gs-nudge-banner{margin:12px 16px 0;background:var(--gov-blue-bg);border-left:3px solid var(--gov-blue);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--gov-blue);cursor:pointer;font-weight:500;line-height:1.4;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.gs-nudge-arrow{font-size:16px;flex-shrink:0;}
+.gs-section-label{padding:16px 16px 8px;font-size:11px;font-weight:700;color:var(--text-low);letter-spacing:0.08em;text-transform:uppercase;}
+.gs-widget-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 4px;}
+.gs-widget{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--surface);border:1.5px solid var(--stroke-minimal);border-radius:14px;padding:14px 12px;cursor:pointer;text-align:left;font-family:'JioType',sans-serif;position:relative;transition:border-color var(--dur-quick),background var(--dur-quick);}
+.gs-widget:active{background:var(--gov-blue-bg);border-color:var(--gov-blue);}
+.gs-w-icon{font-size:24px;}
+.gs-w-label{font-size:13px;font-weight:600;color:var(--text-high);line-height:1.3;}
+.gs-w-disabled{opacity:0.55;cursor:default;}
+.gs-w-disabled:active{background:var(--surface);border-color:var(--stroke-minimal);}
+.gs-w-badge{position:absolute;top:8px;right:8px;font-size:9px;background:var(--gov-blue-bg);color:var(--gov-blue);border-radius:var(--shape-pill);padding:2px 7px;font-weight:700;}
+.gs-cta-row{padding:16px 16px 8px;}
+.gs-cta-btn{width:100%;background:var(--gov-blue);color:#fff;border:none;border-radius:var(--shape-pill);padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;transition:opacity var(--dur-quick);}
+.gs-cta-btn:active{opacity:0.85;}
+.gs-profile-strip{margin:4px 16px 24px;background:var(--surface-minimal);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.gs-profile-strip span{font-size:12px;color:var(--text-low);line-height:1.4;}
+.gs-profile-strip button{font-family:'JioType',sans-serif;font-size:12px;font-weight:700;color:var(--gov-blue);background:none;border:none;cursor:pointer;white-space:nowrap;}
+
+/* ═══════════════════════════════════
+   GOVERNMENT COMPANION COMPONENTS
+   ═══════════════════════════════════ */
+
+/* SCHEME CARD */
+.scheme-card{border-radius:16px;border:1px solid var(--stroke-minimal);animation:cardIn var(--spring);width:100%;}
+.sc-header{display:flex;align-items:center;gap:12px;padding:14px 16px;color:#fff;}
+.sc-icon{font-size:26px;flex-shrink:0;}
+.sc-info{flex:1;min-width:0;}
+.sc-name{font-size:15px;font-weight:800;line-height:1.2;}
+.sc-ministry{font-size:11px;opacity:0.75;margin-top:2px;}
+.sc-badge{background:rgba(255,255,255,0.18);border-radius:var(--shape-pill);padding:3px 10px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.sc-body{padding:14px 16px 16px;background:var(--surface);}
+.sc-benefit{font-size:18px;font-weight:800;color:var(--text-high);margin-bottom:10px;letter-spacing:-0.02em;}
+.sc-reason-label{font-size:10px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;}
+.sc-reason ul{margin:0 0 12px 16px;padding:0;font-size:13px;color:var(--text-medium);line-height:1.6;}
+.sc-tag-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.sc-tag{font-size:11px;font-weight:700;border-radius:var(--shape-pill);padding:3px 10px;}
+.sc-tag-high{background:var(--gov-green-bg);color:var(--gov-green);}
+.sc-tag-medium{background:var(--gov-orange-bg);color:var(--gov-orange);}
+.sc-actions{display:flex;gap:8px;}
+
+/* ADDITIONAL SCHEMES LIST */
+.more-schemes{border:1px solid var(--stroke-minimal);border-radius:14px;animation:cardIn var(--spring);width:100%;}
+.ms-header{background:var(--surface-minimal);padding:10px 14px;font-size:12px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:0.05em;}
+.ms-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--stroke-subtle);cursor:pointer;}
+.ms-row:last-child{border-bottom:none;}
+.ms-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.ms-body{flex:1;min-width:0;}
+.ms-name{font-size:13px;font-weight:700;color:var(--text-high);}
+.ms-benefit{font-size:11px;color:var(--gov-green);font-weight:600;margin-top:1px;}
+.ms-arrow{font-size:14px;color:var(--text-low);}
+
+/* DOCUMENT CHECKLIST */
+.doc-checklist{border-radius:14px;border:1px solid var(--stroke-minimal);animation:cardIn var(--spring);width:100%;}
+.dcl-header{background:var(--gov-blue);color:#fff;padding:11px 16px;font-size:13px;font-weight:700;}
+.dcl-row{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--stroke-subtle);}
+.dcl-row:last-child{border-bottom:none;}
+.dcl-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.dcl-body{flex:1;min-width:0;}
+.dcl-doc-name{font-size:13px;font-weight:700;color:var(--text-high);}
+.dcl-msg{font-size:12px;margin-top:2px;line-height:1.4;}
+.dcl-ok{background:var(--surface);}
+.dcl-ok .dcl-msg{color:var(--gov-green);}
+.dcl-warn{background:#fffbf0;}
+.dcl-warn .dcl-msg{color:var(--gov-orange);}
+.dcl-missing{background:#fef6f6;}
+.dcl-missing .dcl-msg{color:var(--gov-red);}
+
+/* REJECTION WARNING */
+.rejection-warning{background:var(--gov-red-bg);border:2px solid var(--gov-red);border-radius:14px;padding:16px;animation:cardIn var(--spring);width:100%;}
+.rw-header{font-size:11px;font-weight:800;color:var(--gov-red);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.rw-msg{font-size:14px;font-weight:600;color:#7a0000;line-height:1.55;}
+.rw-sub{font-size:12px;color:var(--gov-red);margin-top:10px;font-style:italic;}
+
+/* FORM SIMULATION */
+.form-sim-card{border-radius:14px;border:1px solid var(--stroke-minimal);animation:cardIn var(--spring);width:100%;}
+.fsc-header{background:var(--gov-blue);color:#fff;padding:12px 16px;}
+.fsc-title{font-size:14px;font-weight:700;}
+.fsc-subtitle{font-size:11px;opacity:0.75;margin-top:2px;}
+.fsc-progress-track{height:4px;background:rgba(255,255,255,0.2);}
+.fsc-progress-fill{height:4px;background:#4eff9c;transition:width 0.5s var(--ease-standard);}
+.fsc-field{padding:11px 16px;border-bottom:1px solid var(--stroke-subtle);}
+.fsc-field:last-child{border-bottom:none;}
+.fsc-field-label{font-size:10px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:0.05em;}
+.fsc-field-value{font-size:14px;font-weight:600;color:var(--text-high);margin-top:3px;}
+.fsc-autofill-tag{font-size:10px;color:var(--gov-green);font-weight:700;margin-top:3px;display:flex;align-items:center;gap:3px;}
+.fsc-empty{color:var(--text-low);font-style:italic;font-weight:400;}
+
+/* FORM READY CARD */
+.form-ready-card{background:linear-gradient(135deg,var(--gov-green-bg),#f0faf4);border:2px solid var(--gov-green);border-radius:16px;padding:22px 20px;text-align:center;animation:cardIn var(--spring);width:100%;}
+.frc-icon{font-size:40px;margin-bottom:10px;}
+.frc-title{font-size:19px;font-weight:800;color:var(--gov-green);letter-spacing:-0.02em;}
+.frc-msg{font-size:13px;color:var(--text-medium);margin-top:8px;line-height:1.55;}
+.frc-note{font-size:12px;color:var(--gov-green);margin-top:12px;font-weight:700;background:rgba(26,107,60,0.1);border-radius:8px;padding:8px 12px;}
+
+/* ELIGIBILITY SCAN CARD */
+.scan-card{border-radius:14px;border:1px solid var(--stroke-minimal);overflow:hidden;padding:16px;animation:cardIn var(--spring);width:100%;background:var(--surface);}
+.scan-step{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.scan-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.scan-dot.active{background:var(--gov-blue);animation:dotBounce 1.2s infinite;}
+.scan-dot.done{background:var(--gov-green);}
+.scan-dot.pending{background:var(--grey-40);}
+.scan-text{font-size:13px;color:var(--text-high);font-weight:500;}
+.scan-text.pending{color:var(--text-low);}
+
+/* MISCONCEPTION CARD */
+.misconception-card{background:var(--gov-green-bg);border:1.5px solid var(--gov-green-20);border-radius:14px;padding:14px 16px;animation:cardIn var(--spring);width:100%;}
+.mc-eyebrow{font-size:10px;font-weight:800;color:var(--gov-green);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;}
+.mc-text{font-size:13px;color:var(--text-high);line-height:1.55;}
+
+/* ANIMATIONS */
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+</style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header-nav">
+    <div class="header-left">
+      <button class="back-btn" onclick="goBackToLanding()">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <div class="header-title-area">
+        <div class="header-title">Sarkar Saathi</div>
+        <div class="header-domain">AI Government Services</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn-ghost">
+        <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container" id="chatContainer"></div>
+
+  <!-- Bottom Input -->
+  <div class="bottom-widget">
+    <div class="bw-container">
+      <div class="bw-input">
+        <input type="text" class="bw-real-input" id="chatInput"
+          placeholder="Ask about any scheme or service..."
+          onkeydown="if(event.key==='Enter')sendUserText()"
+          oninput="toggleSendBtn()">
+      </div>
+      <div class="bw-actions">
+        <div class="bw-left">
+          <button class="wib">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </button>
+        </div>
+        <button class="bw-send hidden-send" id="sendBtn" onclick="sendUserText()">
+          <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+        </button>
+        <button class="speak-btn" id="speakBtn">
+          <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+          <span>Speak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Landing Overlay -->
+  <div class="gs-land" id="landingOverlay">
+    <div class="gs-scroll">
+      <div class="gs-brand-header">
+        <div class="gs-brand-name">Sarkar Saathi</div>
+        <div class="gs-brand-tagline">Your AI Government Services Companion</div>
+        <div class="gs-brand-sub">
+          <span class="gs-gov-badge">🇮🇳 Jio Omni AI</span>
+          <span class="gs-gov-badge">7 crore+ schemes</span>
+        </div>
+      </div>
+      <div class="gs-nudge-banner" onclick="enterChat('eligibility')">
+        <span>🎯 You may be eligible for 3+ government schemes — Find out now</span>
+        <span class="gs-nudge-arrow">→</span>
+      </div>
+      <div class="gs-section-label">Quick Actions</div>
+      <div class="gs-widget-grid">
+        <button class="gs-widget" onclick="enterChat('eligibility')">
+          <span class="gs-w-icon">🔍</span>
+          <span class="gs-w-label">Find schemes for me</span>
+        </button>
+        <button class="gs-widget" onclick="enterChat('document')">
+          <span class="gs-w-icon">📋</span>
+          <span class="gs-w-label">Check my documents</span>
+        </button>
+        <button class="gs-widget" onclick="enterChat('form')">
+          <span class="gs-w-icon">✍️</span>
+          <span class="gs-w-label">Apply for a service</span>
+        </button>
+        <button class="gs-widget gs-w-disabled">
+          <span class="gs-w-icon">📍</span>
+          <span class="gs-w-label">Track my application</span>
+          <span class="gs-w-badge">Soon</span>
+        </button>
+      </div>
+      <div class="gs-cta-row">
+        <button class="gs-cta-btn" onclick="enterChat(null)">Ask Sarkar Saathi anything</button>
+      </div>
+      <div class="gs-profile-strip">
+        <span>📝 Complete your profile to unlock more scheme matches</span>
+        <button onclick="enterChat('eligibility')">Start →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ── Constants ──
+const CC = document.getElementById('chatContainer');
+const LS_KEY = 'govSaathiProfile';
+
+// ── Mock Data ──
+const SCHEMES = [
+  {
+    id:'pmkisan', name:'PM Kisan Samman Nidhi', ministry:'Ministry of Agriculture',
+    benefit:'₹6,000/year', benefitDetail:'Paid in 3 installments of ₹2,000 each',
+    icon:'🌾', color:'#1a6b3c',
+    rules:{ occupation:['Farmer'], maxIncome:200000, maxLandHectares:2 },
+    docs:['aadhaar','land_record','bank_passbook'],
+    confidence:'high',
+    whyEligible: p => [
+      `Occupation: ${p.occupation} ✓`,
+      `Annual income ₹${p.income?.toLocaleString('en-IN')} (limit: ₹2,00,000) ✓`,
+      `Land holding ${p.landHectares} hectares (limit: 2 hectares) ✓`
+    ],
+    formFields:[
+      { key:'name',       label:'Full Name (as on Aadhaar)', autofill:'name',        explain:'Must match your Aadhaar exactly to avoid rejection.' },
+      { key:'state',      label:'State',                     autofill:'state',        explain:'Your registered state for PM Kisan allocation.' },
+      { key:'land',       label:'Land Area (Hectares)',       autofill:'landHectares', explain:'Must be ≤ 2 ha to qualify. Verified from land records.' },
+      { key:'ifsc',       label:'Bank IFSC Code',            autofill:null,           explain:'₹2,000 installments are credited directly to this account.' },
+      { key:'account_no', label:'Bank Account Number',       autofill:'bankAccount',  explain:'Must be seeded with Aadhaar for DBT transfer.' },
+    ]
+  },
+  {
+    id:'pmay', name:'PM Awas Yojana (Urban)', ministry:'Ministry of Housing',
+    benefit:'₹2.67 lakh subsidy', benefitDetail:'Home loan interest subsidy — reduce your EMI',
+    icon:'🏠', color:'#003580',
+    rules:{ maxIncome:300000, noExistingHome:true },
+    docs:['aadhaar','income_cert','bank_passbook'],
+    confidence:'high',
+    whyEligible: p => [
+      `Annual income ₹${p.income?.toLocaleString('en-IN')} (limit: ₹3,00,000) ✓`,
+      'No existing pucca house in your name ✓'
+    ],
+    formFields:[
+      { key:'name',    label:'Full Name',           autofill:'name',  explain:'Must match all property/bank documents.' },
+      { key:'income',  label:'Annual Income (₹)',   autofill:'income', explain:'Used to calculate subsidy amount under EWS/LIG/MIG category.' },
+      { key:'city',    label:'City / Town',         autofill:'city',  explain:'Scheme is for urban beneficiaries only.' },
+      { key:'account_no', label:'Bank Account No.', autofill:'bankAccount', explain:'Subsidy is credited directly to your home loan account.' },
+    ]
+  },
+  {
+    id:'ayushman', name:'Ayushman Bharat PM-JAY', ministry:'Ministry of Health',
+    benefit:'₹5 lakh/year', benefitDetail:'Free health insurance for you and your family',
+    icon:'🏥', color:'#b85e00',
+    rules:{ maxIncome:100000, category:['BPL','SC','ST','OBC'] },
+    docs:['aadhaar','income_cert','ration_card'],
+    confidence:'medium',
+    whyEligible: p => [
+      `Category: ${p.category} ✓`,
+      `Annual income ₹${p.income?.toLocaleString('en-IN')} (limit: ₹1,00,000) ✓`
+    ],
+    formFields:[
+      { key:'name',        label:'Full Name',        autofill:'name',     explain:'Must match Aadhaar for e-card generation.' },
+      { key:'dob',         label:'Date of Birth',    autofill:'dob',      explain:'Required for family member enrollment.' },
+      { key:'ration_no',   label:'Ration Card No.',  autofill:null,       explain:'Ration card is the primary eligibility document.' },
+      { key:'mobile',      label:'Mobile Number',    autofill:'mobile',   explain:'Ayushman card and hospital alerts sent here.' },
+    ]
+  },
+  {
+    id:'pmegp', name:'PMEGP Startup Grant', ministry:'Ministry of MSME',
+    benefit:'Up to ₹50 lakh', benefitDetail:'Grant + 15–35% subsidy for new business',
+    icon:'🏭', color:'#5c0fa3',
+    rules:{ minAge:18, maxAge:45, occupation:['Self-employed','Entrepreneur','Unemployed'] },
+    docs:['aadhaar','income_cert','project_report'],
+    confidence:'medium',
+    whyEligible: p => [
+      `Age ${p.age} (range: 18–45) ✓`,
+      `Occupation: ${p.occupation} eligible for PMEGP ✓`
+    ],
+    formFields:[
+      { key:'name',         label:'Full Name',           autofill:'name',  explain:'As registered with Aadhaar.' },
+      { key:'business_name',label:'Proposed Business',   autofill:null,    explain:'Name of your enterprise or business idea.' },
+      { key:'loan_amount',  label:'Loan Amount (₹)',     autofill:null,    explain:'Subsidy % depends on category and geography.' },
+      { key:'bank',         label:'Preferred Bank',      autofill:null,    explain:'Loan is disbursed through empanelled banks only.' },
+    ]
+  },
+  {
+    id:'ujjwala', name:'PM Ujjwala Yojana', ministry:'Ministry of Petroleum',
+    benefit:'Free LPG connection', benefitDetail:'Free cylinder + first refill + stove',
+    icon:'🔥', color:'#c0170f',
+    rules:{ gender:'Female', category:['BPL','SC','ST','OBC'], maxIncome:150000 },
+    docs:['aadhaar','ration_card','bank_passbook'],
+    confidence:'high',
+    whyEligible: p => [
+      `Category: ${p.category} ✓`,
+      `Annual income ₹${p.income?.toLocaleString('en-IN')} (limit: ₹1,50,000) ✓`,
+      'BPL household eligible ✓'
+    ],
+    formFields:[
+      { key:'name',       label:'Woman Applicant Name', autofill:'name',  explain:'Must be registered in the woman\'s name as per scheme rules.' },
+      { key:'address',    label:'Full Address',          autofill:'address', explain:'LPG cylinder delivered to this address.' },
+      { key:'ration_no',  label:'Ration Card No.',       autofill:null,   explain:'BPL ration card is mandatory for Ujjwala.' },
+      { key:'account_no', label:'Bank Account No.',      autofill:'bankAccount', explain:'Security deposit (₹0 for BPL) and refund processed here.' },
+    ]
+  },
+  {
+    id:'scholarship', name:'National Scholarship Portal', ministry:'Ministry of Education',
+    benefit:'₹5,000–₹50,000/year', benefitDetail:'Merit + means-based scholarship for students',
+    icon:'🎓', color:'#1976d2',
+    rules:{ occupation:['Student'], maxIncome:250000, minAge:14, maxAge:25 },
+    docs:['aadhaar','income_cert','marksheet','bank_passbook'],
+    confidence:'medium',
+    whyEligible: p => [
+      `Occupation: ${p.occupation} ✓`,
+      `Age ${p.age} (range: 14–25) ✓`,
+      `Annual income ₹${p.income?.toLocaleString('en-IN')} (limit: ₹2,50,000) ✓`
+    ],
+    formFields:[
+      { key:'name',       label:'Student Full Name',   autofill:'name',  explain:'Must match school/college enrollment records.' },
+      { key:'institution',label:'Institution Name',    autofill:null,    explain:'Must be a recognized institution registered on NSP.' },
+      { key:'course',     label:'Course / Class',      autofill:null,    explain:'Scholarship amount depends on level of study.' },
+      { key:'marks',      label:'Last Year Marks (%)', autofill:null,    explain:'Minimum 50% required for most scholarships.' },
+    ]
+  },
+  {
+    id:'sukanya', name:'Sukanya Samriddhi Yojana', ministry:'Ministry of Finance',
+    benefit:'8.2% p.a. tax-free', benefitDetail:'Highest interest savings scheme for girl child',
+    icon:'👧', color:'#e91e8c',
+    rules:{ hasGirlChildUnder10:true },
+    docs:['aadhaar','girl_birth_cert','bank_passbook'],
+    confidence:'high',
+    whyEligible: () => ['You have a girl child under 10 years ✓', 'Account can be opened in any post office or bank ✓'],
+    formFields:[
+      { key:'guardian_name',label:'Guardian\'s Full Name', autofill:'name',  explain:'Parent/guardian who will operate the account.' },
+      { key:'girl_name',    label:'Girl Child\'s Name',    autofill:null,    explain:'Account is opened in the child\'s name.' },
+      { key:'girl_dob',     label:'Girl\'s Date of Birth', autofill:null,    explain:'Age at account opening must be ≤10 years.' },
+      { key:'bank',         label:'Preferred Bank/PO',     autofill:null,    explain:'Available at all major banks and post offices.' },
+    ]
+  }
+];
+
+const DEFAULT_PROFILE = {
+  name:'Ramesh Kumar', state:'Uttar Pradesh', age:34,
+  occupation:'Farmer', income:80000, category:'OBC', gender:'Male',
+  familySize:4, landHectares:1.5, hasGirlChildUnder10:false,
+  noExistingHome:true, dob:'15/05/1990', city:'Lucknow',
+  mobile:'9876543210', bankAccount:'XXXX1234', address:'Sector 12, Lucknow, UP'
+};
+
+const MOCK_DOCS = {
+  aadhaar:      { name:'Ramesh Kumar',  dob:'1990-05-15', address:'Lucknow, UP', status:'ok' },
+  income_cert:  { name:'Ramesh Kumar',  income:80000, issued:'2023-01-10', expiry:'2025-01-10', status:'expired' },
+  bank_passbook:{ name:'Ramesh Kumar',  bank:'SBI', account:'XXXX1234', status:'ok' },
+  land_record:  { name:'Ramesh Kuma',   area:1.5, status:'name_mismatch' },
+  ration_card:  null,
+  marksheet:    null,
+  girl_birth_cert: null,
+  project_report: null
+};
+
+const DOC_DISPLAY_NAMES = {
+  aadhaar:'Aadhaar Card', income_cert:'Income Certificate', bank_passbook:'Bank Passbook',
+  land_record:'Land Record / Khatauni', ration_card:'Ration Card',
+  marksheet:'Academic Marksheet', girl_birth_cert:'Girl Child Birth Certificate',
+  project_report:'Business Project Report'
+};
+
+// ── State ──
+let currentFlow = null;
+let onboardingStep = 0;
+let isCollecting = false;
+let selectedScheme = null;
+let eligibilityResults = [];
+let formFieldIndex = 0;
+let formMode = 'autofill';
+let userProfile = {};
+
+// Profile collection queue
+const PROFILE_QUESTIONS = [
+  { key:'state',      ask:'Which state are you from?',       type:'chips', options:['Uttar Pradesh','Maharashtra','Bihar','Rajasthan','Gujarat','West Bengal','Other'] },
+  { key:'age',        ask:'How old are you?',                type:'chips', options:['Under 18','18–25','26–35','36–45','46–60','Above 60'] },
+  { key:'occupation', ask:'What is your occupation?',        type:'chips', options:['Farmer','Student','Salaried','Self-employed','Entrepreneur','Unemployed','Homemaker'] },
+  { key:'income',     ask:'What is your annual household income?', type:'chips', options:['Under ₹1 lakh','₹1–2 lakh','₹2–3 lakh','₹3–5 lakh','Above ₹5 lakh'] },
+  { key:'category',   ask:'What is your social category?',  type:'chips', options:['General','OBC','SC','ST','BPL'] },
+];
+
+const INCOME_MAP = {
+  'Under ₹1 lakh':50000, '₹1–2 lakh':150000, '₹2–3 lakh':250000,
+  '₹3–5 lakh':400000, 'Above ₹5 lakh':600000
+};
+const AGE_MAP = {
+  'Under 18':15, '18–25':22, '26–35':30, '36–45':40, '46–60':52, 'Above 60':65
+};
+
+// ── Icons ──
+const IC = {
+  like:`<svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>`,
+  dislike:`<svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>`,
+  copy:`<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+  share:`<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`
+};
+
+// ── Core Helpers ──
+function avatarHTML() {
+  return `<div class="ai-avatar">🏛</div>`;
+}
+function feedbackHTML() {
+  return `<div class="feedback-row"><button class="fb-btn">${IC.like}</button><button class="fb-btn">${IC.dislike}</button><button class="fb-btn">${IC.copy}</button><button class="fb-btn">${IC.share}</button></div>`;
+}
+
+function typewriterDOM(container, onDone) {
+  const spans = [];
+  (function walk(node) {
+    if (node.nodeType === 3) {
+      const text = node.textContent;
+      if (!text.trim()) return;
+      const frag = document.createDocumentFragment();
+      text.split(/(\s+)/).forEach(p => {
+        if (/\S/.test(p)) {
+          const sp = document.createElement('span');
+          sp.textContent = p;
+          sp.style.opacity = '0';
+          spans.push(sp);
+          frag.appendChild(sp);
+        } else if (p) frag.appendChild(document.createTextNode(p));
+      });
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === 1) {
+      [...node.childNodes].forEach(walk);
+    }
+  })(container);
+  if (!spans.length) { if (onDone) onDone(); return; }
+  let i = 0;
+  (function tick() {
+    if (i >= spans.length) { if (onDone) onDone(); return; }
+    spans[i++].style.opacity = '1';
+    CC.scrollTop = CC.scrollHeight;
+    setTimeout(tick, 40);
+  })();
+}
+
+function aiMessage(contentHTML, showFeedback = true, scroll = true, onTypeDone = null) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-msg';
+  wrap.innerHTML = `${avatarHTML()}<div class="ai-content"><div class="ai-text">${contentHTML}</div>${showFeedback ? feedbackHTML() : ''}</div>`;
+  CC.appendChild(wrap);
+  typewriterDOM(wrap.querySelector('.ai-text'), () => {
+    if (scroll) scrollBottom();
+    if (onTypeDone) onTypeDone();
+  });
+  return wrap;
+}
+
+function userMessage(text) {
+  const wrap = document.createElement('div');
+  wrap.className = 'user-msg';
+  wrap.innerHTML = `<div class="user-bubble">${text}</div>`;
+  CC.appendChild(wrap);
+  scrollBottom();
+}
+
+function appendWidget(el) {
+  if (typeof el === 'string') {
+    const div = document.createElement('div');
+    div.innerHTML = el;
+    el = div.firstElementChild;
+  }
+  CC.appendChild(el);
+  scrollBottom();
+}
+
+function scrollBottom() {
+  CC.scrollTo({ top: CC.scrollHeight, behavior: 'smooth' });
+}
+
+function showThinking() {
+  const row = document.createElement('div');
+  row.className = 'thinking-row';
+  row.id = 'thinkingRow';
+  row.innerHTML = `<div class="thinking-avatar">🏛</div><div class="thinking-dots"><span></span><span></span><span></span></div>`;
+  CC.appendChild(row);
+  scrollBottom();
+  return row;
+}
+
+function removeThinking() {
+  const t = document.getElementById('thinkingRow');
+  if (t) t.remove();
+}
+
+function showThinkingThen(fn, delay) {
+  showThinking();
+  setTimeout(() => { removeThinking(); fn(); }, delay || 1800);
+}
+
+function toggleSendBtn() {
+  const inp = document.getElementById('chatInput');
+  const btn = document.getElementById('sendBtn');
+  const sp = document.getElementById('speakBtn');
+  if (inp.value.trim()) { btn.classList.remove('hidden-send'); sp.style.display = 'none'; }
+  else { btn.classList.add('hidden-send'); sp.style.display = 'flex'; }
+}
+
+function addChipsToLast(html, delay) {
+  delay = delay || 420;
+  setTimeout(() => {
+    const msgs = CC.querySelectorAll('.ai-msg');
+    if (!msgs.length) return;
+    const last = msgs[msgs.length - 1];
+    const cr = document.createElement('div');
+    cr.className = 'chip-row';
+    cr.innerHTML = html;
+    last.querySelector('.ai-content').appendChild(cr);
+    scrollBottom();
+  }, delay);
+}
+
+function addChipsRow(html, delay) {
+  delay = delay || 100;
+  setTimeout(() => {
+    const cr = document.createElement('div');
+    cr.className = 'chip-row';
+    cr.innerHTML = html;
+    CC.appendChild(cr);
+    scrollBottom();
+  }, delay);
+}
+
+// ── Profile Persistence ──
+function loadProfile() {
+  try {
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) return { ...DEFAULT_PROFILE, ...JSON.parse(stored) };
+  } catch(e) {}
+  return { ...DEFAULT_PROFILE };
+}
+
+function saveProfile(updates) {
+  userProfile = { ...userProfile, ...updates };
+  try { localStorage.setItem(LS_KEY, JSON.stringify(userProfile)); } catch(e) {}
+}
+
+function profileComplete(p) {
+  return p.state && p.age && p.occupation && p.income !== undefined && p.category;
+}
+
+// ── Navigation ──
+function goBackToLanding() {
+  document.getElementById('landingOverlay').style.cssText = 'display:flex;flex-direction:column;overflow:hidden;font-family:"JioType",sans-serif;';
+  CC.innerHTML = '';
+  currentFlow = null;
+  selectedScheme = null;
+  eligibilityResults = [];
+  onboardingStep = 0;
+  isCollecting = false;
+}
+
+function enterChat(intent) {
+  const overlay = document.getElementById('landingOverlay');
+  overlay.classList.add('exiting');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    userProfile = loadProfile();
+    if (intent === 'eligibility') startEligibilityFlow();
+    else if (intent === 'document') startDocFlowDirect();
+    else if (intent === 'form') startFormFlowDirect();
+    else showWelcomeMenu();
+  }, 300);
+}
+
+// ── Chip Handler ──
+function handleChip(value) {
+  if (value.startsWith('check_docs:')) {
+    const id = value.split(':')[1];
+    userMessage('Check documents for this scheme');
+    startDocFlow(id);
+  } else if (value.startsWith('apply:')) {
+    const id = value.split(':')[1];
+    userMessage('Apply for this scheme');
+    startFormFlow(id);
+  } else if (value === 'show_more') {
+    showMoreSchemes();
+  } else if (value === 'why_eligible') {
+    showWhyEligible();
+  } else if (value === 'run_eligibility') {
+    showThinkingThen(runEligibilityEngine, 1400);
+  } else if (value === 'proceed_apply') {
+    userMessage('Proceed to apply');
+    startFormFlow(selectedScheme?.id || null);
+  } else if (value === 'fix_name_mismatch') {
+    showNameMismatchGuide();
+  } else if (value === 'get_income_cert') {
+    showIncomeCertGuide();
+  } else if (value === 'guided_form') {
+    userMessage('Guide me step by step');
+    formMode = 'guided';
+    formFieldIndex = 0;
+    renderFormField(0);
+  } else if (value === 'autofill_form') {
+    userMessage('Auto-fill from my profile');
+    formMode = 'autofill';
+    startAutoFillForm();
+  } else if (value === 'next_field') {
+    advanceFormField();
+  } else if (value === 'form_done') {
+    showFormReadyCard();
+  } else if (value === 'find_schemes') {
+    startEligibilityFlow();
+  } else if (value === 'check_docs') {
+    startDocFlowDirect();
+  } else if (value === 'apply_service') {
+    startFormFlowDirect();
+  }
+}
+
+function sendUserText() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  toggleSendBtn();
+  userMessage(text);
+  processText(text);
+}
+
+function processText(text) {
+  const t = text.toLowerCase();
+  if (/not eligible|can.t apply|won.t qualify|i don.t qualify/i.test(text)) {
+    handleMisconception(text);
+    return;
+  }
+  if (/scheme|eligible|benefit|yojana|sarkar/i.test(t)) {
+    showThinkingThen(runEligibilityEngine, 1200);
+    return;
+  }
+  if (/document|aadhaar|certificate|verify|papers/i.test(t)) {
+    startDocFlowDirect();
+    return;
+  }
+  if (/apply|form|application|fill/i.test(t)) {
+    startFormFlowDirect();
+    return;
+  }
+  // Generic helpful response
+  showThinkingThen(() => {
+    const msg = aiMessage(
+      `<p>I can help you with that. Here's what I can do for you:</p>`,
+      false, false
+    );
+    addChipsToLast(`
+      <button class="chip chip-appear-1" onclick="handleChip('find_schemes')">🔍 Find schemes</button>
+      <button class="chip chip-appear-2" onclick="handleChip('check_docs')">📋 Check documents</button>
+      <button class="chip chip-appear-3" onclick="handleChip('apply_service')">✍️ Apply for a service</button>
+    `);
+  }, 900);
+}
+
+// ── Welcome (no intent) ──
+function showWelcomeMenu() {
+  setTimeout(() => {
+    const msg = aiMessage(
+      `<p>Namaste! 🙏 I'm <strong>Sarkar Saathi</strong> — your AI companion for government services.</p>
+       <p>I can find schemes you're eligible for, check your documents, and help you apply. What would you like to do?</p>`,
+      false, false
+    );
+    addChipsToLast(`
+      <button class="chip cta chip-appear-1" onclick="handleChip('find_schemes')">🔍 Find my schemes</button>
+      <button class="chip chip-appear-2" onclick="handleChip('check_docs')">📋 Check documents</button>
+      <button class="chip chip-appear-3" onclick="handleChip('apply_service')">✍️ Apply for a service</button>
+    `);
+  }, 400);
+}
+
+// ═══════════════════════════
+// FLOW 1: ELIGIBILITY FINDER
+// ═══════════════════════════
+
+function startEligibilityFlow() {
+  currentFlow = 'eligibility';
+  userProfile = loadProfile();
+  if (profileComplete(userProfile)) {
+    setTimeout(() => {
+      aiMessage(
+        `<p>I already have your profile saved. Let me check your eligibility right away — <strong>${userProfile.name}</strong>, ${userProfile.occupation}, ${userProfile.state}.</p>`,
+        false, true
+      );
+      showThinkingThen(runEligibilityEngine, 1600);
+    }, 300);
+  } else {
+    setTimeout(() => {
+      aiMessage(
+        `<p>Let me find the best government schemes for you! 🎯</p>
+         <p>I'll ask just <strong>5 quick questions</strong> to check your eligibility across all major central and state schemes.</p>`,
+        false, true
+      );
+      onboardingStep = 0;
+      isCollecting = true;
+      setTimeout(askNextProfileQuestion, 900);
+    }, 300);
+  }
+}
+
+function askNextProfileQuestion() {
+  if (onboardingStep >= PROFILE_QUESTIONS.length) {
+    showThinkingThen(runEligibilityEngine, 1800);
+    return;
+  }
+  const q = PROFILE_QUESTIONS[onboardingStep];
+  const msg = aiMessage(`<p>${q.ask}</p>`, false, false);
+  const cr = document.createElement('div');
+  cr.className = 'chip-row';
+  cr.innerHTML = q.options.map((opt, i) =>
+    `<button class="chip chip-appear-${Math.min(i+1,6)}" onclick="answerProfile('${q.key}','${opt}')">${opt}</button>`
+  ).join('');
+  setTimeout(() => {
+    msg.querySelector('.ai-content').appendChild(cr);
+    scrollBottom();
+  }, 50);
+}
+
+function answerProfile(key, value) {
+  userMessage(value);
+  let parsed = value;
+  if (key === 'income') parsed = INCOME_MAP[value] || 80000;
+  if (key === 'age') parsed = AGE_MAP[value] || 30;
+  saveProfile({ [key]: parsed });
+  onboardingStep++;
+  if (onboardingStep < PROFILE_QUESTIONS.length) {
+    setTimeout(askNextProfileQuestion, 500);
+  } else {
+    showScanAnimation();
+  }
+}
+
+function showScanAnimation() {
+  const steps = [
+    'Analysing your profile...',
+    'Matching against 7 central schemes...',
+    'Checking state-specific eligibility...',
+    'Ranking results by confidence...'
+  ];
+  const card = document.createElement('div');
+  card.className = 'scan-card';
+  card.id = 'scanCard';
+  card.innerHTML = `<div style="font-size:13px;font-weight:700;color:var(--gov-blue);margin-bottom:10px;">🔍 Checking Eligibility</div>` +
+    steps.map((s, i) => `<div class="scan-step" id="sstep${i}"><div class="scan-dot ${i===0?'active':'pending'}" id="sdot${i}"></div><span class="scan-text ${i>0?'pending':''}" id="stxt${i}">${s}</span></div>`).join('');
+  CC.appendChild(card);
+  scrollBottom();
+  let si = 0;
+  const adv = () => {
+    if (si > 0) {
+      document.getElementById(`sdot${si-1}`)?.classList.replace('active','done');
+    }
+    if (si < steps.length) {
+      document.getElementById(`sdot${si}`)?.classList.replace('pending','active');
+      document.getElementById(`stxt${si}`)?.classList.remove('pending');
+      si++;
+      setTimeout(adv, 600);
+    } else {
+      setTimeout(() => {
+        card.remove();
+        runEligibilityEngine();
+      }, 400);
+    }
+  };
+  setTimeout(adv, 400);
+}
+
+function runEligibilityEngine() {
+  const p = userProfile;
+  const matches = SCHEMES.filter(s => {
+    const r = s.rules;
+    if (r.occupation && !r.occupation.includes(p.occupation)) return false;
+    if (r.maxIncome && (p.income || 0) > r.maxIncome) return false;
+    if (r.category && !r.category.includes(p.category)) return false;
+    if (r.gender && r.gender !== p.gender) return false;
+    if (r.maxLandHectares && (p.landHectares || 0) > r.maxLandHectares) return false;
+    if (r.noExistingHome && !p.noExistingHome) return false;
+    if (r.hasGirlChildUnder10 && !p.hasGirlChildUnder10) return false;
+    if (r.minAge && (p.age || 0) < r.minAge) return false;
+    if (r.maxAge && (p.age || 0) > r.maxAge) return false;
+    return true;
+  });
+  eligibilityResults = matches;
+  showSchemeResults(matches);
+}
+
+function showSchemeResults(matches) {
+  if (!matches.length) {
+    aiMessage(`<p>Based on your profile, I didn't find exact matches right now. But let me show you some schemes you might explore — try updating your profile for better results.</p>`);
+    return;
+  }
+  const count = matches.length;
+  aiMessage(
+    `<p>Great news! 🎉 I found <strong>${count} scheme${count>1?'s':''}</strong> you're likely eligible for.</p>
+     <p>Here are your <strong>top matches</strong>:</p>`,
+    false, true
+  );
+  // Top 2 as full cards
+  const top = matches.slice(0, 2);
+  top.forEach((scheme, idx) => {
+    setTimeout(() => {
+      selectedScheme = selectedScheme || scheme;
+      appendWidget(buildSchemeCard(scheme, idx === 0));
+    }, 400 + idx * 300);
+  });
+  // Remaining as compact list
+  const rest = matches.slice(2);
+  const delay = 400 + top.length * 300;
+  if (rest.length > 0) {
+    setTimeout(() => {
+      appendWidget(buildMoreSchemes(rest));
+    }, delay + 200);
+  }
+  // Follow-up chips
+  setTimeout(() => {
+    addChipsRow(`
+      <button class="chip cta chip-appear-1" onclick="handleChip('check_docs:${top[0].id}')">📋 Check my documents</button>
+      <button class="chip chip-appear-2" onclick="handleChip('why_eligible')">💡 Why am I eligible?</button>
+      ${rest.length > 0 ? `<button class="chip chip-appear-3" onclick="handleChip('show_more')">See all ${matches.length} matches</button>` : ''}
+    `);
+  }, delay + 600);
+}
+
+function buildSchemeCard(scheme, isTop) {
+  const p = userProfile;
+  const reasons = scheme.whyEligible(p).map(r => `<li>${r}</li>`).join('');
+  const tagClass = scheme.confidence === 'high' ? 'sc-tag-high' : 'sc-tag-medium';
+  const tagLabel = scheme.confidence === 'high' ? 'High Confidence Match' : 'Possible Match';
+  const card = document.createElement('div');
+  card.className = 'scheme-card';
+  card.innerHTML = `
+    <div class="sc-header" style="background:${scheme.color}">
+      <span class="sc-icon">${scheme.icon}</span>
+      <div class="sc-info">
+        <div class="sc-name">${scheme.name}</div>
+        <div class="sc-ministry">${scheme.ministry}</div>
+      </div>
+      ${isTop ? `<span class="sc-badge">✦ Best for you</span>` : ''}
+    </div>
+    <div class="sc-body">
+      <div class="sc-benefit">${scheme.benefit}</div>
+      <div style="font-size:12px;color:var(--text-low);margin-bottom:10px;">${scheme.benefitDetail}</div>
+      <div class="sc-reason-label">Why you qualify</div>
+      <ul class="sc-reason">${reasons}</ul>
+      <div class="sc-tag-row">
+        <span class="sc-tag ${tagClass}">${tagLabel}</span>
+      </div>
+      <div class="sc-actions">
+        <button class="chip" onclick="handleChip('check_docs:${scheme.id}')">📋 Check docs</button>
+        <button class="chip cta" onclick="handleChip('apply:${scheme.id}')">Apply now →</button>
+      </div>
+    </div>`;
+  return card;
+}
+
+function buildMoreSchemes(schemes) {
+  const card = document.createElement('div');
+  card.className = 'more-schemes';
+  card.innerHTML = `<div class="ms-header">More Matches for You</div>` +
+    schemes.map(s => `
+      <div class="ms-row" onclick="handleChip('check_docs:${s.id}')">
+        <span class="ms-icon">${s.icon}</span>
+        <div class="ms-body">
+          <div class="ms-name">${s.name}</div>
+          <div class="ms-benefit">${s.benefit}</div>
+        </div>
+        <span class="ms-arrow">›</span>
+      </div>`).join('');
+  return card;
+}
+
+function showMoreSchemes() {
+  if (!eligibilityResults.length) return;
+  aiMessage(`<p>Here are all <strong>${eligibilityResults.length} schemes</strong> you match:</p>`, false, true);
+  eligibilityResults.forEach((s, i) => {
+    setTimeout(() => appendWidget(buildSchemeCard(s, i===0)), 300 + i*250);
+  });
+}
+
+function showWhyEligible() {
+  const s = selectedScheme || eligibilityResults[0];
+  if (!s) return;
+  const reasons = s.whyEligible(userProfile);
+  aiMessage(
+    `<p>Here's why you're eligible for <strong>${s.name}</strong>:</p>
+     <ul style="margin:8px 0 0 16px;font-size:13px;line-height:1.8;">${reasons.map(r=>`<li>${r}</li>`).join('')}</ul>`,
+    true, true
+  );
+}
+
+function handleMisconception(text) {
+  showThinkingThen(() => {
+    const card = document.createElement('div');
+    card.className = 'misconception-card';
+    card.innerHTML = `
+      <div class="mc-eyebrow">✓ Actually, you may be eligible</div>
+      <div class="mc-text">Many people think they don't qualify — but eligibility rules are often more flexible than expected. Let me check your profile against actual scheme criteria right now.</div>`;
+    CC.appendChild(card);
+    scrollBottom();
+    setTimeout(() => showThinkingThen(runEligibilityEngine, 1400), 800);
+  }, 800);
+}
+
+// ══════════════════════════
+// FLOW 2: DOCUMENT GUIDER
+// ══════════════════════════
+
+function startDocFlowDirect() {
+  currentFlow = 'document';
+  if (eligibilityResults.length) {
+    selectedScheme = eligibilityResults[0];
+    startDocFlow(selectedScheme.id);
+  } else {
+    setTimeout(() => {
+      aiMessage(
+        `<p>Which scheme would you like to check documents for? Let me first find your eligible schemes.</p>`,
+        false, false
+      );
+      addChipsToLast(`
+        <button class="chip cta chip-appear-1" onclick="handleChip('find_schemes')">Find my eligible schemes first</button>
+        <button class="chip chip-appear-2" onclick="startDocFlow('pmkisan')">PM Kisan directly</button>
+        <button class="chip chip-appear-3" onclick="startDocFlow('pmay')">PM Awas Yojana</button>
+      `);
+    }, 300);
+  }
+}
+
+function startDocFlow(schemeId) {
+  currentFlow = 'document';
+  selectedScheme = SCHEMES.find(s => s.id === schemeId) || eligibilityResults[0] || SCHEMES[0];
+  setTimeout(() => {
+    aiMessage(
+      `<p>I'll verify your documents for <strong>${selectedScheme.name}</strong>. Scanning now...</p>`,
+      false, true
+    );
+    showThinkingThen(showDocValidationResults, 2000);
+  }, 300);
+}
+
+function showDocValidationResults() {
+  const scheme = selectedScheme;
+  if (!scheme) return;
+  const results = scheme.docs.map(docKey => {
+    const doc = MOCK_DOCS[docKey];
+    if (!doc) return { docKey, status:'missing', msg:'Document not found — you need to submit this', critical:true };
+    if (doc.status === 'expired') return { docKey, status:'warn', msg:`Expired on ${doc.expiry} — must be renewed before applying`, critical:true };
+    if (doc.status === 'name_mismatch') return { docKey, status:'warn', msg:`Name mismatch: "${doc.name}" vs "Ramesh Kumar" on Aadhaar`, critical:true };
+    return { docKey, status:'ok', msg:'Verified successfully ✓', critical:false };
+  });
+
+  const criticalIssues = results.filter(r => r.critical);
+  const allOk = results.every(r => r.status === 'ok');
+
+  aiMessage(
+    `<p>Document check complete for <strong>${scheme.name}</strong>.</p>${allOk ? '<p>✅ All your documents are in order!</p>' : '<p>I found some issues that need your attention.</p>'}`,
+    false, true
+  );
+
+  setTimeout(() => {
+    appendWidget(buildDocChecklist(scheme, results));
+  }, 400);
+
+  if (criticalIssues.length > 0) {
+    setTimeout(() => {
+      appendWidget(buildRejectionWarning(criticalIssues));
+    }, 700);
+  }
+
+  const fixChips = [];
+  if (results.find(r => r.docKey === 'land_record' && r.status === 'warn')) {
+    fixChips.push(`<button class="chip chip-appear-1" onclick="handleChip('fix_name_mismatch')">How to fix name mismatch?</button>`);
+  }
+  if (results.find(r => (r.docKey === 'income_cert' || r.docKey === 'ration_card') && r.status !== 'ok')) {
+    fixChips.push(`<button class="chip chip-appear-2" onclick="handleChip('get_income_cert')">Get income certificate</button>`);
+  }
+  fixChips.push(`<button class="chip cta chip-appear-${fixChips.length+1}" onclick="handleChip('proceed_apply')">Proceed to apply →</button>`);
+
+  setTimeout(() => {
+    addChipsRow(fixChips.join(''), 0);
+  }, 1000);
+}
+
+function buildDocChecklist(scheme, results) {
+  const card = document.createElement('div');
+  card.className = 'doc-checklist';
+  const statusIcon = { ok:'✅', warn:'⚠️', missing:'❌' };
+  const rowClass = { ok:'dcl-ok', warn:'dcl-warn', missing:'dcl-missing' };
+  card.innerHTML = `<div class="dcl-header">📋 Documents for ${scheme.name}</div>` +
+    results.map(r => `
+      <div class="dcl-row ${rowClass[r.status]}">
+        <span class="dcl-icon">${statusIcon[r.status]}</span>
+        <div class="dcl-body">
+          <div class="dcl-doc-name">${DOC_DISPLAY_NAMES[r.docKey] || r.docKey}</div>
+          <div class="dcl-msg">${r.msg}</div>
+        </div>
+      </div>`).join('');
+  return card;
+}
+
+function buildRejectionWarning(issues) {
+  const card = document.createElement('div');
+  card.className = 'rejection-warning';
+  card.innerHTML = `
+    <div class="rw-header">⚠ CRITICAL ISSUE — Action Required</div>
+    <div class="rw-msg">This would likely lead to rejection. ${issues.length > 1 ? `${issues.length} issues were found` : 'An issue was found'} that cause most applications to fail at the verification stage.</div>
+    <div class="rw-sub">68% of rejected applications fail due to document mismatches. Fix this before applying — it takes 2–3 days, not weeks.</div>`;
+  return card;
+}
+
+function showNameMismatchGuide() {
+  aiMessage(
+    `<p><strong>How to fix a name mismatch on Land Record:</strong></p>
+     <p>1. Visit your local <strong>Tehsildar/Revenue Office</strong> with Aadhaar + land record copy</p>
+     <p>2. Submit a correction request form (free of cost)</p>
+     <p>3. Correction takes <strong>7–15 working days</strong></p>
+     <p>💡 <strong>Good news:</strong> This is a common issue — revenue offices process it routinely.</p>`,
+    true, true
+  );
+}
+
+function showIncomeCertGuide() {
+  aiMessage(
+    `<p><strong>How to get an Income Certificate:</strong></p>
+     <p>1. Visit <strong>e-District portal</strong> of your state or nearest CSC center</p>
+     <p>2. Apply with: Aadhaar + Ration Card + self-declaration form</p>
+     <p>3. Certificate issued in <strong>3–7 working days</strong></p>
+     <p>💡 <strong>You don't need to visit any office</strong> — apply fully online on your state's e-district portal.</p>`,
+    true, true
+  );
+}
+
+// ═══════════════════════════
+// FLOW 3: FORM FILLING
+// ═══════════════════════════
+
+function startFormFlowDirect() {
+  currentFlow = 'form';
+  if (!selectedScheme && eligibilityResults.length) selectedScheme = eligibilityResults[0];
+  if (!selectedScheme) selectedScheme = SCHEMES[0];
+  setTimeout(() => {
+    aiMessage(
+      `<p>I'll help you fill the <strong>${selectedScheme.name}</strong> application form.</p>
+       <p>How would you like to proceed?</p>`,
+      false, false
+    );
+    addChipsToLast(`
+      <button class="chip cta chip-appear-1" onclick="handleChip('autofill_form')">✨ Auto-fill from my profile</button>
+      <button class="chip chip-appear-2" onclick="handleChip('guided_form')">Guide me step by step</button>
+    `);
+  }, 300);
+}
+
+function startFormFlow(schemeId) {
+  currentFlow = 'form';
+  selectedScheme = SCHEMES.find(s => s.id === schemeId) || selectedScheme || SCHEMES[0];
+  startFormFlowDirect();
+}
+
+function startAutoFillForm() {
+  const scheme = selectedScheme;
+  const fields = scheme.formFields || SCHEMES[0].formFields;
+  const profile = userProfile;
+  const filledCount = fields.filter(f => f.autofill && profile[f.autofill]).length;
+  const fillPct = Math.round((filledCount / fields.length) * 100);
+
+  setTimeout(() => {
+    aiMessage(
+      `<p>I've auto-filled <strong>${filledCount} of ${fields.length} fields</strong> from your profile. Review and submit when ready.</p>`,
+      false, true
+    );
+    setTimeout(() => {
+      appendWidget(buildFormSimCard(scheme, fields, profile, fillPct));
+      setTimeout(() => {
+        aiMessage(
+          `<p>💡 <strong>You don't need to visit any office.</strong> This application is 100% online and takes about 2 minutes to submit on the official portal.</p>`,
+          false, false
+        );
+        addChipsToLast(`
+          <button class="chip cta chip-appear-1" onclick="handleChip('form_done')">✅ Mark as ready to submit</button>
+          <button class="chip chip-appear-2" onclick="handleChip('guided_form')">Edit a field</button>
+        `);
+      }, 500);
+    }, 400);
+  }, 300);
+}
+
+function buildFormSimCard(scheme, fields, profile, fillPct) {
+  const card = document.createElement('div');
+  card.className = 'form-sim-card';
+  const rows = fields.map(f => {
+    const val = f.autofill ? (profile[f.autofill] || '') : '';
+    const hasVal = Boolean(val);
+    return `
+      <div class="fsc-field">
+        <div class="fsc-field-label">${f.label}</div>
+        <div class="fsc-field-value ${hasVal ? '' : 'fsc-empty'}">${hasVal ? val : 'To be filled'}</div>
+        ${hasVal && f.autofill ? `<div class="fsc-autofill-tag">✅ Auto-filled from your profile</div>` : ''}
+      </div>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="fsc-header">
+      <div class="fsc-title">${scheme.name} — Application Form</div>
+      <div class="fsc-subtitle">${fillPct}% complete</div>
+    </div>
+    <div class="fsc-progress-track">
+      <div class="fsc-progress-fill" style="width:${fillPct}%"></div>
+    </div>
+    ${rows}`;
+  return card;
+}
+
+function renderFormField(idx) {
+  const scheme = selectedScheme;
+  const fields = scheme.formFields || SCHEMES[0].formFields;
+  if (idx >= fields.length) {
+    showFormReadyCard();
+    return;
+  }
+  const field = fields[idx];
+  const autoVal = field.autofill ? (userProfile[field.autofill] || '') : '';
+  const pct = Math.round(((idx) / fields.length) * 100);
+
+  aiMessage(
+    `<p><strong>Field ${idx+1} of ${fields.length}:</strong> ${field.label}</p>
+     <p style="font-size:12px;color:var(--text-low);margin-top:4px;">${field.explain}</p>
+     ${autoVal ? `<p style="margin-top:6px;">✅ <strong>Suggested value:</strong> "${autoVal}" (from your profile)</p>` : ''}`,
+    false, false
+  );
+
+  const nextLabel = idx + 1 < fields.length ? `Next: ${fields[idx+1].label}` : 'Finish & review';
+  addChipsToLast(`
+    ${autoVal ? `<button class="chip cta chip-appear-1" onclick="acceptField()">✓ Use this value</button>` : ''}
+    <button class="chip chip-appear-2" onclick="handleChip('next_field')">Skip →</button>
+  `);
+}
+
+function acceptField() {
+  userMessage('Use this value');
+  formFieldIndex++;
+  setTimeout(() => renderFormField(formFieldIndex), 400);
+}
+
+function advanceFormField() {
+  formFieldIndex++;
+  renderFormField(formFieldIndex);
+}
+
+function showFormReadyCard() {
+  const card = document.createElement('div');
+  card.className = 'form-ready-card';
+  card.innerHTML = `
+    <div class="frc-icon">✅</div>
+    <div class="frc-title">Form Ready to Submit</div>
+    <div class="frc-msg">All fields are complete. Your <strong>${selectedScheme?.name || 'application'}</strong> form is ready. Submit it on the official government portal to complete your application.</div>
+    <div class="frc-note">🖥️ You don't need to visit any office — submit online in 2 minutes</div>`;
+  appendWidget(card);
+  setTimeout(() => {
+    aiMessage(
+      `<p>🎉 Congratulations! Your application form is ready.</p>
+       <p>Submit on the <strong>official portal</strong> — your data has been verified and should process quickly.</p>`,
+      true, false
+    );
+    addChipsToLast(`
+      <button class="chip cta chip-appear-1" onclick="enterChat('eligibility')">🔍 Find more schemes</button>
+      <button class="chip chip-appear-2" onclick="goBackToLanding()">← Back to Home</button>
+    `);
+  }, 500);
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Landing is shown by default via HTML
+});
+</script>
+</body>
+</html>
