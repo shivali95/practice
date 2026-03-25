@@ -885,25 +885,29 @@ function triggerNaamFix() {
 }
 
 function startFormFlow() {
-  // Disable the CTA card
   document.querySelectorAll('.apply-btn-p,.apply-btn-s').forEach(b => b.disabled = true);
-  addUser("Apply karna hai");
-  addAI("बहुत अच्छा! PM Kisan की आधिकारिक वेबसाइट खुल रही है। मैंने आपकी जानकारी के हिसाब से ज़्यादातर खाने पहले से भर दिए हैं — चलिए साथ में देखते हैं।");
 
-  speak("बहुत अच्छा! अब PM Kisan की सरकारी वेबसाइट खुल रही है। मैंने आपकी जानकारी के हिसाब से ज़्यादातर खाने पहले से भर दिए हैं। चलिए साथ में देखते हैं।", null);
+  // Step 1 — AI confirms what's about to happen, speaks it, THEN redirects
+  addAI("ज़रूर! अभी मैं आपको <strong>PM Kisan की आधिकारिक सरकारी वेबसाइट</strong> पर ले जाता हूँ। वहाँ मैंने आपकी जानकारी के हिसाब से सभी खाने पहले से भर दिए हैं — मैं आवाज़ से एक-एक करके समझाऊँगा।");
 
-  const loader = document.createElement('div');
-  loader.className = 'site-loader';
-  loader.innerHTML = `<div class="sl-ico">🌐</div>
-    <div class="sl-title">pmkisan.gov.in खुल रहा है...</div>
-    <div class="sl-sub">Official Government of India Website</div>
-    <div class="sl-bar"><div class="sl-fill"></div></div>`;
-  $conv.appendChild(loader); scrollDown();
+  speakThen(
+    "ज़रूर! अभी मैं आपको PM Kisan की आधिकारिक सरकारी वेबसाइट पर ले जाता हूँ। वहाँ सभी खाने पहले से भरे हुए हैं — मैं आवाज़ से एक-एक करके समझाऊँगा कि हर खाने में क्या भरा है और क्यों।",
+    () => {
+      // Step 2 — site loader
+      const loader = document.createElement('div');
+      loader.className = 'site-loader';
+      loader.innerHTML = `<div class="sl-ico">🌐</div>
+        <div class="sl-title">pmkisan.gov.in खुल रहा है...</div>
+        <div class="sl-sub">Official Government of India Website</div>
+        <div class="sl-bar"><div class="sl-fill"></div></div>`;
+      $conv.appendChild(loader); scrollDown();
 
-  setTimeout(() => {
-    loader.remove();
-    showFormSimulator();
-  }, 2200);
+      setTimeout(() => {
+        loader.remove();
+        showFormSimulator();
+      }, 2000);
+    }, 10000
+  );
 }
 
 function showFormSimulator() {
