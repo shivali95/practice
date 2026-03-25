@@ -437,12 +437,23 @@ const $mHint   = document.getElementById('micHint');
 
 // ── State ──
 let turn         = 0;
-let docPhase     = null;   // 'awaiting_fix' after follow-up question
+let docPhase     = null;
+let serviceIntent = null;   // 'aadhaar'|'passport'|'pan'|'driving' — set from landing chips
+let serviceTurn  = 0;
 let listening    = false;
 let speaking     = false;
 let currentAudio = null;
 let recognition  = null;
 let docUploaded  = {};
+
+const SERVICE_INTENTS = ['aadhaar','passport','pan','driving'];
+
+const SERVICE_DEMO = {
+  aadhaar: ["आधार अपडेट करना है", "हाँ, नाम और पता दोनों बदलने हैं"],
+  passport:["नया पासपोर्ट बनाना है"],
+  pan:     ["नया PAN card चाहिए"],
+  driving: ["नया लाइसेंस बनाना है"],
+};
 
 // ── Conversation script (Devanagari — gives Sarvam authentic Indian accent) ──
 const SC = {
@@ -890,6 +901,105 @@ const DEMO_DEFAULTS = [
   "हाँ, ज़रूर बताओ"
 ];
 
+// ══════════════════════════════════════
+// SERVICE FLOWS (Aadhaar / Passport / PAN / Driving)
+// ══════════════════════════════════════
+function processServiceTurn(said) {
+  hideListening();
+  listening = false;
+  const demos = SERVICE_DEMO[serviceIntent] || [];
+  const text  = (said && said.trim()) ? said.trim() : (demos[serviceTurn] || 'हाँ');
+  addUser(text);
+  const t = serviceTurn;
+  serviceTurn++;
+
+  if (serviceIntent === 'aadhaar') {
+    if (t === 0) {
+      // Detect sub-intent from what user said
+      const lower = text.toLowerCase();
+      const isUpdate = /update|updat|badl|theek|correct|naam|pata|address|mobile|number/i.test(lower);
+      showTyping(); setMic('loading');
+      setTimeout(() => {
+        hideTyping();
+        showAadhaarGuide(isUpdate ? 'update' : 'update');
+      }, 900);
+    }
+  } else {
+    // Other services — generic "coming soon" nudge back to PM Kisan demo
+    showTyping(); setMic('loading');
+    setTimeout(() => {
+      hideTyping();
+      addAI(`${serviceIntent === 'passport' ? 'पासपोर्ट' : serviceIntent === 'pan' ? 'PAN Card' : 'Driving Licence'} सेवा जल्द आ रही है! अभी PM Kisan योजना का पूरा demo देखें।`);
+      speak('यह सेवा जल्द आ रही है।', () => setMic('idle'));
+    }, 900);
+  }
+}
+
+function showAadhaarGuide(subIntent) {
+  const card = document.createElement('div');
+  card.className = 'action-card';
+  card.innerHTML = `
+    <div class="ac-hd">🪪 आधार अपडेट — पूरी जानकारी</div>
+
+    <div class="ac-step">
+      <span class="ac-ico">💻</span>
+      <div>
+        <div class="ac-txt">ऑनलाइन अपडेट करें</div>
+        <div class="ac-sub">myaadhaar.uidai.gov.in → "Update Aadhaar" → नाम / पता / मोबाइल</div>
+        <span class="ac-pill free">₹50 शुल्क · घर बैठे</span>
+      </div>
+    </div>
+
+    <div class="ac-step">
+      <span class="ac-ico">🏢</span>
+      <div>
+        <div class="ac-txt">नज़दीकी आधार सेंटर जाएं</div>
+        <div class="ac-sub">India Post, Hazratganj · 1.2 km</div>
+        <div class="ac-sub" style="margin-top:2px">CSC Centre, Gomti Nagar · 2.1 km</div>
+        <div class="ac-sub" style="margin-top:2px">⏰ सोम–शनि, सुबह 9 से शाम 5 बजे</div>
+      </div>
+    </div>
+
+    <div class="ac-step">
+      <span class="ac-ico">📄</span>
+      <div>
+        <div class="ac-txt">साथ लेकर जाएं</div>
+        <div class="ac-sub">• आधार कार्ड (Original)</div>
+        <div class="ac-sub">• पहचान प्रमाण — PAN / Voter ID / Passport</div>
+        <div class="ac-sub">• पते का प्रमाण — बिजली बिल / राशन कार्ड (अगर पता बदलना है)</div>
+      </div>
+    </div>
+
+    <div class="ac-step" style="background:#e6f4ec;border-radius:0 0 14px 14px;">
+      <span class="ac-ico">⏱️</span>
+      <div>
+        <div class="ac-txt">अपडेट ९० दिनों में हो जाता है</div>
+        <div class="ac-sub">SMS और UIDAI website पर status track करें</div>
+        <span class="ac-pill free">₹50 शुल्क · कोई एजेंट ज़रूरी नहीं</span>
+      </div>
+    </div>`;
+  $conv.appendChild(card);
+  scrollDown();
+
+  const speech =
+    "आधार अपडेट करने के दो तरीके हैं। " +
+    "पहला — ऑनलाइन। myaadhaar.uidai.gov.in पर जाएं, Update Aadhaar पर क्लिक करें। नाम, पता, मोबाइल नंबर — सब कुछ घर बैठे बदल सकते हैं। बस पचास रुपये लगते हैं। " +
+    "दूसरा — नज़दीकी आधार सेंटर। आपके पास इंडिया पोस्ट हज़रतगंज और गोमती नगर CSC सेंटर है। " +
+    "साथ में आधार कार्ड और एक पहचान प्रमाण लेकर जाएं — PAN कार्ड, वोटर ID, या पासपोर्ट। " +
+    "अगर पता बदलना है तो बिजली बिल या राशन कार्ड भी लाएं। " +
+    "अपडेट नब्बे दिनों में हो जाता है।";
+
+  speakThen(speech, () => {
+    setTimeout(() => {
+      addAI("क्या आप ऑनलाइन अपडेट करना चाहते हैं, या सेंटर जाना ज़्यादा ठीक रहेगा?");
+      speak("क्या आप ऑनलाइन अपडेट करना चाहते हैं, या सेंटर जाना ज़्यादा ठीक रहेगा?", () => setMic('idle'));
+    }, 500);
+  }, 14000);
+}
+
+// ══════════════════════════════════════
+// SCHEME CONVERSATION TURNS
+// ══════════════════════════════════════
 function processUserTurn(said) {
   hideListening();
   listening = false;
@@ -1243,6 +1353,9 @@ function onMicTap() {
     return;
   }
   if (formPhase === 'final') return;
+  // Service flow (Aadhaar / Passport / etc.) — only 1 turn needed
+  if (serviceIntent && serviceTurn === 0) { startListening(); return; }
+  if (serviceIntent) return; // service flow done
   if (turn > 3) return;
   startListening();
 }
@@ -1253,14 +1366,20 @@ function startListening() {
   showListening();
 
   if (!recognition) {
-    setTimeout(() => { if (listening) processUserTurn(null); }, 2800);
+    setTimeout(() => {
+      if (listening) {
+        if (serviceIntent) processServiceTurn(null);
+        else processUserTurn(null);
+      }
+    }, 2800);
     return;
   }
 
   let handled = false;
   function done(said) {
     if (handled) return; handled = true;
-    processUserTurn(said);
+    if (serviceIntent) processServiceTurn(said);
+    else processUserTurn(said);
   }
   recognition.onresult = e => done(e.results[0][0].transcript);
   recognition.onerror  = () => done(null);
@@ -1293,6 +1412,8 @@ function startConv(intent) {
     driving: "नमस्ते! ड्राइविंग लाइसेंस के लिए मदद करूँगा। नया बनाना है, या रिन्यू करना है?",
   };
   SC.greet = greetMap[intent] || SC.greet;
+  serviceIntent = SERVICE_INTENTS.includes(intent) ? intent : null;
+  serviceTurn   = 0;
 
   document.getElementById('landing').classList.add('exit');
   setTimeout(() => {
@@ -1315,6 +1436,7 @@ function resetToLanding() {
   try { recognition?.stop(); } catch(e) {}
   speaking = listening = false;
   turn = 0; docUploaded = {}; docPhase = null; formPhase = null; formFieldIdx = 0;
+  serviceIntent = null; serviceTurn = 0;
   closeWebOverlay();
   webOverlayOpen = false;
   $conv.innerHTML = '';
