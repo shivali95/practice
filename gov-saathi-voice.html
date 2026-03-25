@@ -220,6 +220,79 @@ body{font-family:'JioType',-apple-system,sans-serif;background:#d4d4d4;display:f
 .sr-warn{font-size:12px;color:var(--green);margin-top:10px;font-weight:600;}
 .sr-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--pill);padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;margin-top:14px;}
 
+/* ════════ WEB OVERLAY (mock govt site) ════════ */
+.web-overlay{position:absolute;inset:0;z-index:600;background:#f0f2f5;
+  display:flex;flex-direction:column;animation:slideUp 380ms cubic-bezier(.32,.72,0,1);}
+.web-overlay.closing{animation:slideDown 300ms ease-in forwards;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes slideDown{from{transform:translateY(0)}to{transform:translateY(100%)}}
+
+/* Browser bar */
+.wob-bar{background:#f8f9fa;border-bottom:1px solid #e0e0e0;padding:8px 12px;
+  display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.wob-back{width:32px;height:32px;border:none;background:transparent;cursor:pointer;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.wob-back:active{background:#e0e0e0;}
+.wob-url{flex:1;background:#fff;border:1.5px solid #dadce0;border-radius:20px;
+  padding:5px 12px;font-size:11px;font-weight:600;color:#333;
+  display:flex;align-items:center;gap:5px;}
+.wob-secure{font-size:10px;color:#1a6b3c;}
+
+/* GoI site header */
+.wob-goi-hd{background:#003580;color:#fff;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.wob-goi-emblem{font-size:24px;flex-shrink:0;}
+.wob-goi-nm{font-size:13px;font-weight:800;line-height:1.2;}
+.wob-goi-sub{font-size:10px;opacity:.75;margin-top:1px;}
+.wob-goi-badge{margin-left:auto;background:rgba(255,255,255,.15);border-radius:4px;
+  padding:3px 8px;font-size:9px;font-weight:700;white-space:nowrap;}
+
+/* Progress */
+.wob-prog-wrap{height:4px;background:#e0e0e0;flex-shrink:0;}
+.wob-prog-fill{height:4px;background:#003580;transition:width 500ms ease;}
+
+/* Form body */
+.wob-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.wob-form-hd{font-size:15px;font-weight:800;color:#0c0d10;}
+.wob-form-sub{font-size:12px;color:rgba(12,13,16,.5);margin-top:2px;}
+.wob-step-tag{display:inline-block;background:#e8eefb;color:#003580;border-radius:4px;
+  padding:2px 8px;font-size:10px;font-weight:700;margin-bottom:8px;}
+
+/* Form fields */
+.wob-field{background:#fff;border-radius:10px;border:1.5px solid #e0e0e0;
+  padding:12px 14px;transition:border-color 250ms,box-shadow 250ms;}
+.wob-field.active{border-color:#003580;box-shadow:0 0 0 3px rgba(0,53,128,.12);}
+.wob-field.done{border-color:#1a6b3c;}
+.wob-lbl{font-size:10px;font-weight:700;color:rgba(12,13,16,.5);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;
+  display:flex;align-items:center;justify-content:space-between;}
+.wob-req{color:#c0170f;}
+.wob-input-sim{font-size:15px;font-weight:700;color:#0c0d10;min-height:22px;}
+.wob-input-sim.empty{color:#bbb;}
+.wob-cursor{display:inline-block;width:2px;height:16px;background:#003580;
+  margin-left:1px;animation:blink .7s step-end infinite;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.wob-field-hint{font-size:11px;color:rgba(12,13,16,.45);margin-top:4px;display:none;}
+.wob-field.active .wob-field-hint{display:block;}
+.wob-autofill{display:inline-flex;align-items:center;gap:4px;background:#e6f4ec;
+  color:#1a6b3c;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;
+  margin-top:5px;display:none;}
+.wob-field.done .wob-autofill{display:inline-flex;}
+
+/* Voice guidance strip */
+.wob-voice-strip{flex-shrink:0;background:#fff;border-top:1px solid #e0e0e0;
+  padding:10px 14px 16px;display:flex;align-items:center;gap:10px;}
+.wob-voice-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#003580,#1a4fa8);
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.wob-voice-info{flex:1;}
+.wob-voice-status{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:2px;}
+.wob-voice-text{font-size:12px;color:#0c0d10;font-weight:500;line-height:1.4;}
+.wob-next-btn{background:var(--blue);color:#fff;border:none;border-radius:var(--pill);
+  padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'JioType',sans-serif;white-space:nowrap;flex-shrink:0;}
+.wob-next-btn:disabled{opacity:.38;cursor:default;}
+
 /* ════════ MIC BAR ════════ */
 .mic-bar{flex-shrink:0;padding:8px 24px 20px;background:#fff;
   display:flex;flex-direction:column;align-items:center;gap:5px;
@@ -778,15 +851,16 @@ function triggerDocFlow() {
 // FORM DATA
 // ══════════════════════════════════════
 const KISAN_FORM = [
-  { lbl:'पूरा नाम',              val:'रमेश कुमार',     voice:'पहला खाना है — पूरा नाम। मैंने भरा है — रमेश कुमार। यह बिल्कुल आधार जैसा होना चाहिए, वरना फ़ॉर्म रिजेक्ट हो सकता है।' },
-  { lbl:'जन्म तारीख',            val:'15/05/1990',      voice:'दूसरा खाना — जन्म तारीख। मैंने भरा है — पंद्रह मई, उन्नीस सौ नब्बे। यह उम्र और आधार लिंकेज के लिए ज़रूरी है।' },
-  { lbl:'राज्य',                 val:'Uttar Pradesh',   voice:'तीसरा खाना — राज्य। मैंने भरा है — उत्तर प्रदेश। योजना का पैसा आपके राज्य के हिसाब से आएगा।' },
-  { lbl:'ज़मीन (हेक्टेयर में)',   val:'1.5',             voice:'चौथा खाना — ज़मीन। मैंने भरा है — डेढ़ हेक्टेयर। PM Kisan के लिए ज़मीन दो हेक्टेयर से कम होनी चाहिए।' },
-  { lbl:'बैंक अकाउंट नंबर',      val:'XXXX 1234',       voice:'पाँचवाँ खाना — बैंक अकाउंट नंबर। पैसा सीधे इसी अकाउंट में आएगा — यह आधार से लिंक होना चाहिए।' },
-  { lbl:'IFSC कोड',              val:'SBIN0001234',     voice:'आखिरी खाना — IFSC कोड। यह बैंक की पासबुक पर मिलेगा। मैंने भरा है — एस बी आई एन शून्य शून्य शून्य एक दो तीन चार।' },
+  { lbl:'पूरा नाम',             val:'रमेश कुमार',     hint:'आधार कार्ड पर जैसा लिखा है वैसा ही',    voice:'पहला खाना है — पूरा नाम। मैंने भरा है — रमेश कुमार। यह बिल्कुल आधार जैसा होना चाहिए, वरना फ़ॉर्म रिजेक्ट हो सकता है।' },
+  { lbl:'जन्म तारीख',           val:'15/05/1990',      hint:'DD/MM/YYYY — आधार से मिलनी चाहिए',       voice:'दूसरा खाना — जन्म तारीख। मैंने भरा है — पंद्रह मई, उन्नीस सौ नब्बे। यह उम्र और आधार लिंकेज के लिए ज़रूरी है।' },
+  { lbl:'राज्य',                val:'Uttar Pradesh',   hint:'योजना का पैसा राज्य-वार आता है',          voice:'तीसरा खाना — राज्य। मैंने भरा है — उत्तर प्रदेश। योजना का पैसा आपके राज्य के हिसाब से आएगा।' },
+  { lbl:'ज़मीन (हेक्टेयर में)', val:'1.5',             hint:'2 हेक्टेयर से कम होनी चाहिए',             voice:'चौथा खाना — ज़मीन। मैंने भरा है — डेढ़ हेक्टेयर। PM Kisan के लिए ज़मीन दो हेक्टेयर से कम होनी चाहिए।' },
+  { lbl:'बैंक अकाउंट नंबर',     val:'XXXX 1234',       hint:'आधार से लिंक होना ज़रूरी है',              voice:'पाँचवाँ खाना — बैंक अकाउंट नंबर। पैसा सीधे इसी अकाउंट में आएगा — यह आधार से लिंक होना चाहिए।' },
+  { lbl:'IFSC कोड',             val:'SBIN0001234',     hint:'बैंक की पासबुक के पहले पेज पर मिलेगा',    voice:'आखिरी खाना — IFSC कोड। यह बैंक की पासबुक पर मिलेगा। मैंने भरा है — एस बी आई एन शून्य शून्य शून्य एक दो तीन चार।' },
 ];
 let formFieldIdx = 0;
 let formPhase    = null; // null | 'field_N' | 'final'
+let webOverlayOpen = false;
 
 // ══════════════════════════════════════
 // APPLY FLOW
@@ -834,83 +908,187 @@ function startFormFlow() {
 
 function showFormSimulator() {
   formFieldIdx = 0;
-  const form = document.createElement('div');
-  form.className = 'form-sim'; form.id = 'formSim';
-  form.innerHTML = `
-    <div class="form-sim-hd">
-      <div class="form-sim-title">🌾 PM Kisan Samman Nidhi — आवेदन</div>
-      <div class="form-sim-sub">pmkisan.gov.in · Ministry of Agriculture, GoI</div>
+  webOverlayOpen = true;
+
+  // Build the overlay
+  const ov = document.createElement('div');
+  ov.className = 'web-overlay'; ov.id = 'webOverlay';
+  ov.innerHTML = `
+    <!-- Browser bar -->
+    <div class="wob-bar">
+      <button class="wob-back" onclick="closeWebOverlay()">✕</button>
+      <div class="wob-url"><span class="wob-secure">🔒</span> pmkisan.gov.in</div>
     </div>
-    <div class="form-prog"><div class="form-prog-fill" id="fmProg" style="width:0%"></div></div>
-    ${KISAN_FORM.map((f,i) => `
-      <div class="ffield" id="ffield-${i}">
-        <div class="ffield-lbl">${f.lbl}</div>
-        <div class="ffield-val">${f.val}</div>
-        <div class="ffield-badge">✓ Auto-filled</div>
-      </div>`).join('')}`;
-  $conv.appendChild(form); scrollDown();
-  setTimeout(() => voiceGuideField(0), 600);
+    <!-- GoI header -->
+    <div class="wob-goi-hd">
+      <span class="wob-goi-emblem">🏛️</span>
+      <div>
+        <div class="wob-goi-nm">PM Kisan Samman Nidhi</div>
+        <div class="wob-goi-sub">Ministry of Agriculture & Farmers Welfare, GoI</div>
+      </div>
+      <div class="wob-goi-badge">OFFICIAL</div>
+    </div>
+    <!-- Progress bar -->
+    <div class="wob-prog-wrap"><div class="wob-prog-fill" id="wobProg" style="width:0%"></div></div>
+    <!-- Form body -->
+    <div class="wob-body" id="wobBody">
+      <div>
+        <div class="wob-step-tag">STEP 2 OF 3 — Farmer Details</div>
+        <div class="wob-form-hd">New Farmer Registration</div>
+        <div class="wob-form-sub">सभी खाने आधार कार्ड के अनुसार भरें</div>
+      </div>
+      ${KISAN_FORM.map((f,i) => `
+        <div class="wob-field" id="wf-${i}">
+          <div class="wob-lbl">${f.lbl} <span class="wob-req">*</span></div>
+          <div class="wob-input-sim empty" id="wi-${i}">—</div>
+          <div class="wob-field-hint">${f.hint}</div>
+          <div class="wob-autofill">✓ Auto-filled</div>
+        </div>`).join('')}
+    </div>
+    <!-- Voice guidance strip -->
+    <div class="wob-voice-strip">
+      <div class="wob-voice-av">🏛️</div>
+      <div class="wob-voice-info">
+        <div class="wob-voice-status">🔊 आवाज़ से गाइड हो रहा हूँ</div>
+        <div class="wob-voice-text" id="wobVoiceTxt">एक पल...</div>
+      </div>
+      <button class="wob-next-btn" id="wobNextBtn" onclick="advanceFormField()" disabled>अगला →</button>
+    </div>`;
+
+  document.querySelector('.phone-frame').appendChild(ov);
+  setTimeout(() => voiceGuideField(0), 500);
 }
 
 function voiceGuideField(idx) {
   formPhase = 'field_' + idx;
-  KISAN_FORM.forEach((_, i) => {
-    const row = document.getElementById('ffield-' + i);
-    if (!row) return;
-    row.className = 'ffield' + (i === idx ? ' active' : '');
-    const badge = row.querySelector('.ffield-badge');
-    if (badge) badge.className = 'ffield-badge' + (i === idx ? ' cur' : '');
-    const old = row.querySelector('.ffield-mic'); if (old) old.remove();
-    if (i === idx) {
-      const m = document.createElement('div');
-      m.className = 'ffield-mic';
-      m.textContent = '🎙️ टैप करें — अगले खाने पर जाएं';
-      row.appendChild(m);
-    }
-  });
+  const f = KISAN_FORM[idx];
+
+  // Update progress bar
   const pct = Math.round((idx / KISAN_FORM.length) * 100);
-  const bar = document.getElementById('fmProg');
+  const bar = document.getElementById('wobProg');
   if (bar) bar.style.width = pct + '%';
-  scrollDown();
-  speakThen(KISAN_FORM[idx].voice, () => setMic('idle'), 10000);
+
+  // Deactivate previous fields, mark done
+  KISAN_FORM.forEach((_, i) => {
+    const row = document.getElementById('wf-' + i);
+    if (!row) return;
+    if (i < idx) row.className = 'wob-field done';
+    else if (i === idx) row.className = 'wob-field active';
+    else row.className = 'wob-field';
+  });
+
+  // Scroll the active field into view inside wob-body
+  setTimeout(() => {
+    const activeField = document.getElementById('wf-' + idx);
+    if (activeField) activeField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 200);
+
+  // Update voice strip text
+  const vtxt = document.getElementById('wobVoiceTxt');
+  if (vtxt) vtxt.textContent = f.voice.split('।')[0] + '।';
+
+  // Disable next button while speaking
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) btn.disabled = true;
+
+  // Type in the value with cursor animation
+  const inputEl = document.getElementById('wi-' + idx);
+  if (inputEl) {
+    inputEl.className = 'wob-input-sim';
+    inputEl.innerHTML = '<span class="wob-cursor"></span>';
+    setTimeout(() => typeInField(inputEl, f.val, () => {
+      // Enable next button after type-in
+      if (btn) btn.disabled = false;
+    }), 400);
+  }
+
+  // Speak field guidance
+  speakThen(f.voice, () => {
+    if (btn) btn.disabled = false;
+    setMic('idle');
+  }, 10000);
+}
+
+function typeInField(el, text, done) {
+  let i = 0;
+  el.innerHTML = '<span class="wob-cursor"></span>';
+  const t = setInterval(() => {
+    el.innerHTML = text.slice(0, ++i) + '<span class="wob-cursor"></span>';
+    if (i >= text.length) {
+      clearInterval(t);
+      el.innerHTML = text; // remove cursor when done
+      done?.();
+    }
+  }, 45);
 }
 
 function advanceFormField() {
+  if (speaking) {
+    currentAudio?.pause(); currentAudio = null;
+    window.speechSynthesis?.cancel();
+    speaking = false;
+  }
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) btn.disabled = true;
+
   formFieldIdx++;
-  if (formFieldIdx >= KISAN_FORM.length) { showFormReview(); return; }
+  if (formFieldIdx >= KISAN_FORM.length) {
+    showFormReview();
+    return;
+  }
   voiceGuideField(formFieldIdx);
 }
 
 function showFormReview() {
   formPhase = 'final';
-  const bar = document.getElementById('fmProg');
+  // Mark all fields done, 100% progress
+  const bar = document.getElementById('wobProg');
   if (bar) bar.style.width = '100%';
-  // Clear all active states + mic hints
   KISAN_FORM.forEach((_, i) => {
-    const row = document.getElementById('ffield-' + i);
-    if (!row) return;
-    row.className = 'ffield';
-    const badge = row.querySelector('.ffield-badge');
-    if (badge) badge.className = 'ffield-badge';
-    const m = row.querySelector('.ffield-mic'); if (m) m.remove();
+    const row = document.getElementById('wf-' + i);
+    if (row) row.className = 'wob-field done';
   });
 
-  addAI("सभी छह खाने सही भरे हैं ✅ एक बार देख लीजिए और PM Kisan की वेबसाइट पर जाकर Submit दबाएं।");
+  // Update voice strip
+  const vtxt = document.getElementById('wobVoiceTxt');
+  if (vtxt) vtxt.textContent = 'सभी खाने भर गए। एक बार देखें और Submit करें।';
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) { btn.textContent = '✅ Submit करें'; btn.disabled = false; btn.onclick = showSubmitConfirm; }
 
-  const card = document.createElement('div');
-  card.className = 'submit-ready';
-  card.innerHTML = `
-    <div class="sr-ico">✅</div>
-    <div class="sr-title">फ़ॉर्म तैयार है!</div>
-    <div class="sr-msg">सभी छह खाने सही भरे हैं। आधिकारिक वेबसाइट पर जाकर खुद Submit दबाएं — ₹6,000 सालाना आपके बैंक में आएंगे।</div>
-    <div class="sr-warn">⚠️ Submit आपको खुद करना है — मैं नहीं करूँगा।</div>
-    <button class="sr-btn" onclick="openOfficialSite()">🌐 pmkisan.gov.in खोलें →</button>`;
-  $conv.appendChild(card); scrollDown();
+  // Scroll to top of form body
+  const body = document.getElementById('wobBody');
+  if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
 
   speakThen(
-    "बहुत बढ़िया! सभी खाने बिल्कुल सही भरे हैं। अब बस PM Kisan की वेबसाइट पर जाकर Submit का बटन दबाइए — यह काम आपको खुद करना है, मैं यह नहीं करूँगा। हर साल छह हज़ार रुपये सीधे बैंक में आएंगे। शुभकामनाएं!",
+    "बहुत बढ़िया! सभी खाने सही भरे हैं। एक बार ऊपर से नीचे तक देख लीजिए। सब सही लगे तो Submit का बटन दबाइए — यह काम आपको खुद करना है, मैं submit नहीं करूँगा।",
     () => setMic('idle'), 14000
   );
+}
+
+function showSubmitConfirm() {
+  // Close overlay, go back to chat, show final card
+  closeWebOverlay();
+  setTimeout(() => {
+    const card = document.createElement('div');
+    card.className = 'submit-ready';
+    card.innerHTML = `
+      <div class="sr-ico">✅</div>
+      <div class="sr-title">फ़ॉर्म तैयार है!</div>
+      <div class="sr-msg">सभी छह खाने सही भरे हैं। PM Kisan की वेबसाइट पर जाकर Submit दबाएं — ₹6,000 सालाना आपके बैंक में।</div>
+      <div class="sr-warn">⚠️ Submit आपको खुद करना है — मैं नहीं करूँगा।</div>
+      <button class="sr-btn" onclick="openOfficialSite()">🌐 pmkisan.gov.in खोलें →</button>`;
+    $conv.appendChild(card); scrollDown();
+    speak("फ़ॉर्म बिल्कुल तैयार है। अब pmkisan.gov.in पर जाकर submit का बटन दबाइए। शुभकामनाएं!", () => setMic('idle'));
+  }, 400);
+}
+
+function closeWebOverlay() {
+  const ov = document.getElementById('webOverlay');
+  if (!ov) return;
+  webOverlayOpen = false;
+  formPhase = null;
+  ov.classList.add('closing');
+  setTimeout(() => ov.remove(), 300);
 }
 
 function openOfficialSite() {
@@ -929,6 +1107,11 @@ function onMicTap() {
   }
   if (listening) {
     try { recognition?.stop(); } catch(e) {} return;
+  }
+  // When web overlay is open, mic tap advances to next field
+  if (webOverlayOpen && formPhase && formPhase.startsWith('field_')) {
+    advanceFormField();
+    return;
   }
   if (docPhase === 'awaiting_form_help') {
     docPhase = null;
@@ -1002,6 +1185,8 @@ function resetToLanding() {
   try { recognition?.stop(); } catch(e) {}
   speaking = listening = false;
   turn = 0; docUploaded = {}; docPhase = null; formPhase = null; formFieldIdx = 0;
+  closeWebOverlay();
+  webOverlayOpen = false;
   $conv.innerHTML = '';
   $conv.style.display = 'none';
   document.getElementById('vHdr').style.display   = 'none';
