@@ -179,6 +179,47 @@ body{font-family:'JioType',-apple-system,sans-serif;background:#d4d4d4;display:f
 .ac-pill{display:inline-block;background:var(--green-bg);color:var(--green);border-radius:var(--pill);padding:2px 10px;font-size:11px;font-weight:700;margin-top:4px;}
 .ac-pill.free{background:#e6f4ec;color:#1a6b3c;}
 
+/* ════════ APPLY CTA CARD ════════ */
+.apply-cta{border-radius:14px;border:1px solid var(--stroke);background:#fff;animation:bUp 380ms ease-out;width:100%;}
+.apply-cta-hd{background:var(--green);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:14px 14px 0 0;}
+.apply-cta-msg{padding:10px 14px 6px;font-size:13px;color:var(--text);font-weight:500;line-height:1.6;}
+.apply-cta-btns{display:flex;flex-direction:column;gap:8px;padding:8px 14px 14px;}
+.apply-btn-p{background:var(--blue);color:#fff;border:none;border-radius:var(--pill);padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;width:100%;}
+.apply-btn-s{background:transparent;color:var(--text2);border:1.5px solid var(--stroke);border-radius:var(--pill);padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'JioType',sans-serif;width:100%;}
+
+/* ════════ SITE LOADER ════════ */
+.site-loader{border-radius:14px;border:1px solid var(--stroke);background:#fff;padding:20px 16px;text-align:center;animation:bUp 300ms ease-out;width:100%;}
+.sl-ico{font-size:32px;margin-bottom:8px;}
+.sl-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sl-sub{font-size:12px;color:var(--text2);}
+.sl-bar{height:4px;background:var(--blue-light);border-radius:var(--pill);margin-top:14px;overflow:hidden;}
+.sl-fill{height:4px;background:var(--blue);border-radius:var(--pill);animation:slFill 1.8s ease-out forwards;}
+@keyframes slFill{from{width:0}to{width:100%}}
+
+/* ════════ FORM SIMULATOR ════════ */
+.form-sim{border-radius:14px;border:1px solid var(--stroke);background:#fff;animation:bUp 380ms ease-out;width:100%;overflow:hidden;}
+.form-sim-hd{background:var(--blue);color:#fff;padding:12px 14px;}
+.form-sim-title{font-size:14px;font-weight:800;}
+.form-sim-sub{font-size:11px;opacity:.75;margin-top:2px;}
+.form-prog{height:3px;background:rgba(255,255,255,.25);}
+.form-prog-fill{height:3px;background:#fff;transition:width 500ms ease;}
+.ffield{padding:11px 14px;border-bottom:1px solid var(--stroke);transition:background 200ms;}
+.ffield:last-child{border-bottom:none;}
+.ffield.active{background:var(--blue-light);}
+.ffield-lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.ffield-val{font-size:14px;font-weight:700;color:var(--text);}
+.ffield-badge{display:inline-block;background:var(--green-bg);color:var(--green);border-radius:var(--pill);padding:1px 8px;font-size:10px;font-weight:700;margin-top:3px;}
+.ffield-badge.cur{background:var(--blue-light);color:var(--blue);}
+.ffield-mic{font-size:11px;color:var(--blue);font-weight:600;margin-top:5px;}
+
+/* ════════ SUBMIT READY ════════ */
+.submit-ready{border-radius:14px;border:2px solid var(--green);background:var(--green-bg);padding:18px 16px;animation:bUp 380ms ease-out;width:100%;text-align:center;}
+.sr-ico{font-size:36px;margin-bottom:8px;}
+.sr-title{font-size:16px;font-weight:800;color:var(--green);margin-bottom:6px;}
+.sr-msg{font-size:13px;color:var(--text);line-height:1.6;}
+.sr-warn{font-size:12px;color:var(--green);margin-top:10px;font-weight:600;}
+.sr-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--pill);padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;margin-top:14px;}
+
 /* ════════ MIC BAR ════════ */
 .mic-bar{flex-shrink:0;padding:8px 24px 20px;background:#fff;
   display:flex;flex-direction:column;align-items:center;gap:5px;
@@ -514,11 +555,10 @@ function verifyDocs() {
 
       speakThen(resultSpeech, () => {
         setTimeout(() => {
-          addAI("क्या मैं बताऊँ कि यह नाम कैसे ठीक होगा?");
-          speak("क्या मैं बताऊँ कि यह नाम कैसे ठीक होगा?", () => {
-            docPhase = 'awaiting_fix';
-            setMic('idle');
-          });
+          // Show apply CTA + naam-fix option together
+          const cta = buildApplyCTA();
+          $conv.appendChild(cta); scrollDown();
+          speak("दो दस्तावेज़ बिल्कुल ठीक हैं। अब आप PM Kisan के लिए apply कर सकते हैं — मैं आवाज़ से हर खाना भरने में मदद करूँगा।", () => setMic('idle'));
         }, 500);
       }, 12000);
     });
@@ -724,6 +764,150 @@ function triggerDocFlow() {
 }
 
 // ══════════════════════════════════════
+// FORM DATA
+// ══════════════════════════════════════
+const KISAN_FORM = [
+  { lbl:'पूरा नाम',              val:'रमेश कुमार',     voice:'पहला खाना है — पूरा नाम। मैंने भरा है — रमेश कुमार। यह बिल्कुल आधार जैसा होना चाहिए, वरना फ़ॉर्म रिजेक्ट हो सकता है।' },
+  { lbl:'जन्म तारीख',            val:'15/05/1990',      voice:'दूसरा खाना — जन्म तारीख। मैंने भरा है — पंद्रह मई, उन्नीस सौ नब्बे। यह उम्र और आधार लिंकेज के लिए ज़रूरी है।' },
+  { lbl:'राज्य',                 val:'Uttar Pradesh',   voice:'तीसरा खाना — राज्य। मैंने भरा है — उत्तर प्रदेश। योजना का पैसा आपके राज्य के हिसाब से आएगा।' },
+  { lbl:'ज़मीन (हेक्टेयर में)',   val:'1.5',             voice:'चौथा खाना — ज़मीन। मैंने भरा है — डेढ़ हेक्टेयर। PM Kisan के लिए ज़मीन दो हेक्टेयर से कम होनी चाहिए।' },
+  { lbl:'बैंक अकाउंट नंबर',      val:'XXXX 1234',       voice:'पाँचवाँ खाना — बैंक अकाउंट नंबर। पैसा सीधे इसी अकाउंट में आएगा — यह आधार से लिंक होना चाहिए।' },
+  { lbl:'IFSC कोड',              val:'SBIN0001234',     voice:'आखिरी खाना — IFSC कोड। यह बैंक की पासबुक पर मिलेगा। मैंने भरा है — एस बी आई एन शून्य शून्य शून्य एक दो तीन चार।' },
+];
+let formFieldIdx = 0;
+let formPhase    = null; // null | 'field_N' | 'final'
+
+// ══════════════════════════════════════
+// APPLY FLOW
+// ══════════════════════════════════════
+function buildApplyCTA() {
+  const c = document.createElement('div');
+  c.className = 'apply-cta';
+  c.innerHTML = `
+    <div class="apply-cta-hd">🎉 अगला कदम — Apply करें</div>
+    <div class="apply-cta-msg">दो दस्तावेज़ बिल्कुल सही हैं। मैं आवाज़ से हर खाना भरने में मदद करूँगा — जैसे कोई साथ बैठकर फ़ॉर्म भरा रहा हो।</div>
+    <div class="apply-cta-btns">
+      <button class="apply-btn-p" onclick="startFormFlow()">📋 PM Kisan Apply करें →</button>
+      <button class="apply-btn-s" onclick="triggerNaamFix()">✏️ पहले नाम ठीक करें</button>
+    </div>`;
+  return c;
+}
+
+function triggerNaamFix() {
+  docPhase = null;
+  addUser("पहले नाम ठीक करूँगा");
+  showNaamFix();
+}
+
+function startFormFlow() {
+  // Disable the CTA card
+  document.querySelectorAll('.apply-btn-p,.apply-btn-s').forEach(b => b.disabled = true);
+  addUser("Apply karna hai");
+  addAI("बहुत अच्छा! PM Kisan की आधिकारिक वेबसाइट खुल रही है। मैंने आपकी जानकारी के हिसाब से ज़्यादातर खाने पहले से भर दिए हैं — चलिए साथ में देखते हैं।");
+
+  speak("बहुत अच्छा! अब PM Kisan की सरकारी वेबसाइट खुल रही है। मैंने आपकी जानकारी के हिसाब से ज़्यादातर खाने पहले से भर दिए हैं। चलिए साथ में देखते हैं।", null);
+
+  const loader = document.createElement('div');
+  loader.className = 'site-loader';
+  loader.innerHTML = `<div class="sl-ico">🌐</div>
+    <div class="sl-title">pmkisan.gov.in खुल रहा है...</div>
+    <div class="sl-sub">Official Government of India Website</div>
+    <div class="sl-bar"><div class="sl-fill"></div></div>`;
+  $conv.appendChild(loader); scrollDown();
+
+  setTimeout(() => {
+    loader.remove();
+    showFormSimulator();
+  }, 2200);
+}
+
+function showFormSimulator() {
+  formFieldIdx = 0;
+  const form = document.createElement('div');
+  form.className = 'form-sim'; form.id = 'formSim';
+  form.innerHTML = `
+    <div class="form-sim-hd">
+      <div class="form-sim-title">🌾 PM Kisan Samman Nidhi — आवेदन</div>
+      <div class="form-sim-sub">pmkisan.gov.in · Ministry of Agriculture, GoI</div>
+    </div>
+    <div class="form-prog"><div class="form-prog-fill" id="fmProg" style="width:0%"></div></div>
+    ${KISAN_FORM.map((f,i) => `
+      <div class="ffield" id="ffield-${i}">
+        <div class="ffield-lbl">${f.lbl}</div>
+        <div class="ffield-val">${f.val}</div>
+        <div class="ffield-badge">✓ Auto-filled</div>
+      </div>`).join('')}`;
+  $conv.appendChild(form); scrollDown();
+  setTimeout(() => voiceGuideField(0), 600);
+}
+
+function voiceGuideField(idx) {
+  formPhase = 'field_' + idx;
+  KISAN_FORM.forEach((_, i) => {
+    const row = document.getElementById('ffield-' + i);
+    if (!row) return;
+    row.className = 'ffield' + (i === idx ? ' active' : '');
+    const badge = row.querySelector('.ffield-badge');
+    if (badge) badge.className = 'ffield-badge' + (i === idx ? ' cur' : '');
+    const old = row.querySelector('.ffield-mic'); if (old) old.remove();
+    if (i === idx) {
+      const m = document.createElement('div');
+      m.className = 'ffield-mic';
+      m.textContent = '🎙️ टैप करें — अगले खाने पर जाएं';
+      row.appendChild(m);
+    }
+  });
+  const pct = Math.round((idx / KISAN_FORM.length) * 100);
+  const bar = document.getElementById('fmProg');
+  if (bar) bar.style.width = pct + '%';
+  scrollDown();
+  speakThen(KISAN_FORM[idx].voice, () => setMic('idle'), 10000);
+}
+
+function advanceFormField() {
+  formFieldIdx++;
+  if (formFieldIdx >= KISAN_FORM.length) { showFormReview(); return; }
+  voiceGuideField(formFieldIdx);
+}
+
+function showFormReview() {
+  formPhase = 'final';
+  const bar = document.getElementById('fmProg');
+  if (bar) bar.style.width = '100%';
+  // Clear all active states + mic hints
+  KISAN_FORM.forEach((_, i) => {
+    const row = document.getElementById('ffield-' + i);
+    if (!row) return;
+    row.className = 'ffield';
+    const badge = row.querySelector('.ffield-badge');
+    if (badge) badge.className = 'ffield-badge';
+    const m = row.querySelector('.ffield-mic'); if (m) m.remove();
+  });
+
+  addAI("सभी छह खाने सही भरे हैं ✅ एक बार देख लीजिए और PM Kisan की वेबसाइट पर जाकर Submit दबाएं।");
+
+  const card = document.createElement('div');
+  card.className = 'submit-ready';
+  card.innerHTML = `
+    <div class="sr-ico">✅</div>
+    <div class="sr-title">फ़ॉर्म तैयार है!</div>
+    <div class="sr-msg">सभी छह खाने सही भरे हैं। आधिकारिक वेबसाइट पर जाकर खुद Submit दबाएं — ₹6,000 सालाना आपके बैंक में आएंगे।</div>
+    <div class="sr-warn">⚠️ Submit आपको खुद करना है — मैं नहीं करूँगा।</div>
+    <button class="sr-btn" onclick="openOfficialSite()">🌐 pmkisan.gov.in खोलें →</button>`;
+  $conv.appendChild(card); scrollDown();
+
+  speakThen(
+    "बहुत बढ़िया! सभी खाने बिल्कुल सही भरे हैं। अब बस PM Kisan की वेबसाइट पर जाकर Submit का बटन दबाइए — यह काम आपको खुद करना है, मैं यह नहीं करूँगा। हर साल छह हज़ार रुपये सीधे बैंक में आएंगे। शुभकामनाएं!",
+    () => setMic('idle'), 14000
+  );
+}
+
+function openOfficialSite() {
+  addAI("pmkisan.gov.in खुल रही है — Submit आप खुद करें। शुभकामनाएं! 🌾");
+  window.open('https://pmkisan.gov.in', '_blank');
+}
+
+// ══════════════════════════════════════
 // MIC TAP
 // ══════════════════════════════════════
 function onMicTap() {
@@ -741,6 +925,12 @@ function onMicTap() {
     showNaamFix();
     return;
   }
+  // Form field advancement — mic tap = "done, next field"
+  if (formPhase && formPhase.startsWith('field_')) {
+    advanceFormField();
+    return;
+  }
+  if (formPhase === 'final') return;
   if (turn > 3) return;
   startListening();
 }
@@ -800,7 +990,7 @@ function resetToLanding() {
   window.speechSynthesis?.cancel();
   try { recognition?.stop(); } catch(e) {}
   speaking = listening = false;
-  turn = 0; docUploaded = {}; docPhase = null;
+  turn = 0; docUploaded = {}; docPhase = null; formPhase = null; formFieldIdx = 0;
   $conv.innerHTML = '';
   $conv.style.display = 'none';
   document.getElementById('vHdr').style.display   = 'none';
