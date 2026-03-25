@@ -292,7 +292,7 @@ let docUploaded  = {};
 
 // ── Conversation script (Devanagari — gives Sarvam authentic Indian accent) ──
 const SC = {
-  greet:   "नमस्ते! मैं नागरिक AI हूँ — आपका सरकारी योजना में मदद करने वाला AI साथी। बताइए, क्या मदद चाहिए?",
+  greet:   "नमस्ते! मैं नागरिक साथी हूँ — आपका सरकारी योजना में मदद करने वाला साथी। बताइए, क्या मदद चाहिए?",
   ack0:    "ज़रूर! पहले मुझे थोड़ी सी जानकारी चाहिए।",
   q1:      "पहला सवाल — आप क्या काम करते हैं? खेती करते हैं, या कोई नौकरी, या कुछ और?",
   ack1:    "अच्छा, आप किसान हैं। बहुत अच्छा।",
@@ -372,7 +372,7 @@ function setMic(state) {
   const S = {
     idle:     { bg:'var(--blue)', rings:false, status:'टैप करके बात करो',     hint:'🎙️ आप बात कर सकते हैं' },
     listening:{ bg:'#e53935',    rings:true,  status:'🔴  सुन रहा हूँ...',     hint:'बोलिए, मैं सुन रहा हूँ' },
-    speaking: { bg:'var(--blue)', rings:false, status:'🔊  बोल रहा हूँ...',    hint:'नागरिक AI बोल रहा है' },
+    speaking: { bg:'var(--blue)', rings:false, status:'🔊  बोल रहा हूँ...',    hint:'नागरिक साथी बोल रहा है' },
     loading:  { bg:'#6b7280',    rings:false, status:'⏳  ढूंढ रहा हूँ...',    hint:'एक सेकंड...' },
   };
   const s = S[state] || S.idle;
