@@ -109,8 +109,8 @@ body{font-family:'JioType',-apple-system,sans-serif;background:#d4d4d4;display:f
   padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'JioType',sans-serif;}
 
 /* ════════ DOC CARD ════════ */
-.doc-card{border-radius:14px;border:1px solid var(--stroke);background:#fff;overflow:hidden;animation:bUp 380ms ease-out;width:100%;}
-.doc-hd{background:var(--blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;}
+.doc-card{border-radius:14px;border:1px solid var(--stroke);background:#fff;animation:bUp 380ms ease-out;width:100%;}
+.doc-hd{background:var(--blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:14px 14px 0 0;}
 .doc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--stroke);}
 .doc-row:last-of-type{border-bottom:none;}
 .doc-ico{font-size:18px;flex-shrink:0;}
@@ -138,8 +138,8 @@ body{font-family:'JioType',-apple-system,sans-serif;background:#d4d4d4;display:f
 .scan-label.pending{color:var(--text2);}
 
 /* ════════ RESULT CHECKLIST ════════ */
-.result-cl{border-radius:14px;border:1px solid var(--stroke);overflow:hidden;animation:bUp 380ms ease-out;width:100%;}
-.rcl-hd{background:var(--blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;}
+.result-cl{border-radius:14px;border:1px solid var(--stroke);animation:bUp 380ms ease-out;width:100%;}
+.rcl-hd{background:var(--blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:14px 14px 0 0;}
 .rcl-row{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-bottom:1px solid var(--stroke);background:#fff;}
 .rcl-row:last-child{border-bottom:none;}
 .rcl-row.warn{background:#fffbf0;}
@@ -400,26 +400,64 @@ function speakThen(text, onDone, timeoutMs) {
   setTimeout(finish, timeoutMs || 10000);
 }
 
-// Auto-triggered after AI finishes speaking about docs
-function startDocScan() {
-  // Simulate user sending their documents
-  addUser("यह रहे मेरे दस्तावेज़ 📎");
+function showDocCard() {
+  const c = document.createElement('div');
+  c.className = 'doc-card';
+  c.innerHTML = `
+    <div class="doc-hd">📄 दस्तावेज़ स्कैन करें — PM Kisan</div>
+    ${[['🪪','आधार कार्ड','d0'],['📜','खतौनी (ज़मीन का रिकॉर्ड)','d1'],['🏦','बैंक पासबुक','d2']].map(([ico,name,id])=>`
+    <div class="doc-row">
+      <span class="doc-ico">${ico}</span>
+      <div class="doc-info">
+        <div class="doc-name">${name}</div>
+        <div class="doc-st" id="st-${id}">स्कैन करें</div>
+      </div>
+      <button class="doc-btn" id="btn-${id}" onclick="tapDoc('${id}')">📷 स्कैन</button>
+    </div>`).join('')}
+    <div class="doc-verify-row">
+      <button class="doc-verify" id="verifyBtn" disabled onclick="verifyDocs()">वेरीफाई करो</button>
+    </div>`;
+  $conv.appendChild(c); scrollDown();
+}
 
-  // "Checking now" plays while scan card appears
+function tapDoc(id) {
+  const btn = document.getElementById('btn-'+id);
+  const st  = document.getElementById('st-'+id);
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  // Brief "scanning" delay makes it feel real
+  setTimeout(() => {
+    btn.className   = 'doc-btn done';
+    btn.textContent = '✓ हो गया';
+    st.textContent  = 'स्कैन हो गया';
+    st.className    = 'doc-st ok';
+    docUploaded[id] = true;
+    if (docUploaded.d0 && docUploaded.d1 && docUploaded.d2) {
+      const v = document.getElementById('verifyBtn');
+      v.disabled = false;
+    }
+  }, 600);
+}
+
+function verifyDocs() {
+  addUser("वेरीफाई करो");
+  const docCard = $conv.querySelector('.doc-card');
+  if (docCard) docCard.style.opacity = '0.5';
+
+  // "Checking" speech fires in parallel — visuals don't wait for it
   speak("ठीक है, अभी जाँच करता हूँ...", null);
 
+  // Scan card appears on its own timer (robust — not speech-dependent)
   setTimeout(() => {
     const scanCard = buildScanCard();
     $conv.appendChild(scanCard);
     scrollDown();
 
     animateScan(scanCard, () => {
-      // Results checklist appears
       const cl = buildResultChecklist();
       $conv.appendChild(cl);
       scrollDown();
 
-      // Voice speaks results doc-by-doc; 12s safety timeout so follow-up always shows
       const resultSpeech =
         "आधार कार्ड — बिल्कुल ठीक है। " +
         "खतौनी में एक समस्या है — नाम में अंतर है। रमेश कुमा लिखा है, जबकि आधार में रमेश कुमार है। " +
@@ -563,8 +601,8 @@ function triggerDocFlow() {
   setTimeout(() => {
     hideTyping();
     addAI(SC.docs);
-    // After AI finishes speaking about the 3 docs, auto-start scan — no manual upload needed
-    speakThen(SC.docs, startDocScan, 9000);
+    showDocCard();
+    speak(SC.docs, () => setMic('idle'));
   }, 700);
 }
 
