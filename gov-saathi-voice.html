@@ -543,92 +543,103 @@ function verifyDocs() {
     scrollDown();
 
     animateScan(scanCard, () => {
+      // ── Step 1: show results with warning ──
       const cl = buildResultChecklist();
-      $conv.appendChild(cl);
-      scrollDown();
+      $conv.appendChild(cl); scrollDown();
 
       const resultSpeech =
         "आधार कार्ड — बिल्कुल ठीक है। " +
-        "खतौनी में एक समस्या है — नाम में अंतर है। रमेश कुमा लिखा है, जबकि आधार में रमेश कुमार है। " +
-        "बैंक पासबुक — ठीक है। " +
-        "यह नाम की गलती तहसील ऑफिस में मुफ़्त में ठीक होती है, बस सात दिन लगते हैं।";
+        "खतौनी में एक समस्या है — नाम में अंतर है। रमेश कुमा लिखा है, जबकि आधार में रमेश कुमार होना चाहिए। " +
+        "बैंक पासबुक — ठीक है।";
 
       speakThen(resultSpeech, () => {
+        // ── Step 2: explain how to fix the name ──
         setTimeout(() => {
-          // Show apply CTA + naam-fix option together
-          const cta = buildApplyCTA();
-          $conv.appendChild(cta); scrollDown();
-          speak("दो दस्तावेज़ बिल्कुल ठीक हैं। अब आप PM Kisan के लिए apply कर सकते हैं — मैं आवाज़ से हर खाना भरने में मदद करूँगा।", () => setMic('idle'));
-        }, 500);
+          addAI("खतौनी में नाम की यह गलती तहसील ऑफिस में <strong>मुफ़्त</strong> में ठीक होती है — बस ७ दिन लगते हैं।<br><br>📍 तहसील ऑफिस जाएं<br>📄 आधार + पुरानी खतौनी लाएं<br>📝 नाम सुधार फ़ॉर्म भरें");
+          speakThen(
+            "खतौनी में नाम की यह गलती तहसील ऑफिस में मुफ़्त में ठीक होती है। आधार कार्ड और पुरानी खतौनी साथ लेकर जाएं, नाम सुधार का फ़ॉर्म भरें। सात दिन में नाम ठीक हो जाएगा।",
+            () => {
+              // ── Step 3: ask to re-upload corrected khatauni ──
+              setTimeout(() => {
+                addAI("अब ठीक की हुई खतौनी स्कैन करें — मैं दोबारा जाँचूँगा।");
+                speak("अब ठीक की हुई खतौनी स्कैन करें।", () => {
+                  showReUploadCard();
+                  setMic('idle');
+                });
+              }, 600);
+            }, 10000
+          );
+        }, 600);
       }, 12000);
     });
   }, 500);
 }
 
-function showNaamFix() {
-  showTyping();
-  setMic('loading');
+function showReUploadCard() {
+  const c = document.createElement('div');
+  c.className = 'doc-card'; c.id = 'reUploadCard';
+  c.innerHTML = `
+    <div class="doc-hd" style="background:#b85e00">📤 ठीक की हुई खतौनी अपलोड करें</div>
+    <div class="doc-row">
+      <span class="doc-ico">📜</span>
+      <div class="doc-info">
+        <div class="doc-name">खतौनी (नाम सुधरा हुआ)</div>
+        <div class="doc-st" id="st-re">स्कैन करें</div>
+      </div>
+      <button class="doc-btn" id="btn-re" onclick="tapReDoc()">📷 स्कैन</button>
+    </div>`;
+  $conv.appendChild(c); scrollDown();
+}
+
+function tapReDoc() {
+  const btn = document.getElementById('btn-re');
+  const st  = document.getElementById('st-re');
+  btn.disabled = true; btn.textContent = '⏳';
+  setTimeout(() => {
+    btn.className = 'doc-btn done'; btn.textContent = '✓ हो गया';
+    st.textContent = 'स्कैन हो गया'; st.className = 'doc-st ok';
+    scrollDown();
+    setTimeout(showAllClearResults, 700);
+  }, 800);
+}
+
+function showAllClearResults() {
+  addUser("हो गया");
+  showTyping(); setMic('loading');
   setTimeout(() => {
     hideTyping();
-
-    // Action card — step by step
-    const card = document.createElement('div');
-    card.className = 'action-card';
-    card.innerHTML = `
-      <div class="ac-hd">✏️ नाम सुधार — कैसे करें?</div>
-      <div class="ac-step">
-        <span class="ac-ico">📍</span>
-        <div>
-          <div class="ac-txt">अपनी तहसील ऑफिस जाएं</div>
-          <div class="ac-sub">नज़दीकी तहसील या राजस्व विभाग का दफ़्तर</div>
-        </div>
+    // All-clear checklist
+    const cl = document.createElement('div');
+    cl.className = 'result-cl';
+    cl.innerHTML = `
+      <div class="rcl-hd" style="background:var(--green)">✅ PM Kisan — सभी दस्तावेज़ सही हैं</div>
+      <div class="rcl-row">
+        <span class="rcl-ico">✅</span>
+        <div><div class="rcl-name">आधार कार्ड</div><div class="rcl-msg">बिल्कुल ठीक है</div></div>
       </div>
-      <div class="ac-step">
-        <span class="ac-ico">📄</span>
-        <div>
-          <div class="ac-txt">ये दस्तावेज़ साथ लाएं</div>
-          <div class="ac-sub">आधार कार्ड + पुरानी खतौनी (दोनों की फ़ोटोकॉपी भी)</div>
-        </div>
+      <div class="rcl-row">
+        <span class="rcl-ico">✅</span>
+        <div><div class="rcl-name">खतौनी</div><div class="rcl-msg">नाम सुधरा — अब बिल्कुल ठीक है</div></div>
       </div>
-      <div class="ac-step">
-        <span class="ac-ico">📝</span>
-        <div>
-          <div class="ac-txt">नाम सुधार आवेदन फ़ॉर्म भरें</div>
-          <div class="ac-sub">काउंटर पर मिलेगा — बस आधार वाला सही नाम लिखें</div>
-        </div>
-      </div>
-      <div class="ac-step">
-        <span class="ac-ico">⏱️</span>
-        <div>
-          <div class="ac-txt">७ से १० दिन में नाम ठीक हो जाएगा</div>
-          <span class="ac-pill free">बिल्कुल मुफ़्त · कोई फ़ीस नहीं</span>
-        </div>
-      </div>
-      <div class="ac-step">
-        <span class="ac-ico">🌾</span>
-        <div>
-          <div class="ac-txt">उसके बाद PM Kisan के लिए अप्लाई करें</div>
-          <div class="ac-sub">₹6,000 सालाना — सीधे बैंक में</div>
-        </div>
+      <div class="rcl-row">
+        <span class="rcl-ico">✅</span>
+        <div><div class="rcl-name">बैंक पासबुक</div><div class="rcl-msg">बिल्कुल ठीक है</div></div>
       </div>`;
-    $conv.appendChild(card);
-    scrollDown();
+    $conv.appendChild(cl); scrollDown();
 
-    const fixSpeech =
-      "बिल्कुल। यह काम बहुत आसान है। " +
-      "बस अपनी तहसील ऑफिस जाइए — साथ में आधार कार्ड और खतौनी लेकर। " +
-      "वहाँ नाम सुधार का एक फ़ॉर्म मिलेगा, उसे भरकर जमा कर दीजिए। " +
-      "यह बिल्कुल मुफ़्त है, कोई पैसा नहीं लगता। " +
-      "सात से दस दिन में आपकी खतौनी में नाम ठीक हो जाएगा। " +
-      "उसके बाद आप पीएम किसान के लिए अप्लाई कर सकते हैं और हर साल छह हज़ार रुपये पा सकते हैं।";
-
-    speakThen(fixSpeech, () => {
-      setTimeout(() => {
-        addAI("बस इतना ही करना है। आप यह ज़रूर कर सकते हैं! 🌾");
-        speak("बस इतना ही करना है। आप यह ज़रूर कर सकते हैं!", () => setMic('idle'));
-      }, 600);
-    }, 14000);
-  }, 700);
+    speakThen(
+      "बहुत बढ़िया! अब तीनों दस्तावेज़ बिल्कुल सही हैं। आधार कार्ड — ठीक। खतौनी — ठीक। बैंक पासबुक — ठीक।",
+      () => {
+        setTimeout(() => {
+          addAI("क्या आपको PM Kisan का फ़ॉर्म भरने में मदद चाहिए?");
+          speak("क्या आपको PM Kisan का फ़ॉर्म भरने में मदद चाहिए?", () => {
+            docPhase = 'awaiting_form_help';
+            setMic('idle');
+          });
+        }, 600);
+      }, 8000
+    );
+  }, 1200);
 }
 
 function buildScanCard() {
@@ -919,10 +930,10 @@ function onMicTap() {
   if (listening) {
     try { recognition?.stop(); } catch(e) {} return;
   }
-  if (docPhase === 'awaiting_fix') {
+  if (docPhase === 'awaiting_form_help') {
     docPhase = null;
-    addUser("हाँ, बताओ");
-    showNaamFix();
+    addUser("हाँ, मदद चाहिए");
+    startFormFlow();
     return;
   }
   // Form field advancement — mic tap = "done, next field"
