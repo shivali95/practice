@@ -923,6 +923,19 @@ function processServiceTurn(said) {
         hideTyping();
         showAadhaarGuide(isUpdate ? 'update' : 'update');
       }, 900);
+    } else if (t === 1) {
+      // User answered: online vs center
+      const lower = text.toLowerCase();
+      const wantsOnline = /online|website|net|internet|घर|ghar|digital|portal/i.test(lower);
+      showTyping(); setMic('loading');
+      setTimeout(() => {
+        hideTyping();
+        if (wantsOnline) {
+          openAadhaarOnlineOverlay();
+        } else {
+          showAadhaarCenterGuide();
+        }
+      }, 900);
     }
   } else {
     // Other services — generic "coming soon" nudge back to PM Kisan demo
@@ -1304,6 +1317,248 @@ function showSubmitConfirm() {
   }, 400);
 }
 
+// ══════════════════════════════════════
+// AADHAAR ONLINE FLOW
+// ══════════════════════════════════════
+const UIDAI_FORM = [
+  { lbl:'आधार नंबर', val:'XXXX XXXX 1234', hint:'12 अंकों का आधार नंबर — आखिरी 4 दिखाई दे रहे हैं', voice:'पहला खाना — आधार नंबर। मैंने भरा है — आपका रजिस्टर्ड आधार नंबर। यह पहले से UIDAI के सर्वर पर लिंक है।' },
+  { lbl:'रजिस्टर्ड मोबाइल', val:'+91 98765 43210', hint:'OTP इसी नंबर पर आएगा — आधार से लिंक होना चाहिए', voice:'दूसरा खाना — मोबाइल नंबर। यह आधार से लिंक होना चाहिए — OTP इसी पर आएगा।' },
+  { lbl:'क्या बदलना है?', val:'नाम (Name)', hint:'एक बार में एक बदलाव हो सकता है', voice:'तीसरा खाना — क्या बदलना है। मैंने चुना है — नाम। आप चाहें तो पता या मोबाइल भी बदल सकते हैं।' },
+  { lbl:'नया नाम', val:'रमेश कुमार', hint:'बिल्कुल वैसा लिखें जैसा सरकारी दस्तावेज़ में है', voice:'चौथा खाना — नया नाम। मैंने भरा है — रमेश कुमार। ध्यान रहे — PAN कार्ड या पासपोर्ट जैसा ही लिखें, वरना reject हो सकता है।' },
+  { lbl:'प्रमाण दस्तावेज़', val:'PAN Card', hint:'नाम बदलने के लिए government ID ज़रूरी है', voice:'पाँचवाँ खाना — प्रमाण दस्तावेज़। PAN कार्ड, पासपोर्ट, या वोटर ID — कोई भी एक चलेगा।' },
+];
+let uidaiFieldIdx = 0;
+
+function openAadhaarOnlineOverlay() {
+  uidaiFieldIdx = 0;
+  addAI("ज़रूर! मैं आपको <strong>UIDAI की आधिकारिक वेबसाइट</strong> पर ले जाता हूँ — सभी ज़रूरी खाने पहले से भरे हैं।");
+  speak("ज़रूर! मैं आपको UIDAI की आधिकारिक वेबसाइट पर ले जाता हूँ। आपके सभी ज़रूरी खाने पहले से भरे हैं।", () => {
+    setTimeout(() => {
+      const loader = document.createElement('div');
+      loader.className = 'site-loader';
+      loader.innerHTML = `<div class="sl-ico">🌐</div>
+        <div class="sl-title">myaadhaar.uidai.gov.in खुल रहा है...</div>
+        <div class="sl-sub">UIDAI — Unique Identification Authority of India</div>
+        <div class="sl-bar"><div class="sl-fill"></div></div>`;
+      $conv.appendChild(loader); scrollDown();
+      setTimeout(() => {
+        loader.remove();
+        showUidaiFormOverlay();
+      }, 3500);
+    }, 600);
+  });
+}
+
+function showUidaiFormOverlay() {
+  webOverlayOpen = true;
+  const ov = document.createElement('div');
+  ov.className = 'web-overlay'; ov.id = 'webOverlay';
+  ov.innerHTML = `
+    <div class="wob-bar">
+      <button class="wob-back" onclick="closeWebOverlay()">✕</button>
+      <div class="wob-url"><span class="wob-secure">🔒</span> myaadhaar.uidai.gov.in</div>
+    </div>
+    <div class="wob-goi-hd" style="background:#003580">
+      <span class="wob-goi-emblem">🆔</span>
+      <div>
+        <div class="wob-goi-nm">myAadhaar — Update Request</div>
+        <div class="wob-goi-sub">UIDAI — Unique Identification Authority of India</div>
+      </div>
+      <div class="wob-goi-badge">OFFICIAL</div>
+    </div>
+    <div class="wob-prog-wrap"><div class="wob-prog-fill" id="wobProg" style="width:0%"></div></div>
+    <div class="wob-body" id="wobBody">
+      <div>
+        <div class="wob-step-tag">STEP 1 OF 2 — Identity Verification</div>
+        <div class="wob-form-hd">Aadhaar Update Request</div>
+        <div class="wob-form-sub">आधार अपडेट के लिए नीचे जानकारी भरें · शुल्क: ₹50</div>
+      </div>
+      ${UIDAI_FORM.map((f,i) => `
+        <div class="wob-field" id="wuf-${i}">
+          <div class="wob-lbl">${f.lbl} <span class="wob-req">*</span></div>
+          <div class="wob-input-sim empty" id="wui-${i}">—</div>
+          <div class="wob-field-hint">${f.hint}</div>
+          <div class="wob-autofill">✓ Auto-filled</div>
+        </div>`).join('')}
+    </div>
+    <div class="wob-voice-strip">
+      <div class="wob-voice-av">🏛️</div>
+      <div class="wob-voice-info">
+        <div class="wob-voice-status">🔊 आवाज़ से गाइड हो रहा हूँ</div>
+        <div class="wob-voice-text" id="wobVoiceTxt">एक पल...</div>
+      </div>
+      <button class="wob-next-btn" id="wobNextBtn" onclick="advanceUidaiField()" disabled>अगला →</button>
+    </div>`;
+  document.querySelector('.phone-frame').appendChild(ov);
+  setTimeout(() => voiceGuideUidaiField(0), 1500);
+}
+
+function voiceGuideUidaiField(idx) {
+  formPhase = 'field_' + idx;
+  const f = UIDAI_FORM[idx];
+  const pct = Math.round((idx / UIDAI_FORM.length) * 100);
+  const bar = document.getElementById('wobProg');
+  if (bar) bar.style.width = pct + '%';
+
+  UIDAI_FORM.forEach((_, i) => {
+    const row = document.getElementById('wuf-' + i);
+    if (!row) return;
+    if (i < idx) row.className = 'wob-field done';
+    else if (i === idx) row.className = 'wob-field active';
+    else row.className = 'wob-field';
+  });
+  setTimeout(() => {
+    const el = document.getElementById('wuf-' + idx);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 200);
+
+  const vtxt = document.getElementById('wobVoiceTxt');
+  if (vtxt) vtxt.textContent = f.voice.split('।')[0] + '।';
+
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) btn.disabled = true;
+
+  const inputEl = document.getElementById('wui-' + idx);
+  if (inputEl) {
+    inputEl.className = 'wob-input-sim';
+    inputEl.innerHTML = '<span class="wob-cursor"></span>';
+    setTimeout(() => typeInField(inputEl, f.val, () => { if (btn) btn.disabled = false; }), 400);
+  }
+
+  speakThen(f.voice, () => { if (btn) btn.disabled = false; setMic('idle'); }, 10000);
+}
+
+function advanceUidaiField() {
+  if (speaking) { currentAudio?.pause(); currentAudio = null; window.speechSynthesis?.cancel(); speaking = false; }
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) btn.disabled = true;
+  uidaiFieldIdx++;
+  if (uidaiFieldIdx >= UIDAI_FORM.length) {
+    showUidaiFormReview();
+    return;
+  }
+  voiceGuideUidaiField(uidaiFieldIdx);
+}
+
+function showUidaiFormReview() {
+  formPhase = 'final';
+  const bar = document.getElementById('wobProg');
+  if (bar) bar.style.width = '100%';
+  UIDAI_FORM.forEach((_, i) => {
+    const row = document.getElementById('wuf-' + i);
+    if (row) row.className = 'wob-field done';
+  });
+  const vtxt = document.getElementById('wobVoiceTxt');
+  if (vtxt) vtxt.textContent = 'सभी खाने भरे। Submit करके ₹50 पेमेंट करें।';
+  const btn = document.getElementById('wobNextBtn');
+  if (btn) { btn.textContent = '✅ Submit करें'; btn.disabled = false; btn.onclick = showUidaiSubmitConfirm; }
+  const body = document.getElementById('wobBody');
+  if (body) body.scrollTo({ top:0, behavior:'smooth' });
+  speakThen(
+    "बहुत बढ़िया! सभी खाने सही भरे हैं। एक बार ऊपर से नीचे देख लीजिए। सब ठीक लगे तो Submit दबाइए — इसके बाद पचास रुपये का payment होगा और OTP आएगा।",
+    () => setMic('idle'), 14000
+  );
+}
+
+function showUidaiSubmitConfirm() {
+  closeWebOverlay();
+  setTimeout(() => {
+    const card = document.createElement('div');
+    card.className = 'submit-ready';
+    card.innerHTML = `
+      <div class="sr-ico">✅</div>
+      <div class="sr-title">आधार अपडेट रिक्वेस्ट तैयार!</div>
+      <div class="sr-msg">UIDAI वेबसाइट पर Submit करें → ₹50 payment करें → OTP verify करें → अपडेट ९० दिन में हो जाएगा।</div>
+      <div class="sr-warn">⚠️ Submit और payment आपको खुद करना है।</div>
+      <button class="sr-btn" onclick="window.open('https://myaadhaar.uidai.gov.in','_blank')">🌐 myaadhaar.uidai.gov.in →</button>`;
+    $conv.appendChild(card); scrollDown();
+    speak("आधार अपडेट रिक्वेस्ट तैयार है। UIDAI वेबसाइट पर submit करें, पचास रुपये payment करें, OTP verify करें — बस काम हो जाएगा! नब्बे दिन में अपडेट आ जाएगा।", () => setMic('idle'));
+  }, 400);
+}
+
+// ══════════════════════════════════════
+// AADHAAR CENTER GUIDE
+// ══════════════════════════════════════
+function showAadhaarCenterGuide() {
+  const card = document.createElement('div');
+  card.className = 'action-card';
+  card.innerHTML = `
+    <div class="ac-hd">🏢 नज़दीकी आधार सेंटर — स्टेप-बाय-स्टेप</div>
+    <div class="ac-step">
+      <span class="ac-ico">📍</span>
+      <div>
+        <div class="ac-txt">India Post — Hazratganj</div>
+        <div class="ac-sub">Hazratganj Post Office, Lucknow · <strong>1.2 km</strong></div>
+        <div class="ac-sub" style="margin-top:2px">⏰ सोम–शनि, सुबह 9 से शाम 5 बजे</div>
+      </div>
+    </div>
+    <div class="ac-step">
+      <span class="ac-ico">📍</span>
+      <div>
+        <div class="ac-txt">CSC Centre — Gomti Nagar</div>
+        <div class="ac-sub">Common Service Centre, Gomti Nagar · <strong>2.1 km</strong></div>
+        <div class="ac-sub" style="margin-top:2px">⏰ सोम–शनि, सुबह 9 से शाम 6 बजे</div>
+      </div>
+    </div>
+    <div class="ac-hd" style="background:var(--blue);border-radius:0;margin-top:0">📋 साथ क्या लेकर जाएं?</div>
+    <div class="ac-step">
+      <span class="ac-ico">🪪</span>
+      <div>
+        <div class="ac-txt">आधार कार्ड — Original</div>
+        <div class="ac-sub">Original दिखाएं + एक फ़ोटोकॉपी दें</div>
+      </div>
+    </div>
+    <div class="ac-step">
+      <span class="ac-ico">📄</span>
+      <div>
+        <div class="ac-txt">पहचान प्रमाण</div>
+        <div class="ac-sub">PAN कार्ड / वोटर ID / पासपोर्ट — Original + फ़ोटोकॉपी</div>
+      </div>
+    </div>
+    <div class="ac-step">
+      <span class="ac-ico">🏠</span>
+      <div>
+        <div class="ac-txt">पते का प्रमाण (अगर पता बदलना है)</div>
+        <div class="ac-sub">बिजली बिल / राशन कार्ड / बैंक स्टेटमेंट</div>
+      </div>
+    </div>
+    <div class="ac-hd" style="background:#1a6b3c;border-radius:0;margin-top:0">🪜 काउंटर पर क्या करें?</div>
+    <div class="ac-step">
+      <span class="ac-ico">1️⃣</span>
+      <div><div class="ac-txt">Counter पर जाकर बोलें — "Aadhaar Update"</div><div class="ac-sub">Token लें और नंबर आने पर काउंटर पर जाएं</div></div>
+    </div>
+    <div class="ac-step">
+      <span class="ac-ico">2️⃣</span>
+      <div><div class="ac-txt">Operator को बताएं क्या बदलना है</div><div class="ac-sub">नाम / पता / मोबाइल — बोलकर बताएं</div></div>
+    </div>
+    <div class="ac-step">
+      <span class="ac-ico">3️⃣</span>
+      <div><div class="ac-txt">Biometric verification देना होगा</div><div class="ac-sub">अंगूठा या आँख की scan — मशीन पर करनी होगी</div></div>
+    </div>
+    <div class="ac-step" style="background:#e6f4ec;border-radius:0 0 14px 14px;">
+      <span class="ac-ico">📬</span>
+      <div>
+        <div class="ac-txt">URN नंबर मिलेगा — इससे status track करें</div>
+        <div class="ac-sub">₹50 शुल्क · अपडेट ९० दिन में हो जाता है</div>
+        <span class="ac-pill free">SMS पर status update मिलेगा</span>
+      </div>
+    </div>`;
+  $conv.appendChild(card); scrollDown();
+
+  speakThen(
+    "आपके पास दो नज़दीकी सेंटर हैं। इंडिया पोस्ट हज़रतगंज — सिर्फ़ डेढ़ किलोमीटर दूर। और CSC सेंटर, गोमती नगर — दो किलोमीटर। " +
+    "साथ में आधार कार्ड और एक पहचान प्रमाण लेकर जाएं — PAN कार्ड या वोटर ID। दोनों की फ़ोटोकॉपी भी रखें। " +
+    "काउंटर पर पहुँचकर बोलें — आधार अपडेट चाहिए। Operator form भरेगा, आपको biometric scan देनी होगी। " +
+    "इसके बाद URN नंबर मिलेगा — इससे आप status track कर सकते हैं। पचास रुपये शुल्क लगेगा और नब्बे दिन में अपडेट हो जाएगा।",
+    () => {
+      setTimeout(() => {
+        addAI("और कोई मदद चाहिए? या PM Kisan जैसी कोई योजना देखनी है?");
+        speak("और कोई मदद चाहिए?", () => setMic('idle'));
+      }, 600);
+    }, 16000
+  );
+}
+
 function closeWebOverlay() {
   const ov = document.getElementById('webOverlay');
   if (!ov) return;
@@ -1332,7 +1587,8 @@ function onMicTap() {
   }
   // When web overlay is open, mic tap advances to next field
   if (webOverlayOpen && formPhase && formPhase.startsWith('field_')) {
-    advanceFormField();
+    if (serviceIntent === 'aadhaar') advanceUidaiField();
+    else advanceFormField();
     return;
   }
   if (docPhase === 'awaiting_office_help') {
@@ -1349,12 +1605,13 @@ function onMicTap() {
   }
   // Form field advancement — mic tap = "done, next field"
   if (formPhase && formPhase.startsWith('field_')) {
-    advanceFormField();
+    if (serviceIntent === 'aadhaar') advanceUidaiField();
+    else advanceFormField();
     return;
   }
   if (formPhase === 'final') return;
-  // Service flow (Aadhaar / Passport / etc.) — only 1 turn needed
-  if (serviceIntent && serviceTurn === 0) { startListening(); return; }
+  // Service flow (Aadhaar) — allow up to 2 turns (intent → online/center choice)
+  if (serviceIntent && serviceTurn < 2) { startListening(); return; }
   if (serviceIntent) return; // service flow done
   if (turn > 3) return;
   startListening();
