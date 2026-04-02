@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Jio Bharat IQ — Grocery Assistant</title>
+<style>
+@font-face { font-family: 'JioType'; font-weight: 400; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'JioType'; font-weight: 500; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family: 'JioType'; font-weight: 700; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family: 'JioType'; font-weight: 900; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --primary-20: #e8e8fc;
+  --primary-30: #9999ff;
+  --primary-40: #6464ff;
+  --primary-50: #3535f3;
+  --primary-60: #000093;
+  --secondary-50: #f7ab20;
+  --sparkle-50: #1eccb0;
+  --sparkle-20: #e8faf7;
+  --error: #fa2f40;
+  --warning: #f06d0f;
+  --success: #25ab21;
+  --grey-100: #141414;
+  --grey-80: rgba(0,0,0,0.66);
+  --grey-60: #b5b5b5;
+  --grey-40: #e0e0e0;
+  --grey-20: #f5f5f5;
+  --white: #ffffff;
+  --surface-ghost: #eeeeef;
+  --surface-bold: #3900ad;
+  --text-high: #141414;
+  --text-low: rgba(25,27,30,0.65);
+  --text-disabled: rgba(25,27,30,0.38);
+  --stroke-subtle: rgba(36,38,43,0.12);
+}
+
+body {
+  font-family: 'JioType', sans-serif;
+  background: var(--white);
+  color: var(--text-high);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.phone-frame {
+  width: 100%; max-width: 390px; height: 100dvh;
+  margin: 0 auto; display: flex; flex-direction: column;
+  background: var(--white); position: relative;
+}
+
+/* === HEADER === */
+.header {
+  display: flex; align-items: center; padding: 12px 16px; gap: 12px;
+  border-bottom: 1px solid var(--stroke-subtle); flex-shrink: 0; background: var(--white);
+}
+.header-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--primary-50);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.header-avatar svg { color: var(--white); }
+.header-info { flex: 1; }
+.header-title { font-size: 16px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-high); }
+.header-subtitle { font-size: 13px; font-weight: 500; color: var(--text-low); line-height: 1.4; }
+.header-action {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--surface-ghost);
+  display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+}
+.header-action svg { color: var(--grey-100); }
+
+/* === CHAT === */
+.chat-container {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
+}
+.chat-container::-webkit-scrollbar { display: none; }
+
+.msg-row { display: flex; gap: 8px; max-width: 100%; }
+.msg-row.ai { align-items: flex-start; }
+.msg-row.user { justify-content: flex-end; }
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--primary-20);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.msg-avatar svg { width: 16px; height: 16px; color: var(--primary-50); }
+.msg-bubble {
+  padding: 10px 14px; border-radius: 16px; font-size: 15px; font-weight: 500;
+  line-height: 1.5; max-width: 80%;
+}
+.msg-row.ai .msg-bubble { background: var(--surface-ghost); color: var(--text-high); border-bottom-left-radius: 4px; }
+.msg-row.user .msg-bubble { background: var(--primary-50); color: var(--white); border-bottom-right-radius: 4px; }
+
+/* === TYPING === */
+.typing-indicator { display: flex; gap: 4px; padding: 12px 14px; }
+.typing-indicator span {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--grey-60); animation: typeBounce 1.2s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typeBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* === CART CARD === */
+.cart-card {
+  background: var(--white); border: 1px solid var(--stroke-subtle);
+  border-radius: 16px; overflow: hidden; width: 290px; animation: cardSlideUp 0.4s ease-out;
+}
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cart-card-header {
+  padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--stroke-subtle); background: var(--grey-20);
+}
+.cart-card-header-left { display: flex; align-items: center; gap: 8px; }
+.cart-card-header-left svg { width: 18px; height: 18px; color: var(--primary-50); }
+.cart-card-header-left span { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.cart-card-header-count {
+  font-size: 12px; font-weight: 700; color: var(--primary-50); background: var(--primary-20);
+  padding: 2px 8px; border-radius: 999px;
+}
+
+/* === PRODUCT ROW === */
+.product-row {
+  display: flex; align-items: center; padding: 10px 14px; gap: 10px;
+  border-bottom: 1px solid var(--stroke-subtle);
+}
+.product-row:last-of-type { border-bottom: none; }
+.product-thumb {
+  width: 48px; height: 48px; border-radius: 8px; flex-shrink: 0;
+  border: 1px solid var(--stroke-subtle);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.product-thumb svg { width: 38px; height: 38px; }
+.product-details { flex: 1; min-width: 0; }
+.product-name {
+  font-size: 13px; font-weight: 700; color: var(--text-high); line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.product-variant { font-size: 11px; font-weight: 500; color: var(--text-low); margin-top: 1px; }
+.product-price-col { text-align: right; flex-shrink: 0; }
+.product-price { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.product-mrp {
+  font-size: 11px; font-weight: 500; color: var(--text-disabled);
+  text-decoration: line-through;
+}
+.qty-stepper {
+  display: inline-flex; align-items: center; gap: 0; border: 1.5px solid var(--primary-50);
+  border-radius: 8px; overflow: hidden; margin-top: 4px;
+}
+.qty-stepper button {
+  width: 24px; height: 24px; border: none; background: var(--primary-20);
+  color: var(--primary-50); font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'JioType', sans-serif; display: flex; align-items: center; justify-content: center;
+}
+.qty-stepper span {
+  width: 26px; height: 24px; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--primary-50); background: var(--white);
+}
+
+.cart-total {
+  padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--stroke-subtle); background: var(--grey-20);
+}
+.cart-total-left {}
+.cart-total-label { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.cart-total-items { font-size: 11px; font-weight: 500; color: var(--text-low); }
+.cart-total-price { font-size: 18px; font-weight: 900; color: var(--primary-50); letter-spacing: -0.03em; }
+.delivery-badge {
+  display: flex; align-items: center; gap: 4px; padding: 6px 12px;
+  background: var(--sparkle-20); border-radius: 0 0 16px 16px;
+  font-size: 12px; font-weight: 700; color: #0e5c4f; justify-content: center;
+}
+
+/* === SAVINGS === */
+.savings-badge {
+  display: inline-flex; align-items: center; gap: 4px; background: var(--sparkle-20);
+  color: #0e5c4f; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+}
+
+/* === CHIPS === */
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
+.chip {
+  padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 700;
+  font-family: 'JioType', sans-serif; cursor: pointer; border: none;
+  transition: transform 0.15s; white-space: nowrap;
+}
+.chip:active { transform: scale(0.96); }
+.chip-primary { background: var(--primary-50); color: var(--white); }
+.chip-secondary { background: var(--surface-ghost); color: var(--text-high); }
+.chip-sparkle { background: var(--sparkle-20); color: #0e5c4f; }
+
+/* === ORDER CONFIRM === */
+.order-confirm-card {
+  background: var(--white); border: 1px solid var(--stroke-subtle); border-radius: 16px;
+  padding: 20px 16px; text-align: center; width: 290px; animation: cardSlideUp 0.4s ease-out;
+}
+.order-confirm-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+}
+.order-confirm-icon.success { background: #e6f4e6; }
+.order-confirm-icon svg { width: 28px; height: 28px; color: var(--success); }
+.order-confirm-title { font-size: 16px; font-weight: 700; color: var(--text-high); margin-bottom: 4px; }
+.order-confirm-sub { font-size: 13px; font-weight: 500; color: var(--text-low); line-height: 1.5; }
+.order-id {
+  display: inline-block; background: var(--grey-20); padding: 3px 10px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; color: var(--text-low); margin-top: 8px; letter-spacing: 0.5px;
+}
+.eta-row {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--stroke-subtle);
+}
+.eta-row span { font-size: 14px; font-weight: 700; color: var(--success); }
+
+/* === TRACKING === */
+.tracking-card {
+  background: var(--white); border: 1px solid var(--stroke-subtle); border-radius: 16px;
+  padding: 14px; width: 290px; animation: cardSlideUp 0.4s ease-out;
+}
+.tracking-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.tracking-header span { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.tracking-steps { display: flex; flex-direction: column; }
+.tracking-step { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 14px; }
+.tracking-step:last-child { padding-bottom: 0; }
+.tracking-dot-col { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; }
+.tracking-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--grey-40); flex-shrink: 0; margin-top: 3px;
+}
+.tracking-dot.active { background: var(--success); }
+.tracking-dot.current { background: var(--primary-50); animation: pulse 1.5s infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(53,53,243,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(53,53,243,0); }
+}
+.tracking-line { width: 2px; flex: 1; background: var(--grey-40); min-height: 14px; }
+.tracking-line.active { background: var(--success); }
+.tracking-step-info { flex: 1; }
+.tracking-step-title { font-size: 13px; font-weight: 700; color: var(--text-high); }
+.tracking-step-sub { font-size: 11px; font-weight: 500; color: var(--text-low); }
+
+/* === PAYMENT CARD === */
+.payment-card {
+  background: var(--white); border: 1px solid var(--stroke-subtle); border-radius: 16px;
+  overflow: hidden; width: 100%; animation: cardSlideUp 0.4s ease-out;
+}
+.payment-header {
+  padding: 14px 16px; border-bottom: 1px solid var(--stroke-subtle);
+  display: flex; align-items: center; gap: 10px;
+}
+.payment-header svg { flex-shrink: 0; }
+.payment-header-text { flex: 1; }
+.payment-header-title { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.payment-header-sub { font-size: 12px; font-weight: 500; color: var(--text-low); margin-top: 1px; }
+.payment-amount-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 12px 16px; background: var(--grey-20); border-bottom: 1px solid var(--stroke-subtle);
+}
+.payment-amount-label { font-size: 12px; font-weight: 500; color: var(--text-low); }
+.payment-amount { font-size: 22px; font-weight: 900; color: var(--text-high); }
+.payment-methods { padding: 6px 0; }
+.payment-method {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  cursor: pointer; transition: background 0.15s;
+}
+.payment-method:hover { background: var(--grey-20); }
+.payment-method-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 16px; font-weight: 900;
+}
+.payment-method-info { flex: 1; }
+.payment-method-name { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.payment-method-detail { font-size: 11px; font-weight: 500; color: var(--text-low); margin-top: 1px; }
+.payment-method-radio {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--grey-60);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.payment-method.selected .payment-method-radio {
+  border-color: var(--primary-50); background: var(--primary-50);
+}
+.payment-method.selected .payment-method-radio::after {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff;
+}
+.payment-method-tag {
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 0.3px; margin-left: 6px;
+}
+.payment-footer {
+  padding: 12px 16px; border-top: 1px solid var(--stroke-subtle);
+}
+.payment-pay-btn {
+  width: 100%; padding: 14px; border-radius: 12px; border: none;
+  background: var(--primary-50); color: #fff;
+  font-size: 15px; font-weight: 700; font-family: 'JioType', sans-serif;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.payment-secured {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  margin-top: 8px; font-size: 10px; font-weight: 500; color: var(--text-disabled);
+}
+.payment-secured svg { width: 12px; height: 12px; }
+
+/* === NOTIFICATION CARDS — 3 DISTINCT TYPES === */
+.notif-card {
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12); animation: notifSlideIn 0.5s cubic-bezier(0.16,1,0.3,1);
+  width: 100%;
+}
+@keyframes notifSlideIn {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.notif-accent { padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+.notif-accent svg { width: 16px; height: 16px; flex-shrink: 0; }
+.notif-accent-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+.notif-accent-time { margin-left: auto; font-size: 10px; font-weight: 500; opacity: 0.8; }
+.notif-body { padding: 14px; background: var(--white); }
+.notif-product { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.notif-thumb {
+  width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--stroke-subtle);
+}
+.notif-thumb svg { width: 32px; height: 32px; }
+.notif-product-info { flex: 1; min-width: 0; }
+.notif-product-name { font-size: 14px; font-weight: 700; color: var(--text-high); line-height: 1.3; }
+.notif-product-detail { font-size: 12px; font-weight: 500; color: var(--text-low); margin-top: 2px; }
+.notif-context {
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+  border-radius: 10px; font-size: 12px; font-weight: 500; line-height: 1.4;
+  margin-bottom: 12px;
+}
+.notif-context svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+.notif-actions { display: flex; gap: 8px; align-items: center; }
+.notif-btn-primary {
+  flex: 1; padding: 10px 16px; border-radius: 12px; border: none;
+  font-size: 14px; font-weight: 700; font-family: 'JioType', sans-serif;
+  cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.notif-btn-dismiss {
+  padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--stroke-subtle);
+  background: var(--white); color: var(--text-low); font-size: 13px; font-weight: 700;
+  font-family: 'JioType', sans-serif; cursor: pointer;
+}
+.notif-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px; }
+.notif-price-now { font-size: 20px; font-weight: 900; color: var(--text-high); }
+.notif-price-was { font-size: 13px; font-weight: 500; color: var(--text-disabled); text-decoration: line-through; }
+.notif-price-save { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+
+/* Type 1: Auto-Replenish — calm blue/purple */
+.notif-replenish .notif-accent { background: linear-gradient(135deg, #4a3aff 0%, #7c6aff 100%); color: #fff; }
+.notif-replenish .notif-context { background: #f0eeff; color: #4a3aff; }
+.notif-replenish .notif-context svg { color: #4a3aff; }
+.notif-replenish .notif-btn-primary { background: linear-gradient(135deg, #4a3aff, #6c5ce7); }
+
+/* Type 2: Stock Alert — urgent orange/amber */
+.notif-stockalert .notif-accent { background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%); color: #fff; }
+.notif-stockalert .notif-context { background: #fff8ed; color: #b35c00; }
+.notif-stockalert .notif-context svg { color: #e67e22; }
+.notif-stockalert .notif-btn-primary { background: linear-gradient(135deg, #e67e22, #f39c12); }
+
+/* Type 3: Price Drop — exciting green/teal */
+.notif-pricedrop .notif-accent { background: linear-gradient(135deg, #0d9b6d 0%, #1eccb0 100%); color: #fff; }
+.notif-pricedrop .notif-context { background: #e8faf7; color: #0a7d56; }
+.notif-pricedrop .notif-context svg { color: #0d9b6d; }
+.notif-pricedrop .notif-btn-primary { background: linear-gradient(135deg, #0d9b6d, #1eccb0); }
+.notif-pricedrop .notif-price-save { background: #e8faf7; color: #0d9b6d; }
+
+/* legacy proactive compat */
+.proactive-thumb {
+  width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0;
+  border: 1px solid var(--stroke-subtle);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.proactive-thumb svg { width: 34px; height: 34px; }
+
+/* === UPLOADED IMAGE (photo style) === */
+.uploaded-photo {
+  width: 200px; max-height: 280px; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  position: relative;
+}
+.uploaded-photo img {
+  width: 100%; height: 100%; object-fit: cover; object-position: top;
+  display: block; border-radius: 12px;
+}
+.uploaded-photo-badge {
+  position: absolute; bottom: 8px; left: 8px; right: 8px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border-radius: 8px; padding: 6px 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.uploaded-photo-badge svg { width: 14px; height: 14px; color: #fff; flex-shrink: 0; }
+.uploaded-photo-badge span { font-size: 11px; font-weight: 700; color: #fff; }
+
+/* === ZEPTO CART SCREENSHOT === */
+.zepto-screenshot {
+  width: 230px; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--stroke-subtle); box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.zepto-header {
+  background: #6b2fa0; padding: 8px 12px; display: flex; align-items: center;
+  justify-content: space-between;
+}
+.zepto-header span { font-size: 14px; font-weight: 700; color: #fff; }
+.zepto-savings {
+  background: #e8f5e9; padding: 5px 10px; text-align: center;
+  font-size: 11px; font-weight: 700; color: #2e7d32;
+}
+.zepto-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0; background: #fff;
+}
+.zepto-item-thumb {
+  width: 36px; height: 36px; border-radius: 6px; background: var(--grey-20);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.zepto-item-info { flex: 1; min-width: 0; }
+.zepto-item-name { font-size: 11px; font-weight: 700; color: #333; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zepto-item-qty { font-size: 10px; font-weight: 500; color: #888; }
+.zepto-item-price { font-size: 12px; font-weight: 700; color: #333; flex-shrink: 0; }
+.zepto-item-mrp { font-size: 10px; color: #e91e63; text-decoration: line-through; }
+.zepto-footer {
+  background: #6b2fa0; padding: 8px 12px; display: flex; align-items: center;
+  justify-content: space-between;
+}
+.zepto-footer-total { font-size: 16px; font-weight: 900; color: #fff; }
+.zepto-footer-btn {
+  background: #e91e63; color: #fff; border: none; border-radius: 8px;
+  padding: 6px 12px; font-size: 11px; font-weight: 700; font-family: 'JioType', sans-serif;
+}
+
+/* === PRICE COMPARISON CARD === */
+.compare-card {
+  background: var(--white); border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--stroke-subtle); box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.compare-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 10px; border-bottom: 1px solid var(--stroke-subtle);
+}
+.compare-header-left {
+  display: flex; align-items: center; gap: 8px;
+}
+.compare-header-left svg { flex-shrink: 0; }
+.compare-header-left span { font-size: 14px; font-weight: 700; color: var(--text-high); }
+.compare-cols {
+  display: flex; padding: 8px 16px; gap: 0;
+  border-bottom: 1px solid var(--stroke-subtle); background: var(--grey-20);
+}
+.compare-col-item { flex: 1; font-size: 10px; font-weight: 700; color: var(--text-low); text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-col-zepto { width: 56px; text-align: center; font-size: 10px; font-weight: 700; color: #6b2fa0; text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-col-jio { width: 56px; text-align: center; font-size: 10px; font-weight: 700; color: var(--primary-50); text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-col-save { width: 52px; text-align: center; font-size: 10px; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-item {
+  display: flex; align-items: center; padding: 10px 16px; gap: 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.compare-item:last-of-type { border-bottom: none; }
+.compare-item-info { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.compare-item-thumb {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.compare-item-thumb svg { width: 18px; height: 18px; }
+.compare-item-text { min-width: 0; }
+.compare-item-name { font-size: 11px; font-weight: 700; color: var(--text-high); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.compare-item-qty { font-size: 10px; font-weight: 500; color: var(--text-low); }
+.compare-price-zepto { width: 56px; text-align: center; font-size: 13px; font-weight: 500; color: var(--text-low); text-decoration: line-through; }
+.compare-price-jio { width: 56px; text-align: center; font-size: 13px; font-weight: 700; color: var(--primary-50); }
+.compare-price-save { width: 52px; text-align: center; }
+.compare-save-pill {
+  display: inline-block; font-size: 10px; font-weight: 700; color: var(--success);
+  background: #e6f4e6; padding: 2px 6px; border-radius: 10px;
+}
+.compare-total-row {
+  display: flex; align-items: center; padding: 12px 16px; gap: 0;
+  background: var(--grey-20); border-top: 2px solid var(--stroke-subtle);
+}
+.compare-total-label { flex: 1; font-size: 14px; font-weight: 900; color: var(--text-high); }
+.compare-total-zepto { width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: var(--text-low); text-decoration: line-through; }
+.compare-total-jio { width: 56px; text-align: center; font-size: 14px; font-weight: 900; color: var(--primary-50); }
+.compare-total-save { width: 52px; text-align: center; }
+.compare-savings-hero {
+  background: linear-gradient(135deg, #e8faf7 0%, #e6f4e6 100%);
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+}
+.compare-savings-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--success); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.compare-savings-circle .amount { font-size: 14px; font-weight: 900; line-height: 1; }
+.compare-savings-circle .label { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+.compare-savings-text { font-size: 13px; font-weight: 500; color: var(--text-high); line-height: 1.4; }
+.compare-savings-text b { font-weight: 700; }
+
+/* old comparison row (kept for kirana flow) */
+.comparison-row {
+  display: flex; align-items: center; gap: 6px; padding: 2px 0;
+}
+.comparison-zepto {
+  font-size: 12px; font-weight: 500; color: var(--text-disabled);
+  text-decoration: line-through; min-width: 32px; text-align: right;
+}
+.comparison-ours {
+  font-size: 13px; font-weight: 700; color: var(--success); min-width: 32px;
+}
+.comparison-saved {
+  font-size: 10px; font-weight: 700; color: var(--success);
+  background: #e6f4e6; padding: 1px 5px; border-radius: 4px;
+}
+
+/* === INPUT === */
+.chat-input-area {
+  padding: 8px 12px 12px; border-top: 1px solid var(--stroke-subtle);
+  background: var(--white); flex-shrink: 0;
+}
+.jds-chat-input {
+  background: var(--surface-ghost); border-radius: 999px; padding: 8px 8px 8px 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.chat-text-input {
+  flex: 1; border: none; background: transparent; font-family: 'JioType', sans-serif;
+  font-size: 15px; font-weight: 500; color: var(--text-high); outline: none;
+}
+.chat-text-input::placeholder { color: var(--text-disabled); }
+.input-icon-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; background: transparent; color: var(--grey-80); flex-shrink: 0;
+}
+.input-icon-btn.send-btn { background: var(--primary-50); color: var(--white); }
+
+.quick-actions { display: flex; gap: 8px; padding: 0 0 8px; overflow-x: auto; }
+.quick-actions::-webkit-scrollbar { display: none; }
+.quick-action-chip {
+  padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
+  font-family: 'JioType', sans-serif; background: var(--white);
+  border: 1.5px solid var(--stroke-subtle); color: var(--text-high);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.15s;
+}
+.quick-action-chip:active { background: var(--primary-20); border-color: var(--primary-50); }
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.demo-badge {
+  display: flex; align-items: center; justify-content: center; padding: 6px 12px;
+  background: var(--grey-20); border-radius: 999px; font-size: 12px; font-weight: 700;
+  color: var(--text-low); margin: 0 auto 8px; width: fit-content;
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="header">
+    <div class="header-avatar">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M8.5 19a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4.12-12.17A2 2 0 0020 6H6.58l-.41-1.52A2 2 0 004.23 3H3a1 1 0 000 2h1.23l2.83 10.48A2 2 0 009 17h8.67a2 2 0 001.89-1.37l2.34-7a2 2 0 00-.28-1.8z" fill="currentColor"/></svg>
+    </div>
+    <div class="header-info">
+      <div class="header-title">Grocery Assistant</div>
+      <div class="header-subtitle">Jio Bharat IQ</div>
+    </div>
+    <button class="header-action" onclick="resetDemo()">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 2a1 1 0 00-1 1v18a1 1 0 002 0V3a1 1 0 00-1-1zM4 9a1 1 0 00-1 1v4a1 1 0 102 0v-4a1 1 0 00-1-1zm4-3a1 1 0 00-1 1v10a1 1 0 102 0V7a1 1 0 00-1-1zm12 3a1 1 0 00-1 1v4a1 1 0 002 0v-4a1 1 0 00-1-1zm-4-3a1 1 0 00-1 1v10a1 1 0 002 0V7a1 1 0 00-1-1z" fill="currentColor"/></svg>
+    </button>
+  </div>
+
+  <div class="chat-container" id="CC"></div>
+
+  <div class="chat-input-area">
+    <div id="quickActions" class="quick-actions" style="display:none;">
+      <button class="quick-action-chip" onclick="startFlow1()">Order groceries</button>
+      <button class="quick-action-chip" onclick="startFlow2()">Upload a list</button>
+      <button class="quick-action-chip" onclick="startFlow3()">My restock alerts</button>
+    </div>
+    <div class="jds-chat-input">
+      <input type="text" class="chat-text-input" id="chatInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')handleSend()">
+      <button class="input-icon-btn" onclick="simulateImageUpload()" title="Upload image">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M19 6h-7V5a1 1 0 00-1-1H7a1 1 0 00-1 1v1H5a3.12 3.12 0 00-3 3.23v7.54A3.12 3.12 0 005 20h14a3.12 3.12 0 003-3.23V9.23A3.12 3.12 0 0019 6zm-7 10a3 3 0 110-5.999A3 3 0 0112 16z" fill="currentColor"/></svg>
+      </button>
+      <button class="input-icon-btn" title="Voice input">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3zm6-5a1 1 0 00-1 1v1a5 5 0 11-10 0v-1a1 1 0 10-2 0v1a7 7 0 1014 0v-1a1 1 0 00-1-1zm-3 10H9a1 1 0 000 2h6a1 1 0 000-2z" fill="currentColor"/></svg>
+      </button>
+      <button class="input-icon-btn send-btn" onclick="handleSend()" id="sendBtn">
+        <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CC = document.getElementById('CC');
+const chatInput = document.getElementById('chatInput');
+
+// === PRODUCT THUMBNAILS (inline SVG inside div) ===
+function productThumb(type) {
+  const P = {
+    apple:  { bg:'#fce4e4', svg:'<svg viewBox="0 0 48 48" fill="none"><ellipse cx="24" cy="28" rx="14" ry="15" fill="#e53935"/><ellipse cx="20" cy="26" rx="10" ry="12" fill="#ef5350" opacity=".6"/><path d="M24 13c0 0 2-6 6-7s4 3 2 5-5 4-6 5" fill="#4caf50"/><path d="M24 13c0 0-1-5 1-7" stroke="#795548" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    banana: { bg:'#fff9c4', svg:'<svg viewBox="0 0 48 48" fill="none"><path d="M12 34c4-2 8-12 14-18s10-6 12-4-2 8-8 14-12 10-16 11-4-2-2-3z" fill="#fdd835"/><path d="M12 34c4-2 8-12 14-18s10-6 12-4" stroke="#f9a825" stroke-width="1.5" fill="none"/><path d="M38 12c0 0 1-3-1-4" stroke="#795548" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+    orange: { bg:'#fff3e0', svg:'<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="26" r="14" fill="#ff9800"/><circle cx="21" cy="24" r="10" fill="#ffa726" opacity=".6"/><ellipse cx="24" cy="13" rx="3" ry="2" fill="#4caf50"/></svg>' },
+    milk:   { bg:'#e3f2fd', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="14" y="14" width="20" height="26" rx="2" fill="#fff" stroke="#1565c0" stroke-width="1.5"/><rect x="16" y="8" width="16" height="8" rx="1" fill="#1565c0"/><rect x="18" y="22" width="12" height="8" rx="1" fill="#bbdefb"/><text x="24" y="28" text-anchor="middle" font-size="6" font-weight="bold" fill="#1565c0">AMUL</text></svg>' },
+    atta:   { bg:'#fff8e1', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="30" rx="3" fill="#fff" stroke="#e65100" stroke-width="1.5"/><rect x="14" y="16" width="20" height="12" rx="1" fill="#ff8f00"/><text x="24" y="25" text-anchor="middle" font-size="5" font-weight="bold" fill="#fff">ATTA</text><circle cx="24" cy="34" r="3" fill="#ffca28"/></svg>' },
+    dal:    { bg:'#fff8e1', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="12" y="10" width="24" height="30" rx="3" fill="#fff" stroke="#e65100" stroke-width="1.5"/><rect x="15" y="15" width="18" height="10" rx="1" fill="#f57f17"/><circle cx="24" cy="32" r="5" fill="#ffcc02" opacity=".5"/><circle cx="22" cy="31" r="2" fill="#fdd835"/><circle cx="26" cy="33" r="2" fill="#fdd835"/></svg>' },
+    onion:  { bg:'#fce4ec', svg:'<svg viewBox="0 0 48 48" fill="none"><ellipse cx="24" cy="28" rx="12" ry="14" fill="#ad1457"/><ellipse cx="21" cy="26" rx="8" ry="11" fill="#c2185b" opacity=".5"/><path d="M24 14c0 0-1-5 0-8" stroke="#4caf50" stroke-width="1.5" stroke-linecap="round"/><path d="M22 14c0 0 0-4 2-6" stroke="#66bb6a" stroke-width="1" stroke-linecap="round"/></svg>' },
+    tomato: { bg:'#ffebee', svg:'<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="27" r="13" fill="#e53935"/><circle cx="21" cy="25" r="9" fill="#ef5350" opacity=".5"/><path d="M18 15c2-1 4 0 6 0s4-1 6 0" stroke="#4caf50" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="14" r="2" fill="#4caf50"/></svg>' },
+    haldi:  { bg:'#fff9c4', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="14" y="12" width="20" height="28" rx="2" fill="#fff" stroke="#f57f17" stroke-width="1.5"/><rect x="17" y="18" width="14" height="10" rx="1" fill="#f9a825"/><text x="24" y="26" text-anchor="middle" font-size="5" font-weight="bold" fill="#fff">CATCH</text></svg>' },
+    eggs:   { bg:'#fff8e1', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="18" width="32" height="22" rx="3" fill="#efebe9" stroke="#bcaaa4" stroke-width="1"/><ellipse cx="16" cy="26" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/><ellipse cx="28" cy="26" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/><ellipse cx="22" cy="32" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/><ellipse cx="34" cy="32" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/></svg>' },
+  };
+  const p = P[type] || { bg:'#f5f5f5', svg:'' };
+  return `<div class="product-thumb" style="background:${p.bg};display:flex;align-items:center;justify-content:center;overflow:hidden;">${p.svg}</div>`;
+}
+function proactiveThumb(type) {
+  const P = {
+    eggs: { bg:'#fff8e1', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="18" width="32" height="22" rx="3" fill="#efebe9" stroke="#bcaaa4" stroke-width="1"/><ellipse cx="16" cy="26" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/><ellipse cx="28" cy="26" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/><ellipse cx="22" cy="32" rx="5" ry="6" fill="#fafafa" stroke="#e0e0e0" stroke-width=".5"/></svg>' },
+    atta: { bg:'#fff8e1', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="30" rx="3" fill="#fff" stroke="#e65100" stroke-width="1.5"/><rect x="14" y="16" width="20" height="12" rx="1" fill="#ff8f00"/><text x="24" y="25" text-anchor="middle" font-size="5" font-weight="bold" fill="#fff">ATTA</text></svg>' },
+    milk: { bg:'#e3f2fd', svg:'<svg viewBox="0 0 48 48" fill="none"><rect x="14" y="14" width="20" height="26" rx="2" fill="#fff" stroke="#1565c0" stroke-width="1.5"/><rect x="16" y="8" width="16" height="8" rx="1" fill="#1565c0"/><rect x="18" y="22" width="12" height="8" rx="1" fill="#bbdefb"/></svg>' },
+  };
+  const p = P[type] || { bg:'#f5f5f5', svg:'' };
+  return `<div class="proactive-thumb" style="background:${p.bg};display:flex;align-items:center;justify-content:center;overflow:hidden;">${p.svg}</div>`;
+}
+
+// === MEMORY ===
+const userMemory = {
+  name: 'Priya',
+  address: 'B-204, Lodha Palava, Dombivli East',
+  preferredBrands: { atta: 'Aashirvaad', milk: 'Amul', rice: 'India Gate' },
+};
+
+// === UTILITY ===
+function scrollBottom() { CC.scrollTo({ top: CC.scrollHeight, behavior: 'smooth' }); }
+const CART_SVG = `<svg viewBox="0 0 24 24" fill="none"><path d="M8.5 19a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4.12-12.17A2 2 0 0020 6H6.58l-.41-1.52A2 2 0 004.23 3H3a1 1 0 000 2h1.23l2.83 10.48A2 2 0 009 17h8.67a2 2 0 001.89-1.37l2.34-7a2 2 0 00-.28-1.8z" fill="currentColor"/></svg>`;
+const SUCCESS_SVG = `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm5.21 7.71l-6 6a1.002 1.002 0 01-1.42 0l-3-3a1.003 1.003 0 111.42-1.42l2.29 2.3 5.29-5.3a1.004 1.004 0 011.42 1.42z" fill="currentColor"/></svg>`;
+
+function addAIMessage(html, noAvatar = false) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ai fade-in';
+  row.innerHTML = `
+    ${noAvatar ? '<div style="width:28px;flex-shrink:0"></div>' : `<div class="msg-avatar">${CART_SVG}</div>`}
+    <div class="msg-bubble">${html}</div>`;
+  CC.appendChild(row); scrollBottom(); return row;
+}
+function addUserMessage(text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row user fade-in';
+  row.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  CC.appendChild(row); scrollBottom();
+}
+function addCard(html, noAvatar = false) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ai fade-in';
+  row.innerHTML = `
+    ${noAvatar ? '<div style="width:28px;flex-shrink:0"></div>' : `<div class="msg-avatar">${CART_SVG}</div>`}
+    ${html}`;
+  CC.appendChild(row); scrollBottom();
+}
+function addChips(chips) {
+  const row = document.createElement('div');
+  row.className = 'chip-row fade-in';
+  row.style.paddingLeft = '36px';
+  row.innerHTML = chips.map(c =>
+    `<button class="chip ${c.style || 'chip-secondary'}" onclick="${c.action}">${c.label}</button>`
+  ).join('');
+  CC.appendChild(row); scrollBottom();
+}
+function showTyping() {
+  const row = document.createElement('div');
+  row.className = 'msg-row ai'; row.id = 'typingRow';
+  row.innerHTML = `<div class="msg-avatar">${CART_SVG}</div>
+    <div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  CC.appendChild(row); scrollBottom();
+}
+function hideTyping() { const el = document.getElementById('typingRow'); if (el) el.remove(); }
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function clearChips() { document.querySelectorAll('.chip-row').forEach(r => r.remove()); }
+
+// === ROUTING ===
+function handleSend() {
+  const text = chatInput.value.trim(); if (!text) return; chatInput.value = '';
+  const lower = text.toLowerCase();
+  if (lower.includes('apple') || lower.includes('banana') || lower.includes('orange') || lower.includes('sabzi') || lower.includes('milk') || lower.includes('atta')) {
+    addUserMessage(text); runFlow1();
+  } else if (lower.includes('list') || lower.includes('upload') || lower.includes('photo')) {
+    addUserMessage(text); startFlow2();
+  } else if (lower.includes('restock') || lower.includes('running low') || lower.includes('replenish')) {
+    addUserMessage(text); startFlow3();
+  } else {
+    addUserMessage(text); showTyping();
+    setTimeout(() => { hideTyping();
+      addAIMessage(`I can help with that! Tell me what groceries you need, upload a list, or check your restock alerts.`);
+      showQuickActions();
+    }, 1000);
+  }
+}
+function simulateImageUpload() { startFlow2(); }
+function showQuickActions() { document.getElementById('quickActions').style.display = 'flex'; }
+function hideQuickActions() { document.getElementById('quickActions').style.display = 'none'; }
+
+// ======================================================
+// FLOW 1: INTENT → AUTO EXECUTION
+// ======================================================
+function startFlow1() {
+  hideQuickActions();
+  addUserMessage('I want 4 apples, 1 dozen bananas, half kg oranges');
+  runFlow1();
+}
+
+async function runFlow1() {
+  showTyping(); await delay(1200); hideTyping();
+  addAIMessage(`Got it, ${userMemory.name}! I've picked the best options for you.`);
+  await delay(600);
+
+  addCard(`
+    <div class="cart-card">
+      <div class="cart-card-header">
+        <div class="cart-card-header-left">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M8.5 19a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4.12-12.17A2 2 0 0020 6H6.58l-.41-1.52A2 2 0 004.23 3H3a1 1 0 000 2h1.23l2.83 10.48A2 2 0 009 17h8.67a2 2 0 001.89-1.37l2.34-7a2 2 0 00-.28-1.8z" fill="currentColor"/></svg>
+          <span>Your Cart</span>
+        </div>
+        <span class="cart-card-header-count">3 items</span>
+      </div>
+      <div class="product-row">
+        ${productThumb('apple')}
+        <div class="product-details">
+          <div class="product-name">Shimla Royal Gala Apple</div>
+          <div class="product-variant">4 pcs (~600 gm)</div>
+          <div class="qty-stepper"><button>-</button><span>4</span><button>+</button></div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹52</div>
+          <div class="product-mrp">₹65</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('banana')}
+        <div class="product-details">
+          <div class="product-name">Robusta Banana</div>
+          <div class="product-variant">1 dozen (12 pcs)</div>
+          <div class="qty-stepper"><button>-</button><span>12</span><button>+</button></div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹45</div>
+          <div class="product-mrp">₹50</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('orange')}
+        <div class="product-details">
+          <div class="product-name">Nagpur Santra Orange</div>
+          <div class="product-variant">500 gm</div>
+          <div class="qty-stepper"><button>-</button><span>1</span><button>+</button></div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹38</div>
+          <div class="product-mrp">₹45</div>
+        </div>
+      </div>
+      <div class="cart-total">
+        <div class="cart-total-left">
+          <div class="cart-total-label">Total</div>
+          <div class="cart-total-items">3 items • Save ₹25</div>
+        </div>
+        <div class="cart-total-price">₹135</div>
+      </div>
+      <div class="delivery-badge">
+        <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="7" stroke="#0e5c4f" stroke-width="1.5" fill="none"/><path d="M8 4v4l3 2" stroke="#0e5c4f" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Delivery in 15 min to Lodha Palava
+      </div>
+    </div>
+  `, true);
+
+  await delay(500);
+  addAIMessage(`Everything's added. Should I place the order?`, true);
+  await delay(300);
+  addChips([
+    { label: 'Place order — ₹135', style: 'chip-primary', action: 'confirmOrder()' },
+    { label: 'Edit cart', style: 'chip-secondary', action: 'editCart()' },
+  ]);
+}
+
+// === SHARED PAYMENT FLOW ===
+function showPaymentCard(amount, itemSummary, onPayCallback) {
+  addCard(`
+    <div class="payment-card" id="paymentCard">
+      <div class="payment-header">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="2" y="5" width="20" height="14" rx="3" stroke="var(--primary-50)" stroke-width="1.8" fill="none"/><path d="M2 10h20" stroke="var(--primary-50)" stroke-width="1.8"/><path d="M6 14h4" stroke="var(--primary-50)" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="payment-header-text">
+          <div class="payment-header-title">Choose payment method</div>
+          <div class="payment-header-sub">${itemSummary}</div>
+        </div>
+      </div>
+      <div class="payment-amount-row">
+        <span class="payment-amount-label">Total payable</span>
+        <span class="payment-amount">₹${amount}</span>
+      </div>
+      <div class="payment-methods">
+        <div class="payment-method selected" onclick="selectPayment(this)">
+          <div class="payment-method-icon" style="background:#e8e8fc;">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--primary-50)" stroke-width="1.8" stroke-linejoin="round" fill="none"/></svg>
+          </div>
+          <div class="payment-method-info">
+            <div class="payment-method-name">JioPay UPI<span class="payment-method-tag" style="background:#e8faf7;color:#0d9b6d;">Fastest</span></div>
+            <div class="payment-method-detail">priya@jio • Instant payment</div>
+          </div>
+          <div class="payment-method-radio"></div>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this)">
+          <div class="payment-method-icon" style="background:#fff3e0;">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="2" y="5" width="20" height="14" rx="3" stroke="#e67e22" stroke-width="1.8" fill="none"/><path d="M2 10h20" stroke="#e67e22" stroke-width="1.8"/><circle cx="15" cy="15" r="2" stroke="#e67e22" stroke-width="1.5" fill="none"/><circle cx="18" cy="15" r="2" stroke="#e67e22" stroke-width="1.5" fill="none"/></svg>
+          </div>
+          <div class="payment-method-info">
+            <div class="payment-method-name">Credit / Debit Card</div>
+            <div class="payment-method-detail">HDFC •••• 4829</div>
+          </div>
+          <div class="payment-method-radio"></div>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this)">
+          <div class="payment-method-icon" style="background:#e6f4e6;">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#25ab21" stroke-width="1.8" fill="none"/><path d="M12 8v4l3 1.5" stroke="#25ab21" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="payment-method-info">
+            <div class="payment-method-name">Cash on Delivery</div>
+            <div class="payment-method-detail">Pay when order arrives</div>
+          </div>
+          <div class="payment-method-radio"></div>
+        </div>
+        <div class="payment-method" onclick="selectPayment(this)">
+          <div class="payment-method-icon" style="background:#fce4ec;">
+            <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M19 5H5a3 3 0 00-3 3v8a3 3 0 003 3h14a3 3 0 003-3V8a3 3 0 00-3-3z" stroke="#e91e63" stroke-width="1.8" fill="none"/><path d="M16 12a2 2 0 11-4 0 2 2 0 014 0z" stroke="#e91e63" stroke-width="1.5" fill="none"/></svg>
+          </div>
+          <div class="payment-method-info">
+            <div class="payment-method-name">JioMart Wallet<span class="payment-method-tag" style="background:#fce4ec;color:#e91e63;">₹240 bal</span></div>
+            <div class="payment-method-detail">Use wallet balance</div>
+          </div>
+          <div class="payment-method-radio"></div>
+        </div>
+      </div>
+      <div class="payment-footer">
+        <button class="payment-pay-btn" onclick='${onPayCallback}'>
+          <svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M2 4h12a2 2 0 012 2v4a2 2 0 01-2 2H2a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M0 7h16" stroke="#fff" stroke-width="1.3"/></svg>
+          Pay ₹${amount}
+        </button>
+        <div class="payment-secured">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M12 7H4a1 1 0 00-1 1v5a1 1 0 001 1h8a1 1 0 001-1V8a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+          Secured by Jio Payments Bank
+        </div>
+      </div>
+    </div>
+  `, true);
+}
+
+function selectPayment(el) {
+  document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function confirmOrder() {
+  clearChips(); addUserMessage('Place order');
+  showTyping(); await delay(1000); hideTyping();
+  addAIMessage('Here\'s your order summary. Choose how you\'d like to pay:');
+  await delay(500);
+  showPaymentCard('135', '3 items • Fruits', 'processPayment("flow1")');
+}
+
+async function processPayment(flow) {
+  // Get selected method name
+  const selected = document.querySelector('.payment-method.selected .payment-method-name');
+  const methodName = selected ? selected.childNodes[0].textContent.trim() : 'JioPay UPI';
+
+  // Animate the payment card
+  const card = document.getElementById('paymentCard');
+  card.style.transition = 'opacity 0.3s';
+  card.style.opacity = '0.5';
+
+  addUserMessage('Pay with ' + methodName);
+  showTyping(); await delay(1500); hideTyping();
+
+  const flowData = {
+    flow1: { amount: '135', sub: 'Shimla Apple, Robusta Banana, Nagpur Orange', orderId: 'JM-48291', eta: 'Arriving by 7:45 PM', msg: "I'll notify you when it's out for delivery." },
+    flow2: { amount: '912', sub: '8 items from your किराणा यादी', orderId: 'JM-48305', eta: 'Arriving by 8:15 PM • Saved ₹112', msg: 'Your full Marathi grocery list — read, matched & ordered in 30 seconds.' },
+    zepto: { amount: '599', sub: '6 items matched from Zepto cart', orderId: 'JM-48310', eta: 'Arriving by 8:00 PM • Saved ₹101', msg: "Same items, ₹101 less. You never need to build carts on other apps again." },
+  };
+  const d = flowData[flow];
+
+  addCard(`
+    <div class="order-confirm-card">
+      <div class="order-confirm-icon success">${SUCCESS_SVG}</div>
+      <div class="order-confirm-title">Payment Successful!</div>
+      <div class="order-confirm-sub">₹${d.amount} paid via ${methodName}</div>
+      <div class="order-id">ORDER #${d.orderId}</div>
+      <div class="eta-row">
+        <svg viewBox="0 0 16 16" fill="none" width="16" height="16"><circle cx="8" cy="8" r="7" stroke="#25ab21" stroke-width="1.5" fill="none"/><path d="M8 4v4l3 2" stroke="#25ab21" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>${d.eta}</span>
+      </div>
+    </div>
+  `);
+
+  await delay(800);
+  addCard(`
+    <div class="tracking-card">
+      <div class="tracking-header"><span>Live Tracking</span></div>
+      <div class="tracking-steps">
+        <div class="tracking-step">
+          <div class="tracking-dot-col"><div class="tracking-dot active"></div><div class="tracking-line active"></div></div>
+          <div class="tracking-step-info"><div class="tracking-step-title">Order confirmed</div><div class="tracking-step-sub">7:30 PM</div></div>
+        </div>
+        <div class="tracking-step">
+          <div class="tracking-dot-col"><div class="tracking-dot current"></div><div class="tracking-line"></div></div>
+          <div class="tracking-step-info"><div class="tracking-step-title">Being packed</div><div class="tracking-step-sub">Estimated 3 min</div></div>
+        </div>
+        <div class="tracking-step">
+          <div class="tracking-dot-col"><div class="tracking-dot"></div><div class="tracking-line"></div></div>
+          <div class="tracking-step-info"><div class="tracking-step-title">Out for delivery</div><div class="tracking-step-sub">—</div></div>
+        </div>
+        <div class="tracking-step">
+          <div class="tracking-dot-col"><div class="tracking-dot"></div></div>
+          <div class="tracking-step-info"><div class="tracking-step-title">Delivered</div><div class="tracking-step-sub">—</div></div>
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  await delay(600);
+  addAIMessage(d.msg, true);
+  await delay(300);
+  addChips([
+    { label: 'Check restock alerts', style: 'chip-sparkle', action: 'startFlow3()' },
+    { label: 'Upload a list', style: 'chip-secondary', action: 'startFlow2()' },
+  ]);
+}
+
+function editCart() {
+  clearChips(); addUserMessage('Edit cart'); showTyping();
+  setTimeout(() => { hideTyping();
+    addAIMessage('What would you like to change? Say "remove bananas" or "add 1 kg tomatoes".');
+  }, 800);
+}
+
+// ======================================================
+// FLOW 2: IMAGE/LIST → ZERO-EFFORT CART
+// ======================================================
+async function startFlow2() {
+  hideQuickActions(); clearChips();
+  addUserMessage('I have a grocery list');
+  showTyping(); await delay(800); hideTyping();
+  addAIMessage('Share a photo of your list, a screenshot from another app, or just type it out!');
+  await delay(300);
+  addChips([
+    { label: 'Upload grocery list', style: 'chip-primary', action: 'uploadSampleList()' },
+    { label: "Upload other cart's photo", style: 'chip-secondary', action: 'uploadScreenshot()' },
+  ]);
+}
+
+async function uploadSampleList() {
+  clearChips();
+  // Show actual handwritten kirana list photo
+  const row = document.createElement('div');
+  row.className = 'msg-row user fade-in';
+  row.innerHTML = `
+    <div class="uploaded-photo">
+      <img src="kirana-list.png" alt="Handwritten Kirana List">
+      <div class="uploaded-photo-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 6h-7V5a1 1 0 00-1-1H7a1 1 0 00-1 1v1H5a3.12 3.12 0 00-3 3.23v7.54A3.12 3.12 0 005 20h14a3.12 3.12 0 003-3.23V9.23A3.12 3.12 0 0019 6zm-7 10a3 3 0 110-5.999A3 3 0 0112 16z" fill="currentColor"/></svg>
+        <span>kirana-list.png</span>
+      </div>
+    </div>`;
+  CC.appendChild(row); scrollBottom();
+
+  showTyping(); await delay(2200); hideTyping();
+  addAIMessage('I can read Marathi! I found <b>28 items</b> across 4 categories — किराणा, मसाले, Extra & धान्य. Here are the top items matched:');
+  await delay(500);
+
+  addCard(`
+    <div class="cart-card">
+      <div class="cart-card-header">
+        <div class="cart-card-header-left">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M8.5 19a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4.12-12.17A2 2 0 0020 6H6.58l-.41-1.52A2 2 0 004.23 3H3a1 1 0 000 2h1.23l2.83 10.48A2 2 0 009 17h8.67a2 2 0 001.89-1.37l2.34-7a2 2 0 00-.28-1.8z" fill="currentColor"/></svg>
+          <span>Cart from किराणा यादी</span>
+        </div>
+        <span class="cart-card-header-count">8 items</span>
+      </div>
+      <div class="product-row">
+        ${productThumb('dal')}
+        <div class="product-details">
+          <div class="product-name">Tata Sampann Toor Dal</div>
+          <div class="product-variant">तुरडाळ • 1 kg</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹159</div>
+          <div class="product-mrp">₹180</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('atta')}
+        <div class="product-details">
+          <div class="product-name">Aashirvaad Whole Wheat Atta</div>
+          <div class="product-variant">गहू • 5 kg</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹289</div>
+          <div class="product-mrp">₹320</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('haldi')}
+        <div class="product-details">
+          <div class="product-name">Everest Turmeric Powder</div>
+          <div class="product-variant">हळद • 200 gm</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹48</div>
+          <div class="product-mrp">₹60</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('onion')}
+        <div class="product-details">
+          <div class="product-name">MDH Deg Mirchi Powder</div>
+          <div class="product-variant">मिरची पावडर • 100 gm</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹72</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('apple')}
+        <div class="product-details">
+          <div class="product-name">Saffola Gold Oil</div>
+          <div class="product-variant">तेल • 1 Litre</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹189</div>
+          <div class="product-mrp">₹220</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('banana')}
+        <div class="product-details">
+          <div class="product-name">India Gate Basmati Poha</div>
+          <div class="product-variant">पोहे • 500 gm</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹42</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('eggs')}
+        <div class="product-details">
+          <div class="product-name">Besan (Gram Flour)</div>
+          <div class="product-variant">बेसनपीठ • 500 gm</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹65</div>
+        </div>
+      </div>
+      <div class="product-row">
+        ${productThumb('milk')}
+        <div class="product-details">
+          <div class="product-name">Rajma Sugar (Sakhar)</div>
+          <div class="product-variant">साखर • 1 kg</div>
+        </div>
+        <div class="product-price-col">
+          <div class="product-price">₹48</div>
+        </div>
+      </div>
+      <div class="cart-total">
+        <div class="cart-total-left">
+          <div class="cart-total-label">Total (8 of 28 items)</div>
+          <div class="cart-total-items">+20 more items available</div>
+        </div>
+        <div class="cart-total-price">₹912</div>
+      </div>
+      <div class="delivery-badge">
+        <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="7" stroke="#0e5c4f" stroke-width="1.5" fill="none"/><path d="M8 4v4l3 2" stroke="#0e5c4f" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Delivery in 20 min to Lodha Palava
+      </div>
+    </div>
+  `, true);
+
+  await delay(600);
+  addAIMessage(`<span class="savings-badge">↓ ₹112 saved</span><br>Read your full Marathi list and matched 28 items. Showing top 8 — tap below to add the remaining 20.`, true);
+  await delay(400);
+  addChips([
+    { label: 'Place order — ₹912', style: 'chip-primary', action: 'confirmFlow2Order()' },
+    { label: 'Add remaining 20 items', style: 'chip-secondary', action: 'confirmFlow2Order()' },
+    { label: 'Edit items', style: 'chip-secondary', action: 'editCart()' },
+  ]);
+}
+
+async function uploadScreenshot() {
+  clearChips();
+
+  // Show actual Zepto cart screenshot photo
+  const row = document.createElement('div');
+  row.className = 'msg-row user fade-in';
+  row.innerHTML = `
+    <div class="uploaded-photo">
+      <img src="zepto-cart.png" alt="Zepto Cart Screenshot">
+      <div class="uploaded-photo-badge">
+        <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M19 6h-7V5a1 1 0 00-1-1H7a1 1 0 00-1 1v1H5a3.12 3.12 0 00-3 3.23v7.54A3.12 3.12 0 005 20h14a3.12 3.12 0 003-3.23V9.23A3.12 3.12 0 0019 6zm-7 10a3 3 0 110-5.999A3 3 0 0112 16z" fill="currentColor"/></svg>
+        <span>zepto-cart.png</span>
+      </div>
+    </div>`;
+  CC.appendChild(row); scrollBottom();
+
+  showTyping(); await delay(2400); hideTyping();
+  addAIMessage('I scanned your Zepto cart — <b>6 items, ₹700 total</b>. Here\'s exactly how much you save on each item with JioMart:');
+  await delay(600);
+
+  // Price comparison card — item by item Zepto vs JioMart
+  addCard(`
+    <div class="compare-card">
+      <div class="compare-header">
+        <div class="compare-header-left">
+          <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M9 14l-4-4m0 0l4-4m-4 4h11m-5-4V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1" stroke="var(--primary-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Price Comparison</span>
+        </div>
+      </div>
+      <div class="compare-cols">
+        <div class="compare-col-item">Item</div>
+        <div class="compare-col-zepto">Zepto</div>
+        <div class="compare-col-jio">JioMart</div>
+        <div class="compare-col-save">Saved</div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('atta')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">Betty Crocker Pancake Mix</div>
+            <div class="compare-item-qty">500 g</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹183</div>
+        <div class="compare-price-jio">₹165</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹18</span></div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('haldi')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">Pillsbury Choco Pancake</div>
+            <div class="compare-item-qty">180 g</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹67</div>
+        <div class="compare-price-jio">₹55</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹12</span></div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('tomato')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">Puramate Sprinkles</div>
+            <div class="compare-item-qty">100 g</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹124</div>
+        <div class="compare-price-jio">₹110</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹14</span></div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('apple')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">ITC Frozen Green Peas</div>
+            <div class="compare-item-qty">1 kg</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹159</div>
+        <div class="compare-price-jio">₹129</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹30</span></div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('banana')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">Safal Mixed Vegetables</div>
+            <div class="compare-item-qty">500 g</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹72</div>
+        <div class="compare-price-jio">₹62</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹10</span></div>
+      </div>
+
+      <div class="compare-item">
+        <div class="compare-item-info">
+          ${productThumb('orange')}
+          <div class="compare-item-text">
+            <div class="compare-item-name">Safal Frozen Sweet Corn</div>
+            <div class="compare-item-qty">500 g</div>
+          </div>
+        </div>
+        <div class="compare-price-zepto">₹90</div>
+        <div class="compare-price-jio">₹78</div>
+        <div class="compare-price-save"><span class="compare-save-pill">-₹12</span></div>
+      </div>
+
+      <div class="compare-total-row">
+        <div class="compare-total-label">Total</div>
+        <div class="compare-total-zepto">₹700</div>
+        <div class="compare-total-jio">₹599</div>
+        <div class="compare-total-save"><span class="compare-save-pill" style="font-size:11px;padding:3px 7px;">-₹101</span></div>
+      </div>
+
+      <div class="compare-savings-hero">
+        <div class="compare-savings-circle">
+          <span class="amount">₹101</span>
+          <span class="label">saved</span>
+        </div>
+        <div class="compare-savings-text">
+          <b>Every single item is cheaper on JioMart.</b><br>
+          Same brands, same quantities — ₹599 instead of ₹700.
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  await delay(800);
+  addAIMessage(`Want me to place this order? Same 6 items, <b>₹101 less</b> than your Zepto cart.`, true);
+  await delay(400);
+  addChips([
+    { label: 'Place order — ₹599', style: 'chip-primary', action: 'confirmZeptoOrder()' },
+    { label: 'Edit items', style: 'chip-secondary', action: 'editCart()' },
+  ]);
+}
+
+async function confirmFlow2Order() {
+  clearChips(); addUserMessage('Place order');
+  showTyping(); await delay(1000); hideTyping();
+  addAIMessage('Your किराणा cart is ready. How would you like to pay?');
+  await delay(500);
+  showPaymentCard('912', '8 items from किराणा यादी • Saved ₹112', 'processPayment("flow2")');
+}
+
+async function confirmZeptoOrder() {
+  clearChips(); addUserMessage('Place order');
+  showTyping(); await delay(1000); hideTyping();
+  addAIMessage('Same 6 items, ₹101 saved vs Zepto. Choose payment:');
+  await delay(500);
+  showPaymentCard('599', '6 items • ₹101 cheaper than Zepto', 'processPayment("zepto")');
+}
+
+// ======================================================
+// FLOW 3: PROACTIVE REPLENISHMENT — 3 DISTINCT NOTIFICATIONS (one at a time)
+// ======================================================
+async function startFlow3() {
+  hideQuickActions(); clearChips();
+
+  // === NOTIFICATION 1: AUTO-REPLENISH (consumption pattern) ===
+  addAIMessage(`${userMemory.name}, I track your buying patterns. Looks like you're about to run out of eggs:`);
+  await delay(1000);
+
+  addCard(`
+    <div class="notif-card notif-replenish">
+      <div class="notif-accent">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 1a7 7 0 110 14A7 7 0 018 1zm0 3v4l2.5 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <span class="notif-accent-label">Auto-Replenish</span>
+        <span class="notif-accent-time">Just now</span>
+      </div>
+      <div class="notif-body">
+        <div class="notif-product">
+          ${proactiveThumb('eggs')}
+          <div class="notif-product-info">
+            <div class="notif-product-name">White Eggs (12 pcs tray)</div>
+            <div class="notif-product-detail">National brand • ₹78</div>
+          </div>
+        </div>
+        <div class="notif-context">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1" fill="none" opacity="0.3"/></svg>
+          <span>You buy every <b>7 days</b>. Last order was <b>6 days ago</b>. Based on your pattern, you'll run out tomorrow.</span>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-btn-primary" onclick="confirmNotif('eggs','replenish')">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M13.5 4.5l-7 7L3 8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Yes, auto-order
+          </button>
+          <button class="notif-btn-dismiss" onclick="dismissNotif(this)">Later</button>
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  await delay(800);
+  addChips([
+    { label: 'Show next alert', style: 'chip-sparkle', action: 'showStockAlert()' },
+    { label: "That's enough", style: 'chip-secondary', action: 'skipRestock()' },
+  ]);
+}
+
+async function showStockAlert() {
+  clearChips();
+  addUserMessage('Show me more');
+  showTyping(); await delay(800); hideTyping();
+
+  // === NOTIFICATION 2: GOING OUT OF STOCK (urgency) ===
+  addAIMessage(`Heads up — something you need is selling out fast:`);
+  await delay(1000);
+
+  addCard(`
+    <div class="notif-card notif-stockalert">
+      <div class="notif-accent">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l6.5 12H1.5L8 1.5z" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M8 6v3M8 11h.01" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="notif-accent-label">Selling Out</span>
+        <span class="notif-accent-time">2 min ago</span>
+      </div>
+      <div class="notif-body">
+        <div class="notif-product">
+          ${proactiveThumb('atta')}
+          <div class="notif-product-info">
+            <div class="notif-product-name">Aashirvaad Superior MP Atta</div>
+            <div class="notif-product-detail">5 kg • Your preferred brand</div>
+          </div>
+        </div>
+        <div class="notif-context">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l6.5 12H1.5L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M8 6v3M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Only <b>12 units left</b> on JioMart. This usually sells out by evening. I'll grab it now before it's gone.</span>
+        </div>
+        <div class="notif-price">
+          <span class="notif-price-now">₹289</span>
+          <span class="notif-price-was">₹320</span>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-btn-primary" onclick="confirmNotif('atta','stock')">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M13.5 4.5l-7 7L3 8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Grab it now
+          </button>
+          <button class="notif-btn-dismiss" onclick="dismissNotif(this)">Skip</button>
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  await delay(800);
+  addChips([
+    { label: 'Show next alert', style: 'chip-sparkle', action: 'showPriceDropAlert()' },
+    { label: "That's enough", style: 'chip-secondary', action: 'skipRestock()' },
+  ]);
+}
+
+async function showPriceDropAlert() {
+  clearChips();
+  addUserMessage('Show me more');
+  showTyping(); await delay(800); hideTyping();
+
+  // === NOTIFICATION 3: PRICE DROP (deal alert) ===
+  addAIMessage(`And a deal you don't want to miss:`);
+  await delay(1000);
+
+  addCard(`
+    <div class="notif-card notif-pricedrop">
+      <div class="notif-accent">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="notif-accent-label">Price Drop</span>
+        <span class="notif-accent-time">5 min ago</span>
+      </div>
+      <div class="notif-body">
+        <div class="notif-product">
+          ${proactiveThumb('milk')}
+          <div class="notif-product-info">
+            <div class="notif-product-name">Amul Taaza Toned Milk</div>
+            <div class="notif-product-detail">1 Litre • You buy this regularly</div>
+          </div>
+        </div>
+        <div class="notif-context">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 10l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Price just dropped <b>30%</b> — lowest in 3 months! Great time to stock up.</span>
+        </div>
+        <div class="notif-price">
+          <span class="notif-price-now">₹25</span>
+          <span class="notif-price-was">₹36</span>
+          <span class="notif-price-save">Save ₹11</span>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-btn-primary" onclick="confirmNotif('milk','price')">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M8.5 2H4a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V7.5L8.5 2z" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M8 2v6h6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Order now — ₹25
+          </button>
+          <button class="notif-btn-dismiss" onclick="dismissNotif(this)">Skip</button>
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  await delay(800);
+  addAIMessage(`That's all your alerts for now. I'll keep watching prices and your pantry.`, true);
+  await delay(400);
+  addChips([
+    { label: 'Order groceries', style: 'chip-secondary', action: 'startFlow1()' },
+    { label: 'Upload a list', style: 'chip-secondary', action: 'startFlow2()' },
+  ]);
+}
+
+// Handle individual notification confirm
+async function confirmNotif(item, type) {
+  const btn = event.target.closest('.notif-btn-primary');
+  const card = btn.closest('.notif-card');
+  const actions = card.querySelector('.notif-actions');
+
+  // Replace actions with confirmed state
+  actions.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 0;width:100%;">
+      <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><circle cx="10" cy="10" r="9" fill="#25ab21"/><path d="M6 10l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size:13px;font-weight:700;color:#25ab21;">Ordered! Arriving in 20 min</span>
+    </div>`;
+
+  // Fade the card slightly
+  card.style.opacity = '0.85';
+}
+
+function dismissNotif(btn) {
+  const card = btn.closest('.notif-card');
+  card.style.transition = 'opacity 0.3s, transform 0.3s';
+  card.style.opacity = '0.4';
+  card.style.transform = 'scale(0.97)';
+  const actions = card.querySelector('.notif-actions');
+  actions.innerHTML = `<span style="font-size:12px;color:var(--text-disabled);font-weight:500;">Dismissed — I'll remind you later</span>`;
+}
+
+async function reorderAll() {
+  clearChips(); addUserMessage('Reorder all');
+  showTyping(); await delay(1500); hideTyping();
+  addCard(`
+    <div class="order-confirm-card">
+      <div class="order-confirm-icon success">${SUCCESS_SVG}</div>
+      <div class="order-confirm-title">Restocked!</div>
+      <div class="order-confirm-sub">Eggs, Aashirvaad Atta & Amul Milk</div>
+      <div class="order-id">ORDER #JM-48312</div>
+      <div class="eta-row">
+        <svg viewBox="0 0 16 16" fill="none" width="16" height="16"><circle cx="8" cy="8" r="7" stroke="#25ab21" stroke-width="1.5" fill="none"/><path d="M8 4v4l3 2" stroke="#25ab21" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Arriving in 20 min</span>
+      </div>
+    </div>
+  `);
+  await delay(800);
+  addAIMessage(`You didn't have to remember a thing. I'll keep watching and alert you next time.`, true);
+  await delay(400);
+  addChips([
+    { label: 'Order groceries', style: 'chip-secondary', action: 'startFlow1()' },
+    { label: 'Upload a list', style: 'chip-secondary', action: 'startFlow2()' },
+  ]);
+}
+
+async function reorderItem(item) {
+  clearChips();
+  const names = { eggs: 'Eggs', atta: 'Aashirvaad Atta', milk: 'Amul Milk' };
+  const prices = { eggs: '₹78', atta: '₹289', milk: '₹25' };
+  addUserMessage(`Just ${names[item]}`);
+  showTyping(); await delay(1000); hideTyping();
+  addAIMessage(`Done! ${names[item]} (${prices[item]}) will arrive by 8:00 PM. I'll remind you about the rest later.`);
+  await delay(300);
+  addChips([{ label: 'Order more', style: 'chip-secondary', action: 'startFlow1()' }]);
+}
+
+function skipRestock() {
+  clearChips(); addUserMessage('Skip for now'); showTyping();
+  setTimeout(() => { hideTyping();
+    addAIMessage('No problem! I\'ll check in again tomorrow. Just say "restock" anytime.');
+  }, 800);
+}
+
+// === INIT ===
+function resetDemo() { CC.innerHTML = ''; startConversation(); }
+async function startConversation() {
+  await delay(400);
+  addAIMessage(`Hi ${userMemory.name}! I'm your grocery assistant. Tell me what you need, upload a list, or I can check what you're running low on.`);
+  await delay(300);
+  showQuickActions();
+}
+startConversation();
+</script>
+</body>
+</html>
