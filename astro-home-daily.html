@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Jio Bharat IQ Astro — Daily</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --primary-50: #3535f3;
+  --primary-20: #ebebfe;
+  --secondary-50: #f5a623;
+  --sparkle-50: #00c48c;
+  --planet-mercury: #4ecdc4;
+  --text-high: #1a1a1a;
+  --text-mid: #555;
+  --text-low: #888;
+  --text-disabled: #aaa;
+  --white: #ffffff;
+  --surface-ghost: #f5f5f7;
+  --stroke-minimal: #eee;
+  --grey-40: #ccc;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Outfit',sans-serif; background:#f0f0f0; display:flex; justify-content:center; min-height:100vh; overscroll-behavior:none; }
+
+.phone-frame {
+  width:390px; max-width:100vw; height:100vh; background:#faf9f6;
+  position:relative; overflow:hidden; display:flex; flex-direction:column;
+}
+.status-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 20px 4px; font-size:12px; font-weight:600; color:var(--text-high);
+  background:transparent; flex-shrink:0;
+}
+.status-bar-right { display:flex; gap:5px; align-items:center; }
+
+.scroll-feed {
+  flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  padding-bottom:32px;
+}
+.scroll-feed::-webkit-scrollbar { display:none; }
+
+.horiz-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.horiz-scroll::-webkit-scrollbar { display:none; }
+
+@keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes breathe { 0%,100% { transform:scale(1); opacity:0.7; } 50% { transform:scale(1.08); opacity:1; } }
+@keyframes pulseRing { 0% { transform:scale(1); opacity:0.6; } 100% { transform:scale(1.8); opacity:0; } }
+@keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
+@keyframes pulseDot { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+@keyframes livePulse { 0%,100% { box-shadow:0 0 0 0 rgba(0,196,140,0.4); } 50% { box-shadow:0 0 0 8px rgba(0,196,140,0); } }
+@keyframes speakerPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
+</style>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
+
+/* ========== SARVAM TTS ========== */
+const SARVAM_API_KEY = 'sk_pirwvalz_65eusIudaoEV7Ne8FpO0yJHc';
+
+const playTTS = async (text, speaker = 'abhilash') => {
+  const chunks = [];
+  if (text.length <= 480) {
+    chunks.push(text);
+  } else {
+    let remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= 480) { chunks.push(remaining); break; }
+      let cut = remaining.lastIndexOf('\u0964', 479);
+      if (cut < 100) cut = remaining.lastIndexOf('.', 479);
+      if (cut < 100) cut = remaining.lastIndexOf(',', 479);
+      if (cut < 100) cut = 479;
+      chunks.push(remaining.substring(0, cut + 1));
+      remaining = remaining.substring(cut + 1).trim();
+    }
+  }
+
+  for (const chunk of chunks) {
+    try {
+      const resp = await fetch('https://api.sarvam.ai/text-to-speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'API-Subscription-Key': SARVAM_API_KEY },
+        body: JSON.stringify({
+          inputs: [chunk],
+          target_language_code: 'hi-IN',
+          speaker: speaker,
+          model: 'bulbul:v2',
+          enable_preprocessing: true,
+        }),
+      });
+      const data = await resp.json();
+      if (data.error) {
+        console.error('Sarvam TTS API error:', data.error.message);
+        throw new Error(data.error.message || 'TTS API error');
+      }
+      if (data.audios?.[0]) {
+        const audio = new Audio('data:audio/wav;base64,' + data.audios[0]);
+        await new Promise((resolve) => { audio.onended = resolve; audio.onerror = resolve; audio.play(); });
+      }
+    } catch (err) {
+      console.error('TTS chunk error:', err);
+      throw err;
+    }
+  }
+};
+
+
+/* ========== USER PROFILE ========== */
+const USER_NAME = 'Shivali';
+const RASHI = 'Vrishchik';
+const RASHI_SYMBOL = '\u264F';
+const RULING_PLANET = 'Mercury';
+const NAKSHATRA = 'Anuradha';
+const MULANK = 9;
+const DOB = '15 Nov 1995';
+const BIRTH_TIME = '10:32 AM';
+const PROFILE_PHOTO = 'https://i.pravatar.cc/150?img=47';
+
+
+/* ========== TIMELINE DATA ========== */
+const DAILY_TIMELINE = [
+  { hour:5, endHour:7, planet:'Sun', icon:'\u2609', nameHi:'\u0938\u0942\u0930\u094D\u092F', color:'#ff8c00', label:'\u092A\u094D\u0930\u093E\u0930\u094D\u0925\u0928\u093E \u0915\u093E \u0938\u092E\u092F', advice:'Surya namaskar \u2014 spiritual energy peak' },
+  { hour:7, endHour:9, planet:'Mercury', icon:'\u263F', nameHi:'\u092C\u0941\u0927', color:'#4ecdc4', label:'\u0938\u0902\u0935\u093E\u0926 \u0936\u0915\u094D\u0924\u093F', advice:'Important calls and emails \u2014 words have power now' },
+  { hour:9, endHour:11, planet:'Mars', icon:'\u2642', nameHi:'\u092E\u0902\u0917\u0932', color:'#ff4444', label:'\u0928\u093F\u0930\u094D\u0923\u092F \u090A\u0930\u094D\u091C\u093E', advice:'Bold decisions \u2014 Mars charges your lagna today' },
+  { hour:11, endHour:14, planet:'Jupiter', icon:'\u2643', nameHi:'\u0917\u0941\u0930\u0941', color:'#9b59b6', label:'\u091C\u094D\u091E\u093E\u0928 \u0935\u093F\u0938\u094D\u0924\u093E\u0930', advice:'Learning and mentoring \u2014 absorb everything' },
+  { hour:14, endHour:16, planet:'Venus', icon:'\u2640', nameHi:'\u0936\u0941\u0915\u094D\u0930', color:'#e84393', label:'\u0938\u094C\u0902\u0926\u0930\u094D\u092F \u0915\u093E\u0932', advice:'Creative work and relationships flourish' },
+  { hour:16, endHour:18, planet:'Saturn', icon:'\u2644', nameHi:'\u0936\u0928\u093F', color:'#3d5a99', label:'\u0905\u0928\u0941\u0936\u093E\u0938\u0928', advice:'Pending tasks \u2014 Saturn rewards honest effort' },
+  { hour:18, endHour:20, planet:'Moon', icon:'\u263D', nameHi:'\u091A\u0902\u0926\u094D\u0930', color:'#7f8fa6', label:'\u092D\u093E\u0935\u0928\u093E\u0924\u094D\u092E\u0915 \u0938\u092E\u092F', advice:'Family time \u2014 emotional bonds strengthen' },
+  { hour:20, endHour:23, planet:'Rahu', icon:'\u260A', nameHi:'\u0930\u093E\u0939\u0941', color:'#636e72', label:'\u0938\u093E\u0935\u0927\u093E\u0928\u0940 \u0915\u093E\u0932', advice:'Avoid impulsive decisions \u2014 Rahu clouds clarity' },
+];
+
+const GOLDEN_WINDOW = {
+  startHour: 14, startMin: 18,
+  endHour: 15, endMin: 7,
+  planet: 'Jupiter', planetIcon: '\u2643',
+  label: 'Golden Window',
+  advice: 'Best for: Financial decisions, important conversations',
+  timeLabel: '2:18 \u2013 3:07 PM \u00B7 Jupiter',
+};
+
+const getSlotForHour = (h) => {
+  for (let i = DAILY_TIMELINE.length - 1; i >= 0; i--) {
+    if (h >= DAILY_TIMELINE[i].hour) return DAILY_TIMELINE[i];
+  }
+  return DAILY_TIMELINE[0];
+};
+
+
+/* ========== ENERGY / FORECAST CARDS ========== */
+const ENERGY_CARDS = [
+  { label:'Career', score:8.2, icon:'\uD83D\uDCBC', color:'#3535f3',
+    summary:'Saturn 10th house mein strong \u2014 promotions, recognition ka samay hai',
+    tip:'Aaj 11 AM ke baad koi bhi important meeting rakho' },
+  { label:'Love', score:6.8, icon:'\u2764\uFE0F', color:'#e84393',
+    summary:'Venus thoda weak hai is hafte \u2014 patience rakhein relationships mein',
+    tip:'Partner ko space do, kal better hoga' },
+  { label:'Wealth', score:8.5, icon:'\uD83D\uDCB0', color:'#f5a623',
+    summary:'Jupiter 5th house \u2014 investments aur financial decisions ke liye achha din',
+    tip:'Golden window (2-3 PM) mein financial calls lo' },
+  { label:'Health', score:7.1, icon:'\uD83C\uDFC3', color:'#00c48c',
+    summary:'Mars lagna mein \u2014 natural vitality high hai but overexertion se bacho',
+    tip:'Evening walk best rahegi, heavy gym avoid karo' },
+];
+
+
+/* ========== WEEKLY UPAY ========== */
+const WEEKLY_UPAY = [
+  { day:'\u0938\u094B\u092E', dayEn:'Mon', planet:'Moon', planetIcon:'\u263D', color:'#7f8fa6', upay:'Shivling par jal chadhayein', active:false },
+  { day:'\u092E\u0902\u0917\u0932', dayEn:'Tue', planet:'Mars', planetIcon:'\u2642', color:'#ff4444', upay:'Hanuman Chalisa padhein', active:false },
+  { day:'\u092C\u0941\u0927', dayEn:'Wed', planet:'Mercury', planetIcon:'\u263F', color:'#4ecdc4', upay:'Hara rang pehne \u2014 budh ki shakti badhegi', active:true },
+  { day:'\u0917\u0941\u0930\u0941', dayEn:'Thu', planet:'Jupiter', planetIcon:'\u2643', color:'#9b59b6', upay:'Peela vastra dharan karein', active:false },
+  { day:'\u0936\u0941\u0915\u094D\u0930', dayEn:'Fri', planet:'Venus', planetIcon:'\u2640', color:'#e84393', upay:'Kheer ka daan karein', active:false },
+  { day:'\u0936\u0928\u093F', dayEn:'Sat', planet:'Saturn', planetIcon:'\u2644', color:'#3d5a99', upay:'Sarso tel ka diya jalayein', active:false },
+  { day:'\u0930\u0935\u093F', dayEn:'Sun', planet:'Sun', planetIcon:'\u2609', color:'#ff8c00', upay:'Surya ko jal dein subah', active:false },
+];
+
+
+/* ========== TRANSIT CHANGES ========== */
+const TRANSIT_CHANGES = [
+  { planet:'Moon', planetIcon:'\u263D', color:'#7f8fa6',
+    from:'7th House', to:'8th House',
+    meaning:'Aapke liye: Emotional sensitivity badhi hai \u2014 family ke saath soft tone rakhein, kal better hoga' },
+  { planet:'Mercury', planetIcon:'\u263F', color:'#4ecdc4',
+    from:'Retrograde', to:'Direct',
+    meaning:'Aapke liye: Communication mein clarity waapas aa gayi \u2014 pending emails aur baat-cheet aaj karo, sab smooth hoga' },
+];
+
+
+/* ========== EMOJI HELPERS ========== */
+const E = {
+  pray: '\uD83D\uDE4F',
+  fire: '\uD83D\uDD25',
+  bulb: '\uD83D\uDCA1',
+  speaker: '\uD83D\uDD0A',
+  pause: '\u23F8\uFE0F',
+  sparkle: '\u2728',
+  mag: '\uD83D\uDD0D',
+  battery: '\uD83D\uDD0B',
+  mars: '\u2642',
+  arrow: '\u2192',
+  upArrow: '\u2191',
+  check: '\u2705',
+  greenCircle: '\uD83D\uDFE2',
+};
+
+
+/* ========== HELPERS ========== */
+const ALL_HOURS = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+const formatTime12 = (h) => (h % 12 || 12) + ' ' + (h < 12 ? 'AM' : 'PM');
+const isGoldenHour = (h) => h === 14 || h === 15;
+
+
+/* ==============================================
+   1. PERSONALIZED HEADER
+   ============================================== */
+const PersonalizedHeader = () => {
+  const dateStr = '16 April 2026';
+  const dayStr = '\u092C\u0941\u0927\u0935\u093E\u0930 \u00B7 Wednesday';
+
+  return (
+    <div style={{
+      padding:'20px 20px 16px',
+      background:'linear-gradient(135deg, #fffbf5 0%, #fff5eb 50%, #fef0e0 100%)',
+      animation:'fadeInUp 500ms ease-out both',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+          <div style={{ position:'relative' }}>
+            <img src={PROFILE_PHOTO} alt="" style={{
+              width:56, height:56, borderRadius:'50%', objectFit:'cover',
+              border:'3px solid #4ecdc430',
+              boxShadow:'0 4px 16px rgba(78,205,196,0.12)',
+            }} />
+            <div style={{
+              position:'absolute', bottom:-2, right:-2,
+              width:18, height:18, borderRadius:'50%',
+              background:'linear-gradient(135deg, #4ecdc4, #26d0ce)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:9, border:'2px solid #fffbf5', color:'#fff',
+            }}>{'\u263F'}</div>
+          </div>
+          <div>
+            <div style={{ fontSize:22, fontWeight:800, color:'var(--text-high)', lineHeight:1.2 }}>
+              {'Namaste, ' + USER_NAME + ' ' + E.pray}
+            </div>
+            <div style={{ fontSize:12, fontWeight:500, color:'var(--text-mid)', marginTop:2 }}>
+              {RASHI_SYMBOL + ' ' + RASHI + ' \u00B7 ' + NAKSHATRA + ' \u00B7 Mulank ' + MULANK}
+            </div>
+          </div>
+        </div>
+        <div style={{ textAlign:'right' }}>
+          <div style={{ fontSize:11, fontWeight:600, color:'var(--text-mid)' }}>{dateStr}</div>
+          <div style={{ fontSize:10, fontWeight:500, color:'var(--text-low)' }}>{dayStr}</div>
+        </div>
+      </div>
+
+      {/* Positive Insight Banner — warm golden/green, NOT red */}
+      <div style={{
+        marginTop:14, padding:'12px 14px', borderRadius:14,
+        background:'linear-gradient(135deg, #edfaf8 0%, #f0fdf8 50%, #e8fcf5 100%)',
+        borderLeft:'3px solid #4ecdc4',
+        fontSize:13, fontWeight:500, color:'#1a7a6d', lineHeight:1.55,
+      }}>
+        {E.sparkle + ' \u092C\u0941\u0927\u0935\u093E\u0930 \u2014 \u092C\u0941\u0927 aapke communication ko supercharge kar raha hai. Shabd mein shakti hai aaj, baat rakhein toh log sunenge'}
+      </div>
+    </div>
+  );
+};
+
+
+/* ==============================================
+   2. DAILY DESTINY TIMELINE (Life Graph Style)
+   ============================================== */
+const DailyTimeline = () => {
+  const scrollRef = useRef(null);
+  const hasScrolled = useRef(false);
+  const currentHour = new Date().getHours();
+  const [centeredHour, setCenteredHour] = useState(14); // Start centered on Golden Window
+
+  const NODE_W = 48;
+  const SPACER = 150;
+
+  const isInGoldenWindow = centeredHour === 14 || centeredHour === 15;
+  const currentSlot = getSlotForHour(centeredHour);
+
+  // Determine landscape panel content
+  const panelBg = isInGoldenWindow
+    ? 'linear-gradient(135deg, #fdf3d7 0%, #f9e4a0 40%, #f5d060 100%)'
+    : 'linear-gradient(135deg, ' + currentSlot.color + '10 0%, ' + currentSlot.color + '18 50%, ' + currentSlot.color + '08 100%)';
+
+  const panelIcon = isInGoldenWindow ? GOLDEN_WINDOW.planetIcon : currentSlot.icon;
+  const panelNameHi = isInGoldenWindow ? '\u0917\u0941\u0930\u0941' : currentSlot.nameHi;
+  const panelPlanet = isInGoldenWindow ? GOLDEN_WINDOW.planet : currentSlot.planet;
+  const panelColor = isInGoldenWindow ? '#b8860b' : currentSlot.color;
+  const panelLabel = isInGoldenWindow ? (E.sparkle + ' Golden Window') : currentSlot.label;
+  const panelAdvice = isInGoldenWindow ? GOLDEN_WINDOW.advice : currentSlot.advice;
+  const panelTime = isInGoldenWindow ? GOLDEN_WINDOW.timeLabel : (formatTime12(currentSlot.hour) + ' \u2013 ' + formatTime12(currentSlot.endHour));
+
+  // Scroll to 9 AM on mount
+  useEffect(() => {
+    if (hasScrolled.current || !scrollRef.current) return;
+    const doScroll = () => {
+      if (hasScrolled.current) return;
+      hasScrolled.current = true;
+      const targetIdx = ALL_HOURS.indexOf(14); // Center on Golden Window
+      if (targetIdx < 0) return;
+      const cw = scrollRef.current.clientWidth;
+      if (cw > 0) {
+        scrollRef.current.scrollLeft = Math.max(0, SPACER + targetIdx * NODE_W - cw / 2 + NODE_W / 2);
+      }
+    };
+    if (scrollRef.current.clientWidth > 0 && scrollRef.current.getBoundingClientRect().top < window.innerHeight) {
+      doScroll();
+      return;
+    }
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { obs.disconnect(); requestAnimationFrame(doScroll); }
+    }, { threshold: 0.1 });
+    obs.observe(scrollRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  // Track centered hour on scroll
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const centerX = el.scrollLeft + el.clientWidth / 2;
+        const idx = Math.round((centerX - SPACER) / NODE_W);
+        const clamped = Math.max(0, Math.min(idx, ALL_HOURS.length - 1));
+        if (ALL_HOURS[clamped] !== undefined) setCenteredHour(ALL_HOURS[clamped]);
+        ticking = false;
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const curIdx = ALL_HOURS.indexOf(currentHour);
+
+  return (
+    <div style={{
+      margin:'0 16px', borderRadius:20, overflow:'hidden',
+      boxShadow:'0 4px 24px rgba(0,0,0,0.06)',
+      border:'1px solid rgba(0,0,0,0.04)',
+      animation:'fadeInUp 500ms ease-out 200ms both',
+    }}>
+      {/* Top Landscape Panel */}
+      <div style={{
+        position:'relative',
+        background: panelBg,
+        transition:'background 500ms ease',
+        padding:'16px 18px 14px',
+        minHeight:130,
+        borderBottom: isInGoldenWindow ? '1px solid #d4a01730' : ('1px solid ' + currentSlot.color + '15'),
+      }}>
+        <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
+          <div style={{ position:'relative', flexShrink:0 }}>
+            <div style={{
+              width:48, height:48, borderRadius:'50%',
+              background: isInGoldenWindow
+                ? 'linear-gradient(135deg, #f5d060, #d4a017)'
+                : ('linear-gradient(135deg, ' + currentSlot.color + '30, ' + currentSlot.color + '60)'),
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:24,
+              boxShadow: isInGoldenWindow ? '0 4px 20px rgba(212,160,23,0.4)' : ('0 4px 20px ' + currentSlot.color + '30'),
+              animation:'breathe 3s ease-in-out infinite',
+              transition:'background 500ms ease, box-shadow 500ms ease',
+            }}>{panelIcon}</div>
+            <div style={{
+              position:'absolute', inset:-6, borderRadius:'50%',
+              border: isInGoldenWindow ? '2px solid #d4a01730' : ('2px solid ' + currentSlot.color + '25'),
+              animation:'pulseRing 2.5s ease-out infinite',
+            }} />
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{
+              fontSize:9, fontWeight:700, letterSpacing:1.2,
+              color: panelColor,
+              textTransform:'uppercase', marginBottom:4, opacity:0.7,
+            }}>HORA</div>
+            <div style={{ fontSize:18, fontWeight:800, color: isInGoldenWindow ? '#5a3e00' : 'var(--text-high)', lineHeight:1.2 }}>
+              {panelIcon + ' ' + panelNameHi + ' \u00B7 ' + panelPlanet}
+            </div>
+            <div style={{ fontSize:12, fontWeight:600, color: panelColor, marginTop:2 }}>
+              {panelTime}
+            </div>
+            <div style={{ fontSize:14, fontWeight:700, color: isInGoldenWindow ? '#5a3e00' : 'var(--text-high)', marginTop:6 }}>
+              {panelLabel}
+            </div>
+            <div style={{ fontSize:12, fontWeight:400, color: isInGoldenWindow ? '#7a5a10' : 'var(--text-mid)', marginTop:3, lineHeight:1.4 }}>
+              {panelAdvice}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Time Rail */}
+      <div style={{ background:'#fff', position:'relative' }}>
+        {/* Center indicator line */}
+        <div style={{
+          position:'absolute', top:0, left:'50%', transform:'translateX(-50%)',
+          width:2, height:'100%', background: panelColor + '20',
+          zIndex:3, pointerEvents:'none',
+        }} />
+        <div style={{
+          position:'absolute', top:-1, left:'50%', transform:'translateX(-50%)',
+          width:0, height:0,
+          borderLeft:'5px solid transparent', borderRight:'5px solid transparent',
+          borderTop:'5px solid ' + panelColor + '40',
+          zIndex:4, pointerEvents:'none',
+        }} />
+
+        <div ref={scrollRef} className="horiz-scroll" style={{
+          overflowX:'auto', overflowY:'hidden', padding:'14px 0 12px',
+          WebkitOverflowScrolling:'touch',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', width:'max-content', position:'relative' }}>
+            <div style={{ width:SPACER, flexShrink:0 }} />
+
+            {/* Past solid line */}
+            <div style={{
+              position:'absolute', top:18, left:SPACER,
+              width:Math.max(0, curIdx) * NODE_W, height:2,
+              background:currentSlot.color, opacity:0.25, zIndex:0,
+            }} />
+            {/* Future dashed line */}
+            <div style={{
+              position:'absolute', top:18,
+              left:SPACER + Math.max(0, curIdx) * NODE_W,
+              right:SPACER, height:2, zIndex:0,
+              backgroundImage:'repeating-linear-gradient(90deg, ' + currentSlot.color + '20 0, ' + currentSlot.color + '20 6px, transparent 6px, transparent 12px)',
+            }} />
+
+            {ALL_HOURS.map((h) => {
+              const isCurrent = h === currentHour;
+              const isPast = h < currentHour;
+              const isCentered = h === centeredHour;
+              const slot = getSlotForHour(h);
+              const isSlotStart = DAILY_TIMELINE.some(s => s.hour === h);
+              const isGolden = isGoldenHour(h);
+
+              return (
+                <div key={h} style={{
+                  width:NODE_W, display:'flex', flexDirection:'column', alignItems:'center',
+                  position:'relative', zIndex:1, flexShrink:0,
+                }}>
+                  {/* Golden hour marker */}
+                  {isGolden ? (
+                    <div style={{ fontSize:10, color:'#d4a017', fontWeight:800, marginBottom:1 }}>
+                      {'\u2726'}
+                    </div>
+                  ) : isSlotStart ? (
+                    <div style={{ fontSize:8, color:slot.color, fontWeight:700, marginBottom:1, opacity:0.6 }}>
+                      {slot.icon}
+                    </div>
+                  ) : <div style={{ height:14 }} />}
+
+                  <div style={{ position:'relative' }}>
+                    {isCurrent && (
+                      <div style={{
+                        position:'absolute', inset:-6, borderRadius:'50%',
+                        border:'2px solid ' + slot.color + '40',
+                        animation:'pulseRing 2s ease-out infinite',
+                      }} />
+                    )}
+
+                    {isGolden ? (
+                      /* Diamond shape for golden hours */
+                      <div style={{
+                        width: isCurrent ? 28 : isCentered ? 24 : 20,
+                        height: isCurrent ? 28 : isCentered ? 24 : 20,
+                        transform:'rotate(45deg)',
+                        background: isCurrent
+                          ? 'linear-gradient(135deg, #f5d060, #d4a017)'
+                          : isPast ? '#f5d06060' : 'transparent',
+                        border: isPast || isCurrent ? 'none' : '2px solid #d4a01740',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        transition:'all 200ms ease',
+                        boxShadow: isCurrent ? '0 2px 10px rgba(212,160,23,0.4)' : 'none',
+                        borderRadius:3,
+                      }}>
+                        {isCurrent && <div style={{ width:6, height:6, borderRadius:'50%', background:'#fff', transform:'rotate(-45deg)' }} />}
+                      </div>
+                    ) : (
+                      <div style={{
+                        width: isCurrent ? 28 : isCentered ? 24 : 20,
+                        height: isCurrent ? 28 : isCentered ? 24 : 20,
+                        borderRadius:'50%',
+                        background: isCurrent
+                          ? 'linear-gradient(135deg, ' + slot.color + ', ' + slot.color + 'cc)'
+                          : isPast ? slot.color + '40' : 'transparent',
+                        border: isPast || isCurrent ? 'none' : '2px dashed ' + slot.color + '30',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        transition:'all 200ms ease',
+                        boxShadow: isCurrent ? '0 2px 10px ' + slot.color + '40' : 'none',
+                      }}>
+                        {isCurrent && <div style={{ width:7, height:7, borderRadius:'50%', background:'#fff' }} />}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{
+                    fontSize: isCurrent ? 10 : 9,
+                    fontWeight: isCurrent ? 800 : isCentered ? 700 : 500,
+                    color: isGolden ? '#d4a017' : isCurrent ? slot.color : isPast ? 'var(--text-low)' : 'var(--text-mid)',
+                    marginTop:4, whiteSpace:'nowrap',
+                  }}>{(h % 12 || 12) + (h < 12 ? 'am' : 'pm')}</div>
+
+                  {isCurrent && (
+                    <div style={{
+                      fontSize:7, fontWeight:800, color:'#fff', letterSpacing:0.8,
+                      background:slot.color, padding:'2px 7px', borderRadius:6,
+                      marginTop:2, boxShadow:'0 2px 6px ' + slot.color + '40',
+                    }}>ABHI</div>
+                  )}
+                </div>
+              );
+            })}
+
+            <div style={{ width:SPACER, flexShrink:0 }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+/* ==============================================
+   3. TODAY'S FORECAST (Horizontal Scroll Cards)
+   ============================================== */
+const TodaysForecast = () => (
+  <div style={{ animation:'fadeInUp 500ms ease-out 400ms both' }}>
+    <div style={{ padding:'0 20px', marginBottom:10 }}>
+      <div style={{ fontSize:16, fontWeight:800, color:'var(--text-high)' }}>Today's Forecast</div>
+      <div style={{ fontSize:11, fontWeight:400, color:'var(--text-low)' }}>Swipe to explore aaj ke scores</div>
+    </div>
+    <div className="horiz-scroll" style={{ display:'flex', gap:12, padding:'0 20px', overflowX:'auto' }}>
+      {ENERGY_CARDS.map((card, i) => (
+        <div key={i} style={{
+          minWidth:260, maxWidth:260, flexShrink:0,
+          padding:'16px 18px', borderRadius:16,
+          background:'linear-gradient(145deg, ' + card.color + '08, ' + card.color + '04)',
+          border:'1px solid ' + card.color + '15',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{ fontSize:22 }}>{card.icon}</span>
+              <span style={{ fontSize:15, fontWeight:700, color:'var(--text-high)' }}>{card.label}</span>
+            </div>
+            <div style={{
+              padding:'4px 10px', borderRadius:20,
+              background:card.color + '15', color:card.color,
+              fontSize:14, fontWeight:800,
+            }}>{card.score}</div>
+          </div>
+          <div style={{ fontSize:12, fontWeight:400, color:'var(--text-mid)', lineHeight:1.5, marginBottom:10 }}>
+            {card.summary}
+          </div>
+          <div style={{
+            fontSize:11, fontWeight:600, color:card.color,
+            padding:'8px 12px', borderRadius:10,
+            background:card.color + '08', borderLeft:'3px solid ' + card.color + '30',
+          }}>
+            {E.bulb + ' ' + card.tip}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+
+/* ==============================================
+   4. PLANET MESSAGE (Mars, first-person, real TTS)
+   ============================================== */
+const MERCURY_MESSAGE = 'Main Budh hoon. Aaj mera din hai \u2014 budhvaar. Main aapke dasham bhav mein hoon, iska matlab hai aaj aapki vaani mein jadu hai. Jo email bhejni hai, jo call karni hai, jo presentation dena hai \u2014 aaj karo. Meri shakti aapke har shabd ko persuasive banayegi. Communication ka din hai, ' + USER_NAME + '.';
+
+const PlanetMessage = () => {
+  const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handlePlay = async () => {
+    if (playing || loading) return;
+    setError(false);
+    setLoading(true);
+    try {
+      await playTTS(MERCURY_MESSAGE, 'karun');
+      setPlaying(true);
+    } catch (err) {
+      console.error('TTS error:', err);
+      setError(true);
+    }
+    setPlaying(false);
+    setLoading(false);
+  };
+
+  return (
+    <div style={{
+      margin:'0 16px', padding:'20px',
+      background:'linear-gradient(135deg, #4ecdc408 0%, #4ecdc412 50%, #4ecdc406 100%)',
+      borderLeft:'4px solid #4ecdc4',
+      borderRadius:'0 16px 16px 0',
+      animation:'fadeInUp 500ms ease-out 600ms both',
+    }}>
+      <div style={{
+        fontSize:9, fontWeight:700, letterSpacing:1.2, color:'#4ecdc4',
+        textTransform:'uppercase', marginBottom:8, opacity:0.7,
+      }}>Aaj Ka Ruling Planet</div>
+      <div style={{ display:'flex', gap:14, alignItems:'flex-start' }}>
+        <div style={{
+          width:56, height:56, borderRadius:'50%', flexShrink:0,
+          background:'linear-gradient(135deg, #4ecdc4, #26d0ce)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:28, color:'#fff',
+          animation:'breathe 3s ease-in-out infinite',
+          boxShadow:'0 4px 20px rgba(78,205,196,0.25)',
+        }}>{'\u263F'}</div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:16, fontWeight:800, color:'var(--text-high)' }}>
+            {'\u263F \u092C\u0941\u0927 \u00B7 Mercury'}
+          </div>
+          <div style={{ fontSize:13, fontWeight:400, color:'var(--text-mid)', lineHeight:1.6, marginTop:6 }}>
+            {MERCURY_MESSAGE}
+          </div>
+        </div>
+      </div>
+      <button onClick={handlePlay} style={{
+        marginTop:14, display:'flex', alignItems:'center', gap:8,
+        padding:'8px 16px', borderRadius:20, border:'none', cursor:'pointer',
+        background: playing ? '#4ecdc428' : '#4ecdc418',
+        color:'#4ecdc4', fontSize:12, fontWeight:600,
+        fontFamily:'Outfit', transition:'background 200ms ease',
+        animation: playing ? 'speakerPulse 1s ease-in-out infinite' : 'none',
+      }}>
+        {error ? '\u26A0\uFE0F API key expired — replace SARVAM_API_KEY' : loading ? 'Loading...' : playing ? (E.pause + ' Playing...') : (E.speaker + ' Suniye Budh ka sandesh')}
+      </button>
+    </div>
+  );
+};
+
+
+/* ==============================================
+   5. AAJ KA UPAY (Week Calendar Strip)
+   ============================================== */
+const AajKaUpay = () => {
+  const today = WEEKLY_UPAY.find(d => d.active);
+  const [upayPlaying, setUpayPlaying] = useState(false);
+  const [upayError, setUpayError] = useState(false);
+
+  const handleUpayAudio = async () => {
+    if (upayPlaying) return;
+    setUpayError(false);
+    setUpayPlaying(true);
+    try {
+      await playTTS(today.upay, 'abhilash');
+    } catch (err) {
+      console.error('TTS error:', err);
+      setUpayError(true);
+    }
+    setUpayPlaying(false);
+  };
+
+  return (
+    <div style={{
+      margin:'0 16px',
+      animation:'fadeInUp 500ms ease-out 800ms both',
+    }}>
+      <div style={{ fontSize:16, fontWeight:800, color:'var(--text-high)', marginBottom:14 }}>
+        Aaj Ka Upay
+      </div>
+
+      {/* Week calendar strip */}
+      <div style={{
+        display:'flex', justifyContent:'space-between', gap:4,
+        marginBottom:18, padding:'0 4px',
+      }}>
+        {WEEKLY_UPAY.map((d, i) => (
+          <div key={i} style={{
+            display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+          }}>
+            <div style={{
+              width:38, height:38, borderRadius:'50%',
+              background: d.active
+                ? ('linear-gradient(135deg, ' + d.color + ', ' + d.color + 'cc)')
+                : 'var(--surface-ghost)',
+              border: d.active ? 'none' : '1px solid var(--stroke-minimal)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize: d.active ? 16 : 14,
+              color: d.active ? '#fff' : 'var(--text-low)',
+              fontWeight:700,
+              boxShadow: d.active ? ('0 4px 14px ' + d.color + '40') : 'none',
+              transition:'all 200ms ease',
+            }}>{d.planetIcon}</div>
+            <div style={{
+              fontSize:9, fontWeight: d.active ? 800 : 500,
+              color: d.active ? d.color : 'var(--text-low)',
+              letterSpacing:0.3,
+            }}>{d.day}</div>
+            <div style={{
+              fontSize:7, fontWeight:600,
+              color: d.active ? d.color : 'var(--text-disabled)',
+            }}>{d.dayEn}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Today's upay detail */}
+      {today && (
+        <div style={{
+          display:'flex', alignItems:'center', gap:14,
+          padding:'16px', borderRadius:16,
+          background:'linear-gradient(135deg, ' + today.color + '08, ' + today.color + '04)',
+          border:'1px solid ' + today.color + '18',
+        }}>
+          <div style={{
+            width:48, height:48, borderRadius:'50%', flexShrink:0,
+            background:'linear-gradient(135deg, ' + today.color + '30, ' + today.color + '60)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:22,
+            boxShadow:'0 4px 14px ' + today.color + '25',
+            animation:'breathe 3s ease-in-out infinite',
+          }}>{today.planetIcon}</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:today.color, textTransform:'uppercase', letterSpacing:0.8, marginBottom:4 }}>
+              {today.planet + ' \u00B7 ' + today.day + 'var'}
+            </div>
+            <div style={{ fontSize:14, fontWeight:600, color:'var(--text-high)', lineHeight:1.5 }}>
+              {today.upay}
+            </div>
+            <button onClick={handleUpayAudio} style={{
+              marginTop:8, display:'flex', alignItems:'center', gap:6,
+              padding:'6px 14px', borderRadius:20, border:'none',
+              background:today.color + '15', color:today.color, fontSize:11, fontWeight:600,
+              cursor:'pointer', fontFamily:'Outfit',
+              animation: upayPlaying ? 'speakerPulse 1s ease-in-out infinite' : 'none',
+            }}>
+              {upayError ? '\u26A0\uFE0F API key expired' : upayPlaying ? (E.pause + ' Playing...') : (E.speaker + ' Suniye')}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+/* ==============================================
+   6. KAL SE KYA BADLA (Visual Diff Style)
+   ============================================== */
+const TransitChanges = () => (
+  <div style={{ margin:'0 16px', animation:'fadeInUp 500ms ease-out 1000ms both' }}>
+    <div style={{ fontSize:16, fontWeight:800, color:'var(--text-high)', marginBottom:14 }}>
+      Kal Se Kya Badla
+    </div>
+    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {TRANSIT_CHANGES.map((t, i) => (
+        <div key={i} style={{
+          padding:'16px', borderRadius:16,
+          background:'#fff',
+          border:'1px solid ' + t.color + '18',
+          boxShadow:'0 2px 10px rgba(0,0,0,0.03)',
+        }}>
+          {/* Planet + before/after row */}
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+            <div style={{
+              width:36, height:36, borderRadius:'50%', flexShrink:0,
+              background:'linear-gradient(135deg, ' + t.color + '20, ' + t.color + '40)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:18,
+            }}>{t.planetIcon}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'var(--text-high)', marginBottom:6 }}>
+                {t.planet}
+              </div>
+              {/* Visual diff bar */}
+              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{
+                  fontSize:11, fontWeight:500, color:'var(--text-disabled)',
+                  textDecoration:'line-through', padding:'3px 10px',
+                  borderRadius:8, background:'var(--surface-ghost)',
+                }}>{t.from}</span>
+                <div style={{
+                  flex:1, height:2, position:'relative',
+                  background:'linear-gradient(90deg, var(--grey-40), ' + t.color + ')',
+                  borderRadius:2, minWidth:30, maxWidth:50,
+                }}>
+                  <div style={{
+                    position:'absolute', right:-2, top:-3,
+                    width:0, height:0,
+                    borderTop:'4px solid transparent', borderBottom:'4px solid transparent',
+                    borderLeft:'6px solid ' + t.color,
+                  }} />
+                </div>
+                <span style={{
+                  fontSize:11, fontWeight:700, color:t.color,
+                  padding:'3px 10px', borderRadius:8,
+                  background:t.color + '12',
+                }}>{t.to}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* What it means — the hero */}
+          <div style={{
+            padding:'10px 14px', borderRadius:12,
+            background:'linear-gradient(135deg, ' + t.color + '06, ' + t.color + '03)',
+            borderLeft:'3px solid ' + t.color + '40',
+            fontSize:12, fontWeight:500, color:'var(--text-mid)', lineHeight:1.55,
+          }}>
+            {t.meaning}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+
+/* ==============================================
+   7. PATTERN DETECTED (Dark premium card)
+   ============================================== */
+const PatternDetected = () => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div style={{
+      margin:'0 16px', borderRadius:20, overflow:'hidden',
+      background:'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
+      padding:'22px 20px',
+      animation:'fadeInUp 500ms ease-out 1200ms both',
+    }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:16 }}>
+        <div style={{
+          width:32, height:32, borderRadius:10,
+          background:'linear-gradient(135deg, #f5a62330, #f5a62310)',
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:16,
+        }}>{'\uD83E\uDDE0'}</div>
+        <div>
+          <div style={{ fontSize:14, fontWeight:800, color:'#fff' }}>Aapke Baare Mein Ek Baat</div>
+          <div style={{ fontSize:10, color:'#ffffff50', fontWeight:500 }}>Only you can see this</div>
+        </div>
+        <span style={{
+          fontSize:7, fontWeight:700, letterSpacing:1, color:'#f5a623',
+          background:'#f5a62320', padding:'2px 8px', borderRadius:8, marginLeft:'auto',
+        }}>AI INSIGHT</span>
+      </div>
+
+      {/* The Core Insight — feels like the app KNOWS you */}
+      <div style={{
+        padding:'16px', borderRadius:16,
+        background:'linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.03))',
+        border:'1px solid rgba(245,166,35,0.15)',
+        marginBottom:14,
+      }}>
+        <div style={{ fontSize:14, fontWeight:700, color:'#fff', lineHeight:1.6, marginBottom:10 }}>
+          {USER_NAME}, aap raat 11 baje ke baad sabse zyada astro check karti ho.
+        </div>
+        <div style={{ fontSize:12, fontWeight:400, color:'#ffffffbb', lineHeight:1.7 }}>
+          Aapki kundli mein <span style={{ color:'#7f8fa6', fontWeight:700 }}>Chandra (Moon) 8th house</span> mein hai — ye naturally deep thinking aur restlessness raat ko badhata hai. Isliye aapko raat ko answers ki talash hoti hai.
+        </div>
+      </div>
+
+      {/* The Connection — astro meets behavior */}
+      <div style={{
+        display:'flex', gap:10, marginBottom:14,
+        padding:'12px 14px', borderRadius:14,
+        background:'rgba(255,255,255,0.03)',
+      }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, minWidth:50 }}>
+          <div style={{ fontSize:22 }}>{'\uD83C\uDF19'}</div>
+          <div style={{ fontSize:8, color:'#7f8fa6', fontWeight:700 }}>MOON</div>
+          <div style={{ fontSize:7, color:'#ffffff40' }}>8th House</div>
+        </div>
+        <div style={{ width:1, background:'rgba(255,255,255,0.08)', margin:'4px 0' }} />
+        <div style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'center', gap:6 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ fontSize:9, color:'#ffffff60' }}>Aapka peak time:</div>
+            <div style={{
+              fontSize:10, fontWeight:700, color:'#f5a623',
+              background:'#f5a62318', padding:'2px 8px', borderRadius:6,
+            }}>11 PM – 1 AM</div>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ fontSize:9, color:'#ffffff60' }}>Most checked:</div>
+            <div style={{
+              fontSize:10, fontWeight:700, color:'#e84393',
+              background:'#e8439318', padding:'2px 8px', borderRadius:6,
+            }}>Relationships</div>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ fontSize:9, color:'#ffffff60' }}>Mood pattern:</div>
+            <div style={{
+              fontSize:10, fontWeight:700, color:'#4ecdc4',
+              background:'#4ecdc418', padding:'2px 8px', borderRadius:6,
+            }}>Anxious → Calm after reading</div>
+          </div>
+        </div>
+      </div>
+
+      {/* The Prediction — why this matters TODAY */}
+      <div style={{ fontSize:12, fontWeight:500, color:'#ffffffcc', lineHeight:1.7, marginBottom:14 }}>
+        {'\uD83D\uDD2E'} <span style={{ fontWeight:700, color:'#fff' }}>Interesting:</span> Jab bhi aap 3+ din lagatar relationship section check karti ho,
+        uske 4-5 din baad aapki life mein koi meaningful conversation hoti hai.
+        Aapne last 4 din se check kiya hai — <span style={{ color:'#e84393', fontWeight:700 }}>kuch hone waala hai.</span>
+      </div>
+
+      {/* Expandable deeper layer */}
+      <button onClick={() => setExpanded(!expanded)} style={{
+        width:'100%', padding:'10px 14px', borderRadius:12, border:'1px solid rgba(255,255,255,0.1)',
+        background: expanded ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+        color:'#ffffffaa', fontSize:11, fontWeight:600, cursor:'pointer',
+        fontFamily:'Outfit', display:'flex', alignItems:'center', justifyContent:'space-between',
+        transition:'all 200ms ease',
+      }}>
+        <span>{expanded ? 'Hide details' : '\uD83D\uDCA1 Why does this app know me so well?'}</span>
+        <span style={{ fontSize:14, transition:'transform 200ms', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>{'\u25BE'}</span>
+      </button>
+
+      {expanded && (
+        <div style={{
+          marginTop:12, padding:'14px', borderRadius:12,
+          background:'rgba(255,255,255,0.04)',
+          animation:'fadeInUp 200ms ease-out',
+        }}>
+          <div style={{ fontSize:11, fontWeight:400, color:'#ffffff90', lineHeight:1.7 }}>
+            Hum aapki kundli + aapke app usage patterns dono analyze karte hain. Aapka Moon 8th house mein hone ka matlab hai
+            aap naturally curious ho — especially hidden truths ke baare mein. Combined with your late-night usage,
+            ye dikhata hai ke aap emotionally process karne ke liye astrology use karti ho. That's actually very healthy —
+            aap apne emotions ko samajhne ki koshish kar rahi ho, suppress nahi kar rahi.
+          </div>
+          <div style={{
+            marginTop:10, padding:'8px 12px', borderRadius:8,
+            background:'rgba(78,205,196,0.08)', borderLeft:'3px solid #4ecdc480',
+            fontSize:10, fontWeight:600, color:'#4ecdc4', lineHeight:1.5,
+          }}>
+            {'\u2728'} Tip: Raat ko check karna band mat karo — but ek kaam karo, subah bhi 2 min check karo. Aapka Sun morning mein strong hai, subah ka perspective different hoga.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+/* ==============================================
+   8. PREDICTION CHECK-IN (Chat bubble)
+   ============================================== */
+const PredictionCheckIn = () => {
+  const [answered, setAnswered] = useState(null);
+
+  return (
+    <div style={{ margin:'0 16px', animation:'fadeInUp 500ms ease-out 1400ms both' }}>
+      <div style={{
+        background:'#fff', padding:'16px 18px', borderRadius:'4px 18px 18px 18px',
+        boxShadow:'0 2px 12px rgba(0,0,0,0.04)',
+        border:'1px solid var(--stroke-minimal)',
+        maxWidth:'90%',
+      }}>
+        <div style={{
+          fontSize:9, fontWeight:700, letterSpacing:1, color:'var(--primary-50)',
+          textTransform:'uppercase', marginBottom:8, opacity:0.6,
+        }}>Prediction Check-in</div>
+        <div style={{
+          fontSize:12, fontWeight:400, color:'var(--text-mid)', lineHeight:1.6,
+          padding:'10px 14px', borderRadius:10, background:'var(--surface-ghost)',
+          fontStyle:'italic', marginBottom:12,
+        }}>
+          "Kal humne kaha tha ki Mercury direct hone se ek important message aayega before noon..."
+        </div>
+
+        {answered === null ? (
+          <div>
+            <div style={{ fontSize:13, fontWeight:600, color:'var(--text-high)', marginBottom:12 }}>
+              Kya ye sahi tha?
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setAnswered('yes')} style={{
+                flex:1, padding:'10px', borderRadius:12, border:'none',
+                background:'#00c48c15', color:'#00c48c', fontSize:14, fontWeight:700,
+                cursor:'pointer', fontFamily:'Outfit',
+              }}>{'Haan \u2713'}</button>
+              <button onClick={() => setAnswered('no')} style={{
+                flex:1, padding:'10px', borderRadius:12, border:'none',
+                background:'var(--surface-ghost)', color:'var(--text-mid)', fontSize:14, fontWeight:700,
+                cursor:'pointer', fontFamily:'Outfit',
+              }}>{'Nahi \u2717'}</button>
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            textAlign:'center', padding:'10px', fontSize:13, fontWeight:500,
+            color:'var(--text-mid)', lineHeight:1.5,
+          }}>
+            {answered === 'yes'
+              ? ('Bahut achha! Aapka feedback humein smarter banata hai ' + E.pray)
+              : ('Noted — hum apni accuracy improve karte rahenge. Shukriya ' + E.pray)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+/* ==============================================
+   EXPLORE KUNDLI UNIVERSE (re-entry, unified flow)
+   ============================================== */
+const ExploreKundliCard = () => (
+  <div
+    onClick={() => window.parent.postMessage({ type: 'go-kundli-universe' }, '*')}
+    style={{
+      margin:'0 16px', borderRadius:20, overflow:'hidden',
+      background:'linear-gradient(135deg, #0d0d2a, #1a1a4e, #0f3460)',
+      padding:'20px', cursor:'pointer',
+      position:'relative',
+      animation:'fadeInUp 500ms ease-out 1400ms both',
+      transition:'transform 200ms ease',
+    }}
+  >
+    {/* Decorative elements */}
+    <div style={{ position:'absolute', top:14, right:16, fontSize:18, opacity:0.12 }}>{'\u2728'}</div>
+    <div style={{ position:'absolute', bottom:16, right:40, width:2, height:2, borderRadius:'50%', background:'#fff', opacity:0.2 }} />
+    <div style={{ position:'absolute', top:35, right:55, width:3, height:3, borderRadius:'50%', background:'#fff', opacity:0.15 }} />
+
+    <div style={{ display:'flex', gap:16, alignItems:'center' }}>
+      {/* Mini kundli chart */}
+      <div style={{ position:'relative', width:64, height:64, flexShrink:0 }}>
+        {/* Diamond shape */}
+        <div style={{
+          width:48, height:48, position:'absolute', top:8, left:8,
+          transform:'rotate(45deg)',
+          border:'2px solid rgba(53,53,243,0.4)',
+          borderRadius:4,
+          background:'rgba(53,53,243,0.08)',
+        }}>
+          <div style={{
+            position:'absolute', inset:8,
+            border:'1px solid rgba(53,53,243,0.25)',
+            borderRadius:2,
+          }} />
+        </div>
+        {/* Planet dots */}
+        {[
+          { top:4, left:28, color:'#ff6644' },
+          { top:28, left:4, color:'#8888ff' },
+          { top:50, left:32, color:'#f5a623' },
+          { top:24, left:52, color:'#4ecdc4' },
+        ].map((p, i) => (
+          <div key={i} style={{
+            position:'absolute', top:p.top, left:p.left,
+            width:6, height:6, borderRadius:'50%',
+            background:p.color, boxShadow:'0 0 6px ' + p.color + '60',
+            animation:'breathe 3s ease-in-out infinite',
+            animationDelay:(i * 0.5) + 's',
+          }} />
+        ))}
+      </div>
+
+      <div style={{ flex:1 }}>
+        <div style={{
+          fontSize:9, fontWeight:700, letterSpacing:1.2, color:'#8b9cf7',
+          textTransform:'uppercase', marginBottom:6, opacity:0.7,
+        }}>Deep Explore</div>
+        <div style={{ fontSize:15, fontWeight:800, color:'#fff', lineHeight:1.3, marginBottom:6 }}>
+          Explore My Full Kundli Universe
+        </div>
+        <div style={{ fontSize:11, fontWeight:400, color:'rgba(255,255,255,0.5)', lineHeight:1.5 }}>
+          Planets, hidden yogs, remedies aur destiny map
+        </div>
+      </div>
+
+      <div style={{
+        width:32, height:32, borderRadius:'50%',
+        background:'rgba(53,53,243,0.15)', border:'1px solid rgba(53,53,243,0.3)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontSize:14, color:'#8b9cf7', flexShrink:0,
+      }}>{'\u2192'}</div>
+    </div>
+  </div>
+);
+
+
+/* ==============================================
+   APP SHELL
+   ============================================== */
+const App = () => (
+  <div className="phone-frame">
+    <div className="status-bar">
+      <span>9:41</span>
+      <span style={{ fontSize:11, fontWeight:700 }}>Jio Bharat IQ Astro</span>
+      <div className="status-bar-right">
+        <span style={{ fontSize:10 }}>Jio 5G</span>
+        <span>{E.battery}</span>
+      </div>
+    </div>
+
+    <div className="scroll-feed">
+      <PersonalizedHeader />
+      <div style={{ height:20 }} />
+      <DailyTimeline />
+      <div style={{ height:24 }} />
+      <TodaysForecast />
+      <div style={{ height:24 }} />
+      <PlanetMessage />
+      <div style={{ height:24 }} />
+      <AajKaUpay />
+      <div style={{ height:24 }} />
+      <TransitChanges />
+      <div style={{ height:24 }} />
+      {IS_UNIFIED && <ExploreKundliCard />}
+      {IS_UNIFIED && <div style={{ height:24 }} />}
+      <PredictionCheckIn />
+      <div style={{ height:40 }} />
+    </div>
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

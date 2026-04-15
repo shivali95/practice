@@ -1367,5 +1367,18 @@ function encodeWav(samples,sampleRate){
 }
 </script>
 
+<!-- Unified Flow Hook -->
+<script>
+if (new URLSearchParams(window.location.search).has('unified')) {
+  document.addEventListener('click', function(e) {
+    var astroLink = document.getElementById('assistant-astrology');
+    if (astroLink && (astroLink === e.target || astroLink.contains(e.target))) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.parent.postMessage({ type: 'astrology-avatar-clicked' }, '*');
+    }
+  }, true);
+}
+</script>
 </body>
 </html>

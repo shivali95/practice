@@ -4308,5 +4308,35 @@ showLandingScreen();
 </script>
 
 
+<!-- Unified Flow Stitching Hooks (only active when loaded via astro-unified.html) -->
+<script>
+(function() {
+  if (!new URLSearchParams(window.location.search).has('unified')) return;
+
+  // Skip landing screen → go straight to kundali onboarding
+  var landingEl = document.getElementById('landingOverlay');
+  if (landingEl) landingEl.style.display = 'none';
+  startWelcome();
+
+  // Override "Talk to Saathi" button → notify parent orchestrator instead
+  window.showSaathiMenu = function() {
+    window.parent.postMessage({ type: 'reveal-complete' }, '*');
+  };
+
+  // Change button text on kundali summary card when it appears
+  var _origShowKundaliSummary = window.showKundaliSummary;
+  window.showKundaliSummary = function() {
+    _origShowKundaliSummary.apply(this, arguments);
+    setTimeout(function() {
+      var btn = document.querySelector('.kc-cta');
+      if (btn) {
+        btn.textContent = '\u2728 Meri Stars Explore Karo';
+        btn.style.background = 'linear-gradient(135deg, #3535f3, #5b5bf7)';
+        btn.style.boxShadow = '0 4px 20px rgba(53,53,243,0.35)';
+      }
+    }, 100);
+  };
+})();
+</script>
 </body>
 </html>
