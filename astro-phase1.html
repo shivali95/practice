@@ -772,16 +772,23 @@ const IdentityCard = () => {
       setTimeout(() => setStep(4), 5500),   // Rarity badges
       setTimeout(() => setStep(5), 7500),   // Planet + Life path
       setTimeout(() => { setStep(6); setArcAnimate(true); }, 9000), // Cosmic score
-      setTimeout(() => setStep(7), 12000),  // Year promise + CTA
+      setTimeout(() => {
+        setStep(7);
+        // Auto-scroll to show CTA
+        setTimeout(() => {
+          const screen = document.querySelector('.screen');
+          if (screen) screen.scrollTo({ top: screen.scrollHeight, behavior: 'smooth' });
+        }, 500);
+      }, 12000),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
 
   return (
-    <div style={{
+    <div id="identity-scroll" style={{
       minHeight: '100%', background: 'var(--surface-minimal)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      paddingTop: 20, paddingBottom: 32,
+      paddingTop: 20, paddingBottom: 60,
     }}>
       {/* The Card */}
       <div style={{
@@ -1058,7 +1065,7 @@ root.render(<App />);
 <script>
 if (new URLSearchParams(window.location.search).has('unified')) {
   var s = document.createElement('style');
-  s.textContent = 'body{padding:0!important;background:#0a0a14!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;}';
+  s.textContent = 'body{padding:0!important;background:#0a0a14!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;overflow-y:auto!important;}';
   document.head.appendChild(s);
 }
 </script>
