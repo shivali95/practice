@@ -1055,5 +1055,12 @@ const App = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 </script>
+<script>
+if (new URLSearchParams(window.location.search).has('unified')) {
+  var s = document.createElement('style');
+  s.textContent = 'body{padding:0!important;background:#0a0a14!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;}';
+  document.head.appendChild(s);
+}
+</script>
 </body>
 </html>

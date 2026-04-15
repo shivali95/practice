@@ -60,7 +60,13 @@ body { font-family:'Outfit',sans-serif; background:#f0f0f0; display:flex; justif
 </head>
 <body>
 <div id="root"></div>
-
+<script>
+if (new URLSearchParams(window.location.search).has('unified')) {
+  var s = document.createElement('style');
+  s.textContent = 'body{padding:0!important;background:#faf9f6!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}';
+  document.head.appendChild(s);
+}
+</script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');

@@ -88,7 +88,13 @@
 </head>
 <body>
 <div id="root"></div>
-
+<script>
+if (new URLSearchParams(window.location.search).has('unified')) {
+  var s = document.createElement('style');
+  s.textContent = 'body{padding:0!important;background:#fff!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;}';
+  document.head.appendChild(s);
+}
+</script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
