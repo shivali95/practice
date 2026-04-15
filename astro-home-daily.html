@@ -63,7 +63,7 @@ body { font-family:'Outfit',sans-serif; background:#f0f0f0; display:flex; justif
 <script>
 if (new URLSearchParams(window.location.search).has('unified')) {
   var s = document.createElement('style');
-  s.textContent = 'body{padding:0!important;margin:0!important;background:#faf9f6!important;display:block!important;}.phone-frame{width:100%!important;height:100vh!important;max-width:100%!important;border:none!important;border-radius:0!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;}';
+  s.textContent = 'body{padding:0!important;margin:0!important;background:#faf9f6!important;display:block!important;}.phone-frame{width:100%!important;height:100vh!important;max-width:100%!important;border:none!important;border-radius:0!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;}.status-bar{display:none!important;}.scroll-content{flex:1!important;overflow-y:auto!important;}';
   document.head.appendChild(s);
 }
 </script>
