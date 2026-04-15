@@ -331,8 +331,19 @@ const BirthDetailsScreen = ({ onSubmit }) => {
   const [dobOpen, setDobOpen] = useState(false);
   const [tobOpen, setTobOpen] = useState(false);
   const [pobFocused, setPobFocused] = useState(false);
+  const autoSubmitRef = useRef(false);
 
   const isValid = dob && (tob || approximateTime) && pob;
+
+  // Auto-advance when all 3 fields are filled
+  useEffect(() => {
+    if (isValid && !autoSubmitRef.current) {
+      autoSubmitRef.current = true;
+      setTimeout(() => {
+        onSubmit({ dob, tob: approximateTime ? 'sunrise' : tob, pob });
+      }, 600);
+    }
+  }, [isValid]);
 
   const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Jaipur', 'Lucknow', 'Ahmedabad'];
   const [filteredCities, setFilteredCities] = useState([]);
@@ -616,6 +627,7 @@ const intents = [
 
 const IntentSelectionScreen = ({ onSubmit }) => {
   const [selected, setSelected] = useState([]);
+  const autoSubmitRef = useRef(false);
 
   const toggleIntent = (id) => {
     setSelected(prev => {
@@ -624,6 +636,19 @@ const IntentSelectionScreen = ({ onSubmit }) => {
       return [...prev, id];
     });
   };
+
+  // Auto-advance when 2 intents are selected
+  useEffect(() => {
+    if (selected.length === 2 && !autoSubmitRef.current) {
+      autoSubmitRef.current = true;
+      setTimeout(() => {
+        onSubmit(selected);
+      }, 600);
+    }
+    if (selected.length < 2) {
+      autoSubmitRef.current = false;
+    }
+  }, [selected]);
 
   return (
     <div style={{
