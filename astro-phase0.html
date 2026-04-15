@@ -1151,7 +1151,7 @@ root.render(<App />);
 if (new URLSearchParams(window.location.search).has('unified')) {
   // Strip phone chrome in unified mode
   var s = document.createElement('style');
-  s.textContent = 'body{padding:0!important;background:#0a0a14!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;}';
+  s.textContent = 'body{padding:0!important;background:#0a0a14!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}.notch,.notch-inner{display:none!important;}.screen{height:calc(100vh - 38px)!important;overflow-y:auto!important;overflow-x:hidden!important;}';
   document.head.appendChild(s);
   // Watch for phase 'done' and notify parent
   var _checkDone = setInterval(function() {
