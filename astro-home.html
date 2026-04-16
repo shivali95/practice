@@ -659,63 +659,96 @@ const StoryCardPreview = ({ card, index, onTap }) => (
 /* Card 1 — SECRET SUPERPOWER — Immersive Reel-style Experience */
 
 /* Timed scenes — each takes over the full screen like a Reel */
-const CARD1_SCENES = [
-  // scene 0: card content visible (first 1.5s)
-  { time: 0, type: 'card' },
-  // scene 1+: full-screen takeovers synced to narration
-  { time: 1500, type: 'dim' },  // dim card, narration begins
-  { time: 2000, text: 'आपकी कुंडली में\nकुछ बहुत ख़ास है', size: 28, color: '#ff9966', duration: 2200, emoji: '✨' },
-  { time: 4500, text: 'मंगल\nविराजमान है', size: 36, color: '#ff6644', duration: 2800, emoji: '♂', glow: true },
-  { time: 8000, text: 'Natural\nAuthority', size: 48, color: '#ffcc66', duration: 3200, glow: true, emphasis: true },
-  { time: 12000, text: 'ये सीखा नहीं\nकुंडली में लिखा है', size: 26, color: 'rgba(255,255,255,0.9)', duration: 3000, emoji: '📜' },
-  { time: 16000, text: 'जब आप बोलती हैं—', size: 24, color: '#ff9966', duration: 1800 },
-  { time: 18000, text: 'पूरा Room\nAdjust हो जाता है', size: 38, color: '#ff9966', duration: 3200, glow: true, emphasis: true },
-  { time: 22000, text: 'Attention माँगती नहीं\nMIL जाता है', size: 30, color: 'rgba(255,255,255,0.85)', duration: 2500 },
-  { time: 25000, text: 'दिल के\nबहुत साफ़ हैं आप', size: 36, color: '#ffcc66', duration: 3000, glow: true, emphasis: true, emoji: '💛' },
-  { time: 29000, text: 'यही बात लोगों को\nखींचती है आपकी तरफ़', size: 26, color: '#ff6644', duration: 3000, emoji: '🧲' },
-  { time: 33000, type: 'undim' },  // bring card back
+/* Scene-synced narration: each scene has a TTS chunk + display text.
+   Audio plays chunk-by-chunk; scene changes exactly when each chunk starts.
+   After each scene exits, it stacks at the bottom as a "takeaway". */
+const CARD1_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी। आपकी कुंडली में कुछ बहुत ख़ास दिख रहा है।', text: 'आपकी कुंडली में\nकुछ बहुत ख़ास है', size: 28, color: '#ff9966', emoji: '✨' },
+  { chunk: 'आपके लग्न में मंगल विराजमान है।', text: 'मंगल\nविराजमान है', size: 36, color: '#ff6644', emoji: '♂', glow: true },
+  { chunk: 'और मंगल की वजह से, आपमें एक ऐसी natural authority है, जो ज़्यादातर लोग पूरी ज़िंदगी build करने की कोशिश करते हैं।', text: 'Natural\nAuthority', size: 48, color: '#ffcc66', glow: true, emphasis: true },
+  { chunk: 'आप सोचती होंगी — मैंने ये सीखा है। नहीं। ये आपकी कुंडली में लिखा है।', text: 'ये सीखा नहीं\nकुंडली में लिखा है', size: 26, color: 'rgba(255,255,255,0.9)', emoji: '📜' },
+  { chunk: 'जब आप किसी room में जाती हैं, आप माँगती नहीं attention। लेकिन जब बोलती हैं —', text: 'जब आप बोलती हैं—', size: 24, color: '#ff9966' },
+  { chunk: 'पूरा room आपके इर्द-गिर्द adjust हो जाता है।', text: 'पूरा Room\nAdjust हो जाता है', size: 38, color: '#ff9966', glow: true, emphasis: true },
+  { chunk: 'दिल के बहुत साफ़ हैं आप —', text: 'दिल के\nबहुत साफ़ हैं आप', size: 36, color: '#ffcc66', glow: true, emphasis: true, emoji: '💛' },
+  { chunk: 'और यही बात लोगों को आपकी तरफ़ खींचती है।', text: 'यही बात लोगों को\nखींचती है आपकी तरफ़', size: 26, color: '#ff6644', emoji: '🧲' },
 ];
 
 const FullCard1_Superpower = () => {
   const [activeScene, setActiveScene] = useState(null);
   const [dimmed, setDimmed] = useState(false);
-  const [exitingScene, setExitingScene] = useState(null);
-  const timersRef = useRef([]);
+  const [stack, setStack] = useState([]); // scenes that played — build as "takeaway trail"
+  const [phase, setPhase] = useState('card'); // 'card' → 'playing' → 'summary'
+  const audioRef = useRef(null);
 
   useEffect(() => {
-    // Schedule all scenes
-    CARD1_SCENES.forEach((scene, i) => {
-      const t = setTimeout(() => {
-        if (scene.type === 'dim') { setDimmed(true); return; }
-        if (scene.type === 'undim') { setDimmed(false); setActiveScene(null); return; }
-        if (scene.type === 'card') return;
-        // Exit previous scene
-        setExitingScene(activeScene);
-        setActiveScene(scene);
-      }, scene.time + 800); // +800 for narration start delay
-      timersRef.current.push(t);
+    let cancelled = false;
 
-      // Clear scene after duration
-      if (scene.duration) {
-        const clearT = setTimeout(() => {
-          setActiveScene(prev => prev === scene ? null : prev);
-        }, scene.time + 800 + scene.duration);
-        timersRef.current.push(clearT);
+    const runScenes = async () => {
+      // Let card content render and breathe
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+
+      // Dim card content, begin immersive mode
+      setDimmed(true);
+      setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+
+      for (let i = 0; i < CARD1_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD1_NARRATION_SCENES[i];
+
+        // Show this scene's focus text
+        setActiveScene({ ...scene, index: i });
+
+        // Fetch TTS audio for this specific chunk
+        const audioSrc = await fetchTTS(scene.chunk, 'card0_s' + i, 'advait');
+        if (cancelled) break;
+
+        if (audioSrc) {
+          // Play and wait for it to finish — scene stays on screen exactly as long as audio
+          await new Promise((resolve) => {
+            const audio = new Audio(audioSrc);
+            audioRef.current = audio;
+            audio.onended = () => { audioRef.current = null; resolve(); };
+            audio.onerror = () => { audioRef.current = null; resolve(); };
+            audio.play().catch(() => resolve());
+          });
+        } else {
+          // Fallback timing: ~11 Hindi chars/sec
+          await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000)));
+        }
+        if (cancelled) break;
+
+        // Scene done → push to stack (it slides down and joins the trail)
+        setStack(prev => [...prev, { text: scene.text, color: scene.color, emoji: scene.emoji, emphasis: scene.emphasis }]);
       }
-    });
-    return () => timersRef.current.forEach(clearTimeout);
+
+      if (!cancelled) {
+        setActiveScene(null);
+        // Brief pause, then reveal full summary
+        await new Promise(r => setTimeout(r, 600));
+        setPhase('summary');
+      }
+    };
+
+    runScenes();
+    return () => {
+      cancelled = true;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    };
   }, []);
 
   return (
     <div style={{ background: 'linear-gradient(180deg, #1a0500 0%, #0d0200 100%)', minHeight: '100%',
       position: 'relative', overflow: 'hidden' }}>
 
-      {/* ── CARD CONTENT (dims when narration plays) ── */}
+      {/* ── CARD CONTENT (dims during narration) ── */}
       <div style={{
         padding: '24px 20px',
         transition: 'opacity 800ms ease, filter 800ms ease',
-        opacity: dimmed ? 0.12 : 1,
-        filter: dimmed ? 'blur(6px)' : 'none',
+        opacity: phase === 'card' ? 1 : 0.06,
+        filter: dimmed ? 'blur(8px)' : 'none',
       }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(255,102,68,0.12) 0%, transparent 70%)' }} />
@@ -739,15 +772,16 @@ const FullCard1_Superpower = () => {
         <NextTeaser text="But this same power has a shadow side..." />
       </div>
 
-      {/* ── FULL-SCREEN FOCUS LAYER (takes over when dimmed) ── */}
-      {dimmed && activeScene && activeScene.text && (
-        <div key={activeScene.time} style={{
+      {/* ── ACTIVE SCENE — big cinematic focus text, center-stage ── */}
+      {phase === 'playing' && activeScene && (
+        <div key={activeScene.index} style={{
           position: 'absolute', inset: 0, zIndex: 30,
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           pointerEvents: 'none', padding: '20px 24px',
+          paddingBottom: Math.max(100, stack.length * 28 + 80),
         }}>
-          {/* Ambient glow behind text */}
+          {/* Ambient glow */}
           {activeScene.glow && (
             <div style={{
               position: 'absolute', width: 300, height: 300, borderRadius: '50%',
@@ -767,13 +801,12 @@ const FullCard1_Superpower = () => {
             </div>
           )}
 
-          {/* THE MAIN TEXT — big, cinematic, center stage */}
+          {/* THE TEXT — cinematic, big */}
           <div style={{
             fontSize: activeScene.emphasis ? (activeScene.size || 36) : (activeScene.size || 28),
             fontWeight: activeScene.emphasis ? 900 : 700,
             color: activeScene.color || '#fff',
-            textAlign: 'center',
-            lineHeight: 1.25,
+            textAlign: 'center', lineHeight: 1.25,
             letterSpacing: activeScene.emphasis ? '-0.04em' : '-0.02em',
             fontFamily: "'JioType', 'Outfit', sans-serif",
             textShadow: activeScene.glow
@@ -781,12 +814,11 @@ const FullCard1_Superpower = () => {
               : '0 4px 20px rgba(0,0,0,0.6)',
             whiteSpace: 'pre-line',
             animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both',
-            transform: activeScene.emphasis ? 'scale(1)' : 'scale(1)',
           }}>
             {activeScene.text}
           </div>
 
-          {/* Underline accent for emphasis scenes */}
+          {/* Underline accent for emphasis */}
           {activeScene.emphasis && (
             <div style={{
               width: 60, height: 3, borderRadius: 2, marginTop: 16,
@@ -794,6 +826,71 @@ const FullCard1_Superpower = () => {
               animation: 'focusLineIn 600ms ease-out 300ms both',
             }} />
           )}
+        </div>
+      )}
+
+      {/* ── LIVE STACK — builds at bottom during playback ── */}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{
+          position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35,
+          display: 'flex', flexDirection: 'column', gap: 5,
+          pointerEvents: 'none',
+        }}>
+          {stack.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              fontSize: 12, fontWeight: 600,
+              color: item.color || 'rgba(255,255,255,0.5)',
+              opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3,
+              textAlign: 'center',
+              animation: 'fadeInUp 400ms ease-out both',
+              textShadow: '0 2px 8px rgba(0,0,0,0.7)',
+              lineHeight: 1.3,
+            }}>
+              {item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}
+              <span>{item.text.replace('\n', ' ')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── SUMMARY — all takeaways stacked beautifully at the end ── */}
+      {phase === 'summary' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '32px 20px',
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)',
+            textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28,
+            animation: 'fadeIn 600ms ease-out both',
+          }}>
+            YOUR COSMIC DNA
+          </div>
+          {CARD1_NARRATION_SCENES.map((scene, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontSize: scene.emphasis ? 20 : 15,
+              fontWeight: scene.emphasis ? 800 : 600,
+              color: scene.color || 'rgba(255,255,255,0.7)',
+              textAlign: 'center',
+              marginBottom: scene.emphasis ? 16 : 10,
+              opacity: 0,
+              animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`,
+              textShadow: scene.glow ? `0 0 30px ${scene.color}44` : '0 2px 8px rgba(0,0,0,0.4)',
+              lineHeight: 1.3,
+            }}>
+              {scene.emoji && <span style={{ fontSize: scene.emphasis ? 20 : 14 }}>{scene.emoji}</span>}
+              <span>{scene.text.replace('\n', ' ')}</span>
+            </div>
+          ))}
+          <div style={{
+            width: 40, height: 2, borderRadius: 1, marginTop: 20,
+            background: 'linear-gradient(90deg, transparent, rgba(255,153,102,0.4), transparent)',
+            animation: 'fadeIn 800ms ease-out 2000ms both',
+          }} />
         </div>
       )}
     </div>
@@ -1154,6 +1251,24 @@ const mapSpeaker = (s) => VOICE_MAP[s] || DEFAULT_VOICE;
 // Cache generated audio so we don't re-call the API
 const audioCache = {};
 
+// Standalone TTS fetch (used by scene-synced cards + narration hook)
+const fetchTTS = async (text, cacheKey, speaker = 'advait') => {
+  if (audioCache[cacheKey]) return audioCache[cacheKey];
+  const voiceId = mapSpeaker(speaker);
+  try {
+    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
+      method: 'POST',
+      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+    });
+    if (!resp.ok) { console.warn('TTS error:', resp.status); return null; }
+    const blob = await resp.blob();
+    const src = URL.createObjectURL(blob);
+    audioCache[cacheKey] = src;
+    return src;
+  } catch (e) { console.warn('TTS fetch failed:', e); return null; }
+};
+
 const useNarration = () => {
   const audioRef = useRef(null);
   const cancelledRef = useRef(false);
@@ -1335,8 +1450,16 @@ const prefetchPlanetAudio = () => {
 
 /* Pre-cache all card narrations (Kundli ke Rahasya) */
 const prefetchCardAudio = () => {
+  // Card 1 scene chunks (for synced playback)
+  if (typeof CARD1_NARRATION_SCENES !== 'undefined') {
+    CARD1_NARRATION_SCENES.forEach((scene, i) => {
+      queuePrefetch(scene.chunk, 'card0_s' + i, 'advait');
+    });
+  }
+  // Cards 2-7 (full narration)
   if (typeof CARD_NARRATIONS === 'undefined') return;
   CARD_NARRATIONS.forEach((narr, i) => {
+    if (i === 0) return; // Card 1 prefetched as scenes above
     queuePrefetch(narr, 'card_' + i, 'advait');
   });
 };
@@ -1348,9 +1471,9 @@ const StoryOverlay = ({ startIndex, onClose }) => {
   const CARD_BGS = ['#1a0500','#1a0a00','#0d0d18','#0a0a14','#0c0028','#001a15','#0a0020'];
   const { speaking, progress, speak, stop, toggle } = useNarration();
 
-  // Auto-narrate when card changes
+  // Auto-narrate when card changes (Card 1 has built-in scene-synced audio)
   useEffect(() => {
-    // Small delay so the card slides in first
+    if (current === 0) return; // Card 1 manages its own chunk-by-chunk narration
     const timer = setTimeout(() => {
       if (CARD_NARRATIONS[current]) speak(CARD_NARRATIONS[current], 'card_' + current);
     }, 600);
