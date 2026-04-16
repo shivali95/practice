@@ -1217,45 +1217,317 @@ const FullCard4_Misunderstood = () => (
 );
 
 /* Card 4 — DESTINY PATTERN (Rare Yog) */
-const FullCard5_Destiny = () => (
-  <div style={{ background: 'linear-gradient(180deg, var(--surface-bold) 0%, #0a0033 100%)', minHeight: '100%',
-    padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
-    {[...Array(16)].map((_, i) => (
-      <div key={i} style={{ position: 'absolute',
-        top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
-        width: i % 3 === 0 ? 2.5 : 1.5, height: i % 3 === 0 ? 2.5 : 1.5, borderRadius: '50%',
-        background: `rgba(122,235,217,${0.1 + Math.random() * 0.3})` }} />
-    ))}
+/* Card 5 — RARE YOG — Interactive block-based immersive experience */
+const CARD5_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी, आपकी कुंडली में एक बहुत rare yog है।', ui: 'text', text: 'एक बहुत\nRare Yog', size: 36, color: '#7aebd9', glow: true, emoji: '✦' },
+  { chunk: 'इसका नाम है रुचक महापुरुष योग।', ui: 'reveal', text: 'रुचक\nमहापुरुष योग', size: 42, color: '#ffd700', glow: true, emphasis: true },
+  { chunk: 'दुनिया में सिर्फ़ पाँच percent लोगों के पास ये होता है।', ui: 'stat', stat: 5, label: 'लोगों के पास ये yog है', unit: '%', color: '#ffd700' },
+  { chunk: 'ये मंगल का विशेष योग है। जब मंगल अपने ही घर में बैठता है, तो ये बनता है।', ui: 'block', icon: '♂', title: 'मंगल का योग', desc: 'Mars अपने घर में — maximum power position', color: '#ff6644' },
+  { chunk: 'इसका मतलब है — courage, leadership, और किसी भी situation को dominate करने की power।', ui: 'traits', traits: ['Courage', 'Leadership', 'Dominance'], color: '#ff6644' },
+  { chunk: 'और आपके मूलांक नौ के साथ मिलकर ये दोगुना powerful हो जाता है।', ui: 'block', icon: '9', title: 'मूलांक 9 × रुचक योग', desc: 'Double Mars energy — extremely rare combination', color: '#ffd700', glow: true },
+  { chunk: 'हर कुछ सालों में आप सब कुछ तोड़कर नए सिरे से शुरू करती हैं। लोग इसे restless कहते हैं। लेकिन ये evolution है।', ui: 'text', text: 'Restless नहीं\nEvolution है', size: 38, color: '#7aebd9', glow: true, emphasis: true },
+  { chunk: 'ये yog आपको बाकी सबसे अलग बनाता है शिवाली जी।', ui: 'text', text: 'आप बाकी सबसे\nअलग हैं', size: 40, color: '#ffd700', glow: true, emphasis: true, emoji: '⚡' },
+];
 
-    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4, position: 'relative' }}>
-      <Planet3D_Mars size={68} />
-      <div style={{ position: 'absolute', top: 0, right: '30%', width: 26, height: 26, borderRadius: '50%',
-        background: 'linear-gradient(135deg, var(--secondary-40), #e8a000)', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', fontSize: 14, boxShadow: '0 2px 12px rgba(255,215,0,0.4)' }}>✦</div>
+const FullCard5_Destiny = () => {
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('card');
+  const [statAnim, setStatAnim] = useState(0);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const runScenes = async () => {
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+      setDimmed(true);
+      setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+
+      for (let i = 0; i < CARD5_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD5_NARRATION_SCENES[i];
+        setActiveScene({ ...scene, index: i });
+        setStatAnim(0);
+
+        // Animate stat counter if stat scene
+        if (scene.ui === 'stat') {
+          let count = 0;
+          const interval = setInterval(() => {
+            count += 1;
+            if (count >= scene.stat) { clearInterval(interval); }
+            setStatAnim(Math.min(count, scene.stat));
+          }, 80);
+        }
+
+        const audioSrc = await fetchTTS(scene.chunk, 'card4_s' + i, 'advait');
+        if (cancelled) break;
+
+        if (audioSrc) {
+          await new Promise((resolve) => {
+            const audio = new Audio(audioSrc);
+            audioRef.current = audio;
+            audio.onended = () => { audioRef.current = null; resolve(); };
+            audio.onerror = () => { audioRef.current = null; resolve(); };
+            audio.play().catch(() => resolve());
+          });
+        } else {
+          await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000)));
+        }
+        if (cancelled) break;
+        setStack(prev => [...prev, { text: scene.text || scene.title || scene.label, color: scene.color, emoji: scene.icon }]);
+      }
+
+      if (!cancelled) {
+        setActiveScene(null);
+        await new Promise(r => setTimeout(r, 600));
+        setPhase('summary');
+      }
+    };
+
+    runScenes();
+    return () => {
+      cancelled = true;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    };
+  }, []);
+
+  // Render scene based on ui type
+  const renderScene = (scene) => {
+    if (!scene) return null;
+
+    // STAT — animated percentage circle
+    if (scene.ui === 'stat') {
+      return (
+        <div key={scene.index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
+          animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>
+          <div style={{ position: 'relative', width: 140, height: 140, marginBottom: 20 }}>
+            <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+              <circle cx="70" cy="70" r="58" fill="none" stroke={scene.color} strokeWidth="6"
+                strokeDasharray={`${2 * Math.PI * 58 * (statAnim / 100)} ${2 * Math.PI * 58}`}
+                strokeLinecap="round" style={{ transition: 'stroke-dasharray 100ms linear',
+                filter: `drop-shadow(0 0 12px ${scene.color}66)` }} />
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 48, fontWeight: 900, color: scene.color,
+                textShadow: `0 0 40px ${scene.color}66`, fontFamily: "'JioType','Outfit',sans-serif" }}>
+                {statAnim}{scene.unit}
+              </span>
+            </div>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>
+            {scene.label}
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginTop: 8, textTransform: 'uppercase', letterSpacing: 2 }}>
+            EXTREMELY RARE
+          </div>
+        </div>
+      );
+    }
+
+    // BLOCK — icon + title + desc card
+    if (scene.ui === 'block') {
+      return (
+        <div key={scene.index} style={{
+          background: `${scene.color}11`, border: `1px solid ${scene.color}33`,
+          borderRadius: 20, padding: '28px 24px', width: '85%', maxWidth: 300,
+          animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both',
+          boxShadow: scene.glow ? `0 0 40px ${scene.color}22` : 'none',
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 12, textAlign: 'center',
+            filter: `drop-shadow(0 4px 16px ${scene.color}44)` }}>
+            {scene.icon}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: scene.color, textAlign: 'center', marginBottom: 8,
+            textShadow: `0 0 20px ${scene.color}44` }}>
+            {scene.title}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 1.5 }}>
+            {scene.desc}
+          </div>
+        </div>
+      );
+    }
+
+    // TRAITS — animated trait pills
+    if (scene.ui === 'traits') {
+      return (
+        <div key={scene.index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+          animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase',
+            letterSpacing: 3, marginBottom: 8 }}>THIS YOG GIVES YOU</div>
+          {scene.traits.map((trait, j) => (
+            <div key={j} style={{
+              background: `${scene.color}18`, border: `1px solid ${scene.color}44`,
+              borderRadius: 40, padding: '12px 32px',
+              fontSize: 22, fontWeight: 800, color: scene.color,
+              textShadow: `0 0 20px ${scene.color}44`,
+              opacity: 0, animation: `fadeInUp 400ms ease-out ${j * 200}ms both`,
+              fontFamily: "'JioType','Outfit',sans-serif",
+            }}>
+              {trait}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // TEXT — default cinematic text (same as before)
+    return (
+      <div key={scene.index} style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both',
+      }}>
+        {scene.glow && (
+          <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+            background: `radial-gradient(circle, ${scene.color}22 0%, transparent 70%)`,
+            animation: 'breathe 3s ease-in-out infinite' }} />
+        )}
+        {scene.emoji && (
+          <div style={{ fontSize: 48, marginBottom: 16,
+            animation: 'focusEmojiIn 400ms ease-out both',
+            filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))' }}>
+            {scene.emoji}
+          </div>
+        )}
+        <div style={{
+          fontSize: scene.emphasis ? (scene.size || 36) : (scene.size || 28),
+          fontWeight: scene.emphasis ? 900 : 700,
+          color: scene.color || '#fff', textAlign: 'center', lineHeight: 1.25,
+          letterSpacing: scene.emphasis ? '-0.04em' : '-0.02em',
+          fontFamily: "'JioType','Outfit',sans-serif",
+          textShadow: scene.glow ? `0 0 60px ${scene.color}88, 0 0 120px ${scene.color}44, 0 4px 20px rgba(0,0,0,0.6)` : '0 4px 20px rgba(0,0,0,0.6)',
+          whiteSpace: 'pre-line',
+        }}>
+          {scene.text}
+        </div>
+        {scene.emphasis && (
+          <div style={{ width: 60, height: 3, borderRadius: 2, marginTop: 16,
+            background: `linear-gradient(90deg, transparent, ${scene.color}, transparent)`,
+            animation: 'focusLineIn 600ms ease-out 300ms both' }} />
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #0c0028 0%, #0a0033 100%)', minHeight: '100%',
+      position: 'relative', overflow: 'hidden' }}>
+
+      {/* Sparkle stars */}
+      {[...Array(12)].map((_, i) => (
+        <div key={i} style={{ position: 'absolute',
+          top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`,
+          width: i % 3 === 0 ? 2.5 : 1.5, height: i % 3 === 0 ? 2.5 : 1.5, borderRadius: '50%',
+          background: `rgba(122,235,217,${0.1 + Math.random() * 0.3})`,
+          animation: `twinkle ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite` }} />
+      ))}
+
+      {/* CARD CONTENT */}
+      <div style={{
+        padding: '24px 20px',
+        transition: 'opacity 800ms ease, filter 800ms ease',
+        opacity: phase === 'card' ? 1 : 0.06,
+        filter: dimmed ? 'blur(8px)' : 'none',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4, position: 'relative' }}>
+          <Planet3D_Mars size={68} />
+          <div style={{ position: 'absolute', top: 0, right: '30%', width: 26, height: 26, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--secondary-40), #e8a000)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: 14, boxShadow: '0 2px 12px rgba(255,215,0,0.4)' }}>✦</div>
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sparkle-40)', textTransform: 'uppercase', letterSpacing: 2,
+          textAlign: 'center', marginTop: 12 }}>✦ RUCHAKA MAHAPURUSH YOG</div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 14,
+          letterSpacing: '-0.03em', lineHeight: 1.25 }}>
+          A rare cosmic pattern that only 5% have
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 16, textAlign: 'center' }}>
+          Every few years, you rebuild your life from scratch. Others call it restless. <span style={{ color: 'var(--sparkle-40)', fontWeight: 700 }}>This yog calls it evolution.</span>
+        </div>
+        <EmotionalIndicator label="Destiny Momentum" level="Activating" color="var(--sparkle-40)" />
+        <NextTeaser text="Someone famous shares this exact cosmic signature..." />
+      </div>
+
+      {/* ACTIVE SCENE — renders differently based on ui type */}
+      {phase === 'playing' && activeScene && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '20px 24px',
+          paddingBottom: Math.max(100, stack.length * 28 + 80),
+        }}>
+          {renderScene(activeScene)}
+        </div>
+      )}
+
+      {/* LIVE STACK */}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{
+          position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35,
+          display: 'flex', flexDirection: 'column', gap: 5,
+          pointerEvents: 'none',
+        }}>
+          {stack.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              fontSize: 12, fontWeight: 600,
+              color: item.color || 'rgba(255,255,255,0.5)',
+              opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3,
+              textAlign: 'center', animation: 'fadeInUp 400ms ease-out both',
+              textShadow: '0 2px 8px rgba(0,0,0,0.7)', lineHeight: 1.3,
+            }}>
+              {item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}
+              <span>{(item.text || '').replace('\n', ' ')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* SUMMARY */}
+      {phase === 'summary' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '32px 20px',
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)',
+            textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28,
+            animation: 'fadeIn 600ms ease-out both' }}>
+            ✦ RUCHAKA MAHAPURUSH YOG ✦
+          </div>
+          {[
+            { text: 'सिर्फ़ 5% लोगों में', color: '#ffd700', emphasis: true, emoji: '💎' },
+            { text: 'मंगल का विशेष योग', color: '#ff6644', emoji: '♂' },
+            { text: 'Courage · Leadership · Dominance', color: '#ff6644', emphasis: true },
+            { text: 'मूलांक 9 से दोगुना powerful', color: '#ffd700', emoji: '⚡' },
+            { text: 'Restless नहीं — Evolution है', color: '#7aebd9', emphasis: true },
+            { text: 'आप बाकी सबसे अलग हैं', color: '#ffd700', emphasis: true, emoji: '✦' },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontSize: item.emphasis ? 20 : 15, fontWeight: item.emphasis ? 800 : 600,
+              color: item.color, textAlign: 'center',
+              marginBottom: item.emphasis ? 16 : 10, opacity: 0,
+              animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`,
+              textShadow: `0 0 30px ${item.color}44`, lineHeight: 1.3,
+            }}>
+              {item.emoji && <span style={{ fontSize: item.emphasis ? 20 : 14 }}>{item.emoji}</span>}
+              <span>{item.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-
-    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sparkle-40)', textTransform: 'uppercase', letterSpacing: 2,
-      textAlign: 'center', marginTop: 12 }}>✦ RUCHAKA MAHAPURUSH YOG</div>
-    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--secondary-40)', textAlign: 'center', marginTop: 6 }}>
-      Only 5% of people on earth have this
-    </div>
-
-    <div style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 14,
-      letterSpacing: '-0.03em', lineHeight: 1.25, animation: 'fadeInUp 500ms ease-out 200ms both' }}>
-      Why your life keeps reinventing itself — and the rare cosmic pattern behind it
-    </div>
-
-    <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 16, textAlign: 'center' }}>
-      You're not built for ordinary life. Every few years, you burn down what isn't working and rebuild from scratch. Others call it restless. <span style={{ color: 'var(--sparkle-40)', fontWeight: 700 }}>Your chart calls it evolution.</span> This pattern will repeat. And each time, you come back stronger.
-    </div>
-
-    <EmotionalIndicator label="Destiny Momentum" level="Activating" color="var(--sparkle-40)" />
-
-    <TapReveal text="People with Ruchaka Yog don't just lead — they redefine the rules of whatever field they enter. History remembers them. Dhoni has it too." color="var(--secondary-40)" />
-
-    <NextTeaser text="Someone famous shares this exact cosmic signature..." />
-  </div>
-);
+  );
+};
 
 /* Card 5 — CELEBRITY PARALLEL */
 const FullCard6_CelebrityTwin = () => (
@@ -1393,8 +1665,8 @@ const CARD_NARRATIONS = [
   `शिवाली जी, अब एक ऐसा rahasya बताता हूँ जो आप ख़ुद नहीं देख पाती। आपके चन्द्रमा की स्थिति ऐसी है कि, जब आप चुप हो जाती हैं — लोग सोचते हैं आप नाराज़ हैं। लेकिन सच ये है — आप सोच रही होती हैं, अंदर ही अंदर process कर रही होती हैं। ये आपके Moon की intensity है। लेकिन वो ख़ामोशी? वो एक दीवार बन जाती है। और जो लोग आपसे सबसे ज़्यादा प्यार करते हैं — वही आपसे सबसे ज़्यादा डरते हैं reach करने से। ये कमी नहीं है आपकी — ये आपकी गहराई है।`,
   // Card 4 — Misunderstood
   `शिवाली जी, आपको एक बात बताऊँ? आपके शनि और मंगल दोनों इतने strong हैं कि लोग आपको intimidating समझते हैं। लेकिन सच ये है — आप selective हैं। आप हर किसी को अपने पास नहीं आने देती, क्योंकि आपके मूलांक नौ की वजह से आप जानती हैं — ग़लत इंसान के close आने का क्या cost होता है। अंदर से आप कितनी soft हैं, ये बहुत कम लोग जानते हैं। लेकिन जो जान लेते हैं — वो कभी नहीं जाते।`,
-  // Card 5 — Destiny / Rare Yog
-  `शिवाली जी, अब जो बताने वाला हूँ वो सुनकर आपको यक़ीन नहीं होगा। आपकी कुंडली में रुचक महापुरुष योग है। दुनिया में सिर्फ़ पाँच percent लोगों के पास ये होता है। ये मंगल का विशेष योग है — और आपके मूलांक नौ के साथ मिलकर ये और भी powerful हो जाता है। आपने ग़ौर किया होगा — हर कुछ सालों में आप सब कुछ तोड़कर नए सिरे से शुरू करती हैं। लोग इसे restless कहते हैं। लेकिन ये evolution है।`,
+  // Card 5 — Destiny / Rare Yog (scene-synced: CARD5_NARRATION_SCENES)
+  `शिवाली जी, आपकी कुंडली में एक बहुत rare yog है। इसका नाम है रुचक महापुरुष योग। दुनिया में सिर्फ़ पाँच percent लोगों के पास ये होता है। ये मंगल का विशेष योग है। जब मंगल अपने ही घर में बैठता है, तो ये बनता है। इसका मतलब है — courage, leadership, और किसी भी situation को dominate करने की power। और आपके मूलांक नौ के साथ मिलकर ये दोगुना powerful हो जाता है। हर कुछ सालों में आप सब कुछ तोड़कर नए सिरे से शुरू करती हैं। लोग इसे restless कहते हैं। लेकिन ये evolution है। ये yog आपको बाकी सबसे अलग बनाता है शिवाली जी।`,
   // Card 6 — Celebrity Twin
   `शिवाली जी, ये सुनकर हैरान हो जाएँगी। आपकी कुंडली का 89 percent match है MS Dhoni के साथ। Same वृश्चिक राशि की fire। Same मंगल-driven calmness जब सब panic कर रहे होते हैं। उनके मूलांक भी नौ के करीब energy रखते हैं। वो matches last over में finish करता है। आप वो काम finish करती हैं जो बाकी सब छोड़ देते हैं। दोनों कुंडली में रुचक योग है — जो उन्होंने cricket field पर किया, आपकी कुंडली कहती है कि आप अपने arena में करेंगी।`,
   // Card 7 — Future Window
@@ -1634,10 +1906,16 @@ const prefetchCardAudio = () => {
       queuePrefetch(scene.chunk, 'card1_s' + i, 'advait');
     });
   }
-  // Cards 3-7 (full narration)
+  // Card 5 scene chunks (for synced playback)
+  if (typeof CARD5_NARRATION_SCENES !== 'undefined') {
+    CARD5_NARRATION_SCENES.forEach((scene, i) => {
+      queuePrefetch(scene.chunk, 'card4_s' + i, 'advait');
+    });
+  }
+  // Cards 3-7 (full narration, skip scene-synced cards)
   if (typeof CARD_NARRATIONS === 'undefined') return;
   CARD_NARRATIONS.forEach((narr, i) => {
-    if (i <= 1) return; // Cards 1-2 prefetched as scenes above
+    if (i <= 1 || i === 4) return; // Cards 1-2, 5 prefetched as scenes above
     queuePrefetch(narr, 'card_' + i, 'advait');
   });
 };
@@ -1651,7 +1929,7 @@ const StoryOverlay = ({ startIndex, onClose }) => {
 
   // Auto-narrate when card changes (Card 1 has built-in scene-synced audio)
   useEffect(() => {
-    if (current <= 1) return; // Cards 1-2 manage their own scene-synced narration
+    if (current <= 1 || current === 4) return; // Cards 1-2 and Card 5 manage their own scene-synced narration
     const timer = setTimeout(() => {
       if (CARD_NARRATIONS[current]) speak(CARD_NARRATIONS[current], 'card_' + current);
     }, 600);
@@ -1986,30 +2264,92 @@ const ORBIT_PLANETS = [
     title: 'मंगल — Your Fire',
     subtitle: 'The force behind every bold decision',
     narration: `मैं मंगल हूँ, और शिवाली जी, आपकी birth chart में मैं पहले घर में — लग्न में — बैठा हूँ। ये सबसे powerful placement है। इसका मतलब है कि आपकी personality में ही courage है — आपको अलग से हिम्मत जुटानी नहीं पड़ती। जहाँ दूसरे permission माँगते हैं, आप initiative लेती हैं। Quick decisions, leadership, किसी भी situation में सबसे पहले खड़ा होना — ये आपकी core strengths हैं। और अभी एक interesting चीज़ हो रही है — इस वक़्त मैं transit करके आपके दसवें घर में आया हूँ, career और public recognition वाले घर में। ये combination rare है — लग्न का मंगल जब दसवें में transit करे, तो professionally कुछ बड़ा होता है। पिछले कुछ हफ़्तों में आपने notice किया होगा — work में ज़्यादा energy है, decisions तेज़ हो रहे हैं, लोग आपकी बात ज़्यादा seriously ले रहे हैं। ये phase अगले तीन महीने तक है — इसका पूरा फ़ायदा उठाइए।`,
+    storyBeats: [
+      { at:0.12, icon:'🏠', text:'लग्न भाव में मंगल', sub:'1st House · Personality = Courage', type:'house', fromHouse:null, toHouse:'1' },
+      { at:0.30, icon:'⚔️', text:'Core Strengths', sub:'Quick decisions · Leadership · Initiative', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: लग्न → दसवाँ भाव', sub:'Career & Public Recognition House', type:'transit', fromHouse:'1', toHouse:'10' },
+      { at:0.65, icon:'🔥', text:'Rare Combination Active', sub:'लग्न का मंगल + 10th house transit', type:'highlight' },
+      { at:0.82, icon:'⏳', text:'3 महीने का Power Phase', sub:'Work energy UP · Decisions sharp · Recognition', type:'window' },
+    ],
+    chatReplies: {
+      health: 'मंगल लग्न में है — शरीर में गर्मी और एसिडिटी हो सकती है। तीन महीने बाद जब मैं चतुर्थ भाव में जाऊंगा, आप health wise बेहतर feel करेंगी। अभी ठंडी चीज़ें खाएं, मसालेदार avoid करें।',
+      career: 'अभी मैं दसवें भाव में transit कर रहा हूँ — career का सबसे powerful phase है। अगले 3 महीने में promotion, recognition, या role change — कुछ बड़ा होगा। Bold moves लो।',
+      love: 'मंगल की वजह से relationships में थोड़ा aggression आ सकता है। Soft बोलो, ज़बरदस्ती अपनी बात मत रखो। जब मैं चतुर्थ भाव में जाऊंगा, love life smooth होगी।',
+      default: 'मैं आपका सबसे dominant planet हूँ — लग्न में बैठा हूँ। जो भी सवाल है, बेझिझक पूछो। आपकी हिम्मत और decision power मेरी देन है।',
+    },
   },
   { id: 'Saturn', glyph: '♄', label: 'शनि', house: '10th House', strength: 0.80, orbitRadius: 0.44, speed: 200, startAngle: 72,
     color: 'rgba(200,190,160,0.8)', glowColor: 'rgba(200,190,160,0.25)', size: 44, speaker: 'ratan',
     title: 'शनि — Your Patience',
     subtitle: 'The quiet strength behind your perseverance',
     narration: `मैं शनि हूँ। शिवाली जी, आपकी birth chart में मैं दसवें घर में बैठा हूँ — career और public life के घर में। इसकी वजह से आपमें genuine discipline है, shortcuts लेना आपकी nature में नहीं है। जो भी आपने build किया है life में, वो solid है क्योंकि आपने properly किया है। लोग आप पर trust करते हैं — आपकी professional reputation हमेशा आपसे पहले पहुँचती है। अभी मैं transit करके आपके पाँचवें घर में आया हूँ — creativity, self-expression, और learning वाले घर में। ये January से शुरू हुआ है और अगले डेढ़ साल तक रहेगा। आपने शायद notice किया हो — कुछ नया सीखने का मन कर रहा है, या कोई creative project seriously लेने की इच्छा हो रही है। ये मेरा influence है। लेकिन मेरा तरीक़ा आप जानती हैं — मैं जल्दी results नहीं देता, पर जो देता हूँ वो lasting होता है। इस phase में जो भी skill आप सीखेंगी, वो आगे जाकर आपके career को next level पर ले जाएगी।`,
+    storyBeats: [
+      { at:0.12, icon:'🏠', text:'दसवाँ भाव में शनि', sub:'10th House · Career & Discipline', type:'house' },
+      { at:0.30, icon:'🧱', text:'Solid Foundation', sub:'Genuine discipline · No shortcuts', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: दसवाँ → पाँचवाँ भाव', sub:'Creativity & Learning House', type:'transit', fromHouse:'10', toHouse:'5' },
+      { at:0.65, icon:'📚', text:'नया सीखने का Phase', sub:'Jan 2026 — 1.5 years', type:'window' },
+      { at:0.85, icon:'🏆', text:'Lasting Results', sub:'Skills now = Career next level', type:'highlight' },
+    ],
+    chatReplies: {
+      health: 'मैं हड्डियों और जोड़ों का कारक हूँ। अगर घुटने या कमर में दर्द है तो सरसों का तेल लगाओ। जब मेरा transit बदलेगा, राहत आएगी।',
+      career: 'मैं आपके दसवें भाव में बैठा हूँ — career मेरा domain है। Slow but solid growth होगी। 2-3 साल में बड़ा promotion पक्का। Shortcuts मत लो।',
+      default: 'मैं शनि हूँ — discipline और karma का देवता। जो सवाल है पूछो, पर याद रखो — मेरे जवाब honest होते हैं, comfortable नहीं।',
+    },
   },
   { id: 'Jupiter', glyph: '♃', label: 'गुरु', house: '5th House', strength: 0.85, orbitRadius: 0.56, speed: 160, startAngle: 144,
     color: '#5555ff', glowColor: 'rgba(53,53,243,0.3)', size: 44, speaker: 'advait',
     title: 'गुरु — Your Expansion',
     subtitle: 'The wisdom you carry within',
     narration: `मैं गुरु हूँ — बृहस्पति। शिवाली जी, आपकी chart में मैं पाँचवें घर में बैठा हूँ — wisdom, creativity और deep understanding वाला घर। इसकी वजह से आपमें एक natural intelligence है — आप चीज़ों को surface पर नहीं, deeper level पर समझती हैं। आपकी advice लोग इसलिए मानते हैं क्योंकि आप genuinely समझकर बोलती हैं। और अभी सबसे exciting बात — मैं इस वक़्त आपके नवें घर में हूँ, भाग्य और higher learning वाले घर में। इसीलिए last कुछ महीनों में आपने feel किया होगा कि perspective broaden हो रहा है — नई चीज़ें attract हो रही हैं, शायद travel या कोई नया knowledge area खिंच रहा है। लेकिन असली game-changer ये है — late 2026 में मैं आपके दसवें घर में enter करूँगा। दसवाँ घर — career, legacy, public impact। जब गुरु यहाँ आता है, तो professionally एक completely new chapter खुलता है। जो groundwork आप अभी कर रही हैं, उसका reward तब मिलेगा। ये आपके career का सबसे important 14-month window होने वाला है।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'पाँचवाँ भाव में गुरु', sub:'5th House · Wisdom & Creativity', type:'house' },
+      { at:0.28, icon:'🧠', text:'Natural Intelligence', sub:'Deep understanding · Genuine advice', type:'trait' },
+      { at:0.45, icon:'→', text:'Transit: पाँचवाँ → नवाँ भाव', sub:'भाग्य & Higher Learning', type:'transit', fromHouse:'5', toHouse:'9' },
+      { at:0.62, icon:'✈️', text:'Perspective Broadening', sub:'Travel · New knowledge areas', type:'highlight' },
+      { at:0.80, icon:'🚀', text:'Late 2026: दसवाँ भाव Entry', sub:'Career game-changer · 14-month window', type:'window' },
+    ],
+    chatReplies: {
+      health: 'मैं लिवर और weight का कारक हूँ। Overeating से बचो, हल्दी वाला दूध पियो। जब मैं strong position में होता हूँ, immunity अच्छी रहती है।',
+      career: 'Late 2026 में मैं आपके दसवें भाव में आ रहा हूँ — ये career का सबसे बड़ा window होगा। अभी groundwork करो, तब reward मिलेगा।',
+      default: 'मैं गुरु हूँ — ज्ञान और विस्तार का ग्रह। आपकी chart में मेरी position excellent है। जो भी सीखना है, अभी सीखो — timing perfect है।',
+    },
   },
   { id: 'Moon', glyph: '☽', label: 'चन्द्र', house: '7th House', strength: 0.60, orbitRadius: 0.36, speed: 90, startAngle: 216,
     color: 'rgba(200,200,220,0.9)', glowColor: 'rgba(200,200,220,0.2)', size: 40, speaker: 'aayan',
     title: 'चन्द्रमा — Your Emotional Intelligence',
     subtitle: 'The depth that makes your connections real',
     narration: `मैं चन्द्रमा हूँ। शिवाली जी, आपकी chart में मैं सातवें घर में बैठा हूँ — partnerships और close relationships वाले घर में। इसकी वजह से आपको एक rare strength मिलती है — emotional intelligence। आप लोगों की energy बिना उनके बोले read कर लेती हैं। कौन genuine है, कौन नहीं — ये आपको जल्दी समझ आता है। आपके relationships deep हैं क्योंकि आप surface level connections में interested ही नहीं हैं। मेरी ख़ासियत ये है कि मैं सबसे तेज़ चलता हूँ — हर ढाई दिन में sign बदलता हूँ। तो मेरा influence आप daily feel करती हैं। कुछ दिन ऐसे होते हैं जब आप emotionally बहुत clear होती हैं, decisions आसान लगते हैं — वो मेरे अच्छे दिन हैं। और कुछ दिन ऐसे होते हैं जब सब heavy लगता है, overthinking होती है — वो भी मेरा ही cycle है। ये जानना important है कि ये permanent नहीं है, ये rhythm है। और आपकी सबसे बड़ी strength ये है कि आप इन emotional waves को navigate करना जानती हैं — बहुत कम लोग ये कर पाते हैं।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'सातवाँ भाव में चंद्र', sub:'7th House · Partnerships', type:'house' },
+      { at:0.28, icon:'💡', text:'Emotional Intelligence', sub:'Energy read कर लेती हैं', type:'trait' },
+      { at:0.48, icon:'🔄', text:'हर 2.5 दिन Sign Change', sub:'Daily influence · Fastest planet', type:'transit' },
+      { at:0.68, icon:'🌊', text:'Emotional Rhythm', sub:'Clear days ↔ Heavy days = Normal cycle', type:'highlight' },
+      { at:0.85, icon:'🧭', text:'Rare Strength', sub:'Navigate emotional waves — बहुत कम लोग कर पाते हैं', type:'trait' },
+    ],
+    chatReplies: {
+      health: 'मैं मन और पानी का कारक हूँ। बेचैनी या नींद की दिक्कत हो तो सोने से पहले दूध पियो। जब मेरा cycle अच्छा होगा, मन शांत रहेगा।',
+      love: 'सातवें भाव में बैठा हूँ — relationships मेरा domain है। Deep connections आपकी strength है। Partner से soft tone में बात करो, misunderstanding से बचो।',
+      default: 'मैं चंद्रमा हूँ — मन और भावनाओं का स्वामी। हर 2.5 दिन मेरा mood बदलता है, और आपका भी। ये cycle समझो तो life easy हो जाती है।',
+    },
   },
   { id: 'Venus', glyph: '♀', label: 'शुक्र', house: '4th House', strength: 0.70, orbitRadius: 0.48, speed: 140, startAngle: 288,
     color: '#9999ff', glowColor: 'rgba(153,153,255,0.25)', size: 42, speaker: 'manan',
     title: 'शुक्र — Your Aesthetic Sense',
     subtitle: 'The eye for beauty that comes naturally to you',
     narration: `मैं शुक्र हूँ। शिवाली जी, आपकी chart में मैं चौथे घर में बैठा हूँ — home, comfort और inner peace वाले घर में। इसकी वजह से आपमें एक refined taste है — aesthetics, design, music, कोई भी creative चीज़ — आपकी eye for detail remarkable है। आप जहाँ होती हैं वहाँ एक warmth create करती हैं, लोग आपके around comfortable feel करते हैं। और पिछले करीब एक साल से मैं आपके पाँचवें घर में हूँ — romance, creativity और self-expression वाले घर में। आपने ज़रूर महसूस किया होगा कि इस पूरे साल आपकी creative side काफ़ी active रही है — नए ideas आए हैं, चीज़ों को express करने का तरीक़ा बदला है, शायद love life में भी कुछ clarity आई है। ये सब इस placement का असर है। अभी कुछ महीने और हैं मेरे यहाँ — तो जो भी creative या personal goals हैं, उन्हें priority दीजिए। ये आपका golden phase है, पूरा फ़ायदा उठाइए।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'चौथा भाव में शुक्र', sub:'4th House · Home & Inner Peace', type:'house' },
+      { at:0.28, icon:'🎨', text:'Refined Taste', sub:'Aesthetics · Design · Eye for detail', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: चौथा → पाँचवाँ भाव', sub:'Romance & Self-Expression', type:'transit', fromHouse:'4', toHouse:'5' },
+      { at:0.68, icon:'💜', text:'Creative Side Active', sub:'New ideas · Expression changed · Love clarity', type:'highlight' },
+      { at:0.85, icon:'✨', text:'Golden Phase — कुछ महीने और', sub:'Creative + personal goals = priority', type:'window' },
+    ],
+    chatReplies: {
+      health: 'मैं skin और reproductive health का कारक हूँ। ज़्यादा मीठा avoid करो। जब मैं strong position में होता हूँ, natural glow आता है।',
+      love: 'मैं पाँचवें भाव में हूँ — romance मेरा zone है। अभी love life में clarity आने का phase है। Partner के साथ quality time spend करो।',
+      career: 'Creative fields मेरा domain है — design, art, beauty। अभी 5th house transit चल रहा है तो creative projects को priority दो।',
+      default: 'मैं शुक्र हूँ — सौंदर्य, प्रेम और comfort का ग्रह। ये आपका golden phase है — creative और personal goals पर focus करो।',
+    },
   },
 ];
 
@@ -2207,24 +2547,117 @@ const LivingSolarSystem = ({ onPlanetTap }) => {
   );
 };
 
-/* Planet Story Capsule — full-screen immersive overlay */
+/* Planet Story Capsule — full-screen immersive overlay with visual beats + chat */
+const matchPlanetChatCategory = (text) => {
+  const t = text.toLowerCase();
+  if (/bimar|health|sehat|tabiyat|doctor|pet|sir|dard|neend|bimari/.test(t)) return 'health';
+  if (/career|naukri|job|boss|promotion|kaam|office|business/.test(t)) return 'career';
+  if (/pyar|love|partner|shaadi|rishta|relation|husband|wife|boyfriend|girlfriend/.test(t)) return 'love';
+  return 'default';
+};
+
 const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, total }) => {
   const { speaking, progress, speak, stop, toggle } = useNarration();
+  const [phase, setPhase] = useState('intro'); // intro → story → done
+  const [visibleBeats, setVisibleBeats] = useState([]);
+  const [activeBeatIdx, setActiveBeatIdx] = useState(-1);
+  const shownBeats = useRef(new Set());
+  const contentRef = useRef(null);
 
-  // Auto-narrate after quick 300ms settle — audio is pre-cached so should be instant
+  // Chat state
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatSpeaking, setChatSpeaking] = useState(false);
+  const chatAudioRef = useRef(null);
+
+  // Phase 1: Cinematic intro (5s) → then start narration
   useEffect(() => {
-    const timer = setTimeout(() => {
+    shownBeats.current = new Set();
+    setVisibleBeats([]);
+    setActiveBeatIdx(-1);
+    setPhase('intro');
+    setChatMessages([]);
+
+    const introTimer = setTimeout(() => {
+      setPhase('story');
       speak(planet.narration, 'planet_' + planet.id, planet.speaker || 'advait');
-    }, 300);
-    return () => { clearTimeout(timer); stop(); };
+    }, 5000);
+
+    return () => { clearTimeout(introTimer); stop(); stopChatAudio(); };
   }, [planet.id]);
 
-  const handleTap = (e) => {
-    if (e.target.closest('[data-interactive]')) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x < rect.width * 0.3 && onPrev) onPrev();
-    else if (x > rect.width * 0.7 && onNext) onNext();
+  // Track progress → trigger beats
+  useEffect(() => {
+    if (phase !== 'story' || !planet.storyBeats) return;
+    planet.storyBeats.forEach((beat, i) => {
+      if (progress >= beat.at && !shownBeats.current.has(i)) {
+        shownBeats.current.add(i);
+        setVisibleBeats(prev => [...prev, i]);
+        setActiveBeatIdx(i);
+        // Auto-scroll to show new beat
+        setTimeout(() => {
+          if (contentRef.current) {
+            contentRef.current.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    });
+    // When narration ends
+    if (!speaking && progress === 0 && visibleBeats.length > 0) {
+      setPhase('done');
+    }
+  }, [progress, speaking, phase]);
+
+  const stopChatAudio = () => {
+    if (chatAudioRef.current) {
+      try { chatAudioRef.current.pause(); chatAudioRef.current.currentTime = 0; } catch(e) {}
+      chatAudioRef.current = null;
+    }
+  };
+
+  const handleChatSend = async (text) => {
+    const msg = text || chatInput.trim();
+    if (!msg || chatSpeaking) return;
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', text: msg }]);
+
+    const cat = matchPlanetChatCategory(msg);
+    const replies = planet.chatReplies || {};
+    const reply = replies[cat] || replies.default || 'इस बारे में मैं आपको जल्दी बताऊंगा।';
+
+    setChatSpeaking(true);
+    setChatMessages(prev => [...prev, { role: 'planet', text: reply }]);
+
+    // Speak reply
+    try {
+      const cacheKey = 'pchat_' + planet.id + '_' + cat;
+      if (audioCache[cacheKey]) {
+        const audio = new Audio(audioCache[cacheKey]);
+        chatAudioRef.current = audio;
+        await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
+      } else {
+        const voiceId = mapSpeaker(planet.speaker || 'advait');
+        const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
+          method: 'POST',
+          headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: reply, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+        });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const src = URL.createObjectURL(blob);
+          audioCache[cacheKey] = src;
+          const audio = new Audio(src);
+          chatAudioRef.current = audio;
+          await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
+        }
+      }
+    } catch(e) { console.warn('Chat TTS error:', e); }
+    chatAudioRef.current = null;
+    setChatSpeaking(false);
+
+    setTimeout(() => {
+      if (contentRef.current) contentRef.current.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' });
+    }, 100);
   };
 
   const bgMap = {
@@ -2233,6 +2666,14 @@ const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, tot
     Jupiter: 'radial-gradient(ellipse at 50% 30%, #0a0a30 0%, #050518 60%, #020208 100%)',
     Moon: 'radial-gradient(ellipse at 50% 30%, #10101a 0%, #080810 60%, #030306 100%)',
     Venus: 'radial-gradient(ellipse at 50% 30%, #14101e 0%, #0a0810 60%, #040306 100%)',
+  };
+
+  const beatTypeStyles = {
+    house:     { bg: `${planet.color}12`, border: `${planet.color}25` },
+    trait:     { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.1)' },
+    transit:   { bg: 'rgba(245,208,96,0.08)', border: 'rgba(245,208,96,0.2)' },
+    highlight: { bg: `${planet.color}10`, border: `${planet.color}20` },
+    window:    { bg: 'rgba(78,205,196,0.06)', border: 'rgba(78,205,196,0.15)' },
   };
 
   return (
@@ -2244,20 +2685,26 @@ const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, tot
         background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <span style={{ fontSize: 18, color: planet.color }}>{planet.glyph}</span>
         <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginLeft: 8 }}>{planet.label}</span>
+        {speaking && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 10 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff3c3c', animation: 'breathe 1.5s ease-in-out infinite' }} />
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#ff5c5c' }}>LIVE</span>
+          </div>
+        )}
         <div style={{ flex: 1 }} />
         <div onClick={() => toggle(planet.narration, 'planet_' + planet.id, planet.speaker)} data-interactive
           style={{ width: 32, height: 32, borderRadius: 16, marginRight: 8,
-            background: speaking ? `rgba(${planet.id === 'Mars' ? '255,102,68' : '53,53,243'},0.2)` : 'rgba(255,255,255,0.08)',
+            background: speaking ? `${planet.color}20` : 'rgba(255,255,255,0.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
             fontSize: 15, color: speaking ? planet.color : 'rgba(255,255,255,0.5)' }}>
           {speaking ? '🔊' : '🔇'}
         </div>
-        <div onClick={() => { stop(); onClose(); }} style={{ width: 32, height: 32, borderRadius: 16,
+        <div onClick={() => { stop(); stopChatAudio(); onClose(); }} style={{ width: 32, height: 32, borderRadius: 16,
           background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>✕</div>
       </div>
 
-      {/* Progress */}
+      {/* Progress bar */}
       <div style={{ display: 'flex', gap: 3, padding: '8px 16px', background: 'rgba(0,0,0,0.2)' }}>
         {[...Array(total)].map((_, i) => (
           <div key={i} style={{ flex: 1, height: 2.5, borderRadius: 2, position: 'relative', overflow: 'hidden',
@@ -2270,83 +2717,250 @@ const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, tot
         ))}
       </div>
 
-      {/* Narration wave */}
-      {speaking && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 16px',
-          background: 'rgba(0,0,0,0.15)' }}>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} style={{ width: 3, borderRadius: 2, background: planet.color,
-              animation: `soundWave 0.8s ease-in-out ${i * 0.1}s infinite alternate`, height: 8 + Math.random() * 8 }} />
-          ))}
-          <span style={{ fontSize: 11, fontWeight: 600, color: planet.color, marginLeft: 6, opacity: 0.7 }}>
-            {planet.label} बोल रहा है...
-          </span>
-        </div>
-      )}
-
       {/* Content */}
-      <div onClick={handleTap} style={{ flex: 1, overflow: 'auto', cursor: 'pointer' }}>
-        <div style={{ padding: '30px 20px', animation: 'fadeInUp 400ms ease-out both' }}>
+      <div ref={contentRef} style={{ flex: 1, overflow: 'auto' }}>
 
-          {/* Large planet SVG with particles */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24, position: 'relative',
+        {/* ═══ PHASE 1: CINEMATIC PLANET ENTRANCE (5s) ═══ */}
+        <div style={{
+          padding: '40px 20px 20px', textAlign: 'center',
+          animation: 'fadeInUp 800ms ease-out both',
+        }}>
+          {/* Large planet with dramatic glow */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, position: 'relative',
             height: planet.id === 'Saturn' ? 140 : 170 }}>
             <div style={{ position: 'relative' }}>
               <PlanetParticles planetId={planet.id} size={150} />
-              {/* Glow behind */}
               <div style={{ position: 'absolute', inset: -40, borderRadius: '50%',
                 background: `radial-gradient(circle, ${planet.glowColor} 0%, transparent 60%)`,
-                animation: 'breathe 3s ease-in-out infinite' }} />
-              {/* Planet SVG */}
+                animation: phase === 'intro' ? 'breathe 2s ease-in-out infinite' : 'breathe 3s ease-in-out infinite',
+                transform: phase === 'intro' ? 'scale(1.2)' : 'scale(1)',
+                transition: 'transform 1s ease',
+              }} />
               <div style={{ position: 'relative', zIndex: 1,
-                filter: `drop-shadow(0 0 20px ${planet.glowColor}) drop-shadow(0 0 40px ${planet.glowColor})` }}>
+                filter: `drop-shadow(0 0 20px ${planet.glowColor}) drop-shadow(0 0 40px ${planet.glowColor})`,
+                animation: phase === 'intro' ? 'fadeInScale 1.2s ease-out both' : 'none',
+              }}>
                 <PlanetImg id={planet.id} size={planet.id === 'Saturn' ? 90 : 150} />
               </div>
             </div>
           </div>
 
-          {/* Planet title — first person */}
+          {/* Title + subtitle */}
           <div style={{ fontSize: 10, fontWeight: 700, color: planet.color, textTransform: 'uppercase',
-            letterSpacing: 2, textAlign: 'center' }}>
+            letterSpacing: 2, animation: 'fadeInUp 600ms ease-out 400ms both' }}>
             {planet.title}
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center',
-            marginTop: 10, letterSpacing: '-0.03em', lineHeight: 1.25 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.95)',
+            marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.25,
+            animation: 'fadeInUp 600ms ease-out 600ms both' }}>
             {planet.subtitle}
           </div>
 
-          {/* Subtitle / narration text — show immediately */}
-          <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7,
-            marginTop: 24, textAlign: 'center', animation: 'fadeInUp 500ms ease-out 200ms both',
-            fontStyle: 'italic' }}>
-            "{planet.narration.substring(0, 120)}..."
-          </div>
-
-          {/* Strength indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginTop: 20, padding: '10px 16px', borderRadius: 14,
-            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Strength in your chart
-            </span>
+          {/* House + Strength — intro context */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16,
+            marginTop: 16, animation: 'fadeInUp 600ms ease-out 800ms both',
+          }}>
+            <div style={{ padding: '6px 14px', borderRadius: 10,
+              background: `${planet.color}15`, border: `1px solid ${planet.color}25`,
+              fontSize: 11, fontWeight: 600, color: planet.color }}>
+              {planet.house}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 60, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+              <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                 <div style={{ width: `${planet.strength * 100}%`, height: '100%', borderRadius: 2,
-                  background: planet.color, animation: 'fillBar 1s ease-out 600ms both' }} />
+                  background: planet.color, animation: 'fillBar 1s ease-out 1s both' }} />
               </div>
-              <span style={{ fontSize: 12, fontWeight: 800, color: planet.color }}>
-                {planet.strength >= 0.9 ? 'Dominant' : planet.strength >= 0.75 ? 'Strong' : planet.strength >= 0.6 ? 'Moderate' : 'Subtle'}
+              <span style={{ fontSize: 10, fontWeight: 700, color: planet.color }}>
+                {planet.strength >= 0.9 ? 'Dominant' : planet.strength >= 0.75 ? 'Strong' : 'Moderate'}
               </span>
             </div>
           </div>
 
-          {/* Navigation hint */}
-          <div style={{ textAlign: 'center', marginTop: 24 }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
-              {onPrev && '← '}swipe for next planet{onNext && ' →'}
-            </span>
-          </div>
+          {/* Intro loading state */}
+          {phase === 'intro' && (
+            <div style={{ marginTop: 24, animation: 'fadeInUp 500ms ease-out 1.5s both' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                {[0,1,2].map(d => (
+                  <div key={d} style={{
+                    width: 6, height: 6, borderRadius: '50%', background: planet.color,
+                    animation: 'breathe 1s ease-in-out infinite',
+                    animationDelay: (d * 0.2) + 's', opacity: 0.5,
+                  }} />
+                ))}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>
+                {planet.label} बोलने की तैयारी कर रहा है...
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* ═══ PHASE 2: VISUAL STORY BEATS (synced to narration) ═══ */}
+        {phase !== 'intro' && visibleBeats.length > 0 && (
+          <div style={{ padding: '0 16px' }}>
+            {planet.storyBeats && planet.storyBeats.map((beat, i) => {
+              if (!visibleBeats.includes(i)) return null;
+              const isLatest = i === activeBeatIdx;
+              const bStyle = beatTypeStyles[beat.type] || beatTypeStyles.trait;
+
+              return (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '14px',
+                  borderRadius: 16, marginBottom: 8,
+                  background: isLatest ? bStyle.bg : 'rgba(255,255,255,0.02)',
+                  border: '1px solid ' + (isLatest ? bStyle.border : 'rgba(255,255,255,0.04)'),
+                  animation: 'fadeInUp 400ms ease-out both',
+                  opacity: isLatest ? 1 : 0.5,
+                  transition: 'opacity 400ms ease, background 400ms ease',
+                }}>
+                  {/* Transit arrow visual */}
+                  {beat.type === 'transit' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 8,
+                        background: planet.color + '20', border: '1px solid ' + planet.color + '30',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 800, color: planet.color,
+                      }}>{beat.fromHouse || '?'}</div>
+                      <div style={{ fontSize: 16, color: '#f5d060', animation: isLatest ? 'breathe 1.5s ease-in-out infinite' : 'none' }}>→</div>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 8,
+                        background: 'rgba(245,208,96,0.15)', border: '1px solid rgba(245,208,96,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 800, color: '#f5d060',
+                      }}>{beat.toHouse || '?'}</div>
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                      background: isLatest ? planet.color + '20' : 'rgba(255,255,255,0.03)',
+                      border: '1px solid ' + (isLatest ? planet.color + '25' : 'rgba(255,255,255,0.06)'),
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 20,
+                      boxShadow: isLatest ? '0 0 12px ' + planet.color + '15' : 'none',
+                    }}>{beat.icon}</div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: 13, fontWeight: 700,
+                      color: isLatest ? (beat.type === 'transit' ? '#f5d060' : planet.color) : 'rgba(255,255,255,0.6)',
+                    }}>{beat.text}</div>
+                    {beat.sub && (
+                      <div style={{ fontSize: 10, fontWeight: 400, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                        {beat.sub}
+                      </div>
+                    )}
+                  </div>
+                  {isLatest && speaking && (
+                    <div style={{
+                      width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                      background: planet.color, animation: 'breathe 1s ease-in-out infinite',
+                    }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ═══ PHASE 3: PLANET CHAT ═══ */}
+        {phase !== 'intro' && (
+          <div style={{ padding: '12px 16px 24px' }}>
+            {/* Chat messages */}
+            {chatMessages.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                {chatMessages.map((msg, i) => (
+                  msg.role === 'user' ? (
+                    <div key={i} style={{
+                      alignSelf: 'flex-end', maxWidth: '80%',
+                      padding: '8px 12px', borderRadius: '14px 14px 4px 14px',
+                      background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)',
+                      fontSize: 12, color: 'rgba(255,255,255,0.8)',
+                      animation: 'fadeInUp 300ms ease-out both',
+                    }}>{msg.text}</div>
+                  ) : (
+                    <div key={i} style={{ alignSelf: 'flex-start', maxWidth: '85%', animation: 'fadeInUp 300ms ease-out both' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                        <span style={{ fontSize: 14 }}>{planet.glyph}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: planet.color }}>{planet.label}</span>
+                      </div>
+                      <div style={{
+                        padding: '10px 12px', borderRadius: '4px 14px 14px 14px',
+                        background: `${planet.color}10`, border: `1px solid ${planet.color}18`,
+                        fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6,
+                      }}>{msg.text}</div>
+                    </div>
+                  )
+                ))}
+                {chatSpeaking && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}>
+                    {[0,1,2].map(d => (
+                      <div key={d} style={{
+                        width: 6, height: 6, borderRadius: '50%', background: planet.color,
+                        animation: 'breathe 0.8s ease-in-out infinite', animationDelay: (d * 0.15) + 's',
+                      }} />
+                    ))}
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>बोल रहा है...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Suggested question chips */}
+            {chatMessages.length === 0 && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                {[
+                  { text: 'मेरी सेहत कैसी रहेगी?', cat: 'health' },
+                  { text: 'करियर में क्या होगा?', cat: 'career' },
+                  { text: 'और बताइए...', cat: 'default' },
+                ].map((q, i) => (
+                  <div key={i} onClick={() => handleChatSend(q.text)} style={{
+                    padding: '6px 12px', borderRadius: 20,
+                    background: `${planet.color}12`, border: `1px solid ${planet.color}25`,
+                    fontSize: 11, fontWeight: 500, color: planet.color,
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}>{q.text}</div>
+                ))}
+              </div>
+            )}
+
+            {/* Chat input */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '8px 12px', borderRadius: 16,
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>{planet.glyph}</span>
+              <input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleChatSend(); }}
+                placeholder={planet.label + ' से कुछ पूछें...'}
+                data-interactive
+                style={{
+                  flex: 1, background: 'none', border: 'none', outline: 'none',
+                  fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit, sans-serif',
+                }}
+              />
+              <div onClick={() => handleChatSend()} data-interactive style={{
+                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                background: chatInput.trim() ? `linear-gradient(135deg, ${planet.color}, ${planet.color}cc)` : 'rgba(255,255,255,0.04)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: chatInput.trim() ? 'pointer' : 'default',
+              }}>
+                <span style={{ fontSize: 12, color: chatInput.trim() ? '#fff' : 'rgba(255,255,255,0.2)' }}>➤</span>
+              </div>
+            </div>
+
+            {/* Navigation hint */}
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+                {onPrev && '← '}tap sides for next planet{onNext && ' →'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -3215,12 +3829,283 @@ const YearCapsuleOverlay = ({ age, onClose }) => {
           </div>
         ))}
 
+        {/* ═══ MONTHLY CALENDAR — optional drill-down ═══ */}
+        <MonthlyCalendarView year={year} age={age} planetColor={color} />
+
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 9,
           color: 'rgba(255,255,255,0.12)', letterSpacing: 1 }}>
           {era.label} · {era.labelHi} · Age {age}
         </div>
       </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════
+   MONTHLY CALENDAR VIEW
+   ═══════════════════════════════════════ */
+const MONTH_NAMES_HI = ['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+const MONTH_NAMES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Generate monthly cosmic reading based on age/year/month
+const getMonthReading = (age, year, monthIdx) => {
+  // Deterministic pseudo-random from age+month for consistent readings
+  const seed = (age * 13 + monthIdx * 7 + year) % 100;
+  const planets = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu'];
+  const planet = planets[(age + monthIdx) % planets.length];
+  const planetIcons = { Sun:'☉', Moon:'☽', Mars:'♂', Mercury:'☿', Jupiter:'♃', Venus:'♀', Saturn:'♄', Rahu:'☊' };
+
+  // Energy score 1-5
+  const energy = Math.max(1, Math.min(5, Math.round(((seed * 3 + monthIdx * 11) % 50) / 10) + 1));
+
+  // House transit
+  const houses = ['लग्न','धन','विक्रम','सुख','संतान','रोग','विवाह','आयु','भाग्य','कर्म','लाभ','व्यय'];
+  const houseIdx = (seed + monthIdx * 3) % 12;
+  const house = houses[houseIdx];
+  const houseNum = houseIdx + 1;
+
+  // Theme per energy level
+  const themes = {
+    1: ['सावधानी का महीना','शनि की नज़र','चुनौतियों का दौर'],
+    2: ['धीरे-धीरे सुधार','मेहनत जारी रखें','patience रखें'],
+    3: ['स्थिर समय','balance बनाएँ रखें','normal growth'],
+    4: ['अच्छा समय आ रहा है','ग्रहों का साथ','opportunities'],
+    5: ['शानदार महीना','ग्रह अनुकूल','peak energy'],
+  };
+  const theme = themes[energy][(seed + monthIdx) % 3];
+
+  // Area-specific one-liners
+  const areas = [
+    { area:'करियर', icon:'💼',
+      lines: {
+        high: ['Promotion chances strong','Leadership role में आएंगे','Recognition मिलेगी'],
+        mid: ['Steady progress होगी','Focus बनाएँ रखें','New skills सीखें'],
+        low: ['Patience रखें — delay है, denial नहीं','Office politics से बचें','Side project शुरू करें'],
+      }
+    },
+    { area:'सेहत', icon:'🫀',
+      lines: {
+        high: ['Energy peak — workout बढ़ाएँ','Immunity strong रहेगी','Mental health excellent'],
+        mid: ['Diet पर ध्यान दें','Regular exercise ज़रूरी','Sleep schedule fix करें'],
+        low: ['Health checkup करवाएँ','Stress manage करें','आराम ज़रूरी है'],
+      }
+    },
+    { area:'धन', icon:'💰',
+      lines: {
+        high: ['Investment का golden time','Unexpected income possible','Financial growth strong'],
+        mid: ['Savings बढ़ाएँ','Budget follow करें','छोटे investments शुरू करें'],
+        low: ['Overspending avoid करें','Loans से बचें','Emergency fund बनाएँ'],
+      }
+    },
+    { area:'रिश्ते', icon:'❤️',
+      lines: {
+        high: ['Love life bloom करेगी','Family bonding strong','New connections beneficial'],
+        mid: ['Communication improve करें','Patience रखें partner से','Old friends से मिलें'],
+        low: ['Misunderstandings possible','Space दें दूसरों को','Self-love पर focus'],
+      }
+    },
+  ];
+
+  const areaReadings = areas.map(a => {
+    const aScore = Math.max(1, Math.min(5, energy + ((seed + a.area.charCodeAt(0) + monthIdx) % 3) - 1));
+    const level = aScore >= 4 ? 'high' : aScore >= 3 ? 'mid' : 'low';
+    const line = a.lines[level][(seed + monthIdx + a.area.charCodeAt(0)) % 3];
+    return { ...a, score: aScore, line };
+  });
+
+  return { planet, planetIcon: planetIcons[planet], energy, house, houseNum, theme, areaReadings };
+};
+
+const MonthlyCalendarView = ({ year, age, planetColor }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const isCurrentYear = year === currentYear;
+
+  return (
+    <div style={{ marginTop:16 }}>
+      {/* Toggle button */}
+      <div onClick={() => setExpanded(!expanded)} style={{
+        padding:'12px 14px', borderRadius:14, cursor:'pointer',
+        background: expanded ? (planetColor + '10') : 'rgba(255,255,255,0.03)',
+        border:'1px solid ' + (expanded ? planetColor + '20' : 'rgba(255,255,255,0.06)'),
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        transition:'all 300ms ease',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:16 }}>📅</span>
+          <div>
+            <div style={{ fontSize:12, fontWeight:700, color: expanded ? planetColor : 'rgba(255,255,255,0.7)' }}>
+              महीने-दर-महीने {year}
+            </div>
+            <div style={{ fontSize:10, fontWeight:400, color:'rgba(255,255,255,0.35)' }}>
+              Zoom into monthly cosmic forecast
+            </div>
+          </div>
+        </div>
+        <span style={{
+          fontSize:12, color:'rgba(255,255,255,0.3)', transition:'transform 300ms ease',
+          transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}>▼</span>
+      </div>
+
+      {/* Calendar grid */}
+      {expanded && (
+        <div style={{ marginTop:10, animation:'fadeInUp 300ms ease-out both' }}>
+          {/* 3x4 month grid */}
+          <div style={{
+            display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:6,
+          }}>
+            {MONTH_NAMES_HI.map((name, i) => {
+              const reading = getMonthReading(age, year, i);
+              const isSelected = selectedMonth === i;
+              const isCurMonth = isCurrentYear && i === currentMonth;
+              const isPast = isCurrentYear && i < currentMonth;
+              const energyColors = ['','#ff4444','#ff8844','#f5d060','#4ecdc4','#25D366'];
+
+              return (
+                <div key={i} onClick={() => setSelectedMonth(isSelected ? null : i)} style={{
+                  padding:'10px 6px', borderRadius:12, cursor:'pointer',
+                  background: isSelected ? planetColor + '15' : isCurMonth ? 'rgba(78,205,196,0.08)' : 'rgba(255,255,255,0.02)',
+                  border: '1px solid ' + (isSelected ? planetColor + '30' : isCurMonth ? 'rgba(78,205,196,0.2)' : 'rgba(255,255,255,0.05)'),
+                  textAlign:'center', position:'relative',
+                  opacity: isPast ? 0.5 : 1,
+                  transition:'all 200ms ease',
+                }}>
+                  {/* Current month indicator */}
+                  {isCurMonth && (
+                    <div style={{
+                      position:'absolute', top:4, right:4,
+                      width:5, height:5, borderRadius:'50%',
+                      background:'#4ecdc4', animation:'breathe 2s ease-in-out infinite',
+                    }} />
+                  )}
+
+                  {/* Month name */}
+                  <div style={{ fontSize:10, fontWeight:700, color: isSelected ? planetColor : 'rgba(255,255,255,0.7)' }}>
+                    {MONTH_NAMES_EN[i]}
+                  </div>
+                  <div style={{ fontSize:8, fontWeight:400, color:'rgba(255,255,255,0.3)', marginTop:1 }}>
+                    {name}
+                  </div>
+
+                  {/* Energy dots */}
+                  <div style={{ display:'flex', justifyContent:'center', gap:2, marginTop:5 }}>
+                    {[1,2,3,4,5].map(d => (
+                      <div key={d} style={{
+                        width:4, height:4, borderRadius:'50%',
+                        background: d <= reading.energy ? energyColors[reading.energy] : 'rgba(255,255,255,0.08)',
+                      }} />
+                    ))}
+                  </div>
+
+                  {/* Planet icon */}
+                  <div style={{ fontSize:10, marginTop:3, opacity:0.6 }}>{reading.planetIcon}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Selected month detail card */}
+          {selectedMonth !== null && (() => {
+            const r = getMonthReading(age, year, selectedMonth);
+            const energyColors = ['','#ff4444','#ff8844','#f5d060','#4ecdc4','#25D366'];
+            const eColor = energyColors[r.energy];
+
+            return (
+              <div style={{
+                marginTop:10, padding:'14px', borderRadius:16,
+                background:'linear-gradient(135deg, ' + planetColor + '08, rgba(255,255,255,0.02))',
+                border:'1px solid ' + planetColor + '15',
+                animation:'fadeInUp 300ms ease-out both',
+              }}>
+                {/* Month header */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:800, color:'rgba(255,255,255,0.9)' }}>
+                      {MONTH_NAMES_HI[selectedMonth]} {year}
+                    </div>
+                    <div style={{ fontSize:10, fontWeight:400, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+                      {r.planet} dominant · {r.houseNum}वाँ भाव ({r.house})
+                    </div>
+                  </div>
+                  <div style={{ textAlign:'center' }}>
+                    <div style={{ fontSize:22 }}>{r.planetIcon}</div>
+                    <div style={{ display:'flex', gap:2, marginTop:3 }}>
+                      {[1,2,3,4,5].map(d => (
+                        <div key={d} style={{
+                          width:6, height:6, borderRadius:'50%',
+                          background: d <= r.energy ? eColor : 'rgba(255,255,255,0.08)',
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Theme pill */}
+                <div style={{
+                  display:'inline-block', padding:'4px 12px', borderRadius:10,
+                  background:eColor + '15', border:'1px solid ' + eColor + '25',
+                  fontSize:11, fontWeight:600, color:eColor, marginBottom:10,
+                }}>
+                  {r.theme}
+                </div>
+
+                {/* House transit visual */}
+                <div style={{
+                  padding:'10px 12px', borderRadius:12, marginBottom:10,
+                  background:'rgba(245,208,96,0.06)', border:'1px solid rgba(245,208,96,0.12)',
+                  display:'flex', alignItems:'center', gap:10,
+                }}>
+                  <div style={{
+                    width:36, height:36, borderRadius:10, flexShrink:0,
+                    background:'rgba(245,208,96,0.1)', border:'1px solid rgba(245,208,96,0.2)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:14, fontWeight:800, color:'#f5d060',
+                  }}>{r.houseNum}</div>
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#f5d060' }}>
+                      {r.planet} → {r.house} भाव
+                    </div>
+                    <div style={{ fontSize:9, fontWeight:400, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+                      House {r.houseNum} transit this month
+                    </div>
+                  </div>
+                </div>
+
+                {/* Area cards */}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                  {r.areaReadings.map((a, i) => (
+                    <div key={i} style={{
+                      padding:'10px', borderRadius:12,
+                      background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
+                    }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:4 }}>
+                        <span style={{ fontSize:12 }}>{a.icon}</span>
+                        <span style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.7)' }}>{a.area}</span>
+                      </div>
+                      <div style={{ display:'flex', gap:1.5, marginBottom:4 }}>
+                        {[1,2,3,4,5].map(d => (
+                          <div key={d} style={{
+                            width:12, height:3, borderRadius:1.5,
+                            background: d <= a.score ? energyColors[a.score] : 'rgba(255,255,255,0.06)',
+                          }} />
+                        ))}
+                      </div>
+                      <div style={{ fontSize:9, fontWeight:400, color:'rgba(255,255,255,0.5)', lineHeight:1.5 }}>
+                        {a.line}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 };
@@ -3819,7 +4704,13 @@ const DailyCompanionCTA = () => (
     </div>
 
     <button
-      onClick={() => window.parent.postMessage({ type: 'go-daily' }, '*')}
+      onClick={() => {
+        if (IS_UNIFIED) {
+          window.parent.postMessage({ type: 'go-daily' }, '*');
+        } else {
+          window.location.href = 'astro-home-daily-v2.html';
+        }
+      }}
       style={{
         width:'100%', padding:'14px', borderRadius:14, border:'none',
         background:'linear-gradient(135deg, #3535f3, #5b5bf7)',
@@ -3890,7 +4781,7 @@ const App = () => {
           <div style={{ height: 20 }} />
           <AskTheStars />
 
-          {IS_UNIFIED && <DailyCompanionCTA />}
+          <DailyCompanionCTA />
 
           <div style={{ height: 20 }} />
         </div>
