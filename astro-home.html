@@ -1016,11 +1016,25 @@ const CARD_NARRATIONS = [
   `शिवाली जी, अब सबसे ज़रूरी बात। आपके गुरु यानी Jupiter, अगले चौदह महीनों में आपके कर्म भाव में आ रहे हैं — ये दसवाँ घर है, legacy और public recognition का घर। और जब गुरु यहाँ आता है, तो career में कुछ बड़ा होता है। पिछली बार जब ये energy align हुई थी — याद कीजिए, आपकी work life में कुछ बदला था ना? इस बार window और भी बड़ा है। जो decisions आप अभी से लेंगी — वो अगले दस साल तक echo करेंगी। ये आपका time है शिवाली जी। तैयार रहिए।`,
 ];
 
-/* Sarvam TTS — real Hinglish astrologer voice (bulbul:v2) */
-const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
-const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
-/* Map old speaker names to bulbul:v2 compatible speakers */
-const mapSpeaker = (s) => ({ kabir:'karun', advait:'abhilash', ratan:'hitesh', aayan:'arya', manan:'karun' }[s] || 'abhilash');
+/* ElevenLabs TTS — Indian astrologer voices */
+const ELEVEN_KEY = 'sk_86a2daf2318ba84afa5190ff9a2c09fcc9e7f9dafea1fe79';
+const ELEVEN_TTS_URL = 'https://api.elevenlabs.io/v1/text-to-speech/';
+/* Map speaker names to ElevenLabs voice IDs — Indian astrologer feel */
+const VOICE_MAP = {
+  'raj': 'CwhRBWXzGAHq8TQ4Fs17',       // Raj — warm Indian male (primary astrologer)
+  'daniel': 'onwK4e9ZLuTAKqWW03F9',     // Daniel — deep authoritative
+  'bill': 'pqHfZKP75CvOlQylNhV4',       // Bill — calm narrator
+  'chris': 'iP95p4xoKVk53GoZ742B',      // Chris — friendly
+  // Legacy Sarvam speaker → ElevenLabs mapping
+  'advait': 'CwhRBWXzGAHq8TQ4Fs17',    // was primary → Raj
+  'kabir': 'onwK4e9ZLuTAKqWW03F9',     // was Mars/fire → Daniel (deep)
+  'ratan': 'pqHfZKP75CvOlQylNhV4',     // was Saturn → Bill (calm)
+  'aayan': 'iP95p4xoKVk53GoZ742B',     // was Moon → Chris (friendly)
+  'manan': 'CwhRBWXzGAHq8TQ4Fs17',     // was Jupiter → Raj
+  'arvind': 'onwK4e9ZLuTAKqWW03F9',    // destiny walk → Daniel
+};
+const DEFAULT_VOICE = 'CwhRBWXzGAHq8TQ4Fs17'; // Raj
+const mapSpeaker = (s) => VOICE_MAP[s] || DEFAULT_VOICE;
 
 // Cache generated audio so we don't re-call the API
 const audioCache = {};
@@ -1059,28 +1073,24 @@ const useNarration = () => {
     return chunks;
   };
 
-  // Fetch audio for a single chunk (with cache)
+  // Fetch audio for a single chunk (with cache) — ElevenLabs
   const fetchChunkAudio = async (chunkText, chunkKey, speaker) => {
     if (audioCache[chunkKey]) return audioCache[chunkKey];
-    const resp = await fetch(SARVAM_TTS_URL, {
+    const voiceId = mapSpeaker(speaker);
+    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
       method: 'POST',
-      headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
+      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        inputs: [chunkText],
-        target_language_code: 'hi-IN',
-        speaker: mapSpeaker(speaker),
-        model: 'bulbul:v2',
-        enable_preprocessing: true,
+        text: chunkText,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
       }),
     });
-    const data = await resp.json();
-    if (data.audios && data.audios[0]) {
-      const src = 'data:audio/wav;base64,' + data.audios[0];
-      audioCache[chunkKey] = src;
-      return src;
-    }
-    console.warn('Sarvam TTS: no audio returned', data);
-    return null;
+    if (!resp.ok) { console.warn('ElevenLabs TTS error:', await resp.text()); return null; }
+    const blob = await resp.blob();
+    const src = URL.createObjectURL(blob);
+    audioCache[chunkKey] = src;
+    return src;
   };
 
   const speak = useCallback(async (text, cacheKey, speaker = 'advait') => {
@@ -1116,7 +1126,7 @@ const useNarration = () => {
         });
       }
     } catch (err) {
-      console.warn('Sarvam TTS error:', err);
+      console.warn('ElevenLabs TTS error:', err);
     }
     if (!cancelledRef.current) {
       setSpeaking(false);
@@ -1182,14 +1192,15 @@ const _drainPrefetchQueue = async () => {
     const { chunk, key, speaker } = _prefetchQueue.shift();
     if (audioCache[key]) continue;
     try {
-      const resp = await fetch(SARVAM_TTS_URL, {
+      const voiceId = mapSpeaker(speaker);
+      const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
         method: 'POST',
-        headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: [chunk], target_language_code: 'hi-IN', speaker: mapSpeaker(speaker), model: 'bulbul:v2', enable_preprocessing: true }),
+        headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: chunk, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
       });
-      const data = await resp.json();
-      if (data.audios && data.audios[0]) {
-        audioCache[key] = 'data:audio/wav;base64,' + data.audios[0];
+      if (resp.ok) {
+        const blob = await resp.blob();
+        audioCache[key] = URL.createObjectURL(blob);
         console.log('Pre-cached', key);
       }
     } catch(e) { console.warn('Prefetch failed for', key); }
