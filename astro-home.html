@@ -898,73 +898,245 @@ const FullCard1_Superpower = () => {
   );
 };
 
-/* Card 2 — MULANK 9 + MAKAR (Capricorn) COMBINATION */
-const FullCard2_Mulank = () => (
-  <div style={{ background: 'linear-gradient(180deg, #1a0a00 0%, #0d0500 100%)', minHeight: '100%',
-    padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
-    {/* Numerology circle background */}
-    <div style={{ position: 'absolute', top: '50%', left: '50%', width: 280, height: 280, borderRadius: '50%',
-      border: '1px solid rgba(255,180,80,0.06)', transform: 'translate(-50%,-50%)' }} />
-    <div style={{ position: 'absolute', top: '50%', left: '50%', width: 200, height: 200, borderRadius: '50%',
-      border: '1px solid rgba(255,180,80,0.04)', transform: 'translate(-50%,-50%)', animation: 'orbitSlow 20s linear infinite' }} />
-    {/* Scattered numbers */}
-    {[1,2,3,4,5,6,7,8,9].map((n,i) => (
-      <div key={n} style={{ position: 'absolute',
-        top: `${15 + Math.sin(i * 0.7) * 35 + 35}%`, left: `${10 + Math.cos(i * 1.1) * 35 + 40}%`,
-        fontSize: n === 9 ? 32 : 14 + Math.random() * 8, fontWeight: 900,
-        color: n === 9 ? 'rgba(255,180,80,0.15)' : `rgba(255,180,80,${0.03 + Math.random() * 0.05})`,
-        fontFamily: 'var(--jio-type)' }} />
-    ))}
+/* Card 2 — MULANK 9 + MAKAR — Scene-synced immersive experience */
+const CARD2_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी, आपका मूलांक है नौ और राशि है मकर।', text: 'मूलांक 9\n× मकर', size: 32, color: '#ffb450', emoji: '♏' },
+  { chunk: 'ये combination बहुत rare है।', text: 'बहुत Rare\nCombination', size: 36, color: 'rgba(255,255,255,0.9)', glow: true, emphasis: true, emoji: '💎' },
+  { chunk: 'मंगल देता है आग — हिम्मत और साहस।', text: 'आग · हिम्मत\n· साहस', size: 38, color: '#ff6644', glow: true, emphasis: true, emoji: '🔥', energy: 'fire' },
+  { chunk: 'और शनि देता है धैर्य — ताक़त और सही timing।', text: 'धैर्य · ताक़त\n· Timing', size: 38, color: '#8899cc', glow: true, emphasis: true, emoji: '❄️', energy: 'ice' },
+  { chunk: 'ज़्यादातर लोगों में या आग होती है, या बर्फ़। आपमें दोनों हैं।', text: 'आपमें\nदोनों हैं', size: 44, color: '#ffcc66', glow: true, emphasis: true },
+  { chunk: 'आप सालों तक wait कर सकती हैं सही moment के लिए।', text: 'सही Moment\nका Wait', size: 30, color: '#8899cc', emoji: '⏳', energy: 'ice' },
+  { chunk: 'और जब move करती हैं, किसी को पता भी नहीं चलता।', text: 'फिर एक ही\nMove में 💥', size: 36, color: '#ff6644', glow: true, emphasis: true, energy: 'fire' },
+  { chunk: 'ये आपकी सबसे powerful quality है।', text: 'सबसे Powerful\nQuality', size: 40, color: '#ffb450', glow: true, emphasis: true, emoji: '⚡' },
+];
 
-    {/* Big 9 */}
-    <div style={{ textAlign: 'center', marginBottom: 8 }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        width: 80, height: 80, borderRadius: '50%',
-        background: 'radial-gradient(circle at 40% 35%, rgba(255,180,80,0.2) 0%, rgba(255,120,40,0.08) 60%, transparent 80%)',
-        border: '2px solid rgba(255,180,80,0.25)', position: 'relative' }}>
-        <span style={{ fontSize: 42, fontWeight: 900, color: '#ffb450',
-          textShadow: '0 0 30px rgba(255,180,80,0.5), 0 0 60px rgba(255,120,40,0.2)' }}>9</span>
-        <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: '1px solid rgba(255,180,80,0.1)',
-          animation: 'breathe 3s ease-in-out infinite' }} />
+const FullCard2_Mulank = () => {
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('card');
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const runScenes = async () => {
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+      setDimmed(true);
+      setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+
+      for (let i = 0; i < CARD2_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD2_NARRATION_SCENES[i];
+        setActiveScene({ ...scene, index: i });
+
+        const audioSrc = await fetchTTS(scene.chunk, 'card1_s' + i, 'advait');
+        if (cancelled) break;
+
+        if (audioSrc) {
+          await new Promise((resolve) => {
+            const audio = new Audio(audioSrc);
+            audioRef.current = audio;
+            audio.onended = () => { audioRef.current = null; resolve(); };
+            audio.onerror = () => { audioRef.current = null; resolve(); };
+            audio.play().catch(() => resolve());
+          });
+        } else {
+          await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000)));
+        }
+        if (cancelled) break;
+        setStack(prev => [...prev, { text: scene.text, color: scene.color, emoji: scene.emoji, emphasis: scene.emphasis, energy: scene.energy }]);
+      }
+
+      if (!cancelled) {
+        setActiveScene(null);
+        await new Promise(r => setTimeout(r, 600));
+        setPhase('summary');
+      }
+    };
+
+    runScenes();
+    return () => {
+      cancelled = true;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    };
+  }, []);
+
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #1a0a00 0%, #0d0500 100%)', minHeight: '100%',
+      position: 'relative', overflow: 'hidden' }}>
+
+      {/* CARD CONTENT */}
+      <div style={{
+        padding: '24px 20px',
+        transition: 'opacity 800ms ease, filter 800ms ease',
+        opacity: phase === 'card' ? 1 : 0.06,
+        filter: dimmed ? 'blur(8px)' : 'none',
+      }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 280, height: 280, borderRadius: '50%',
+          border: '1px solid rgba(255,180,80,0.06)', transform: 'translate(-50%,-50%)' }} />
+
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 80, height: 80, borderRadius: '50%',
+            background: 'radial-gradient(circle at 40% 35%, rgba(255,180,80,0.2) 0%, rgba(255,120,40,0.08) 60%, transparent 80%)',
+            border: '2px solid rgba(255,180,80,0.25)', position: 'relative' }}>
+            <span style={{ fontSize: 42, fontWeight: 900, color: '#ffb450',
+              textShadow: '0 0 30px rgba(255,180,80,0.5), 0 0 60px rgba(255,120,40,0.2)' }}>9</span>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#ffb450', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>
+          MULANK 9 × MAKAR RASHI
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8,
+          letterSpacing: '-0.03em', lineHeight: 1.2 }}>
+          Mars ki aag + Saturn ka dhairya — bohot rare hai ye combination
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>
+          Mulank 9 means Mars rules your core — aggression, courage, fire. But Makar rashi is Saturn — patience, discipline, strategy. <span style={{ color: '#ffb450', fontWeight: 700 }}>Most people have fire OR ice. You have both.</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
+          <div style={{ flex: 1, background: 'rgba(255,102,68,0.08)', borderRadius: 14, padding: '14px',
+            border: '1px solid rgba(255,102,68,0.12)' }}>
+            <div style={{ fontSize: 20, marginBottom: 6 }}>♂</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#ff6644', marginBottom: 4 }}>MARS — MULANK 9</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Fire, action, courage to destroy & rebuild</div>
+          </div>
+          <div style={{ flex: 1, background: 'rgba(136,153,204,0.06)', borderRadius: 14, padding: '14px',
+            border: '1px solid rgba(136,153,204,0.1)' }}>
+            <div style={{ fontSize: 20, marginBottom: 6 }}>♄</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#8899cc', marginBottom: 4 }}>SATURN — MAKAR</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Patience, structure, delayed massive rewards</div>
+          </div>
+        </div>
+
+        <EmotionalIndicator label="Willpower Reserve" level="Limitless" color="#ffb450" />
+        <EmotionalIndicator label="Delayed Gratification" level="Master-level" color="#8899cc" />
+        <NextTeaser text="But there's a trait even you don't see..." />
       </div>
+
+      {/* ACTIVE SCENE */}
+      {phase === 'playing' && activeScene && (
+        <div key={activeScene.index} style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '20px 24px',
+          paddingBottom: Math.max(100, stack.length * 28 + 80),
+        }}>
+          {activeScene.glow && (
+            <div style={{
+              position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+              background: `radial-gradient(circle, ${activeScene.color}22 0%, transparent 70%)`,
+              animation: 'breathe 3s ease-in-out infinite',
+            }} />
+          )}
+          {activeScene.emoji && (
+            <div style={{
+              fontSize: 48, marginBottom: 16,
+              animation: 'focusEmojiIn 400ms ease-out both',
+              filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))',
+            }}>
+              {activeScene.emoji}
+            </div>
+          )}
+          <div style={{
+            fontSize: activeScene.emphasis ? (activeScene.size || 36) : (activeScene.size || 28),
+            fontWeight: activeScene.emphasis ? 900 : 700,
+            color: activeScene.color || '#fff',
+            textAlign: 'center', lineHeight: 1.25,
+            letterSpacing: activeScene.emphasis ? '-0.04em' : '-0.02em',
+            fontFamily: "'JioType', 'Outfit', sans-serif",
+            textShadow: activeScene.glow
+              ? `0 0 60px ${activeScene.color}88, 0 0 120px ${activeScene.color}44, 0 4px 20px rgba(0,0,0,0.6)`
+              : '0 4px 20px rgba(0,0,0,0.6)',
+            whiteSpace: 'pre-line',
+            animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both',
+          }}>
+            {activeScene.text}
+          </div>
+          {activeScene.emphasis && (
+            <div style={{
+              width: 60, height: 3, borderRadius: 2, marginTop: 16,
+              background: `linear-gradient(90deg, transparent, ${activeScene.color}, transparent)`,
+              animation: 'focusLineIn 600ms ease-out 300ms both',
+            }} />
+          )}
+        </div>
+      )}
+
+      {/* LIVE STACK */}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{
+          position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35,
+          display: 'flex', flexDirection: 'column', gap: 5,
+          pointerEvents: 'none',
+        }}>
+          {stack.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              fontSize: 12, fontWeight: 600,
+              color: item.color || 'rgba(255,255,255,0.5)',
+              opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3,
+              textAlign: 'center',
+              animation: 'fadeInUp 400ms ease-out both',
+              textShadow: '0 2px 8px rgba(0,0,0,0.7)',
+              lineHeight: 1.3,
+            }}>
+              {item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}
+              <span>{item.text.replace('\n', ' ')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* SUMMARY — fire traits left, ice traits right, both merge center */}
+      {phase === 'summary' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '32px 20px',
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)',
+            textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28,
+            animation: 'fadeIn 600ms ease-out both',
+          }}>
+            🔥 FIRE + ICE ❄️
+          </div>
+          {CARD2_NARRATION_SCENES.map((scene, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontSize: scene.emphasis ? 20 : 15,
+              fontWeight: scene.emphasis ? 800 : 600,
+              color: scene.color || 'rgba(255,255,255,0.7)',
+              textAlign: 'center',
+              marginBottom: scene.emphasis ? 16 : 10,
+              opacity: 0,
+              animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`,
+              textShadow: scene.glow ? `0 0 30px ${scene.color}44` : '0 2px 8px rgba(0,0,0,0.4)',
+              lineHeight: 1.3,
+            }}>
+              {scene.emoji && <span style={{ fontSize: scene.emphasis ? 20 : 14 }}>{scene.emoji}</span>}
+              <span>{scene.text.replace('\n', ' ')}</span>
+            </div>
+          ))}
+          <div style={{
+            width: 40, height: 2, borderRadius: 1, marginTop: 20,
+            background: 'linear-gradient(90deg, #ff6644, transparent, #8899cc)',
+            animation: 'fadeIn 800ms ease-out 2000ms both',
+          }} />
+        </div>
+      )}
     </div>
-
-    <div style={{ fontSize: 10, fontWeight: 700, color: '#ffb450', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>
-      MULANK 9 × MAKAR RASHI
-    </div>
-    <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8,
-      letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both' }}>
-      Mars ki aag + Saturn ka dhairya — bohot rare hai ye combination
-    </div>
-
-    <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>
-      Mulank 9 means Mars rules your core identity — aggression, courage, the fire to start. But Makar rashi? That's Saturn — patience, discipline, strategy. <span style={{ color: '#ffb450', fontWeight: 700 }}>Most people have fire OR ice. You have both.</span> That's why you can wait years for the right moment — and then strike with everything you have.
-    </div>
-
-    {/* Dual energy visual */}
-    <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
-      <div style={{ flex: 1, background: 'rgba(255,102,68,0.08)', borderRadius: 14, padding: '14px',
-        border: '1px solid rgba(255,102,68,0.12)' }}>
-        <div style={{ fontSize: 20, marginBottom: 6 }}>♂</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#ff6644', marginBottom: 4 }}>MARS — MULANK 9</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Fire, action, leadership, courage to destroy & rebuild</div>
-      </div>
-      <div style={{ flex: 1, background: 'rgba(200,190,160,0.06)', borderRadius: 14, padding: '14px',
-        border: '1px solid rgba(200,190,160,0.1)' }}>
-        <div style={{ fontSize: 20, marginBottom: 6 }}>♄</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(200,190,160,0.8)', marginBottom: 4 }}>SATURN — MAKAR</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Patience, structure, delayed but massive rewards</div>
-      </div>
-    </div>
-
-    <EmotionalIndicator label="Willpower Reserve" level="Limitless" color="#ffb450" />
-    <EmotionalIndicator label="Delayed Gratification" level="Master-level" color="rgba(200,190,160,0.8)" />
-
-    <TapReveal text="This is why you confuse people. You look patient — but inside, you're calculating. When you finally move, nobody sees it coming. That's not manipulation — that's strategy. Mars gives you the courage, Saturn gives you the timing." color="#ffb450" />
-
-    <NextTeaser text="But there's a trait even you don't see..." />
-  </div>
-);
+  );
+};
 
 /* Card 3 — HIDDEN BLIND SPOT */
 const FullCard3_BlindSpot = () => (
@@ -1215,8 +1387,8 @@ const FULL_CARDS = [FullCard1_Superpower, FullCard2_Mulank, FullCard3_BlindSpot,
 const CARD_NARRATIONS = [
   // Card 1 — Superpower (scene-synced: each chunk in CARD1_NARRATION_SCENES)
   `शिवाली जी, आपकी कुंडली और मूलांक नौ के हिसाब से, ये हैं आपकी strengths। आपमें कुछ बहुत ख़ास है। आपमें leadership quality है। ये quality सबमें नहीं होती। आपमें एक natural authority है। जो लोग सालों में build करते हैं, वो आपको naturally मिली है। जब आप बोलती हैं, लोग ध्यान से सुनते हैं। आपकी बात में weight है। आपमें एक अलग charm है। लोग आपकी तरफ़ खिंचे चले आते हैं। आप initiative लेती हैं। जहाँ लोग problems ढूंढते हैं, आप solutions ढूंढती हैं। और सबसे बड़ी बात — दिल की बहुत साफ़ हैं आप। आप emotionally बहुत strong हैं शिवाली जी। ये आपकी सबसे बड़ी ताक़त है।`,
-  // Card 2 — Mulank 9 + Makar
-  `शिवाली जी, आपका मूलांक है नौ — यानी मंगल। और आपकी राशि है मकर — यानी शनि। अब ये combination बहुत rare है। मंगल देता है आग — शुरू करने की हिम्मत, तोड़ने का साहस। और शनि देता है धैर्य — रुकने की ताक़त, सही वक़्त का इंतज़ार। ज़्यादातर लोगों में या आग होती है, या बर्फ़। आपमें दोनों हैं। इसीलिए आप सालों तक सही moment का wait कर सकती हैं — और जब move करती हैं, तो किसी को पता भी नहीं चलता कब हो गया। ये strategy नहीं है — ये आपकी कुंडली है।`,
+  // Card 2 — Mulank 9 + Makar (scene-synced: CARD2_NARRATION_SCENES)
+  `शिवाली जी, आपका मूलांक है नौ और राशि है मकर। ये combination बहुत rare है। मंगल देता है आग — हिम्मत और साहस। और शनि देता है धैर्य — ताक़त और सही timing। ज़्यादातर लोगों में या आग होती है, या बर्फ़। आपमें दोनों हैं। आप सालों तक wait कर सकती हैं सही moment के लिए। और जब move करती हैं, किसी को पता भी नहीं चलता। ये आपकी सबसे powerful quality है।`,
   // Card 3 — Blind Spot
   `शिवाली जी, अब एक ऐसा rahasya बताती हूँ जो आप ख़ुद नहीं देख पाती। आपके चन्द्रमा की स्थिति ऐसी है कि, जब आप चुप हो जाती हैं — लोग सोचते हैं आप नाराज़ हैं। लेकिन सच ये है — आप सोच रही होती हैं, अंदर ही अंदर process कर रही होती हैं। ये आपके Moon की intensity है। लेकिन वो ख़ामोशी? वो एक दीवार बन जाती है। और जो लोग आपसे सबसे ज़्यादा प्यार करते हैं — वही आपसे सबसे ज़्यादा डरते हैं reach करने से। ये कमी नहीं है आपकी — ये आपकी गहराई है।`,
   // Card 4 — Misunderstood
@@ -1451,16 +1623,21 @@ const prefetchPlanetAudio = () => {
 
 /* Pre-cache all card narrations (Kundli ke Rahasya) */
 const prefetchCardAudio = () => {
-  // Card 1 scene chunks (for synced playback)
+  // Card 1 + Card 2 scene chunks (for synced playback)
   if (typeof CARD1_NARRATION_SCENES !== 'undefined') {
     CARD1_NARRATION_SCENES.forEach((scene, i) => {
       queuePrefetch(scene.chunk, 'card0_s' + i, 'advait');
     });
   }
-  // Cards 2-7 (full narration)
+  if (typeof CARD2_NARRATION_SCENES !== 'undefined') {
+    CARD2_NARRATION_SCENES.forEach((scene, i) => {
+      queuePrefetch(scene.chunk, 'card1_s' + i, 'advait');
+    });
+  }
+  // Cards 3-7 (full narration)
   if (typeof CARD_NARRATIONS === 'undefined') return;
   CARD_NARRATIONS.forEach((narr, i) => {
-    if (i === 0) return; // Card 1 prefetched as scenes above
+    if (i <= 1) return; // Cards 1-2 prefetched as scenes above
     queuePrefetch(narr, 'card_' + i, 'advait');
   });
 };
@@ -1474,7 +1651,7 @@ const StoryOverlay = ({ startIndex, onClose }) => {
 
   // Auto-narrate when card changes (Card 1 has built-in scene-synced audio)
   useEffect(() => {
-    if (current === 0) return; // Card 1 manages its own chunk-by-chunk narration
+    if (current <= 1) return; // Cards 1-2 manage their own scene-synced narration
     const timer = setTimeout(() => {
       if (CARD_NARRATIONS[current]) speak(CARD_NARRATIONS[current], 'card_' + current);
     }, 600);
