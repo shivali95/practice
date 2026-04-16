@@ -65,6 +65,9 @@
   @keyframes pulseRing { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @keyframes focusWordIn { 0% { opacity:0; transform:scale(0.6) translateY(30px); filter:blur(10px); } 30% { opacity:1; transform:scale(1.12) translateY(-6px); filter:blur(0); } 50% { transform:scale(0.98) translateY(0); } 70% { opacity:1; transform:scale(1) translateY(-2px); } 100% { opacity:0; transform:scale(0.95) translateY(-30px); filter:blur(4px); } }
+  @keyframes focusTextIn { 0% { opacity:0; transform:scale(0.7) translateY(24px); filter:blur(8px); } 100% { opacity:1; transform:scale(1) translateY(0); filter:blur(0); } }
+  @keyframes focusEmojiIn { 0% { opacity:0; transform:scale(0.3) rotate(-20deg); } 60% { opacity:1; transform:scale(1.15) rotate(4deg); } 100% { opacity:1; transform:scale(1) rotate(0deg); } }
+  @keyframes focusLineIn { 0% { opacity:0; width:0; } 100% { opacity:1; width:60px; } }
   @keyframes slideDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
   @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
@@ -653,111 +656,146 @@ const StoryCardPreview = ({ card, index, onTap }) => (
    FULL-SCREEN SELF-DISCOVERY CARDS
    ═══════════════════════════════════════ */
 
-/* Card 1 — SECRET SUPERPOWER */
-/* ── Kinetic Focus Words — floating text synced to narration ── */
-const CARD1_FOCUS_WORDS = [
-  { text: 'कुछ बहुत ख़ास', time: 2000, duration: 2500, color: '#ff9966', size: 22, y: '12%' },
-  { text: 'मंगल विराजमान है', time: 4500, duration: 2500, color: '#ff6644', size: 26, y: '8%', glow: true },
-  { text: 'Natural Authority', time: 8000, duration: 3000, color: '#ffcc66', size: 30, y: '10%', glow: true, bold: true },
-  { text: 'ये सीखा नहीं — कुंडली में लिखा है', time: 13000, duration: 3000, color: 'rgba(255,255,255,0.9)', size: 18, y: '15%' },
-  { text: 'पूरा room adjust हो जाता है', time: 18000, duration: 3000, color: '#ff9966', size: 24, y: '10%', glow: true },
-  { text: 'दिल के बहुत साफ़ हैं आप', time: 24000, duration: 3200, color: '#ffcc66', size: 26, y: '12%', glow: true, bold: true },
-  { text: 'लोग खिंचे चले आते हैं', time: 28000, duration: 3000, color: '#ff6644', size: 22, y: '8%' },
+/* Card 1 — SECRET SUPERPOWER — Immersive Reel-style Experience */
+
+/* Timed scenes — each takes over the full screen like a Reel */
+const CARD1_SCENES = [
+  // scene 0: card content visible (first 1.5s)
+  { time: 0, type: 'card' },
+  // scene 1+: full-screen takeovers synced to narration
+  { time: 1500, type: 'dim' },  // dim card, narration begins
+  { time: 2000, text: 'आपकी कुंडली में\nकुछ बहुत ख़ास है', size: 28, color: '#ff9966', duration: 2200, emoji: '✨' },
+  { time: 4500, text: 'मंगल\nविराजमान है', size: 36, color: '#ff6644', duration: 2800, emoji: '♂', glow: true },
+  { time: 8000, text: 'Natural\nAuthority', size: 48, color: '#ffcc66', duration: 3200, glow: true, emphasis: true },
+  { time: 12000, text: 'ये सीखा नहीं\nकुंडली में लिखा है', size: 26, color: 'rgba(255,255,255,0.9)', duration: 3000, emoji: '📜' },
+  { time: 16000, text: 'जब आप बोलती हैं—', size: 24, color: '#ff9966', duration: 1800 },
+  { time: 18000, text: 'पूरा Room\nAdjust हो जाता है', size: 38, color: '#ff9966', duration: 3200, glow: true, emphasis: true },
+  { time: 22000, text: 'Attention माँगती नहीं\nMIL जाता है', size: 30, color: 'rgba(255,255,255,0.85)', duration: 2500 },
+  { time: 25000, text: 'दिल के\nबहुत साफ़ हैं आप', size: 36, color: '#ffcc66', duration: 3000, glow: true, emphasis: true, emoji: '💛' },
+  { time: 29000, text: 'यही बात लोगों को\nखींचती है आपकी तरफ़', size: 26, color: '#ff6644', duration: 3000, emoji: '🧲' },
+  { time: 33000, type: 'undim' },  // bring card back
 ];
 
-const FocusWord = ({ word, active }) => {
-  if (!active) return null;
-  const dur = (word.duration || 2500) / 1000;
-  return (
-    <div style={{
-      position: 'absolute', top: word.y || '10%', left: 0, right: 0,
-      display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none',
-    }}>
-      <div style={{
-        fontSize: word.size || 24, fontWeight: word.bold ? 900 : 700,
-        color: word.color || '#fff',
-        textAlign: 'center', padding: '10px 24px',
-        background: 'rgba(0,0,0,0.3)', borderRadius: 16,
-        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-        textShadow: word.glow
-          ? `0 0 40px ${word.color || '#ff9966'}, 0 0 80px ${word.color || '#ff9966'}66, 0 2px 4px rgba(0,0,0,0.5)`
-          : '0 2px 10px rgba(0,0,0,0.7)',
-        animation: `focusWordIn ${dur}s ease-in-out both`,
-        letterSpacing: '-0.02em', lineHeight: 1.3,
-        fontFamily: "'JioType', 'Outfit', sans-serif",
-        maxWidth: '85%',
-      }}>
-        {word.text}
-      </div>
-    </div>
-  );
-};
-
 const FullCard1_Superpower = () => {
-  const [activeWords, setActiveWords] = useState([]);
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [exitingScene, setExitingScene] = useState(null);
   const timersRef = useRef([]);
-  const narrationStartedRef = useRef(false);
 
-  // Listen for narration start via custom event from StoryOverlay
   useEffect(() => {
-    const handleNarrationStart = () => {
-      if (narrationStartedRef.current) return;
-      narrationStartedRef.current = true;
-      // Schedule focus words
-      CARD1_FOCUS_WORDS.forEach((word, i) => {
-        // Show word
-        const showTimer = setTimeout(() => {
-          setActiveWords(prev => [...prev, i]);
-        }, word.time);
-        // Hide word after duration
-        const hideTimer = setTimeout(() => {
-          setActiveWords(prev => prev.filter(idx => idx !== i));
-        }, word.time + word.duration);
-        timersRef.current.push(showTimer, hideTimer);
-      });
-    };
+    // Schedule all scenes
+    CARD1_SCENES.forEach((scene, i) => {
+      const t = setTimeout(() => {
+        if (scene.type === 'dim') { setDimmed(true); return; }
+        if (scene.type === 'undim') { setDimmed(false); setActiveScene(null); return; }
+        if (scene.type === 'card') return;
+        // Exit previous scene
+        setExitingScene(activeScene);
+        setActiveScene(scene);
+      }, scene.time + 800); // +800 for narration start delay
+      timersRef.current.push(t);
 
-    // Start on mount with slight delay (narration starts ~600ms after card opens)
-    const startTimer = setTimeout(handleNarrationStart, 800);
-    timersRef.current.push(startTimer);
-
+      // Clear scene after duration
+      if (scene.duration) {
+        const clearT = setTimeout(() => {
+          setActiveScene(prev => prev === scene ? null : prev);
+        }, scene.time + 800 + scene.duration);
+        timersRef.current.push(clearT);
+      }
+    });
     return () => timersRef.current.forEach(clearTimeout);
   }, []);
 
   return (
     <div style={{ background: 'linear-gradient(180deg, #1a0500 0%, #0d0200 100%)', minHeight: '100%',
-      padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
-      {/* Ambient glow */}
-      <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(255,102,68,0.12) 0%, transparent 70%)' }} />
+      position: 'relative', overflow: 'hidden' }}>
 
-      {/* ── Floating Focus Words Layer ── */}
-      {CARD1_FOCUS_WORDS.map((word, i) => (
-        <FocusWord key={i} word={word} active={activeWords.includes(i)} />
-      ))}
+      {/* ── CARD CONTENT (dims when narration plays) ── */}
+      <div style={{
+        padding: '24px 20px',
+        transition: 'opacity 800ms ease, filter 800ms ease',
+        opacity: dimmed ? 0.12 : 1,
+        filter: dimmed ? 'blur(6px)' : 'none',
+      }}>
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,102,68,0.12) 0%, transparent 70%)' }} />
 
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, position: 'relative', zIndex: 1 }}>
-        <Planet3D_Mars size={72} />
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <Planet3D_Mars size={72} />
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--planet-mars)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>
+          SECRET SUPERPOWER
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8,
+          letterSpacing: '-0.03em', lineHeight: 1.2 }}>
+          Why people follow your lead — without you even asking
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>
+          You don't demand attention. But when you speak, the room rearranges itself around you. Mars in your lagna gives you <span style={{ color: '#ff9966', fontWeight: 700 }}>raw natural authority</span>.
+        </div>
+        <EmotionalIndicator label="Leadership Magnetism" level="Extreme" color="#ff6644" />
+        <EmotionalIndicator label="Decision Speed" level="Lethal" color="var(--secondary-40)" />
+        <TapReveal text="The flip side? People who can't handle your energy will quietly remove themselves from your life. That's not a bug — it's a filter." color="#ff9966" />
+        <NextTeaser text="But this same power has a shadow side..." />
       </div>
 
-      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--planet-mars)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        SECRET SUPERPOWER
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8,
-        letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both', position: 'relative', zIndex: 1 }}>
-        Why people follow your lead — without you even asking
-      </div>
+      {/* ── FULL-SCREEN FOCUS LAYER (takes over when dimmed) ── */}
+      {dimmed && activeScene && activeScene.text && (
+        <div key={activeScene.time} style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none', padding: '20px 24px',
+        }}>
+          {/* Ambient glow behind text */}
+          {activeScene.glow && (
+            <div style={{
+              position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+              background: `radial-gradient(circle, ${activeScene.color}22 0%, transparent 70%)`,
+              animation: 'breathe 3s ease-in-out infinite',
+            }} />
+          )}
 
-      <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        You don't demand attention. You don't raise your voice. But when you speak, the room rearranges itself around you. This isn't confidence you learned — it's wired into your chart. Mars in your lagna gives you <span style={{ color: '#ff9966', fontWeight: 700 }}>raw natural authority</span> that most people spend a lifetime trying to build.
-      </div>
+          {/* Emoji accent */}
+          {activeScene.emoji && (
+            <div style={{
+              fontSize: 48, marginBottom: 16,
+              animation: 'focusEmojiIn 400ms ease-out both',
+              filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))',
+            }}>
+              {activeScene.emoji}
+            </div>
+          )}
 
-      <EmotionalIndicator label="Leadership Magnetism" level="Extreme" color="#ff6644" />
-      <EmotionalIndicator label="Decision Speed" level="Lethal" color="var(--secondary-40)" />
+          {/* THE MAIN TEXT — big, cinematic, center stage */}
+          <div style={{
+            fontSize: activeScene.emphasis ? (activeScene.size || 36) : (activeScene.size || 28),
+            fontWeight: activeScene.emphasis ? 900 : 700,
+            color: activeScene.color || '#fff',
+            textAlign: 'center',
+            lineHeight: 1.25,
+            letterSpacing: activeScene.emphasis ? '-0.04em' : '-0.02em',
+            fontFamily: "'JioType', 'Outfit', sans-serif",
+            textShadow: activeScene.glow
+              ? `0 0 60px ${activeScene.color}88, 0 0 120px ${activeScene.color}44, 0 4px 20px rgba(0,0,0,0.6)`
+              : '0 4px 20px rgba(0,0,0,0.6)',
+            whiteSpace: 'pre-line',
+            animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both',
+            transform: activeScene.emphasis ? 'scale(1)' : 'scale(1)',
+          }}>
+            {activeScene.text}
+          </div>
 
-      <TapReveal text="The flip side? People who can't handle your energy will quietly remove themselves from your life. And that's not a bug — it's a filter." color="#ff9966" />
-
-      <NextTeaser text="But this same power has a shadow side..." />
+          {/* Underline accent for emphasis scenes */}
+          {activeScene.emphasis && (
+            <div style={{
+              width: 60, height: 3, borderRadius: 2, marginTop: 16,
+              background: `linear-gradient(90deg, transparent, ${activeScene.color}, transparent)`,
+              animation: 'focusLineIn 600ms ease-out 300ms both',
+            }} />
+          )}
+        </div>
+      )}
     </div>
   );
 };
