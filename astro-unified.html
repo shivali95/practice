@@ -122,18 +122,18 @@ function transitionTo(phaseId, iframeSrc) {
   var currentEl = document.getElementById('phase-' + currentPhase);
   var nextEl = document.getElementById('phase-' + phaseId);
 
-  // Load iframe src if needed (lazy loading)
-  if (iframeSrc) {
-    var iframe = nextEl.querySelector('iframe');
-    if (iframe && (!iframe.src || iframe.src === 'about:blank' || iframe.src === '')) {
-      iframe.src = iframeSrc;
-    }
-  }
-
   // Fade in overlay
   overlay.classList.add('active');
 
   setTimeout(function() {
+    // Load iframe src NOW (just before becoming visible) so animations play correctly
+    if (iframeSrc) {
+      var iframe = nextEl.querySelector('iframe');
+      if (iframe && (!iframe.src || iframe.src === 'about:blank' || iframe.src === '')) {
+        iframe.src = iframeSrc;
+      }
+    }
+
     // Swap visibility
     currentEl.classList.remove('active');
     currentEl.classList.add('exiting');
