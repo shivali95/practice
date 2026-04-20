@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bhakti Saathi — Onboarding</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+:root {
+  --surface:#ffffff; --surface-ghost:#eeeeef;
+  --text-high:#0c0d10; --text-medium:#191b1e; --text-low:rgba(25,27,30,0.65);
+  --primary-20:#e8e8fc; --primary-50:#3535f3; --primary-60:#000093;
+  --stroke-subtle:rgba(36,38,43,0.12);
+  --shape-pill:999px; --shape-large:16px; --shape-medium:12px; --shape-small:8px;
+  --spring:350ms linear(0,0.3667,0.8271,1.0379,1.0652,1.0332,1.006,0.9961,0.996,0.9984,0.9999,1);
+  --ease-decelerate:cubic-bezier(0.0,0.0,0.2,1);
+  --faith-hindu:#ff6b35; --faith-hindu-bg:#fff3ed; --faith-hindu-light:#ffe8d6;
+  --faith-muslim:#2d8a4e; --faith-muslim-bg:#e8f5ec; --faith-muslim-light:#d4edda;
+  --success:#25ab21;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior:none;touch-action:manipulation;}
+body{font-family:'JioType',-apple-system,sans-serif;background:#faf9f6;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:0;}
+
+.phone-frame{width:390px;max-width:100vw;height:100vh;background:#faf9f6;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+@media(max-width:480px){.phone-frame{width:100%!important;height:100vh!important;height:100dvh!important;}}
+
+/* ── Steps ── */
+.step{display:none;flex-direction:column;align-items:center;padding:60px 28px 40px;min-height:100vh;overflow-y:auto;}
+.step.active{display:flex;}
+#step-faith{justify-content:center;padding-top:0;}
+#step-blessing{justify-content:center;padding-top:0;}
+
+/* ── Progress Bar ── */
+.progress-bar{position:absolute;top:0;left:0;right:0;display:flex;gap:4px;padding:16px 28px 0;z-index:10;}
+.progress-dot{flex:1;height:3px;border-radius:var(--shape-pill);background:rgba(0,0,0,0.1);transition:background 400ms ease;}
+.progress-dot.filled{background:var(--text-high);}
+
+/* ── Overline ── */
+.overline{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-low);margin-bottom:8px;}
+
+/* ── Headlines ── */
+.headline{font-size:26px;font-weight:900;color:var(--text-high);text-align:center;line-height:1.2;letter-spacing:-0.02em;}
+.subtitle{font-size:14px;color:var(--text-low);text-align:center;margin-top:8px;line-height:1.5;max-width:280px;}
+
+/* ── Faith Cards ── */
+.faith-cards{display:flex;flex-direction:column;gap:14px;width:100%;margin-top:36px;}
+.faith-card{display:flex;align-items:center;gap:16px;padding:20px;border:2px solid rgba(0,0,0,0.08);border-radius:var(--shape-large);background:var(--surface);cursor:pointer;transition:all 200ms ease;position:relative;overflow:hidden;}
+.faith-card:active{transform:scale(0.97);}
+.faith-card.selected{border-color:var(--sel-color,#333);background:var(--sel-bg,#f5f5f5);}
+.faith-card-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.faith-card-icon svg{width:28px;height:28px;fill:#fff;}
+.faith-card-info{flex:1;}
+.faith-card-name{font-size:18px;font-weight:700;color:var(--text-high);}
+.faith-card-desc{font-size:12px;color:var(--text-low);margin-top:3px;line-height:1.4;}
+.faith-card-check{width:24px;height:24px;border-radius:50%;border:2px solid rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 200ms ease;}
+.faith-card.selected .faith-card-check{border-color:var(--sel-color);background:var(--sel-color);}
+.faith-card.selected .faith-card-check svg{opacity:1;}
+.faith-card-check svg{width:14px;height:14px;fill:#fff;opacity:0;transition:opacity 200ms;}
+
+/* ── Deity Grid ── */
+.deity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;margin-top:32px;}
+.deity-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 10px;border:2px solid rgba(0,0,0,0.06);border-radius:var(--shape-large);background:var(--surface);cursor:pointer;transition:all 200ms ease;}
+.deity-card:active{transform:scale(0.95);}
+.deity-card.selected{border-color:var(--d-color,#333);background:var(--d-bg,#f5f5f5);}
+.deity-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.deity-icon span{font-size:26px;}
+.deity-name{font-size:13px;font-weight:700;color:var(--text-high);text-align:center;}
+.deity-epithet{font-size:10px;color:var(--text-low);text-align:center;margin-top:-2px;}
+
+/* ── Blessing Screen ── */
+.blessing-container{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;}
+.blessing-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;}
+.blessing-icon span{font-size:40px;position:relative;z-index:1;}
+.blessing-glow{position:absolute;inset:-16px;border-radius:50%;opacity:0.3;animation:blessingGlow 2s ease-in-out infinite;}
+@keyframes blessingGlow{0%,100%{transform:scale(1);opacity:0.2;}50%{transform:scale(1.2);opacity:0.4;}}
+.blessing-text{font-size:20px;font-weight:700;color:var(--text-high);line-height:1.3;}
+.blessing-sub{font-size:13px;color:var(--text-low);display:flex;align-items:center;gap:8px;}
+.loading-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text-low);animation:dotBounce 1.2s infinite;}
+.loading-dots span:nth-child(2){animation-delay:.15s;}
+.loading-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* ── Complete State ── */
+.complete-check{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:successPop 400ms var(--spring);}
+.complete-check svg{width:36px;height:36px;fill:#fff;}
+@keyframes successPop{0%{transform:scale(0.6);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+
+/* ── Stagger Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.anim-1{animation:fadeInUp 400ms ease-out 0ms both;}
+.anim-2{animation:fadeInUp 400ms ease-out 100ms both;}
+.anim-3{animation:fadeInUp 400ms ease-out 200ms both;}
+.anim-4{animation:fadeInUp 400ms ease-out 300ms both;}
+.anim-5{animation:fadeInUp 400ms ease-out 400ms both;}
+.anim-6{animation:fadeInUp 400ms ease-out 500ms both;}
+</style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+
+  <!-- Progress bar -->
+  <div class="progress-bar">
+    <div class="progress-dot filled" id="prog-1"></div>
+    <div class="progress-dot" id="prog-2"></div>
+  </div>
+
+  <!-- ═══ STEP 1: Faith Selection ═══ -->
+  <div class="step active" id="step-faith">
+    <div class="overline anim-1">BHAKTI SAATHI</div>
+    <div class="headline anim-2">Aapki aastha kya hai?</div>
+    <div class="subtitle anim-3">Hum aapka devotion space personalise karenge</div>
+
+    <div class="faith-cards">
+      <div class="faith-card anim-4" onclick="selectFaith('hindu')" style="--sel-color:#ff6b35;--sel-bg:#fff3ed;">
+        <div class="faith-card-icon" style="background:linear-gradient(135deg,#ff6b35,#ff9a5c);">
+          <svg viewBox="0 0 24 24"><path d="M12 2C12 2 14 6 14 8C14 9.1 13.1 10 12 10C10.9 10 10 9.1 10 8C10 6 12 2 12 2ZM12 12C12 12 16 16 16 18C16 20.2 14.2 22 12 22C9.8 22 8 20.2 8 18C8 16 12 12 12 12Z"/></svg>
+        </div>
+        <div class="faith-card-info">
+          <div class="faith-card-name">Hindu</div>
+          <div class="faith-card-desc">Mandir, Puja, Bhajan, Panchang</div>
+        </div>
+        <div class="faith-card-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+      </div>
+
+      <div class="faith-card anim-5" onclick="selectFaith('muslim')" style="--sel-color:#2d8a4e;--sel-bg:#e8f5ec;">
+        <div class="faith-card-icon" style="background:linear-gradient(135deg,#2d8a4e,#66bb6a);">
+          <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 4.05 15.95 8 8 0 0 1 12 6a8 8 0 0 1 7.95 9.95A10 10 0 0 0 12 2zm5 14l-1.5 3-3-.5-3 .5L8 16l.5-3L7 10.5l3-.5L12 7l2 3 3 .5-1.5 2.5z"/></svg>
+        </div>
+        <div class="faith-card-info">
+          <div class="faith-card-name">Muslim</div>
+          <div class="faith-card-desc">Masjid, Salah, Quran, Islamic Calendar</div>
+        </div>
+        <div class="faith-card-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: Deity / Preference Selection ═══ -->
+  <div class="step" id="step-deity">
+    <div class="overline" id="deity-overline">STEP 2</div>
+    <div class="headline" id="deity-headline">Aapke Isht Dev?</div>
+    <div class="subtitle" id="deity-subtitle">Hum aapke darshan aur pooja ko personalise karenge</div>
+    <div class="deity-grid" id="deity-grid"></div>
+  </div>
+
+  <!-- ═══ STEP 3: Blessing + Complete ═══ -->
+  <div class="step" id="step-blessing">
+    <div class="blessing-container" id="blessing-content"></div>
+  </div>
+
+</div>
+
+<script>
+var IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
+
+// ── Unified mode: strip phone chrome ──
+if (IS_UNIFIED) {
+  var s = document.createElement('style');
+  s.textContent = 'body{padding:0!important;background:#faf9f6!important;display:block!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}';
+  document.head.appendChild(s);
+}
+
+// ── Data ──
+var DEITIES = {
+  hindu: [
+    { id:'ganesh', name:'Ganesh', epithet:'Vighnaharta', emoji:'🕉', color:'#f7ab20', bg:'#fef7e9', blessing:'Om Ganeshaya Namah' },
+    { id:'shiva', name:'Shiva', epithet:'Mahadev', emoji:'🔱', color:'#6b7db3', bg:'#eef1f8', blessing:'Om Namah Shivaya' },
+    { id:'krishna', name:'Krishna', epithet:'Govinda', emoji:'🦚', color:'#3535f3', bg:'#e8e8fc', blessing:'Hare Krishna Hare Krishna' },
+    { id:'durga', name:'Durga', epithet:'Maa Sherawali', emoji:'🦁', color:'#e63946', bg:'#fde8ea', blessing:'Jai Mata Di' },
+    { id:'hanuman', name:'Hanuman', epithet:'Bajrangbali', emoji:'🏔', color:'#ff6b35', bg:'#fff3ed', blessing:'Jai Shree Ram' },
+    { id:'ram', name:'Ram', epithet:'Maryada Purushottam', emoji:'🏹', color:'#ff8c42', bg:'#fff3ed', blessing:'Jai Shree Ram' },
+  ],
+  muslim: [
+    { id:'quran', name:'Quran Study', epithet:'Daily recitation', emoji:'📖', color:'#2d8a4e', bg:'#e8f5ec', blessing:'Bismillah ir-Rahman ir-Rahim' },
+    { id:'salah', name:'Salah Tracker', epithet:'Prayer times', emoji:'🕌', color:'#1b5e20', bg:'#e8f5ec', blessing:'Allahu Akbar' },
+    { id:'dua', name:'Dua Collection', epithet:'Daily duas', emoji:'🤲', color:'#388e3c', bg:'#e8f5ec', blessing:'SubhanAllah' },
+    { id:'dhikr', name:'Dhikr', epithet:'Remembrance', emoji:'📿', color:'#4caf50', bg:'#e8f5ec', blessing:'La ilaha illallah' },
+  ]
+};
+
+var selectedFaith = null;
+var selectedDeity = null;
+var currentStep = 'faith';
+
+// ── Step Transitions ──
+function showStep(stepId) {
+  var steps = document.querySelectorAll('.step');
+  steps.forEach(function(s) { s.classList.remove('active'); });
+
+  currentStep = stepId;
+
+  // Update progress
+  document.getElementById('prog-1').classList.add('filled');
+  document.getElementById('prog-2').classList.toggle('filled', stepId !== 'faith');
+
+  // Small delay for CSS transition
+  setTimeout(function() {
+    document.getElementById('step-' + stepId).classList.add('active');
+  }, 50);
+}
+
+// ── Faith Selection ──
+function selectFaith(faith) {
+  if (selectedFaith) return; // prevent double-tap
+  selectedFaith = faith;
+
+  // Highlight selected card
+  var cards = document.querySelectorAll('.faith-card');
+  cards.forEach(function(c) { c.classList.remove('selected'); });
+  event.currentTarget.classList.add('selected');
+
+  // Auto-advance after 600ms
+  setTimeout(function() {
+    buildDeityGrid(faith);
+    showStep('deity');
+  }, 600);
+}
+
+// ── Build Deity Grid ──
+function buildDeityGrid(faith) {
+  var grid = document.getElementById('deity-grid');
+  var items = DEITIES[faith];
+
+  if (faith === 'muslim') {
+    document.getElementById('deity-headline').textContent = 'Aapki preference?';
+    document.getElementById('deity-subtitle').textContent = 'Hum aapke daily ibaadat ko personalise karenge';
+    grid.style.gridTemplateColumns = '1fr 1fr'; // 2x2 for muslim
+  }
+
+  var html = '';
+  items.forEach(function(d, i) {
+    html += '<div class="deity-card" onclick="selectDeity(\'' + d.id + '\')" style="--d-color:' + d.color + ';--d-bg:' + d.bg + ';" data-id="' + d.id + '">'
+      + '<div class="deity-icon" style="background:' + d.bg + ';">'
+      + '<span>' + d.emoji + '</span>'
+      + '</div>'
+      + '<div class="deity-name">' + d.name + '</div>'
+      + '<div class="deity-epithet">' + d.epithet + '</div>'
+      + '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ── Deity Selection ──
+function selectDeity(deityId) {
+  if (selectedDeity) return;
+  selectedDeity = deityId;
+
+  // Highlight
+  var cards = document.querySelectorAll('.deity-card');
+  cards.forEach(function(c) {
+    if (c.getAttribute('data-id') === deityId) c.classList.add('selected');
+  });
+
+  // Auto-advance after 600ms
+  setTimeout(function() {
+    showBlessingScreen();
+    showStep('blessing');
+  }, 600);
+}
+
+// ── Blessing Screen ──
+function showBlessingScreen() {
+  var deity = null;
+  var items = DEITIES[selectedFaith];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].id === selectedDeity) { deity = items[i]; break; }
+  }
+  if (!deity) return;
+
+  var faithColor = selectedFaith === 'hindu' ? '#ff6b35' : '#2d8a4e';
+  var container = document.getElementById('blessing-content');
+
+  // Phase 1: Loading
+  container.innerHTML =
+    '<div class="blessing-icon" style="background:' + deity.bg + ';">'
+    + '<div class="blessing-glow" style="background:' + deity.color + ';"></div>'
+    + '<span>' + deity.emoji + '</span>'
+    + '</div>'
+    + '<div class="blessing-text" style="color:' + deity.color + ';">' + deity.blessing + '</div>'
+    + '<div class="blessing-sub">Aapka devotion space tayyar ho raha hai'
+    + '<span class="loading-dots"><span></span><span></span><span></span></span>'
+    + '</div>';
+
+  // Phase 2: Complete (after 2.5s)
+  setTimeout(function() {
+    container.innerHTML =
+      '<div class="complete-check" style="background:' + faithColor + ';">'
+      + '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>'
+      + '</div>'
+      + '<div class="blessing-text">Aapka devotion space<br>tayyar hai</div>'
+      + '<div class="blessing-sub" style="opacity:0.5;font-size:12px;">Entering your personalised experience...</div>';
+
+    // Post message to parent after 1.5s
+    setTimeout(function() {
+      if (IS_UNIFIED) {
+        window.parent.postMessage({
+          type: 'onboarding-complete',
+          faith: selectedFaith,
+          deity: selectedDeity,
+          name: 'Shivali'
+        }, '*');
+      }
+    }, 1500);
+  }, 2500);
+}
+
+// ── Hide progress bar on blessing step ──
+var observer = new MutationObserver(function() {
+  var progBar = document.querySelector('.progress-bar');
+  if (currentStep === 'blessing') {
+    progBar.style.opacity = '0';
+  } else {
+    progBar.style.opacity = '1';
+  }
+});
+observer.observe(document.getElementById('step-blessing'), { attributes: true });
+</script>
+</body>
+</html>
