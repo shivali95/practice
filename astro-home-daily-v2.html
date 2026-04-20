@@ -70,6 +70,26 @@ body { font-family:'Outfit',sans-serif; background:#f0f0f0; display:flex; justif
 @keyframes sunPulse { 0%,100% { filter:brightness(1) drop-shadow(0 0 15px rgba(245,166,35,0.5)); } 50% { filter:brightness(1.3) drop-shadow(0 0 30px rgba(245,166,35,0.8)); } }
 @keyframes sceneTextIn { 0% { opacity:0; transform:translateY(14px) scale(0.95); } 100% { opacity:1; transform:translateY(0) scale(1); } }
 @keyframes rashiHighlight { 0%,100% { filter:brightness(1) drop-shadow(0 0 0px transparent); } 50% { filter:brightness(1.8) drop-shadow(0 0 8px rgba(245,166,35,0.6)); } }
+@keyframes walkBounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2px); } }
+@keyframes fadeInScale { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@keyframes slideInRight { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideInLeft { from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes fillBar { from { width:0; } to { width:var(--fill); } }
+@keyframes soundWave { 0% { height:4px; } 100% { height:16px; } }
+@keyframes flameSpark { 0% { opacity:0.8; transform:scale(1) translateY(0); } 100% { opacity:0; transform:scale(0.3) translateY(-20px); } }
+@keyframes ringWave { 0% { transform:translate(-50%,-50%) rotateX(75deg) scale(1); opacity:0.15; } 100% { transform:translate(-50%,-50%) rotateX(75deg) scale(1.1); opacity:0.05; } }
+@keyframes jupiterAura { 0% { opacity:0.4; transform:scale(1); } 100% { opacity:0.7; transform:scale(1.15); } }
+@keyframes moonTide { 0% { opacity:0.3; transform:scale(0.95); } 100% { opacity:0.6; transform:scale(1.1); } }
+@keyframes venusShimmer { 0% { opacity:0.2; transform:scale(0.8); } 100% { opacity:0.8; transform:scale(1.2); } }
+@keyframes coronaPulse { 0%,100% { box-shadow:0 0 30px 10px rgba(247,171,32,0.3),0 0 60px 20px rgba(247,171,32,0.15); } 50% { box-shadow:0 0 40px 15px rgba(247,171,32,0.4),0 0 80px 30px rgba(247,171,32,0.2); } }
+@keyframes marsPulse { 0%,100% { box-shadow:0 0 20px 6px rgba(255,102,68,0.3); } 50% { box-shadow:0 0 35px 12px rgba(255,102,68,0.5); } }
+@keyframes saturnFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+@keyframes countUp { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+@keyframes staggerIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes twinkle { 0%,100% { opacity:0.2; } 50% { opacity:0.8; } }
+@keyframes orbitSlow { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+@keyframes orbitReverse { from { transform:rotate(360deg); } to { transform:rotate(0deg); } }
 </style>
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -86,7 +106,7 @@ if (new URLSearchParams(window.location.search).has('unified')) {
 }
 </script>
 <script type="text/babel">
-const { useState, useEffect, useRef, useMemo } = React;
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
 const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
 
 /* ========== ELEVENLABS TTS ========== */
@@ -510,7 +530,7 @@ const CosmicTagline = () => {
 /* ═══════════════════════════════════════
    1B. LIVING DAY ORBIT CLOCK
    ═══════════════════════════════════════ */
-const OrbitClock = () => {
+const OrbitClock = ({ onPlanetDeepLink }) => {
   const currentHour = new Date().getHours();
   const currentSlot = getSlotForHour(currentHour);
   const [autoIdx, setAutoIdx] = useState(0);
@@ -772,6 +792,25 @@ const OrbitClock = () => {
           <div style={{ fontSize:10, fontWeight:400, color:'rgba(255,255,255,0.45)' }}>{GOLDEN_WINDOW.advice}</div>
         </div>
       </div>
+
+      {/* Explore in Kundali deep-link chip */}
+      {onPlanetDeepLink && (
+        <div onClick={onPlanetDeepLink} style={{
+          margin:'12px 20px 4px', padding:'10px 16px', borderRadius:12,
+          background:'linear-gradient(135deg, rgba(53,53,243,0.12), rgba(53,53,243,0.06))',
+          border:'1px solid rgba(53,53,243,0.2)',
+          display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontSize:16 }}>🌌</span>
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--primary-50)' }}>Explore in Kundali</div>
+              <div style={{ fontSize:9, fontWeight:400, color:'rgba(255,255,255,0.4)' }}>Apne grahon ki deep story suniye</div>
+            </div>
+          </div>
+          <span style={{ fontSize:13, color:'var(--primary-50)' }}>→</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -2177,12 +2216,1549 @@ const KundliExploreCard = () => {
 };
 
 
+/* ══ KUNDALI TAB — PLANET 3D COMPONENTS ══ */
+const Planet3D_Mars = ({ size = 80 }) => (
+  <div style={{ width: size, height: size, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ position: 'absolute', width: size * 1.6, height: size * 1.6, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,102,68,0.25) 0%, rgba(255,60,30,0.08) 50%, transparent 70%)', animation: 'breathe 4s ease-in-out infinite' }} />
+    <div style={{ width: size, height: size, borderRadius: '50%', position: 'relative', overflow: 'hidden', background: 'radial-gradient(circle at 35% 30%, #ff9966, #ff6644 40%, #cc3311 75%, #881100 100%)', boxShadow: '0 0 20px 6px rgba(255,102,68,0.35), inset -8px -8px 20px rgba(0,0,0,0.4), inset 4px 4px 10px rgba(255,200,150,0.3)', animation: 'marsPulse 3s ease-in-out infinite' }}>
+      <div style={{ position: 'absolute', top: '20%', left: '15%', width: '25%', height: '8%', borderRadius: '50%', background: 'rgba(180,60,20,0.5)', filter: 'blur(3px)' }} />
+      <div style={{ position: 'absolute', top: '55%', left: '40%', width: '35%', height: '6%', borderRadius: '50%', background: 'rgba(200,80,30,0.4)', filter: 'blur(4px)' }} />
+      <div style={{ position: 'absolute', top: '12%', left: '22%', width: '30%', height: '25%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, color: 'rgba(255,255,255,0.9)', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>♂</div>
+    </div>
+  </div>
+);
+const Planet3D_Saturn = ({ size = 80 }) => (
+  <div style={{ width: size * 1.8, height: size * 1.2, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'saturnFloat 5s ease-in-out infinite' }}>
+    <div style={{ position: 'absolute', width: size * 1.7, height: size * 0.45, borderRadius: '50%', border: '3px solid rgba(200,180,140,0.35)', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotateX(75deg)', zIndex: 0 }} />
+    <div style={{ width: size, height: size, borderRadius: '50%', position: 'relative', overflow: 'hidden', zIndex: 1, background: 'radial-gradient(circle at 35% 30%, #8a8a7a, #555548 40%, #333328 75%, #1a1a14 100%)', boxShadow: '0 0 15px 4px rgba(100,100,80,0.2), inset -8px -8px 20px rgba(0,0,0,0.5), inset 3px 3px 8px rgba(180,170,140,0.2)' }}>
+      <div style={{ position: 'absolute', top: '30%', width: '100%', height: '8%', background: 'rgba(160,150,120,0.15)' }} />
+      <div style={{ position: 'absolute', top: '50%', width: '100%', height: '6%', background: 'rgba(160,150,120,0.1)' }} />
+      <div style={{ position: 'absolute', top: '10%', left: '20%', width: '30%', height: '25%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.12) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.32, color: 'rgba(200,190,160,0.85)', fontWeight: 700 }}>♄</div>
+    </div>
+    <div style={{ position: 'absolute', width: size * 1.7, height: size * 0.45, borderRadius: '50%', borderBottom: '3px solid rgba(200,180,140,0.5)', borderLeft: '1px solid rgba(200,180,140,0.1)', borderRight: '1px solid rgba(200,180,140,0.1)', borderTop: 'none', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotateX(75deg)', zIndex: 2 }} />
+    <div style={{ position: 'absolute', width: size * 1.5, height: size * 0.38, borderRadius: '50%', borderBottom: '2px solid rgba(247,171,32,0.25)', borderTop: 'none', borderLeft: 'none', borderRight: 'none', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotateX(75deg)', zIndex: 2 }} />
+  </div>
+);
+const Planet3D_Jupiter = ({ size = 80 }) => (
+  <div style={{ width: size, height: size, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ position: 'absolute', width: size * 1.5, height: size * 1.5, borderRadius: '50%', background: 'radial-gradient(circle, rgba(53,53,243,0.2) 0%, transparent 60%)' }} />
+    <div style={{ width: size, height: size, borderRadius: '50%', position: 'relative', overflow: 'hidden', background: 'radial-gradient(circle at 35% 30%, #7070ff, #3535f3 40%, #1a1acc 70%, #000093 100%)', boxShadow: '0 0 20px 5px rgba(53,53,243,0.25), inset -8px -8px 18px rgba(0,0,0,0.4), inset 4px 4px 10px rgba(150,150,255,0.3)' }}>
+      <div style={{ position: 'absolute', top: '25%', width: '100%', height: '6%', background: 'rgba(100,100,255,0.2)' }} />
+      <div style={{ position: 'absolute', top: '45%', width: '100%', height: '10%', background: 'rgba(200,180,140,0.12)' }} />
+      <div style={{ position: 'absolute', top: '65%', width: '100%', height: '5%', background: 'rgba(100,100,255,0.15)' }} />
+      <div style={{ position: 'absolute', top: '10%', left: '18%', width: '32%', height: '26%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>♃</div>
+    </div>
+  </div>
+);
+const Planet3D_Moon = ({ size = 80 }) => (
+  <div style={{ width: size, height: size, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ position: 'absolute', width: size * 1.4, height: size * 1.4, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,200,220,0.2) 0%, transparent 55%)' }} />
+    <div style={{ width: size, height: size, borderRadius: '50%', position: 'relative', overflow: 'hidden', background: 'radial-gradient(circle at 38% 32%, #e8e8f0, #c0c0cc 35%, #9898a8 65%, #707080 100%)', boxShadow: '0 0 15px 4px rgba(200,200,220,0.2), inset -6px -6px 15px rgba(0,0,0,0.3), inset 3px 3px 8px rgba(255,255,255,0.3)' }}>
+      <div style={{ position: 'absolute', top: '25%', left: '30%', width: '18%', height: '18%', borderRadius: '50%', background: 'rgba(130,130,150,0.3)' }} />
+      <div style={{ position: 'absolute', top: '55%', left: '55%', width: '12%', height: '12%', borderRadius: '50%', background: 'rgba(130,130,150,0.25)' }} />
+      <div style={{ position: 'absolute', top: '10%', left: '20%', width: '30%', height: '22%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, color: 'rgba(255,255,255,0.85)', fontWeight: 700, textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>☽</div>
+    </div>
+  </div>
+);
+
+/* ══ KUNDALI TAB — FULL CARDS ══ */
+const CARD1_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी, आपकी कुंडली और मूलांक नौ के हिसाब से, ये हैं आपकी strengths।', text: 'आपकी कुंडली ·\nमूलांक 9', size: 26, color: 'rgba(255,255,255,0.85)', emoji: '♏' },
+  { chunk: 'आपमें कुछ बहुत ख़ास है।', text: 'कुछ ख़ास है\nआपमें', size: 30, color: '#ff9966', emoji: '✨' },
+  { chunk: 'आपमें leadership quality है। ये quality सबमें नहीं होती।', text: 'Leadership\nQuality है', size: 40, color: '#ff6644', glow: true, emphasis: true, emoji: '👑' },
+  { chunk: 'आपमें एक natural authority है। जो लोग सालों में build करते हैं, वो आपको naturally मिली है।', text: 'Natural\nAuthority', size: 48, color: '#ffcc66', glow: true, emphasis: true },
+  { chunk: 'जब आप बोलती हैं, लोग ध्यान से सुनते हैं। आपकी बात में weight है।', text: 'लोग ध्यान से\nसुनते हैं', size: 28, color: 'rgba(255,255,255,0.9)', emoji: '🎯' },
+  { chunk: 'आपमें एक अलग charm है। लोग आपकी तरफ़ खिंचे चले आते हैं।', text: 'एक अलग\nCharm है', size: 36, color: '#ff9966', glow: true, emoji: '🔥' },
+  { chunk: 'आप initiative लेती हैं। जहाँ लोग problems ढूंढते हैं, आप solutions ढूंढती हैं।', text: 'Initiative लेती हैं\nSolutions ढूंढती हैं', size: 30, color: '#ff9966', glow: true, emphasis: true },
+  { chunk: 'और सबसे बड़ी बात — दिल की बहुत साफ़ हैं आप।', text: 'दिल की बहुत\nसाफ़ हैं आप', size: 36, color: '#ffcc66', glow: true, emphasis: true, emoji: '💛' },
+  { chunk: 'आप emotionally बहुत strong हैं शिवाली जी। ये आपकी सबसे बड़ी ताक़त है।', text: 'Emotionally\nबहुत Strong हैं', size: 38, color: '#ff6644', glow: true, emphasis: true, emoji: '💪' },
+];
+
+const FullCard1_Superpower = () => {
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('card');
+  const audioRef = useRef(null);
+  useEffect(() => {
+    let cancelled = false;
+    const runScenes = async () => {
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+      setDimmed(true); setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+      for (let i = 0; i < CARD1_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD1_NARRATION_SCENES[i];
+        setActiveScene({ ...scene, index: i });
+        const audioSrc = await fetchTTS(scene.chunk, 'card0_s' + i, 'advait');
+        if (cancelled) break;
+        if (audioSrc) {
+          await new Promise((resolve) => { const audio = new Audio(audioSrc); audioRef.current = audio; audio.onended = () => { audioRef.current = null; resolve(); }; audio.onerror = () => { audioRef.current = null; resolve(); }; audio.play().catch(() => resolve()); });
+        } else { await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000))); }
+        if (cancelled) break;
+        setStack(prev => [...prev, { text: scene.text, color: scene.color, emoji: scene.emoji, emphasis: scene.emphasis }]);
+      }
+      if (!cancelled) { setActiveScene(null); await new Promise(r => setTimeout(r, 600)); setPhase('summary'); }
+    };
+    runScenes();
+    return () => { cancelled = true; if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  }, []);
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #1a0500 0%, #0d0200 100%)', minHeight: '100%', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ padding: '24px 20px', transition: 'opacity 800ms ease, filter 800ms ease', opacity: phase === 'card' ? 1 : 0.06, filter: dimmed ? 'blur(8px)' : 'none' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}><Planet3D_Mars size={72} /></div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#ff6644', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>SECRET SUPERPOWER</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2 }}>Why people follow your lead — without you even asking</div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>You don't demand attention. But when you speak, the room rearranges itself around you. Mars in your lagna gives you <span style={{ color: '#ff9966', fontWeight: 700 }}>raw natural authority</span>.</div>
+        <EmotionalIndicator label="Leadership Magnetism" level="Extreme" color="#ff6644" />
+        <EmotionalIndicator label="Decision Speed" level="Lethal" color="var(--secondary-40)" />
+        <TapReveal text="The flip side? People who can't handle your energy will quietly remove themselves from your life. That's not a bug — it's a filter." color="#ff9966" />
+        <NextTeaser text="But this same power has a shadow side..." />
+      </div>
+      {phase === 'playing' && activeScene && (
+        <div key={activeScene.index} style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '20px 24px', paddingBottom: Math.max(100, stack.length * 28 + 80) }}>
+          {activeScene.glow && <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: `radial-gradient(circle, ${activeScene.color}22 0%, transparent 70%)`, animation: 'breathe 3s ease-in-out infinite' }} />}
+          {activeScene.emoji && <div style={{ fontSize: 48, marginBottom: 16, animation: 'focusEmojiIn 400ms ease-out both', filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))' }}>{activeScene.emoji}</div>}
+          <div style={{ fontSize: activeScene.emphasis ? (activeScene.size || 36) : (activeScene.size || 28), fontWeight: activeScene.emphasis ? 900 : 700, color: activeScene.color || '#fff', textAlign: 'center', lineHeight: 1.25, letterSpacing: activeScene.emphasis ? '-0.04em' : '-0.02em', fontFamily: "'JioType', 'Outfit', sans-serif", textShadow: activeScene.glow ? `0 0 60px ${activeScene.color}88, 0 0 120px ${activeScene.color}44, 0 4px 20px rgba(0,0,0,0.6)` : '0 4px 20px rgba(0,0,0,0.6)', whiteSpace: 'pre-line', animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>{activeScene.text}</div>
+          {activeScene.emphasis && <div style={{ width: 60, height: 3, borderRadius: 2, marginTop: 16, background: `linear-gradient(90deg, transparent, ${activeScene.color}, transparent)`, animation: 'focusLineIn 600ms ease-out 300ms both' }} />}
+        </div>
+      )}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 5, pointerEvents: 'none' }}>
+          {stack.map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: item.color || 'rgba(255,255,255,0.5)', opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3, textAlign: 'center', animation: 'fadeInUp 400ms ease-out both', textShadow: '0 2px 8px rgba(0,0,0,0.7)', lineHeight: 1.3 }}>{item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}<span>{item.text.replace('\n', ' ')}</span></div>)}
+        </div>
+      )}
+      {phase === 'summary' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '32px 20px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28, animation: 'fadeIn 600ms ease-out both' }}>YOUR COSMIC DNA</div>
+          {CARD1_NARRATION_SCENES.map((scene, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: scene.emphasis ? 20 : 15, fontWeight: scene.emphasis ? 800 : 600, color: scene.color || 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: scene.emphasis ? 16 : 10, opacity: 0, animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`, textShadow: scene.glow ? `0 0 30px ${scene.color}44` : '0 2px 8px rgba(0,0,0,0.4)', lineHeight: 1.3 }}>{scene.emoji && <span style={{ fontSize: scene.emphasis ? 20 : 14 }}>{scene.emoji}</span>}<span>{scene.text.replace('\n', ' ')}</span></div>)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CARD2_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी, आपका मूलांक है नौ और राशि है मकर।', text: 'मूलांक 9\n× मकर', size: 32, color: '#ffb450', emoji: '♏' },
+  { chunk: 'ये combination बहुत rare है।', text: 'बहुत Rare\nCombination', size: 36, color: 'rgba(255,255,255,0.9)', glow: true, emphasis: true, emoji: '💎' },
+  { chunk: 'मंगल देता है आग — हिम्मत और साहस।', text: 'आग · हिम्मत\n· साहस', size: 38, color: '#ff6644', glow: true, emphasis: true, emoji: '🔥', energy: 'fire' },
+  { chunk: 'और शनि देता है धैर्य — ताक़त और सही timing।', text: 'धैर्य · ताक़त\n· Timing', size: 38, color: '#8899cc', glow: true, emphasis: true, emoji: '❄️', energy: 'ice' },
+  { chunk: 'ज़्यादातर लोगों में या आग होती है, या बर्फ़। आपमें दोनों हैं।', text: 'आपमें\nदोनों हैं', size: 44, color: '#ffcc66', glow: true, emphasis: true },
+  { chunk: 'आप सालों तक wait कर सकती हैं सही moment के लिए।', text: 'सही Moment\nका Wait', size: 30, color: '#8899cc', emoji: '⏳', energy: 'ice' },
+  { chunk: 'और जब move करती हैं, किसी को पता भी नहीं चलता।', text: 'फिर एक ही\nMove में 💥', size: 36, color: '#ff6644', glow: true, emphasis: true, energy: 'fire' },
+  { chunk: 'ये आपकी सबसे powerful quality है।', text: 'सबसे Powerful\nQuality', size: 40, color: '#ffb450', glow: true, emphasis: true, emoji: '⚡' },
+];
+
+const FullCard2_Mulank = () => {
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('card');
+  const audioRef = useRef(null);
+  useEffect(() => {
+    let cancelled = false;
+    const runScenes = async () => {
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+      setDimmed(true); setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+      for (let i = 0; i < CARD2_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD2_NARRATION_SCENES[i];
+        setActiveScene({ ...scene, index: i });
+        const audioSrc = await fetchTTS(scene.chunk, 'card1_s' + i, 'advait');
+        if (cancelled) break;
+        if (audioSrc) {
+          await new Promise((resolve) => { const audio = new Audio(audioSrc); audioRef.current = audio; audio.onended = () => { audioRef.current = null; resolve(); }; audio.onerror = () => { audioRef.current = null; resolve(); }; audio.play().catch(() => resolve()); });
+        } else { await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000))); }
+        if (cancelled) break;
+        setStack(prev => [...prev, { text: scene.text, color: scene.color, emoji: scene.emoji, emphasis: scene.emphasis, energy: scene.energy }]);
+      }
+      if (!cancelled) { setActiveScene(null); await new Promise(r => setTimeout(r, 600)); setPhase('summary'); }
+    };
+    runScenes();
+    return () => { cancelled = true; if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  }, []);
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #1a0a00 0%, #0d0500 100%)', minHeight: '100%', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ padding: '24px 20px', transition: 'opacity 800ms ease, filter 800ms ease', opacity: phase === 'card' ? 1 : 0.06, filter: dimmed ? 'blur(8px)' : 'none' }}>
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle at 40% 35%, rgba(255,180,80,0.2) 0%, rgba(255,120,40,0.08) 60%, transparent 80%)', border: '2px solid rgba(255,180,80,0.25)', position: 'relative' }}>
+            <span style={{ fontSize: 42, fontWeight: 900, color: '#ffb450', textShadow: '0 0 30px rgba(255,180,80,0.5), 0 0 60px rgba(255,120,40,0.2)' }}>9</span>
+          </div>
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#ffb450', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>MULANK 9 × MAKAR RASHI</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2 }}>Mars ki aag + Saturn ka dhairya — bohot rare hai ye combination</div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>Mulank 9 means Mars rules your core. But Makar rashi is Saturn. <span style={{ color: '#ffb450', fontWeight: 700 }}>Most people have fire OR ice. You have both.</span></div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
+          <div style={{ flex: 1, background: 'rgba(255,102,68,0.08)', borderRadius: 14, padding: '14px', border: '1px solid rgba(255,102,68,0.12)' }}>
+            <div style={{ fontSize: 20, marginBottom: 6 }}>♂</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#ff6644', marginBottom: 4 }}>MARS — MULANK 9</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Fire, action, courage to destroy & rebuild</div>
+          </div>
+          <div style={{ flex: 1, background: 'rgba(136,153,204,0.06)', borderRadius: 14, padding: '14px', border: '1px solid rgba(136,153,204,0.1)' }}>
+            <div style={{ fontSize: 20, marginBottom: 6 }}>♄</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#8899cc', marginBottom: 4 }}>SATURN — MAKAR</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>Patience, structure, delayed massive rewards</div>
+          </div>
+        </div>
+        <EmotionalIndicator label="Willpower Reserve" level="Limitless" color="#ffb450" />
+        <EmotionalIndicator label="Delayed Gratification" level="Master-level" color="#8899cc" />
+        <NextTeaser text="But there's a trait even you don't see..." />
+      </div>
+      {phase === 'playing' && activeScene && (
+        <div key={activeScene.index} style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '20px 24px', paddingBottom: Math.max(100, stack.length * 28 + 80) }}>
+          {activeScene.glow && <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: `radial-gradient(circle, ${activeScene.color}22 0%, transparent 70%)`, animation: 'breathe 3s ease-in-out infinite' }} />}
+          {activeScene.emoji && <div style={{ fontSize: 48, marginBottom: 16, animation: 'focusEmojiIn 400ms ease-out both', filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))' }}>{activeScene.emoji}</div>}
+          <div style={{ fontSize: activeScene.emphasis ? (activeScene.size || 36) : (activeScene.size || 28), fontWeight: activeScene.emphasis ? 900 : 700, color: activeScene.color || '#fff', textAlign: 'center', lineHeight: 1.25, letterSpacing: activeScene.emphasis ? '-0.04em' : '-0.02em', fontFamily: "'JioType', 'Outfit', sans-serif", textShadow: activeScene.glow ? `0 0 60px ${activeScene.color}88, 0 0 120px ${activeScene.color}44, 0 4px 20px rgba(0,0,0,0.6)` : '0 4px 20px rgba(0,0,0,0.6)', whiteSpace: 'pre-line', animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>{activeScene.text}</div>
+          {activeScene.emphasis && <div style={{ width: 60, height: 3, borderRadius: 2, marginTop: 16, background: `linear-gradient(90deg, transparent, ${activeScene.color}, transparent)`, animation: 'focusLineIn 600ms ease-out 300ms both' }} />}
+        </div>
+      )}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 5, pointerEvents: 'none' }}>
+          {stack.map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: item.color || 'rgba(255,255,255,0.5)', opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3, textAlign: 'center', animation: 'fadeInUp 400ms ease-out both', textShadow: '0 2px 8px rgba(0,0,0,0.7)', lineHeight: 1.3 }}>{item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}<span>{item.text.replace('\n', ' ')}</span></div>)}
+        </div>
+      )}
+      {phase === 'summary' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '32px 20px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28, animation: 'fadeIn 600ms ease-out both' }}>🔥 FIRE + ICE ❄️</div>
+          {CARD2_NARRATION_SCENES.map((scene, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: scene.emphasis ? 20 : 15, fontWeight: scene.emphasis ? 800 : 600, color: scene.color || 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: scene.emphasis ? 16 : 10, opacity: 0, animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`, textShadow: scene.glow ? `0 0 30px ${scene.color}44` : '0 2px 8px rgba(0,0,0,0.4)', lineHeight: 1.3 }}>{scene.emoji && <span style={{ fontSize: scene.emphasis ? 20 : 14 }}>{scene.emoji}</span>}<span>{scene.text.replace('\n', ' ')}</span></div>)}
+          <div style={{ width: 40, height: 2, borderRadius: 1, marginTop: 20, background: 'linear-gradient(90deg, #ff6644, transparent, #8899cc)', animation: 'fadeIn 800ms ease-out 2000ms both' }} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FullCard3_BlindSpot = () => (
+  <div style={{ background: 'linear-gradient(180deg, #0d0d18 0%, #080810 100%)', minHeight: '100%', padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}><Planet3D_Moon size={72} /></div>
+    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,200,220,0.7)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>HIDDEN BLIND SPOT</div>
+    <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both' }}>The trait that pushes people away — and you don't even see it</div>
+    <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>Your intensity runs so deep that when you go quiet, people assume you're angry. You're not. You're processing. <span style={{ color: 'rgba(200,200,220,0.9)', fontWeight: 700 }}>The people who love you most are often the most afraid to reach you.</span></div>
+    <EmotionalIndicator label="Emotional Depth" level="Oceanic" color="var(--primary-30)" />
+    <EmotionalIndicator label="Withdrawal Risk" level="Rising" color="var(--secondary-50)" />
+    <TapReveal text="You don't push people away because you don't care. You push them away because you care so much that vulnerability feels like a weapon someone could use against you." color="rgba(200,200,220,0.9)" />
+    <NextTeaser text="There's a reason they misread you..." />
+  </div>
+);
+
+const FullCard4_Misunderstood = () => (
+  <div style={{ background: 'linear-gradient(180deg, #0a0a14 0%, #050508 100%)', minHeight: '100%', padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}><Planet3D_Saturn size={72} /></div>
+    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,190,160,0.7)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>MISUNDERSTOOD</div>
+    <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both' }}>Why people think you're intimidating — when you're actually protecting them</div>
+    <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>Scorpio energy + Mars dominance creates a shield so strong that people mistake your <span style={{ color: 'rgba(200,190,160,0.9)', fontWeight: 700 }}>protection for aggression</span>. You're not cold. You're selective.</div>
+    <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', marginTop: 18, border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>What they see vs what's real</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 13, color: 'rgba(255,100,100,0.8)', fontWeight: 600 }}>❌ "She's cold"</span><span style={{ fontSize: 13, color: 'var(--sparkle-40)', fontWeight: 600 }}>✓ She's choosing</span></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 13, color: 'rgba(255,100,100,0.8)', fontWeight: 600 }}>❌ "She doesn't care"</span><span style={{ fontSize: 13, color: 'var(--sparkle-40)', fontWeight: 600 }}>✓ She cares too much</span></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: 13, color: 'rgba(255,100,100,0.8)', fontWeight: 600 }}>❌ "She's angry"</span><span style={{ fontSize: 13, color: 'var(--sparkle-40)', fontWeight: 600 }}>✓ She's processing</span></div>
+    </div>
+    <TapReveal text="Saturn in your karma house means this misreading follows you everywhere. But the people who stay? They see the real you. And they never leave." color="var(--sparkle-40)" />
+    <NextTeaser text="But your chart hides a rare gift most will never have..." />
+  </div>
+);
+
+const CARD5_NARRATION_SCENES = [
+  { chunk: 'शिवाली जी, आपकी कुंडली में एक बहुत rare yog है।', ui: 'text', text: 'एक बहुत\nRare Yog', size: 36, color: '#7aebd9', glow: true, emoji: '✦' },
+  { chunk: 'इसका नाम है रुचक महापुरुष योग।', ui: 'reveal', text: 'रुचक\nमहापुरुष योग', size: 42, color: '#ffd700', glow: true, emphasis: true },
+  { chunk: 'दुनिया में सिर्फ़ पाँच percent लोगों के पास ये होता है।', ui: 'stat', stat: 5, label: 'लोगों के पास ये yog है', unit: '%', color: '#ffd700' },
+  { chunk: 'ये मंगल का विशेष योग है।', ui: 'block', icon: '♂', title: 'मंगल का योग', desc: 'Mars अपने घर में — maximum power position', color: '#ff6644' },
+  { chunk: 'इसका मतलब है — courage, leadership, और किसी भी situation को dominate करने की power।', ui: 'traits', traits: ['Courage', 'Leadership', 'Dominance'], color: '#ff6644' },
+  { chunk: 'और आपके मूलांक नौ के साथ मिलकर ये दोगुना powerful हो जाता है।', ui: 'block', icon: '9', title: 'मूलांक 9 × रुचक योग', desc: 'Double Mars energy — extremely rare combination', color: '#ffd700', glow: true },
+  { chunk: 'हर कुछ सालों में आप सब कुछ तोड़कर नए सिरे से शुरू करती हैं। लोग इसे restless कहते हैं। लेकिन ये evolution है।', ui: 'text', text: 'Restless नहीं\nEvolution है', size: 38, color: '#7aebd9', glow: true, emphasis: true },
+  { chunk: 'ये yog आपको बाकी सबसे अलग बनाता है शिवाली जी।', ui: 'text', text: 'आप बाकी सबसे\nअलग हैं', size: 40, color: '#ffd700', glow: true, emphasis: true, emoji: '⚡' },
+];
+
+const FullCard5_Destiny = () => {
+  const [activeScene, setActiveScene] = useState(null);
+  const [dimmed, setDimmed] = useState(false);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('card');
+  const [statAnim, setStatAnim] = useState(0);
+  const audioRef = useRef(null);
+  useEffect(() => {
+    let cancelled = false;
+    const runScenes = async () => {
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
+      setDimmed(true); setPhase('playing');
+      await new Promise(r => setTimeout(r, 500));
+      if (cancelled) return;
+      for (let i = 0; i < CARD5_NARRATION_SCENES.length; i++) {
+        if (cancelled) break;
+        const scene = CARD5_NARRATION_SCENES[i];
+        setActiveScene({ ...scene, index: i }); setStatAnim(0);
+        if (scene.ui === 'stat') { let count = 0; const interval = setInterval(() => { count += 1; if (count >= scene.stat) clearInterval(interval); setStatAnim(Math.min(count, scene.stat)); }, 80); }
+        const audioSrc = await fetchTTS(scene.chunk, 'card4_s' + i, 'advait');
+        if (cancelled) break;
+        if (audioSrc) {
+          await new Promise((resolve) => { const audio = new Audio(audioSrc); audioRef.current = audio; audio.onended = () => { audioRef.current = null; resolve(); }; audio.onerror = () => { audioRef.current = null; resolve(); }; audio.play().catch(() => resolve()); });
+        } else { await new Promise(r => setTimeout(r, Math.max(1800, scene.chunk.length / 11 * 1000))); }
+        if (cancelled) break;
+        setStack(prev => [...prev, { text: scene.text || scene.title || scene.label, color: scene.color, emoji: scene.icon }]);
+      }
+      if (!cancelled) { setActiveScene(null); await new Promise(r => setTimeout(r, 600)); setPhase('summary'); }
+    };
+    runScenes();
+    return () => { cancelled = true; if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  }, []);
+  const renderScene = (scene) => {
+    if (!scene) return null;
+    if (scene.ui === 'stat') return (
+      <div key={scene.index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>
+        <div style={{ position: 'relative', width: 140, height: 140, marginBottom: 20 }}>
+          <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+            <circle cx="70" cy="70" r="58" fill="none" stroke={scene.color} strokeWidth="6" strokeDasharray={`${2 * Math.PI * 58 * (statAnim / 100)} ${2 * Math.PI * 58}`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 100ms linear', filter: `drop-shadow(0 0 12px ${scene.color}66)` }} />
+          </svg>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 48, fontWeight: 900, color: scene.color, textShadow: `0 0 40px ${scene.color}66`, fontFamily: "'JioType','Outfit',sans-serif" }}>{statAnim}{scene.unit}</span>
+          </div>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>{scene.label}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginTop: 8, textTransform: 'uppercase', letterSpacing: 2 }}>EXTREMELY RARE</div>
+      </div>
+    );
+    if (scene.ui === 'block') return (
+      <div key={scene.index} style={{ background: `${scene.color}11`, border: `1px solid ${scene.color}33`, borderRadius: 20, padding: '28px 24px', width: '85%', maxWidth: 300, animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both', boxShadow: scene.glow ? `0 0 40px ${scene.color}22` : 'none' }}>
+        <div style={{ fontSize: 36, marginBottom: 12, textAlign: 'center', filter: `drop-shadow(0 4px 16px ${scene.color}44)` }}>{scene.icon}</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: scene.color, textAlign: 'center', marginBottom: 8, textShadow: `0 0 20px ${scene.color}44` }}>{scene.title}</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 1.5 }}>{scene.desc}</div>
+      </div>
+    );
+    if (scene.ui === 'traits') return (
+      <div key={scene.index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 8 }}>THIS YOG GIVES YOU</div>
+        {scene.traits.map((trait, j) => <div key={j} style={{ background: `${scene.color}18`, border: `1px solid ${scene.color}44`, borderRadius: 40, padding: '12px 32px', fontSize: 22, fontWeight: 800, color: scene.color, textShadow: `0 0 20px ${scene.color}44`, opacity: 0, animation: `fadeInUp 400ms ease-out ${j * 200}ms both`, fontFamily: "'JioType','Outfit',sans-serif" }}>{trait}</div>)}
+      </div>
+    );
+    return (
+      <div key={scene.index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', animation: 'focusTextIn 500ms cubic-bezier(0.16,1,0.3,1) both' }}>
+        {scene.glow && <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: `radial-gradient(circle, ${scene.color}22 0%, transparent 70%)`, animation: 'breathe 3s ease-in-out infinite' }} />}
+        {scene.emoji && <div style={{ fontSize: 48, marginBottom: 16, animation: 'focusEmojiIn 400ms ease-out both', filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.4))' }}>{scene.emoji}</div>}
+        <div style={{ fontSize: scene.emphasis ? (scene.size || 36) : (scene.size || 28), fontWeight: scene.emphasis ? 900 : 700, color: scene.color || '#fff', textAlign: 'center', lineHeight: 1.25, letterSpacing: scene.emphasis ? '-0.04em' : '-0.02em', fontFamily: "'JioType','Outfit',sans-serif", textShadow: scene.glow ? `0 0 60px ${scene.color}88, 0 0 120px ${scene.color}44, 0 4px 20px rgba(0,0,0,0.6)` : '0 4px 20px rgba(0,0,0,0.6)', whiteSpace: 'pre-line' }}>{scene.text}</div>
+        {scene.emphasis && <div style={{ width: 60, height: 3, borderRadius: 2, marginTop: 16, background: `linear-gradient(90deg, transparent, ${scene.color}, transparent)`, animation: 'focusLineIn 600ms ease-out 300ms both' }} />}
+      </div>
+    );
+  };
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #0c0028 0%, #0a0033 100%)', minHeight: '100%', position: 'relative', overflow: 'hidden' }}>
+      {[...Array(12)].map((_, i) => <div key={i} style={{ position: 'absolute', top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: i % 3 === 0 ? 2.5 : 1.5, height: i % 3 === 0 ? 2.5 : 1.5, borderRadius: '50%', background: `rgba(122,235,217,${0.1 + Math.random() * 0.3})`, animation: `twinkle ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite` }} />)}
+      <div style={{ padding: '24px 20px', transition: 'opacity 800ms ease, filter 800ms ease', opacity: phase === 'card' ? 1 : 0.06, filter: dimmed ? 'blur(8px)' : 'none' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4, position: 'relative' }}><Planet3D_Mars size={68} /></div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sparkle-40)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center', marginTop: 12 }}>✦ RUCHAKA MAHAPURUSH YOG</div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 14, letterSpacing: '-0.03em', lineHeight: 1.25 }}>A rare cosmic pattern that only 5% have</div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 16, textAlign: 'center' }}>Every few years, you rebuild your life from scratch. Others call it restless. <span style={{ color: 'var(--sparkle-40)', fontWeight: 700 }}>This yog calls it evolution.</span></div>
+        <EmotionalIndicator label="Destiny Momentum" level="Activating" color="var(--sparkle-40)" />
+        <NextTeaser text="Someone famous shares this exact cosmic signature..." />
+      </div>
+      {phase === 'playing' && activeScene && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '20px 24px', paddingBottom: Math.max(100, stack.length * 28 + 80) }}>
+          {renderScene(activeScene)}
+        </div>
+      )}
+      {phase === 'playing' && stack.length > 0 && (
+        <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 5, pointerEvents: 'none' }}>
+          {stack.map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: item.color || 'rgba(255,255,255,0.5)', opacity: 0.3 + (i / Math.max(stack.length, 1)) * 0.3, textAlign: 'center', animation: 'fadeInUp 400ms ease-out both', textShadow: '0 2px 8px rgba(0,0,0,0.7)', lineHeight: 1.3 }}>{item.emoji && <span style={{ fontSize: 10 }}>{item.emoji}</span>}<span>{(item.text || '').replace('\n', ' ')}</span></div>)}
+        </div>
+      )}
+      {phase === 'summary' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '32px 20px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 28, animation: 'fadeIn 600ms ease-out both' }}>✦ RUCHAKA MAHAPURUSH YOG ✦</div>
+          {[{text:'सिर्फ़ 5% लोगों में',color:'#ffd700',emphasis:true,emoji:'💎'},{text:'मंगल का विशेष योग',color:'#ff6644',emoji:'♂'},{text:'Courage · Leadership · Dominance',color:'#ff6644',emphasis:true},{text:'मूलांक 9 से दोगुना powerful',color:'#ffd700',emoji:'⚡'},{text:'Restless नहीं — Evolution है',color:'#7aebd9',emphasis:true},{text:'आप बाकी सबसे अलग हैं',color:'#ffd700',emphasis:true,emoji:'✦'}].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: item.emphasis ? 20 : 15, fontWeight: item.emphasis ? 800 : 600, color: item.color, textAlign: 'center', marginBottom: item.emphasis ? 16 : 10, opacity: 0, animation: `fadeInUp 500ms ease-out ${200 + i * 200}ms both`, textShadow: `0 0 30px ${item.color}44`, lineHeight: 1.3 }}>{item.emoji && <span style={{ fontSize: item.emphasis ? 20 : 14 }}>{item.emoji}</span>}<span>{item.text}</span></div>)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FullCard6_CelebrityTwin = () => (
+  <div style={{ background: 'linear-gradient(180deg, #001a15 0%, #000d0a 100%)', minHeight: '100%', padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sparkle-50)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>COSMIC TWIN</div>
+    <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both' }}>Your kundli matches 89% with MS Dhoni's</div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 20 }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--primary-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: 'white', boxShadow: '0 0 20px rgba(53,53,243,0.3)' }}>S</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.8)', marginTop: 6 }}>Shivali</div>
+      </div>
+      <div style={{ position: 'relative' }}>
+        <svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" /><circle cx="25" cy="25" r="21" fill="none" stroke="var(--sparkle-50)" strokeWidth="3" strokeDasharray={`${2*Math.PI*21*0.89} ${2*Math.PI*21}`} strokeLinecap="round" transform="rotate(-90 25 25)" /></svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: 'var(--sparkle-40)' }}>89%</div>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--sparkle-60)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 900, color: 'white', boxShadow: '0 0 20px rgba(30,123,116,0.3)' }}>MSD</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.8)', marginTop: 6 }}>Dhoni</div>
+      </div>
+    </div>
+    <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>Same Scorpio fire. Same Mars-driven calm when everyone around is panicking. <span style={{ color: 'var(--sparkle-40)', fontWeight: 700 }}>You finish what you start when everyone else quits.</span></div>
+    <TapReveal text="Both charts carry Ruchaka Yog. That's not common. What he did on the cricket field — your chart says you'll do in your own arena." color="var(--sparkle-40)" />
+    <NextTeaser text="But when does YOUR biggest moment arrive?" />
+  </div>
+);
+
+const FullCard7_Future = () => {
+  const [windowRevealed, setWindowRevealed] = useState(false);
+  return (
+    <div style={{ background: 'linear-gradient(180deg, #0a0020 0%, #050010 100%)', minHeight: '100%', padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}><Planet3D_Jupiter size={72} /></div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--primary-30)', textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center' }}>FUTURE WINDOW</div>
+      <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(255,255,255,0.95)', textAlign: 'center', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.2, animation: 'fadeInUp 500ms ease-out 200ms both' }}>In 14 months, your strongest career window opens</div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: 18, textAlign: 'center' }}>Jupiter moves into your karma house. The decisions you make between now and then will echo for the next decade.</div>
+      <EmotionalIndicator label="Career Momentum" level="Building" color="var(--primary-30)" />
+      <EmotionalIndicator label="Risk Window" level="Opening June 2027" color="var(--secondary-40)" />
+      <div onClick={(e) => { e.stopPropagation(); setWindowRevealed(true); }} style={{ padding: '16px', borderRadius: 16, marginTop: 16, textAlign: 'center', cursor: 'pointer', background: windowRevealed ? 'rgba(53,53,243,0.1)' : 'rgba(255,255,255,0.03)', border: `1px ${windowRevealed ? 'solid' : 'dashed'} ${windowRevealed ? 'rgba(53,53,243,0.2)' : 'rgba(255,255,255,0.1)'}`, transition: 'all 500ms ease' }}>
+        {!windowRevealed ? <div><span style={{ fontSize: 20, display: 'block', marginBottom: 6 }}>🔮</span><span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>Tap to reveal your timing window</span></div> : <div style={{ animation: 'fadeInScale 500ms ease-out both' }}><div style={{ fontSize: 22, fontWeight: 900, color: 'var(--primary-30)' }}>June 2027 — Feb 2028</div><div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>Your golden window. Jupiter + Saturn alignment.</div></div>}
+      </div>
+    </div>
+  );
+};
+
+const FULL_CARDS = [FullCard1_Superpower, FullCard2_Mulank, FullCard3_BlindSpot, FullCard4_Misunderstood, FullCard5_Destiny, FullCard6_CelebrityTwin, FullCard7_Future];
+const CARD_NARRATIONS = [
+  `शिवाली जी, आपकी कुंडली और मूलांक नौ के हिसाब से, ये हैं आपकी strengths।`,
+  `शिवाली जी, आपका मूलांक है नौ और राशि है मकर।`,
+  `शिवाली जी, अब एक ऐसा rahasya बताता हूँ जो आप ख़ुद नहीं देख पाती।`,
+  `शिवाली जी, आपके शनि और मंगल दोनों इतने strong हैं कि लोग आपको intimidating समझते हैं।`,
+  `शिवाली जी, आपकी कुंडली में एक बहुत rare yog है।`,
+  `शिवाली जी, आपकी कुंडली का 89 percent match है MS Dhoni के साथ।`,
+  `शिवाली जी, अब सबसे ज़रूरी बात। आपके गुरु यानी Jupiter, अगले चौदह महीनों में आपके कर्म भाव में आ रहे हैं।`,
+];
+
+const StoryOverlay = ({ startIndex, onClose }) => {
+  const [current, setCurrent] = useState(startIndex);
+  const [direction, setDirection] = useState('right');
+  const total = FULL_CARDS.length;
+  const CARD_BGS = ['#1a0500','#1a0a00','#0d0d18','#0a0a14','#0c0028','#001a15','#0a0020'];
+  const { speaking, progress, speak, stop, toggle } = useNarration();
+  useEffect(() => {
+    if (current <= 1 || current === 4) return;
+    const timer = setTimeout(() => { if (CARD_NARRATIONS[current]) speak(CARD_NARRATIONS[current], 'card_' + current); }, 600);
+    return () => { clearTimeout(timer); stop(); };
+  }, [current]);
+  const handleClose = () => { stop(); onClose(); };
+  const handleTap = (e) => {
+    if (e.target.closest('[data-interactive]')) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x < rect.width * 0.3 && current > 0) { setDirection('left'); setCurrent(c => c - 1); }
+    else if (current < total - 1) { setDirection('right'); setCurrent(c => c + 1); }
+  };
+  const Card = FULL_CARDS[current];
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 100, background: CARD_BGS[current] || '#0a0a14', animation: 'slideUp 350ms ease-out both', display: 'flex', flexDirection: 'column', transition: 'background 400ms ease' }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ fontSize: 18, color: 'var(--primary-30)' }}>♏</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginLeft: 8 }}>Vrishchik</span>
+        <div style={{ flex: 1 }} />
+        <div onClick={() => toggle(CARD_NARRATIONS[current], 'card_' + current)} data-interactive style={{ width: 32, height: 32, borderRadius: 16, marginRight: 8, background: speaking ? 'rgba(53,53,243,0.2)' : 'rgba(255,255,255,0.08)', border: speaking ? '1px solid rgba(53,53,243,0.4)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: speaking ? 'var(--primary-30)' : 'rgba(255,255,255,0.5)', transition: 'all 300ms ease' }}>{speaking ? '🔊' : '🔇'}</div>
+        <div onClick={handleClose} style={{ width: 32, height: 32, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>✕</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '8px 16px', background: 'rgba(0,0,0,0.2)' }}>
+        {[...Array(total)].map((_, i) => <div key={i} style={{ flex: 1, height: 2.5, borderRadius: 2, position: 'relative', overflow: 'hidden', background: i < current ? 'var(--primary-30)' : 'rgba(255,255,255,0.12)', transition: 'background 300ms' }}>{i === current && speaking && <div style={{ position: 'absolute', inset: 0, borderRadius: 2, background: 'var(--primary-30)', width: `${progress * 100}%`, transition: 'width 200ms linear' }} />}{i < current && <div style={{ position: 'absolute', inset: 0, background: 'var(--primary-30)', borderRadius: 2 }} />}</div>)}
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginLeft: 6, whiteSpace: 'nowrap' }}>{current + 1}/{total}</span>
+      </div>
+      <div onClick={handleTap} style={{ flex: 1, overflow: 'auto', cursor: 'pointer' }}>
+        <div key={current} style={{ animation: `${direction === 'right' ? 'slideInRight' : 'slideInLeft'} 300ms ease-out both` }}>
+          <Card />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ══ KUNDALI TAB — SECTION HEADER + CARD HELPERS ══ */
+const SectionHeader = ({ title, subtitle, delay = 0 }) => (
+  <div style={{ padding: '20px 16px 8px', animation: `fadeInUp 500ms ease-out ${delay}ms both` }}>
+    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-high)', letterSpacing: '-0.03em' }}>{title}</div>
+    {subtitle && <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-low)', marginTop: 3 }}>{subtitle}</div>}
+  </div>
+);
+
+const STORY_CARDS = [
+  { id: 'superpower', title: 'Why people follow your lead', subtitle: 'without you even asking', planet: 'Mars', accentBg: 'linear-gradient(135deg, #1a0500 0%, #0d0200 100%)', isDark: true, visual: 'mars' },
+  { id: 'mulank', title: 'Mulank 9 + Makar', subtitle: 'a rare powerful combination', planet: 'Mars', accentBg: 'linear-gradient(135deg, #1a0a00 0%, #0d0500 100%)', isDark: true, visual: 'numerology' },
+  { id: 'blindspot', title: 'The trait that pushes people away', subtitle: 'and you don\'t see it', planet: 'Moon', accentBg: 'linear-gradient(135deg, #0d0d18 0%, #080810 100%)', isDark: true, visual: 'moon' },
+  { id: 'misunderstood', title: 'Why people think you\'re intimidating', subtitle: 'when you\'re not', planet: 'Saturn', accentBg: 'linear-gradient(135deg, #0a0a14 0%, #050508 100%)', isDark: true, visual: 'saturn' },
+  { id: 'destiny', title: 'The rare pattern in your chart', subtitle: 'only 5% have this', planet: 'Mars', accentBg: 'linear-gradient(135deg, var(--surface-bold) 0%, #1a0066 100%)', isDark: true, visual: 'triangle' },
+  { id: 'twin', title: 'Your kundli matches Dhoni\'s', subtitle: '89% cosmic overlap', planet: 'Jupiter', accentBg: 'linear-gradient(135deg, #001a15 0%, #000d0a 100%)', isDark: true, visual: 'twin' },
+  { id: 'future', title: 'In 14 months, something shifts', subtitle: 'your biggest career window', planet: 'Jupiter', accentBg: 'linear-gradient(135deg, #0a0020 0%, #050010 100%)', isDark: true, visual: 'clock' },
+];
+
+const TapReveal = ({ text, color = 'var(--sparkle-40)' }) => {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div onClick={(e) => { e.stopPropagation(); setRevealed(true); }}
+      style={{ padding: '12px 16px', borderRadius: 14, cursor: 'pointer', marginTop: 14, textAlign: 'center', background: revealed ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.03)', border: `1px dashed ${revealed ? 'transparent' : 'rgba(255,255,255,0.12)'}`, transition: 'all 400ms ease' }}>
+      {!revealed ? (
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>✦ Tap to reveal hidden insight</span>
+      ) : (
+        <span style={{ fontSize: 14, fontWeight: 600, color, animation: 'fadeInUp 400ms ease-out both', display: 'block', lineHeight: 1.5 }}>{text}</span>
+      )}
+    </div>
+  );
+};
+
+const EmotionalIndicator = ({ label, level, color }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0' }}>
+    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, animation: 'breathe 2s ease-in-out infinite', boxShadow: `0 0 8px ${color}88` }} />
+      <span style={{ fontSize: 13, fontWeight: 700, color }}>{level}</span>
+    </div>
+  </div>
+);
+
+const NextTeaser = ({ text }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary-30)', fontStyle: 'italic' }}>{text}</span>
+    <span style={{ fontSize: 14, color: 'var(--primary-30)', animation: 'breathe 2s ease-in-out infinite' }}>→</span>
+  </div>
+);
+
+const CardVisual = ({ type }) => {
+  if (type === 'numerology') return (
+    <div style={{ position: 'relative', width: 70, height: 70 }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1.5px solid rgba(255,180,80,0.3)' }} />
+      <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: '1px solid rgba(255,180,80,0.15)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 28, fontWeight: 900, color: '#ffb450', textShadow: '0 0 20px rgba(255,180,80,0.5)' }}>9</span>
+      </div>
+      {[0,60,120,180,240,300].map(deg => (
+        <span key={deg} style={{ position: 'absolute', top: '50%', left: '50%', fontSize: 9, fontWeight: 700, color: `rgba(255,180,80,0.3)`, transform: `translate(-50%,-50%) rotate(${deg}deg) translateY(-30px)` }}>{[1,3,5,7,2,4][deg/60]}</span>
+      ))}
+    </div>
+  );
+  if (type === 'triangle') return (
+    <svg width="65" height="60" viewBox="0 0 65 60">
+      <polygon points="32.5,5 60,55 5,55" fill="none" stroke="rgba(122,235,217,0.4)" strokeWidth="1.5" />
+      <polygon points="32.5,18 48,48 17,48" fill="none" stroke="rgba(255,180,80,0.3)" strokeWidth="1" />
+      <polygon points="32.5,28 40,44 25,44" fill="rgba(122,235,217,0.1)" stroke="rgba(53,53,243,0.3)" strokeWidth="1" />
+      <circle cx="32.5" cy="35" r="3" fill="rgba(255,255,255,0.6)" style={{ filter: 'blur(1px)' }} />
+    </svg>
+  );
+  if (type === 'clock') return (
+    <div style={{ position: 'relative', width: 65, height: 65 }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1.5px solid rgba(53,53,243,0.3)' }} />
+      {[1,2,3,4,5,6,7,8,9].map((n,i) => (
+        <span key={n} style={{ position: 'absolute', top: '50%', left: '50%', fontSize: 10, fontWeight: 700, color: `rgba(150,150,255,${0.3 + (n===9?0.6:0)})`, transform: `translate(-50%,-50%) rotate(${i*40}deg) translateY(-26px) rotate(-${i*40}deg)` }}>{n}</span>
+      ))}
+      <div style={{ position: 'absolute', top: '50%', left: '50%', width: 4, height: 4, borderRadius: '50%', background: 'var(--primary-30)', transform: 'translate(-50%,-50%)', boxShadow: '0 0 8px var(--primary-30)' }} />
+    </div>
+  );
+  if (type === 'twin') return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: 'white' }}>S</div>
+      <span style={{ fontSize: 10, color: 'var(--sparkle-40)', fontWeight: 700 }}>89%</span>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--sparkle-60)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: 'white' }}>MSD</div>
+    </div>
+  );
+  const planetMap = { mars: Planet3D_Mars, moon: Planet3D_Moon, saturn: Planet3D_Saturn };
+  const Comp = planetMap[type];
+  if (Comp) return <Comp size={44} />;
+  return <span style={{ fontSize: 36 }}>✦</span>;
+};
+
+const StoryCardPreview = ({ card, index, onTap }) => (
+  <div onClick={() => onTap(index)} style={{ width: 155, minWidth: 155, borderRadius: 20, overflow: 'hidden', background: card.accentBg, cursor: 'pointer', boxShadow: '0 4px 24px rgba(0,0,0,0.2)', animation: `fadeInScale 400ms ease-out ${200 + index * 100}ms both`, transition: 'transform 150ms ease', flexShrink: 0 }}
+    onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
+    onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+    <div style={{ height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <CardVisual type={card.visual} />
+    </div>
+    <div style={{ padding: '0 14px 16px' }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.9)', lineHeight: 1.25, marginBottom: 4 }}>{card.title}</div>
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.4)', lineHeight: 1.3 }}>{card.subtitle}</div>
+    </div>
+  </div>
+);
+
+/* ══ KUNDALI TAB — PLANET SVG + ORBIT DATA ══ */
+const PlanetImg = ({ id, size }) => {
+  const s = size;
+  if (id === 'Mars') return (<svg width={s} height={s} viewBox="0 0 100 100"><defs><radialGradient id="mars_g" cx="38%" cy="32%" r="55%"><stop offset="0%" stopColor="#ffaa77" /><stop offset="25%" stopColor="#ee7744" /><stop offset="55%" stopColor="#cc4422" /><stop offset="80%" stopColor="#882211" /><stop offset="100%" stopColor="#441100" /></radialGradient><radialGradient id="mars_hl" cx="30%" cy="25%" r="30%"><stop offset="0%" stopColor="rgba(255,255,255,0.35)" /><stop offset="100%" stopColor="rgba(255,255,255,0)" /></radialGradient></defs><circle cx="50" cy="50" r="48" fill="url(#mars_g)" /><ellipse cx="38" cy="40" rx="14" ry="5" fill="rgba(100,30,10,0.35)" /><ellipse cx="60" cy="58" rx="18" ry="4" fill="rgba(120,40,15,0.25)" /><circle cx="50" cy="50" r="48" fill="url(#mars_hl)" /></svg>);
+  if (id === 'Saturn') return (<svg width={s * 1.8} height={s} viewBox="0 0 180 100"><defs><radialGradient id="sat_g" cx="38%" cy="35%" r="50%"><stop offset="0%" stopColor="#d4c898" /><stop offset="30%" stopColor="#b0a070" /><stop offset="60%" stopColor="#7a7050" /><stop offset="85%" stopColor="#3a3528" /><stop offset="100%" stopColor="#1a1510" /></radialGradient><radialGradient id="sat_hl" cx="35%" cy="28%" r="28%"><stop offset="0%" stopColor="rgba(255,255,255,0.3)" /><stop offset="100%" stopColor="rgba(255,255,255,0)" /></radialGradient><linearGradient id="ring_g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="rgba(160,140,100,0.05)" /><stop offset="45%" stopColor="rgba(200,180,140,0.55)" /><stop offset="100%" stopColor="rgba(160,140,100,0.05)" /></linearGradient></defs><ellipse cx="90" cy="52" rx="85" ry="18" fill="none" stroke="url(#ring_g)" strokeWidth="10" opacity="0.6" /><circle cx="90" cy="50" r="32" fill="url(#sat_g)" /><circle cx="90" cy="50" r="32" fill="url(#sat_hl)" /><ellipse cx="90" cy="52" rx="85" ry="18" fill="none" stroke="url(#ring_g)" strokeWidth="10" opacity="0.6" style={{ clipPath: 'inset(52% 0 0 0)' }} /></svg>);
+  if (id === 'Jupiter') return (<svg width={s} height={s} viewBox="0 0 100 100"><defs><radialGradient id="jup_g" cx="38%" cy="32%" r="55%"><stop offset="0%" stopColor="#c8b898" /><stop offset="20%" stopColor="#b8956a" /><stop offset="50%" stopColor="#8a6840" /><stop offset="80%" stopColor="#4a3820" /><stop offset="100%" stopColor="#1a1008" /></radialGradient><radialGradient id="jup_hl" cx="32%" cy="26%" r="28%"><stop offset="0%" stopColor="rgba(255,255,255,0.3)" /><stop offset="100%" stopColor="rgba(255,255,255,0)" /></radialGradient></defs><circle cx="50" cy="50" r="48" fill="url(#jup_g)" /><ellipse cx="50" cy="28" rx="46" ry="4" fill="rgba(200,170,120,0.2)" /><ellipse cx="50" cy="48" rx="47" ry="3.5" fill="rgba(220,190,140,0.18)" /><ellipse cx="62" cy="55" rx="8" ry="5" fill="rgba(180,80,40,0.3)" /><circle cx="50" cy="50" r="48" fill="url(#jup_hl)" /></svg>);
+  if (id === 'Moon') return (<svg width={s} height={s} viewBox="0 0 100 100"><defs><radialGradient id="moon_g" cx="40%" cy="35%" r="55%"><stop offset="0%" stopColor="#e8e8ee" /><stop offset="25%" stopColor="#c8c8d0" /><stop offset="55%" stopColor="#9898a4" /><stop offset="80%" stopColor="#606070" /><stop offset="100%" stopColor="#303038" /></radialGradient><radialGradient id="moon_hl" cx="32%" cy="28%" r="25%"><stop offset="0%" stopColor="rgba(255,255,255,0.4)" /><stop offset="100%" stopColor="rgba(255,255,255,0)" /></radialGradient></defs><circle cx="50" cy="50" r="48" fill="url(#moon_g)" /><circle cx="35" cy="38" r="10" fill="rgba(80,80,90,0.2)" /><circle cx="45" cy="55" r="12" fill="rgba(80,80,90,0.18)" /><circle cx="50" cy="50" r="48" fill="url(#moon_hl)" /></svg>);
+  if (id === 'Venus') return (<svg width={s} height={s} viewBox="0 0 100 100"><defs><radialGradient id="ven_g" cx="40%" cy="33%" r="55%"><stop offset="0%" stopColor="#ede8d8" /><stop offset="25%" stopColor="#d8d0b8" /><stop offset="50%" stopColor="#b8a888" /><stop offset="80%" stopColor="#787060" /><stop offset="100%" stopColor="#383430" /></radialGradient><radialGradient id="ven_hl" cx="34%" cy="28%" r="26%"><stop offset="0%" stopColor="rgba(255,255,255,0.35)" /><stop offset="100%" stopColor="rgba(255,255,255,0)" /></radialGradient></defs><circle cx="50" cy="50" r="48" fill="url(#ven_g)" /><ellipse cx="45" cy="40" rx="25" ry="8" fill="rgba(220,210,180,0.12)" transform="rotate(-15 45 40)" /><circle cx="50" cy="50" r="48" fill="url(#ven_hl)" /></svg>);
+  return null;
+};
+
+const ORBIT_PLANETS = [
+  { id: 'Mars', glyph: '♂', label: 'मंगल', house: '1st House', strength: 0.95, orbitRadius: 0.30, speed: 120, startAngle: 0, color: '#ff6644', glowColor: 'rgba(255,102,68,0.4)', size: 48, speaker: 'kabir',
+    title: 'मंगल — Your Fire', subtitle: 'The force behind every bold decision',
+    narration: `मैं मंगल हूँ, और शिवाली जी, आपकी birth chart में मैं पहले घर में — लग्न में — बैठा हूँ। ये सबसे powerful placement है। इसका मतलब है कि आपकी personality में ही courage है — आपको अलग से हिम्मत जुटानी नहीं पड़ती। जहाँ दूसरे permission माँगते हैं, आप initiative लेती हैं। Quick decisions, leadership, किसी भी situation में सबसे पहले खड़ा होना — ये आपकी core strengths हैं। और अभी एक interesting चीज़ हो रही है — इस वक़्त मैं transit करके आपके दसवें घर में आया हूँ, career और public recognition वाले घर में। ये combination rare है — लग्न का मंगल जब दसवें में transit करे, तो professionally कुछ बड़ा होता है। पिछले कुछ हफ़्तों में आपने notice किया होगा — work में ज़्यादा energy है, decisions तेज़ हो रहे हैं। ये phase अगले तीन महीने तक है — इसका पूरा फ़ायदा उठाइए।`,
+    storyBeats: [
+      { at:0.12, icon:'🏠', text:'लग्न भाव में मंगल', sub:'1st House · Personality = Courage', type:'house', fromHouse:null, toHouse:'1' },
+      { at:0.30, icon:'⚔️', text:'Core Strengths', sub:'Quick decisions · Leadership · Initiative', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: लग्न → दसवाँ भाव', sub:'Career & Public Recognition House', type:'transit', fromHouse:'1', toHouse:'10' },
+      { at:0.65, icon:'🔥', text:'Rare Combination Active', sub:'लग्न का मंगल + 10th house transit', type:'highlight' },
+      { at:0.82, icon:'⏳', text:'3 महीने का Power Phase', sub:'Work energy UP · Decisions sharp · Recognition', type:'window' },
+    ],
+    chatReplies: { health: 'मंगल लग्न में है — शरीर में गर्मी और एसिडिटी हो सकती है। अभी ठंडी चीज़ें खाएं।', career: 'अभी मैं दसवें भाव में transit कर रहा हूँ — career का सबसे powerful phase है। Bold moves लो।', love: 'मंगल की वजह से relationships में थोड़ा aggression आ सकता है। Soft बोलो।', default: 'मैं आपका सबसे dominant planet हूँ — लग्न में बैठा हूँ। जो भी सवाल है, बेझिझक पूछो।' },
+  },
+  { id: 'Saturn', glyph: '♄', label: 'शनि', house: '10th House', strength: 0.80, orbitRadius: 0.44, speed: 200, startAngle: 72, color: 'rgba(200,190,160,0.8)', glowColor: 'rgba(200,190,160,0.25)', size: 44, speaker: 'ratan',
+    title: 'शनि — Your Patience', subtitle: 'The quiet strength behind your perseverance',
+    narration: `मैं शनि हूँ। शिवाली जी, आपकी birth chart में मैं दसवें घर में बैठा हूँ — career और public life के घर में। इसकी वजह से आपमें genuine discipline है, shortcuts लेना आपकी nature में नहीं है। जो भी आपने build किया है life में, वो solid है क्योंकि आपने properly किया है। लोग आप पर trust करते हैं — आपकी professional reputation हमेशा आपसे पहले पहुँचती है। अभी मैं transit करके आपके पाँचवें घर में आया हूँ — creativity, self-expression, और learning वाले घर में। ये January से शुरू हुआ है और अगले डेढ़ साल तक रहेगा। इस phase में जो भी skill आप सीखेंगी, वो आगे जाकर आपके career को next level पर ले जाएगी।`,
+    storyBeats: [
+      { at:0.12, icon:'🏠', text:'दसवाँ भाव में शनि', sub:'10th House · Career & Discipline', type:'house' },
+      { at:0.30, icon:'🧱', text:'Solid Foundation', sub:'Genuine discipline · No shortcuts', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: दसवाँ → पाँचवाँ भाव', sub:'Creativity & Learning House', type:'transit', fromHouse:'10', toHouse:'5' },
+      { at:0.65, icon:'📚', text:'नया सीखने का Phase', sub:'Jan 2026 — 1.5 years', type:'window' },
+      { at:0.85, icon:'🏆', text:'Lasting Results', sub:'Skills now = Career next level', type:'highlight' },
+    ],
+    chatReplies: { health: 'मैं हड्डियों और जोड़ों का कारक हूँ। सरसों का तेल लगाओ।', career: 'मैं आपके दसवें भाव में बैठा हूँ — career मेरा domain है। Slow but solid growth होगी।', default: 'मैं शनि हूँ — discipline और karma का देवता। जो सवाल है पूछो।' },
+  },
+  { id: 'Jupiter', glyph: '♃', label: 'गुरु', house: '5th House', strength: 0.85, orbitRadius: 0.56, speed: 160, startAngle: 144, color: '#5555ff', glowColor: 'rgba(53,53,243,0.3)', size: 44, speaker: 'advait',
+    title: 'गुरु — Your Expansion', subtitle: 'The wisdom you carry within',
+    narration: `मैं गुरु हूँ — बृहस्पति। शिवाली जी, आपकी chart में मैं पाँचवें घर में बैठा हूँ — wisdom, creativity और deep understanding वाला घर। इसकी वजह से आपमें एक natural intelligence है — आप चीज़ों को surface पर नहीं, deeper level पर समझती हैं। और अभी सबसे exciting बात — मैं इस वक़्त आपके नवें घर में हूँ, भाग्य और higher learning वाले घर में। इसीलिए last कुछ महीनों में आपने feel किया होगा कि perspective broaden हो रहा है। लेकिन असली game-changer ये है — late 2026 में मैं आपके दसवें घर में enter करूँगा। जो groundwork आप अभी कर रही हैं, उसका reward तब मिलेगा।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'पाँचवाँ भाव में गुरु', sub:'5th House · Wisdom & Creativity', type:'house' },
+      { at:0.28, icon:'🧠', text:'Natural Intelligence', sub:'Deep understanding · Genuine advice', type:'trait' },
+      { at:0.45, icon:'→', text:'Transit: पाँचवाँ → नवाँ भाव', sub:'भाग्य & Higher Learning', type:'transit', fromHouse:'5', toHouse:'9' },
+      { at:0.62, icon:'✈️', text:'Perspective Broadening', sub:'Travel · New knowledge areas', type:'highlight' },
+      { at:0.80, icon:'🚀', text:'Late 2026: दसवाँ भाव Entry', sub:'Career game-changer · 14-month window', type:'window' },
+    ],
+    chatReplies: { health: 'मैं लिवर और weight का कारक हूँ। हल्दी वाला दूध पियो।', career: 'Late 2026 में मैं आपके दसवें भाव में आ रहा हूँ — ये career का सबसे बड़ा window होगा।', default: 'मैं गुरु हूँ — ज्ञान और विस्तार का ग्रह। जो भी सीखना है, अभी सीखो।' },
+  },
+  { id: 'Moon', glyph: '☽', label: 'चन्द्र', house: '7th House', strength: 0.60, orbitRadius: 0.36, speed: 90, startAngle: 216, color: 'rgba(200,200,220,0.9)', glowColor: 'rgba(200,200,220,0.2)', size: 40, speaker: 'aayan',
+    title: 'चन्द्रमा — Your Emotional Intelligence', subtitle: 'The depth that makes your connections real',
+    narration: `मैं चन्द्रमा हूँ। शिवाली जी, आपकी chart में मैं सातवें घर में बैठा हूँ — partnerships और close relationships वाले घर में। इसकी वजह से आपको एक rare strength मिलती है — emotional intelligence। आप लोगों की energy बिना उनके बोले read कर लेती हैं। मेरी ख़ासियत ये है कि मैं सबसे तेज़ चलता हूँ — हर ढाई दिन में sign बदलता हूँ। कुछ दिन ऐसे होते हैं जब आप emotionally बहुत clear होती हैं — वो मेरे अच्छे दिन हैं। और आपकी सबसे बड़ी strength ये है कि आप इन emotional waves को navigate करना जानती हैं।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'सातवाँ भाव में चंद्र', sub:'7th House · Partnerships', type:'house' },
+      { at:0.28, icon:'💡', text:'Emotional Intelligence', sub:'Energy read कर लेती हैं', type:'trait' },
+      { at:0.48, icon:'🔄', text:'हर 2.5 दिन Sign Change', sub:'Daily influence · Fastest planet', type:'transit' },
+      { at:0.68, icon:'🌊', text:'Emotional Rhythm', sub:'Clear days ↔ Heavy days = Normal cycle', type:'highlight' },
+      { at:0.85, icon:'🧭', text:'Rare Strength', sub:'Navigate emotional waves', type:'trait' },
+    ],
+    chatReplies: { health: 'मैं मन और पानी का कारक हूँ। सोने से पहले दूध पियो।', love: 'सातवें भाव में बैठा हूँ — relationships मेरा domain है। Soft tone में बात करो।', default: 'मैं चंद्रमा हूँ — मन और भावनाओं का स्वामी। ये cycle समझो तो life easy हो जाती है।' },
+  },
+  { id: 'Venus', glyph: '♀', label: 'शुक्र', house: '4th House', strength: 0.70, orbitRadius: 0.48, speed: 140, startAngle: 288, color: '#9999ff', glowColor: 'rgba(153,153,255,0.25)', size: 42, speaker: 'manan',
+    title: 'शुक्र — Your Aesthetic Sense', subtitle: 'The eye for beauty that comes naturally to you',
+    narration: `मैं शुक्र हूँ। शिवाली जी, आपकी chart में मैं चौथे घर में बैठा हूँ — home, comfort और inner peace वाले घर में। इसकी वजह से आपमें एक refined taste है — aesthetics, design, music, कोई भी creative चीज़ — आपकी eye for detail remarkable है। और पिछले करीब एक साल से मैं आपके पाँचवें घर में हूँ — romance, creativity और self-expression वाले घर में। ये आपका golden phase है, पूरा फ़ायदा उठाइए।`,
+    storyBeats: [
+      { at:0.10, icon:'🏠', text:'चौथा भाव में शुक्र', sub:'4th House · Home & Inner Peace', type:'house' },
+      { at:0.28, icon:'🎨', text:'Refined Taste', sub:'Aesthetics · Design · Eye for detail', type:'trait' },
+      { at:0.48, icon:'→', text:'Transit: चौथा → पाँचवाँ भाव', sub:'Romance & Self-Expression', type:'transit', fromHouse:'4', toHouse:'5' },
+      { at:0.68, icon:'💜', text:'Creative Side Active', sub:'New ideas · Expression changed', type:'highlight' },
+      { at:0.85, icon:'✨', text:'Golden Phase — कुछ महीने और', sub:'Creative + personal goals = priority', type:'window' },
+    ],
+    chatReplies: { health: 'मैं skin और reproductive health का कारक हूँ। ज़्यादा मीठा avoid करो।', love: 'मैं पाँचवें भाव में हूँ — romance मेरा zone है। Partner के साथ quality time spend करो।', career: 'Creative fields मेरा domain है। Creative projects को priority दो।', default: 'मैं शुक्र हूँ — सौंदर्य, प्रेम और comfort का ग्रह। ये आपका golden phase है।' },
+  },
+];
+
+const PlanetParticles = ({ planetId, size }) => {
+  if (planetId === 'Mars') return (<>{[...Array(8)].map((_, i) => <div key={i} style={{ position: 'absolute', top: `${50 + Math.sin(i * 0.8) * 45}%`, left: `${50 + Math.cos(i * 1.2) * 45}%`, width: 3 + Math.random() * 4, height: 3 + Math.random() * 4, borderRadius: '50%', background: `rgba(255,${80 + Math.random()*60},0,${0.3 + Math.random()*0.4})`, animation: `flameSpark ${1 + Math.random()}s ease-out ${i * 0.2}s infinite`, filter: 'blur(1px)' }} />)}</>);
+  if (planetId === 'Saturn') return (<>{[...Array(3)].map((_, i) => <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: size * (1.4 + i * 0.3), height: size * (0.35 + i * 0.08), borderRadius: '50%', border: `1px solid rgba(200,190,160,${0.12 - i * 0.03})`, transform: 'translate(-50%,-50%) rotateX(75deg)', animation: `ringWave ${3 + i}s ease-in-out ${i * 0.5}s infinite alternate` }} />)}</>);
+  if (planetId === 'Jupiter') return <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', background: 'radial-gradient(circle, rgba(53,53,243,0.15) 0%, rgba(255,215,0,0.08) 40%, transparent 70%)', animation: 'jupiterAura 3s ease-in-out infinite alternate' }} />;
+  if (planetId === 'Moon') return <div style={{ position: 'absolute', inset: -15, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,200,220,0.12) 0%, transparent 60%)', animation: 'moonTide 4s ease-in-out infinite alternate' }} />;
+  if (planetId === 'Venus') return (<>{[...Array(6)].map((_, i) => <div key={i} style={{ position: 'absolute', top: `${30 + Math.random() * 40}%`, left: `${30 + Math.random() * 40}%`, width: 2, height: 2, borderRadius: '50%', background: `rgba(200,180,255,${0.2 + Math.random() * 0.4})`, animation: `venusShimmer ${2 + Math.random() * 2}s ease-in-out ${i * 0.3}s infinite alternate` }} />)}</>);
+  return null;
+};
+
+const LivingSolarSystem = ({ onPlanetTap }) => {
+  const containerRef = useRef(null);
+  const [time, setTime] = useState(0);
+  const [hintPlanet, setHintPlanet] = useState(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragRef = useRef({ dragging: false, startX: 0, startOffset: 0 });
+  const SIZE = 320;
+  const CX = SIZE / 2, CY = SIZE / 2;
+  useEffect(() => { let raf; const tick = () => { setTime(t => t + 0.06); raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf); }, []);
+  useEffect(() => { prefetchPlanetAudio(); prefetchCardAudio(); }, []);
+  useEffect(() => { const timer = setTimeout(() => { const strongest = ORBIT_PLANETS.reduce((a, b) => a.strength > b.strength ? a : b); setHintPlanet(strongest.id); }, 4000); return () => clearTimeout(timer); }, []);
+  const onPointerDown = (e) => { dragRef.current = { dragging: true, startX: e.clientX, startOffset: dragOffset }; setHintPlanet(null); };
+  const onPointerMove = (e) => { if (!dragRef.current.dragging) return; const dx = e.clientX - dragRef.current.startX; setDragOffset(dragRef.current.startOffset + dx * 0.5); };
+  const onPointerUp = () => { dragRef.current.dragging = false; };
+  return (
+    <div style={{ margin: '0 16px', borderRadius: 24, overflow: 'hidden', background: 'radial-gradient(ellipse at 50% 40%, #0c0028 0%, #050014 40%, #020008 100%)', padding: '20px 0 12px', position: 'relative', boxShadow: '0 8px 40px rgba(0,0,0,0.3), inset 0 0 60px rgba(53,53,243,0.05)', animation: 'fadeInUp 600ms ease-out 500ms both' }}>
+      {[...Array(30)].map((_, i) => <div key={i} style={{ position: 'absolute', top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: i % 5 === 0 ? 2 : 1, height: i % 5 === 0 ? 2 : 1, borderRadius: '50%', background: `rgba(255,255,255,${0.08 + Math.random() * 0.2})`, animation: i % 7 === 0 ? `breathe ${3 + Math.random() * 2}s ease-in-out infinite` : 'none' }} />)}
+      <div ref={containerRef} style={{ width: SIZE, height: SIZE, margin: '0 auto', position: 'relative', cursor: 'grab' }} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
+        {ORBIT_PLANETS.map((p) => <div key={p.id + '_ring'} style={{ position: 'absolute', top: '50%', left: '50%', width: SIZE * p.orbitRadius * 2, height: SIZE * p.orbitRadius * 2, borderRadius: '50%', border: `1px solid rgba(255,255,255,${0.04 + p.strength * 0.03})`, transform: 'translate(-50%,-50%)' }} />)}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 5 }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at 40% 35%, #6040cc, var(--surface-bold) 50%, #1a0066 100%)', boxShadow: '0 0 25px 8px rgba(53,53,243,0.3), 0 0 50px 15px rgba(53,53,243,0.1)', border: '2px solid rgba(153,153,255,0.3)', animation: 'breathe 4s ease-in-out infinite' }}><span style={{ fontSize: 24, color: 'rgba(255,255,255,0.9)' }}>♏</span></div>
+          <div style={{ textAlign: 'center', marginTop: 4 }}><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(153,153,255,0.6)', letterSpacing: 0.5 }}>Shivali</span></div>
+        </div>
+        {ORBIT_PLANETS.map((planet) => {
+          const angle = (time / planet.speed + planet.startAngle / 360 + dragOffset / 360) * Math.PI * 2;
+          const rx = SIZE * planet.orbitRadius, ry = SIZE * planet.orbitRadius * 0.6;
+          const px = CX + Math.cos(angle) * rx - planet.size / 2, py = CY + Math.sin(angle) * ry - planet.size / 2;
+          const isHint = hintPlanet === planet.id, scale = 0.7 + planet.strength * 0.3;
+          return (
+            <div key={planet.id} onClick={(e) => { e.stopPropagation(); setHintPlanet(null); onPlanetTap(planet); }} style={{ position: 'absolute', left: px, top: py, width: planet.size, height: planet.size, zIndex: 10, cursor: 'pointer', transition: 'filter 200ms', transform: `scale(${scale})`, filter: isHint ? 'brightness(1.5)' : 'none' }}>
+              <div style={{ position: 'absolute', inset: -planet.size * 0.4, borderRadius: '50%', background: `radial-gradient(circle, ${planet.glowColor} 0%, transparent 65%)`, animation: `breathe ${3 + planet.strength}s ease-in-out infinite`, opacity: 0.5 + planet.strength * 0.5 }} />
+              <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: `1.5px dashed rgba(255,255,255,${isHint ? 0.4 : 0.12})`, animation: isHint ? 'breathe 1.5s ease-in-out infinite' : 'none' }} />
+              <div style={{ position: 'relative', filter: `drop-shadow(0 0 ${4 + planet.strength * 8}px ${planet.glowColor})` }}><PlanetImg id={planet.id} size={planet.size} /></div>
+              <div style={{ textAlign: 'center', marginTop: 3, minWidth: 60 }}>
+                <div style={{ fontSize: 9, fontWeight: 800, color: `rgba(255,255,255,${0.4 + planet.strength * 0.4})`, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>{planet.label}</div>
+                <div style={{ fontSize: 7, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>{planet.house}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ textAlign: 'center', marginTop: 8, fontSize: 10, fontWeight: 600, color: 'rgba(153,153,255,0.4)', letterSpacing: 0.5 }}>drag to rotate · tap any planet</div>
+    </div>
+  );
+};
+
+const matchPlanetChatCategory = (msg) => {
+  const m = msg.toLowerCase();
+  if (m.includes('सेहत') || m.includes('health') || m.includes('बीमार') || m.includes('तबीयत')) return 'health';
+  if (m.includes('करियर') || m.includes('career') || m.includes('job') || m.includes('नौकरी') || m.includes('promotion')) return 'career';
+  if (m.includes('love') || m.includes('प्यार') || m.includes('रिश्ते') || m.includes('शादी') || m.includes('partner')) return 'love';
+  return 'default';
+};
+
+const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, total }) => {
+  const { speaking, progress, speak, stop, toggle } = useNarration();
+  const [phase, setPhase] = useState('intro');
+  const [visibleBeats, setVisibleBeats] = useState([]);
+  const [activeBeatIdx, setActiveBeatIdx] = useState(-1);
+  const shownBeats = useRef(new Set());
+  const contentRef = useRef(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatSpeaking, setChatSpeaking] = useState(false);
+  const chatAudioRef = useRef(null);
+
+  useEffect(() => {
+    shownBeats.current = new Set(); setVisibleBeats([]); setActiveBeatIdx(-1); setPhase('intro'); setChatMessages([]);
+    const introTimer = setTimeout(() => { setPhase('story'); speak(planet.narration, 'planet_' + planet.id, planet.speaker || 'advait'); }, 5000);
+    return () => { clearTimeout(introTimer); stop(); stopChatAudio(); };
+  }, [planet.id]);
+
+  useEffect(() => {
+    if (phase !== 'story' || !planet.storyBeats) return;
+    planet.storyBeats.forEach((beat, i) => {
+      if (progress >= beat.at && !shownBeats.current.has(i)) { shownBeats.current.add(i); setVisibleBeats(prev => [...prev, i]); setActiveBeatIdx(i); setTimeout(() => { if (contentRef.current) contentRef.current.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' }); }, 100); }
+    });
+    if (!speaking && progress === 0 && visibleBeats.length > 0) setPhase('done');
+  }, [progress, speaking, phase]);
+
+  const stopChatAudio = () => { if (chatAudioRef.current) { try { chatAudioRef.current.pause(); chatAudioRef.current.currentTime = 0; } catch(e) {} chatAudioRef.current = null; } };
+
+  const handleChatSend = async (text) => {
+    const msg = text || chatInput.trim();
+    if (!msg || chatSpeaking) return;
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', text: msg }]);
+    const cat = matchPlanetChatCategory(msg);
+    const replies = planet.chatReplies || {};
+    const reply = replies[cat] || replies.default || 'इस बारे में मैं आपको जल्दी बताऊंगा।';
+    setChatSpeaking(true);
+    setChatMessages(prev => [...prev, { role: 'planet', text: reply }]);
+    try {
+      const cacheKey = 'pchat_' + planet.id + '_' + cat;
+      if (audioCache[cacheKey]) {
+        const audio = new Audio(audioCache[cacheKey]); chatAudioRef.current = audio;
+        await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
+      } else {
+        const voiceId = mapSpeaker(planet.speaker || 'advait');
+        const resp = await fetch(ELEVEN_TTS_URL + voiceId, { method: 'POST', headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ text: reply, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) });
+        if (resp.ok) { const blob = await resp.blob(); const src = URL.createObjectURL(blob); audioCache[cacheKey] = src; const audio = new Audio(src); chatAudioRef.current = audio; await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); }); }
+      }
+    } catch(e) { console.warn('Chat TTS error:', e); }
+    chatAudioRef.current = null; setChatSpeaking(false);
+    setTimeout(() => { if (contentRef.current) contentRef.current.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' }); }, 100);
+  };
+
+  const bgMap = { Mars: 'radial-gradient(ellipse at 50% 30%, #2a0800 0%, #0d0200 60%, #050100 100%)', Saturn: 'radial-gradient(ellipse at 50% 30%, #15150f 0%, #0a0a08 60%, #030303 100%)', Jupiter: 'radial-gradient(ellipse at 50% 30%, #0a0a30 0%, #050518 60%, #020208 100%)', Moon: 'radial-gradient(ellipse at 50% 30%, #10101a 0%, #080810 60%, #030306 100%)', Venus: 'radial-gradient(ellipse at 50% 30%, #14101e 0%, #0a0810 60%, #040306 100%)' };
+  const beatTypeStyles = { house: { bg: `${planet.color}12`, border: `${planet.color}25` }, trait: { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.1)' }, transit: { bg: 'rgba(245,208,96,0.08)', border: 'rgba(245,208,96,0.2)' }, highlight: { bg: `${planet.color}10`, border: `${planet.color}20` }, window: { bg: 'rgba(78,205,196,0.06)', border: 'rgba(78,205,196,0.15)' } };
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 100, background: bgMap[planet.id] || bgMap.Mars, animation: 'fadeIn 400ms ease-out both', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ fontSize: 18, color: planet.color }}>{planet.glyph}</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginLeft: 8 }}>{planet.label}</span>
+        {speaking && <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 10 }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff3c3c', animation: 'breathe 1.5s ease-in-out infinite' }} /><span style={{ fontSize: 9, fontWeight: 700, color: '#ff5c5c' }}>LIVE</span></div>}
+        <div style={{ flex: 1 }} />
+        <div onClick={() => toggle(planet.narration, 'planet_' + planet.id, planet.speaker)} data-interactive style={{ width: 32, height: 32, borderRadius: 16, marginRight: 8, background: speaking ? `${planet.color}20` : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: speaking ? planet.color : 'rgba(255,255,255,0.5)' }}>{speaking ? '🔊' : '🔇'}</div>
+        <div onClick={() => { stop(); stopChatAudio(); onClose(); }} style={{ width: 32, height: 32, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>✕</div>
+      </div>
+      <div style={{ display: 'flex', gap: 3, padding: '8px 16px', background: 'rgba(0,0,0,0.2)' }}>
+        {[...Array(total)].map((_, i) => <div key={i} style={{ flex: 1, height: 2.5, borderRadius: 2, position: 'relative', overflow: 'hidden', background: i < currentIndex ? planet.color : 'rgba(255,255,255,0.1)' }}>{i === currentIndex && speaking && <div style={{ position: 'absolute', inset: 0, background: planet.color, width: `${progress * 100}%`, transition: 'width 200ms linear', borderRadius: 2 }} />}</div>)}
+      </div>
+      <div ref={contentRef} style={{ flex: 1, overflow: 'auto' }}>
+        <div style={{ padding: '40px 20px 20px', textAlign: 'center', animation: 'fadeInUp 800ms ease-out both' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, position: 'relative', height: planet.id === 'Saturn' ? 140 : 170 }}>
+            <div style={{ position: 'relative' }}>
+              <PlanetParticles planetId={planet.id} size={150} />
+              <div style={{ position: 'absolute', inset: -40, borderRadius: '50%', background: `radial-gradient(circle, ${planet.glowColor} 0%, transparent 60%)`, animation: phase === 'intro' ? 'breathe 2s ease-in-out infinite' : 'breathe 3s ease-in-out infinite', transform: phase === 'intro' ? 'scale(1.2)' : 'scale(1)', transition: 'transform 1s ease' }} />
+              <div style={{ position: 'relative', zIndex: 1, filter: `drop-shadow(0 0 20px ${planet.glowColor}) drop-shadow(0 0 40px ${planet.glowColor})`, animation: phase === 'intro' ? 'fadeInScale 1.2s ease-out both' : 'none' }}>
+                <PlanetImg id={planet.id} size={planet.id === 'Saturn' ? 90 : 150} />
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: planet.color, textTransform: 'uppercase', letterSpacing: 2, animation: 'fadeInUp 600ms ease-out 400ms both' }}>{planet.title}</div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: 'rgba(255,255,255,0.95)', marginTop: 8, letterSpacing: '-0.03em', lineHeight: 1.25, animation: 'fadeInUp 600ms ease-out 600ms both' }}>{planet.subtitle}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 16, animation: 'fadeInUp 600ms ease-out 800ms both' }}>
+            <div style={{ padding: '6px 14px', borderRadius: 10, background: `${planet.color}15`, border: `1px solid ${planet.color}25`, fontSize: 11, fontWeight: 600, color: planet.color }}>{planet.house}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}><div style={{ width: `${planet.strength * 100}%`, height: '100%', borderRadius: 2, background: planet.color, animation: 'fillBar 1s ease-out 1s both' }} /></div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: planet.color }}>{planet.strength >= 0.9 ? 'Dominant' : planet.strength >= 0.75 ? 'Strong' : 'Moderate'}</span>
+            </div>
+          </div>
+          {phase === 'intro' && <div style={{ marginTop: 24, animation: 'fadeInUp 500ms ease-out 1.5s both' }}><div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>{[0,1,2].map(d => <div key={d} style={{ width: 6, height: 6, borderRadius: '50%', background: planet.color, animation: 'breathe 1s ease-in-out infinite', animationDelay: (d * 0.2) + 's', opacity: 0.5 }} />)}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>{planet.label} बोलने की तैयारी कर रहा है...</div></div>}
+        </div>
+        {phase !== 'intro' && visibleBeats.length > 0 && (
+          <div style={{ padding: '0 16px' }}>
+            {planet.storyBeats && planet.storyBeats.map((beat, i) => {
+              if (!visibleBeats.includes(i)) return null;
+              const isLatest = i === activeBeatIdx, bStyle = beatTypeStyles[beat.type] || beatTypeStyles.trait;
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px', borderRadius: 16, marginBottom: 8, background: isLatest ? bStyle.bg : 'rgba(255,255,255,0.02)', border: '1px solid ' + (isLatest ? bStyle.border : 'rgba(255,255,255,0.04)'), animation: 'fadeInUp 400ms ease-out both', opacity: isLatest ? 1 : 0.5, transition: 'opacity 400ms ease, background 400ms ease' }}>
+                  {beat.type === 'transit' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: planet.color + '20', border: '1px solid ' + planet.color + '30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: planet.color }}>{beat.fromHouse || '?'}</div>
+                      <div style={{ fontSize: 16, color: '#f5d060', animation: isLatest ? 'breathe 1.5s ease-in-out infinite' : 'none' }}>→</div>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,208,96,0.15)', border: '1px solid rgba(245,208,96,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#f5d060' }}>{beat.toHouse || '?'}</div>
+                    </div>
+                  ) : (
+                    <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: isLatest ? planet.color + '20' : 'rgba(255,255,255,0.03)', border: '1px solid ' + (isLatest ? planet.color + '25' : 'rgba(255,255,255,0.06)'), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, boxShadow: isLatest ? '0 0 12px ' + planet.color + '15' : 'none' }}>{beat.icon}</div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: isLatest ? (beat.type === 'transit' ? '#f5d060' : planet.color) : 'rgba(255,255,255,0.6)' }}>{beat.text}</div>
+                    {beat.sub && <div style={{ fontSize: 10, fontWeight: 400, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{beat.sub}</div>}
+                  </div>
+                  {isLatest && speaking && <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: planet.color, animation: 'breathe 1s ease-in-out infinite' }} />}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {phase !== 'intro' && (
+          <div style={{ padding: '12px 16px 24px' }}>
+            {chatMessages.length > 0 && <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+              {chatMessages.map((msg, i) => msg.role === 'user' ? <div key={i} style={{ alignSelf: 'flex-end', maxWidth: '80%', padding: '8px 12px', borderRadius: '14px 14px 4px 14px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, color: 'rgba(255,255,255,0.8)', animation: 'fadeInUp 300ms ease-out both' }}>{msg.text}</div> : <div key={i} style={{ alignSelf: 'flex-start', maxWidth: '85%', animation: 'fadeInUp 300ms ease-out both' }}><div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><span style={{ fontSize: 14 }}>{planet.glyph}</span><span style={{ fontSize: 10, fontWeight: 700, color: planet.color }}>{planet.label}</span></div><div style={{ padding: '10px 12px', borderRadius: '4px 14px 14px 14px', background: `${planet.color}10`, border: `1px solid ${planet.color}18`, fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>{msg.text}</div></div>)}
+              {chatSpeaking && <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}>{[0,1,2].map(d => <div key={d} style={{ width: 6, height: 6, borderRadius: '50%', background: planet.color, animation: 'breathe 0.8s ease-in-out infinite', animationDelay: (d * 0.15) + 's' }} />)}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>बोल रहा है...</span></div>}
+            </div>}
+            {chatMessages.length === 0 && <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+              {[{text:'मेरी सेहत कैसी रहेगी?',cat:'health'},{text:'करियर में क्या होगा?',cat:'career'},{text:'और बताइए...',cat:'default'}].map((q, i) => <div key={i} onClick={() => handleChatSend(q.text)} style={{ padding: '6px 12px', borderRadius: 20, background: `${planet.color}12`, border: `1px solid ${planet.color}25`, fontSize: 11, fontWeight: 500, color: planet.color, cursor: 'pointer', whiteSpace: 'nowrap' }}>{q.text}</div>)}
+            </div>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>{planet.glyph}</span>
+              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleChatSend(); }} placeholder={planet.label + ' से कुछ पूछें...'} data-interactive style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit, sans-serif' }} />
+              <div onClick={() => handleChatSend()} data-interactive style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, background: chatInput.trim() ? `linear-gradient(135deg, ${planet.color}, ${planet.color}cc)` : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: chatInput.trim() ? 'pointer' : 'default' }}><span style={{ fontSize: 12, color: chatInput.trim() ? '#fff' : 'rgba(255,255,255,0.2)' }}>➤</span></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ══ KUNDALI TAB — TTS HELPERS (alias to existing fetchTTSAudio) ══ */
+const fetchTTS = (text, cacheKey, speaker = 'abhilash') => fetchTTSAudio(text, speaker, cacheKey);
+
+const useNarration = () => {
+  const audioRef = useRef(null);
+  const cancelledRef = useRef(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const chunkText = (text) => {
+    if (text.length <= 480) return [text];
+    const chunks = [];
+    let remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= 480) { chunks.push(remaining); break; }
+      const cut = remaining.substring(0, 480);
+      let splitAt = -1;
+      for (const sep of ['।', '.', '!', '?']) {
+        const idx = cut.lastIndexOf(sep);
+        if (idx > 150 && idx > splitAt) splitAt = idx;
+      }
+      if (splitAt < 0) {
+        for (const sep of [' — ', ', ', '— ']) {
+          const idx = cut.lastIndexOf(sep);
+          if (idx > 150) { splitAt = idx + sep.length - 1; break; }
+        }
+      }
+      if (splitAt < 0) splitAt = 479;
+      chunks.push(remaining.substring(0, splitAt + 1).trim());
+      remaining = remaining.substring(splitAt + 1).trim();
+    }
+    return chunks;
+  };
+
+  const fetchChunkAudio = async (chunkText, chunkKey, speaker) => {
+    if (audioCache[chunkKey]) return audioCache[chunkKey];
+    const voiceId = mapSpeaker(speaker);
+    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
+      method: 'POST',
+      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: chunkText, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+    });
+    if (!resp.ok) { console.warn('ElevenLabs TTS error:', await resp.text()); return null; }
+    const blob = await resp.blob();
+    const src = URL.createObjectURL(blob);
+    audioCache[chunkKey] = src;
+    return src;
+  };
+
+  const speak = useCallback(async (text, cacheKey, speaker = 'advait') => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    cancelledRef.current = false;
+    setSpeaking(true);
+    setProgress(0);
+    try {
+      const chunks = chunkText(text);
+      const totalChunks = chunks.length;
+      for (let i = 0; i < totalChunks; i++) {
+        if (cancelledRef.current) break;
+        const chunkKey = totalChunks === 1 ? cacheKey : cacheKey + '_c' + i;
+        const audioSrc = await fetchChunkAudio(chunks[i], chunkKey, speaker);
+        if (!audioSrc || cancelledRef.current) break;
+        await new Promise((resolve, reject) => {
+          const audio = new Audio(audioSrc);
+          audioRef.current = audio;
+          audio.ontimeupdate = () => {
+            if (audio.duration) setProgress((i + audio.currentTime / audio.duration) / totalChunks);
+          };
+          audio.onended = () => { audioRef.current = null; resolve(); };
+          audio.onerror = () => { audioRef.current = null; reject(); };
+          audio.play().catch(reject);
+        });
+      }
+    } catch (err) { console.warn('ElevenLabs TTS error:', err); }
+    if (!cancelledRef.current) { setSpeaking(false); setProgress(0); }
+  }, []);
+
+  const stop = useCallback(() => {
+    cancelledRef.current = true;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    setSpeaking(false);
+    setProgress(0);
+  }, []);
+
+  const toggle = useCallback((text, cacheKey, speaker) => {
+    if (speaking) { stop(); } else { speak(text, cacheKey, speaker); }
+  }, [speaking, speak, stop]);
+
+  return { speaking, progress, speak, stop, toggle };
+};
+
+const chunkTextForTTS = (text) => {
+  if (text.length <= 480) return [text];
+  const chunks = [];
+  let remaining = text;
+  while (remaining.length > 0) {
+    if (remaining.length <= 480) { chunks.push(remaining); break; }
+    const cut = remaining.substring(0, 480);
+    let splitAt = -1;
+    for (const sep of ['।', '.', '!', '?']) {
+      const idx = cut.lastIndexOf(sep);
+      if (idx > 150 && idx > splitAt) splitAt = idx;
+    }
+    if (splitAt < 0) {
+      for (const sep of [' — ', ', ', '— ']) {
+        const idx = cut.lastIndexOf(sep);
+        if (idx > 150) { splitAt = idx + sep.length - 1; break; }
+      }
+    }
+    if (splitAt < 0) splitAt = 479;
+    chunks.push(remaining.substring(0, splitAt + 1).trim());
+    remaining = remaining.substring(splitAt + 1).trim();
+  }
+  return chunks;
+};
+
+const _prefetchQueue = [];
+let _prefetchRunning = false;
+const queuePrefetch = (text, cacheKey, speaker) => {
+  const chunks = chunkTextForTTS(text);
+  chunks.forEach((chunk, ci) => {
+    const key = chunks.length === 1 ? cacheKey : cacheKey + '_c' + ci;
+    if (audioCache[key]) return;
+    _prefetchQueue.push({ chunk, key, speaker });
+  });
+  if (!_prefetchRunning) _drainPrefetchQueue();
+};
+const _drainPrefetchQueue = async () => {
+  _prefetchRunning = true;
+  while (_prefetchQueue.length > 0) {
+    const { chunk, key, speaker } = _prefetchQueue.shift();
+    if (audioCache[key]) continue;
+    try {
+      const voiceId = mapSpeaker(speaker);
+      const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
+        method: 'POST',
+        headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: chunk, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+      });
+      if (resp.ok) { const blob = await resp.blob(); audioCache[key] = URL.createObjectURL(blob); }
+    } catch(e) { console.warn('Prefetch failed for', key); }
+    await new Promise(r => setTimeout(r, 400));
+  }
+  _prefetchRunning = false;
+};
+
+const prefetchPlanetAudio = () => {
+  if (typeof ORBIT_PLANETS === 'undefined') return;
+  ORBIT_PLANETS.forEach((p) => queuePrefetch(p.narration, 'planet_' + p.id, p.speaker || 'advait'));
+};
+const prefetchCardAudio = () => {
+  if (typeof CARD1_NARRATION_SCENES !== 'undefined') CARD1_NARRATION_SCENES.forEach((scene, i) => queuePrefetch(scene.chunk, 'card0_s' + i, 'advait'));
+  if (typeof CARD2_NARRATION_SCENES !== 'undefined') CARD2_NARRATION_SCENES.forEach((scene, i) => queuePrefetch(scene.chunk, 'card1_s' + i, 'advait'));
+  if (typeof CARD5_NARRATION_SCENES !== 'undefined') CARD5_NARRATION_SCENES.forEach((scene, i) => queuePrefetch(scene.chunk, 'card4_s' + i, 'advait'));
+  if (typeof CARD_NARRATIONS === 'undefined') return;
+  CARD_NARRATIONS.forEach((narr, i) => { if (i <= 1 || i === 4) return; queuePrefetch(narr, 'card_' + i, 'advait'); });
+};
+
+/* ══ KUNDALI TAB — DESTINY WALK + CELEBRITY MATCH + ASK THE STARS ══ */
+
+const BIRTH_YEAR = 1995;
+const CURRENT_AGE = 30;
+const CURRENT_YEAR = 2025;
+
+const LIFE_ERAS = [
+  { id:'dawn', label:'Chandra Yog', labelHi:'चंद्र योग', range:[0,3], avatar:'baby', bg:'linear-gradient(135deg,#1a0020 0%,#2d1040 40%,#1a0030 100%)', roadColor:'#9898a4', starColor:'#ffaadd' },
+  { id:'child', label:'Budh Dasha', labelHi:'बुध दशा', range:[4,11], avatar:'child', bg:'linear-gradient(135deg,#0a1028 0%,#162050 40%,#0a1030 100%)', roadColor:'#4ecdc4', starColor:'#aaccff' },
+  { id:'teen', label:'Mangal Yuti', labelHi:'मंगल युति', range:[12,17], avatar:'teen', bg:'linear-gradient(135deg,#180808 0%,#301818 40%,#200a0a 100%)', roadColor:'#ff8844', starColor:'#ffaa66' },
+  { id:'young', label:'Raj Yog', labelHi:'राज योग', range:[18,28], avatar:'youngAdult', bg:'linear-gradient(135deg,#1a0a00 0%,#302000 40%,#1a0a00 100%)', roadColor:'#ff6644', starColor:'#ff8866' },
+  { id:'prime', label:'Shani Dasha', labelHi:'शनि दशा', range:[29,45], avatar:'adult', bg:'linear-gradient(135deg,#0a0a20 0%,#1a1a40 40%,#0a0a20 100%)', roadColor:'#7777ff', starColor:'#9999ff' },
+  { id:'mature', label:'Guru Chandal', labelHi:'गुरु चांडाल', range:[46,60], avatar:'adult', bg:'linear-gradient(135deg,#0a0818 0%,#181030 40%,#0a0818 100%)', roadColor:'#8b7fd4', starColor:'#ccaaff' },
+  { id:'legacy', label:'Ketu Moksha', labelHi:'केतु मोक्ष', range:[61,113], avatar:'elder', bg:'linear-gradient(135deg,#0a0a10 0%,#1a1a28 40%,#0a0a10 100%)', roadColor:'#aa66cc', starColor:'#aabbcc' },
+];
+
+const DESTINY_GATES = [
+  { age:7, label:'Mercury Awakening', planet:'Mercury', color:'#4ecdc4', desc:'बुद्धि का जागरण — school, speech, और learning की शुरुआत' },
+  { age:18, label:'Ketu Liberation Gate', planet:'Ketu', color:'#aa66cc', desc:'Childhood ends. अब आप अपनी destiny खुद choose करती हैं' },
+  { age:25, label:'Mars Command Peak', planet:'Mars', color:'#ff6644', desc:'लग्न का मंगल peak पर — career में पहली बड़ी leadership opportunity' },
+  { age:29, label:'Saturn Return', planet:'Saturn', color:'#8b7fd4', desc:'शनि की वापसी — life का सबसे defining year। जो build किया वो test होगा' },
+  { age:36, label:'Jupiter Crown', planet:'Jupiter', color:'#5555ff', desc:'गुरु दसवें घर में — professional life का golden chapter शुरू' },
+  { age:48, label:'Rahu Transformation', planet:'Rahu', color:'#000093', desc:'Rahu cycle complete — reinvention, नई direction, deeper purpose' },
+  { age:60, label:'Wisdom Throne', planet:'Jupiter', color:'#f7ab20', desc:'Saturn + Jupiter alignment — legacy और mentorship का दौर' },
+];
+
+const getEraForAge = (age) => LIFE_ERAS.find(e => age >= e.range[0] && age <= e.range[1]) || LIFE_ERAS[LIFE_ERAS.length-1];
+const getGateForAge = (age) => DESTINY_GATES.find(g => g.age === age);
+
+const getYearReading = (age) => {
+  const year = BIRTH_YEAR + age;
+  const isCurr = age === CURRENT_AGE;
+  if (age <= 3) return { theme:'चंद्र योग — नींव', planet:'Moon', summary:'चंद्रमा की गोद में — आपकी emotional नींव यहीं बनी।', aspects:{ career:{icon:'💼',label:'करियर',score:'N/A',text:'अभी career नहीं — लेकिन जो habits बन रही हैं, वो future career define करेंगी।'}, health:{icon:'🫀',label:'सेहत',score:'Medium',text:'चंद्र weak होने से पेट और नींद की दिक्कतें।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Strong',text:'माँ-बच्चे का बॉन्ड सबसे important।'}, money:{icon:'💰',label:'धन',score:'N/A',text:'Family की financial stability आपकी security है।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'High',text:'Soul अभी fresh है — past life karmas settle हो रहे हैं।'} }};
+  if (age <= 11) return { theme:'बुध दशा — सीखने का दौर', planet:'Mercury', summary:'बुध की चमक — दिमाग तेज़, सवाल हज़ार। आपकी intelligence यहीं shape हुई।', aspects:{ career:{icon:'💼',label:'करियर',score:'Building',text:'School = future career की prep।'}, health:{icon:'🫀',label:'सेहत',score:'Good',text:'बुध strong — nervous system active।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Growing',text:'Friends बनने का phase।'}, money:{icon:'💰',label:'धन',score:'Learning',text:'Pocket money से money sense शुरू।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'Curious',text:'भगवान कौन है? ये सवाल यहीं उठते हैं।'} }};
+  if (age <= 17) return { theme:'मंगल युति — आग जागी', planet:'Mars', summary:'मंगल rising — confidence, rebellion, और identity का intense phase।', aspects:{ career:{icon:'💼',label:'करियर',score:'Deciding',text:'Career decisions का pressure — follow your passion।'}, health:{icon:'🫀',label:'सेहत',score:'Strong',text:'मंगल = physical energy peak।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Intense',text:'First crush, deep friendships।'}, money:{icon:'💰',label:'धन',score:'Dependent',text:'Skills build हो रही हैं।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'Questioning',text:'Doubt healthy है — search करते रहें।'} }};
+  if (age <= 28) return { theme: isCurr ? '🔥 आप यहाँ हैं — राज योग Active' : 'राज योग — उड़ान', planet:'Mars', summary: isCurr ? 'अभी राज योग चल रहा है। Mars peak पर — decisions तेज़, leadership natural।' : 'राज योग period — bold moves, career launch, self-discovery।', aspects:{ career:{icon:'💼',label:'करियर',score: isCurr ? '🔥 Peak' : 'Rising',text: isCurr ? 'मंगल + राहु combo — leadership natural आ रही है। Bold move अभी करें।' : 'Career trajectory set हो रही है।'}, health:{icon:'🫀',label:'सेहत',score:'Strong',text:'Physical prime — energy high है।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Exploring',text:'Dating, heartbreaks, और self-discovery।'}, money:{icon:'💰',label:'धन',score:'Growing',text:'Income बढ़ रही है — Savings शुरू करें।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'Awakening',text:'Meditation शुरू करें। Inner peace career को भी boost करेगी।'} }};
+  if (age <= 35) return { theme:'शनि दशा — मेहनत का फल', planet:'Saturn', summary:'शनि testing कर रहा है — जो मेहनत की है उसका result आ रहा है।', aspects:{ career:{icon:'💼',label:'करियर',score: age===29 ? '⚡ Saturn Return' : 'Growing',text: age===29 ? 'शनि की वापसी — life का सबसे defining year।' : 'Shortcuts काम नहीं — real skill reward होगी।'}, health:{icon:'🫀',label:'सेहत',score:'Careful',text:'शनि joints पर असर — Regular exercise ज़रूरी।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Mature',text:'Mature relationships — communication key है।'}, money:{icon:'💰',label:'धन',score:'Building',text:'Income stable — wealth build हो रही है।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'Deepening',text:'शनि inner growth लाता है।'} }};
+  if (age <= 45) return { theme:'शनि-गुरु — Golden Phase', planet:'Jupiter', summary:'गुरु expansion + शनि discipline = career और wealth का peak।', aspects:{ career:{icon:'💼',label:'करियर',score:'🏆 Peak',text:'गुरु crown — leadership position। अभी execute करें।'}, health:{icon:'🫀',label:'सेहत',score:'Maintain',text:'गुरु weight gain ला सकता है — Yoga best remedy।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Stable',text:'Family life settled।'}, money:{icon:'💰',label:'धन',score:'💎 Peak',text:'Multiple income sources — Wealth peak पर।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'Guru Kripa',text:'गुरु spiritual guru भी ला सकता है।'} }};
+  if (age <= 60) return { theme:'गुरु चांडाल — Transformation', planet:'Saturn', summary:'गुरु + राहु combo — बड़े transformation का वक़्त।', aspects:{ career:{icon:'💼',label:'करियर',score:'Legacy',text:'Mentorship role natural आ रही है।'}, health:{icon:'🫀',label:'सेहत',score:'Priority',text:'Health #1 priority — Annual checkups।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Deep',text:'Spouse के साथ rediscover करें।'}, money:{icon:'💰',label:'धन',score:'Secure',text:'Retirement planning finalize करें।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'🔮 High',text:'राहु illusions तोड़ रहा है — Real spirituality शुरू।'} }};
+  return { theme:'केतु मोक्ष — मुक्ति', planet:'Jupiter', summary:'केतु detachment + गुरु wisdom = life का सबसे peaceful phase।', aspects:{ career:{icon:'💼',label:'करियर',score:'Mentor',text:'Legacy build करें।'}, health:{icon:'🫀',label:'सेहत',score:'Gentle Care',text:'Morning walk, pranayam।'}, relationship:{icon:'❤️',label:'रिश्ते',score:'Fulfilling',text:'Relationships अब expectation-free हैं।'}, money:{icon:'💰',label:'धन',score:'Enough',text:'दान करें — Material attachment कम करें।'}, spiritual:{icon:'🙏',label:'आध्यात्मिक',score:'🙏 Moksha',text:'केतु मोक्ष का ग्रह है।'} }};
+};
+
+const AvatarFigure = ({ stage, size, glowing }) => {
+  const s = size;
+  const glow = glowing ? 'drop-shadow(0 0 6px rgba(53,53,243,0.4))' : 'none';
+  const fill = glowing ? 'var(--primary-50)' : 'rgba(0,0,0,0.3)';
+  if (stage==='baby') return <svg width={s} height={s} viewBox="0 0 24 32" style={{filter:glow}}><circle cx="12" cy="8" r="6" fill={fill}/><ellipse cx="12" cy="22" rx="6" ry="8" fill={fill}/></svg>;
+  if (stage==='child') return <svg width={s} height={s} viewBox="0 0 24 40" style={{filter:glow}}><circle cx="12" cy="7" r="5.5" fill={fill}/><rect x="7" y="13" width="10" height="14" rx="3" fill={fill}/><rect x="7" y="27" width="4" height="10" rx="2" fill={fill}/><rect x="13" y="27" width="4" height="10" rx="2" fill={fill}/></svg>;
+  if (stage==='teen') return <svg width={s} height={s} viewBox="0 0 24 48" style={{filter:glow}}><circle cx="12" cy="6" r="5" fill={fill}/><rect x="7" y="12" width="10" height="16" rx="3" fill={fill}/><rect x="7" y="28" width="4" height="14" rx="2" fill={fill}/><rect x="13" y="28" width="4" height="14" rx="2" fill={fill}/><rect x="2" y="14" width="5" height="3" rx="1.5" fill={fill}/><rect x="17" y="14" width="5" height="3" rx="1.5" fill={fill}/></svg>;
+  if (stage==='youngAdult') return <svg width={s} height={s} viewBox="0 0 24 52" style={{filter:glow}}><circle cx="12" cy="5.5" r="5" fill={fill}/><path d="M7 11 L5 28 L8 28 L9 18 L12 20 L15 18 L16 28 L19 28 L17 11 Z" fill={fill}/><rect x="6" y="28" width="4.5" height="16" rx="2" fill={fill}/><rect x="13.5" y="28" width="4.5" height="16" rx="2" fill={fill}/></svg>;
+  if (stage==='adult') return <svg width={s} height={s} viewBox="0 0 28 56" style={{filter:glow}}><circle cx="14" cy="6" r="5.5" fill={fill}/><path d="M8 12 L6 32 L10 32 L11 20 L14 22 L17 20 L18 32 L22 32 L20 12 Z" fill={fill}/><rect x="7" y="32" width="5" height="18" rx="2.5" fill={fill}/><rect x="16" y="32" width="5" height="18" rx="2.5" fill={fill}/></svg>;
+  return <svg width={s} height={s} viewBox="0 0 28 52" style={{filter:glow}}><circle cx="14" cy="6" r="5" fill={fill}/><path d="M9 12 L8 30 L12 30 L12.5 20 L14 21 L15.5 20 L16 30 L20 30 L19 12 Z" fill={fill}/><rect x="8" y="30" width="5" height="15" rx="2" fill={fill}/><rect x="15" y="30" width="5" height="15" rx="2" fill={fill}/><line x1="5" y1="20" x2="9" y2="18" stroke={fill} strokeWidth="2" strokeLinecap="round"/><line x1="5" y1="20" x2="5" y2="34" stroke={fill} strokeWidth="1.5" strokeLinecap="round"/></svg>;
+};
+
+const MONTH_NAMES_HI = ['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+const MONTH_NAMES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const getMonthReading = (age, year, monthIdx) => {
+  const seed = (age * 13 + monthIdx * 7 + year) % 100;
+  const planets = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu'];
+  const planet = planets[(age + monthIdx) % planets.length];
+  const planetIcons = {Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊'};
+  const energy = Math.max(1, Math.min(5, Math.round(((seed*3+monthIdx*11)%50)/10)+1));
+  const houses = ['लग्न','धन','विक्रम','सुख','संतान','रोग','विवाह','आयु','भाग्य','कर्म','लाभ','व्यय'];
+  const houseIdx = (seed+monthIdx*3)%12;
+  const house = houses[houseIdx]; const houseNum = houseIdx+1;
+  const themes = {1:['सावधानी का महीना','शनि की नज़र','चुनौतियों का दौर'],2:['धीरे-धीरे सुधार','मेहनत जारी रखें','patience रखें'],3:['स्थिर समय','balance बनाएँ रखें','normal growth'],4:['अच्छा समय आ रहा है','ग्रहों का साथ','opportunities'],5:['शानदार महीना','ग्रह अनुकूल','peak energy']};
+  const theme = themes[energy][(seed+monthIdx)%3];
+  const areas = [
+    {area:'करियर',icon:'💼',lines:{high:['Promotion chances strong','Leadership role में आएंगे','Recognition मिलेगी'],mid:['Steady progress','Focus बनाएँ रखें','New skills सीखें'],low:['Patience रखें','Office politics से बचें','Side project शुरू करें']}},
+    {area:'सेहत',icon:'🫀',lines:{high:['Energy peak','Immunity strong रहेगी','Mental health excellent'],mid:['Diet पर ध्यान दें','Regular exercise','Sleep schedule fix करें'],low:['Health checkup करवाएँ','Stress manage करें','आराम ज़रूरी है']}},
+    {area:'धन',icon:'💰',lines:{high:['Investment का golden time','Unexpected income possible','Financial growth strong'],mid:['Savings बढ़ाएँ','Budget follow करें','छोटे investments शुरू करें'],low:['Overspending avoid करें','Loans से बचें','Emergency fund बनाएँ']}},
+    {area:'रिश्ते',icon:'❤️',lines:{high:['Love life bloom करेगी','Family bonding strong','New connections beneficial'],mid:['Communication improve करें','Patience रखें','Old friends से मिलें'],low:['Misunderstandings possible','Space दें','Self-love पर focus']}},
+  ];
+  const areaReadings = areas.map(a => {
+    const aScore = Math.max(1,Math.min(5,energy+((seed+a.area.charCodeAt(0)+monthIdx)%3)-1));
+    const level = aScore>=4?'high':aScore>=3?'mid':'low';
+    const line = a.lines[level][(seed+monthIdx+a.area.charCodeAt(0))%3];
+    return {...a, score:aScore, line};
+  });
+  return {planet, planetIcon:planetIcons[planet], energy, house, houseNum, theme, areaReadings};
+};
+
+const MonthlyCalendarView = ({ year, age, planetColor }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const isCurrentYear = year === currentYear;
+  return (
+    <div style={{marginTop:16}}>
+      <div onClick={()=>setExpanded(!expanded)} style={{padding:'12px 14px',borderRadius:14,cursor:'pointer',background:expanded?(planetColor+'10'):'rgba(255,255,255,0.03)',border:'1px solid '+(expanded?planetColor+'20':'rgba(255,255,255,0.06)'),display:'flex',alignItems:'center',justifyContent:'space-between',transition:'all 300ms ease'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{fontSize:16}}>📅</span>
+          <div>
+            <div style={{fontSize:12,fontWeight:700,color:expanded?planetColor:'rgba(255,255,255,0.7)'}}>महीने-दर-महीने {year}</div>
+            <div style={{fontSize:10,fontWeight:400,color:'rgba(255,255,255,0.35)'}}>Zoom into monthly cosmic forecast</div>
+          </div>
+        </div>
+        <span style={{fontSize:12,color:'rgba(255,255,255,0.3)',transition:'transform 300ms ease',transform:expanded?'rotate(180deg)':'rotate(0deg)'}}>▼</span>
+      </div>
+      {expanded && (
+        <div style={{marginTop:10,animation:'fadeInUp 300ms ease-out both'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:6}}>
+            {MONTH_NAMES_HI.map((name,i)=>{
+              const reading=getMonthReading(age,year,i);
+              const isSelected=selectedMonth===i;
+              const isCurMonth=isCurrentYear&&i===currentMonth;
+              const isPast=isCurrentYear&&i<currentMonth;
+              const energyColors=['','#ff4444','#ff8844','#f5d060','#4ecdc4','#25D366'];
+              return (
+                <div key={i} onClick={()=>setSelectedMonth(isSelected?null:i)} style={{padding:'10px 6px',borderRadius:12,cursor:'pointer',background:isSelected?planetColor+'15':isCurMonth?'rgba(78,205,196,0.08)':'rgba(255,255,255,0.02)',border:'1px solid '+(isSelected?planetColor+'30':isCurMonth?'rgba(78,205,196,0.2)':'rgba(255,255,255,0.05)'),textAlign:'center',position:'relative',opacity:isPast?0.5:1,transition:'all 200ms ease'}}>
+                  {isCurMonth&&<div style={{position:'absolute',top:4,right:4,width:5,height:5,borderRadius:'50%',background:'#4ecdc4',animation:'breathe 2s ease-in-out infinite'}}/>}
+                  <div style={{fontSize:10,fontWeight:700,color:isSelected?planetColor:'rgba(255,255,255,0.7)'}}>{MONTH_NAMES_EN[i]}</div>
+                  <div style={{fontSize:8,fontWeight:400,color:'rgba(255,255,255,0.3)',marginTop:1}}>{name}</div>
+                  <div style={{display:'flex',justifyContent:'center',gap:2,marginTop:5}}>
+                    {[1,2,3,4,5].map(d=><div key={d} style={{width:4,height:4,borderRadius:'50%',background:d<=reading.energy?energyColors[reading.energy]:'rgba(255,255,255,0.08)'}}/>)}
+                  </div>
+                  <div style={{fontSize:10,marginTop:3,opacity:0.6}}>{reading.planetIcon}</div>
+                </div>
+              );
+            })}
+          </div>
+          {selectedMonth!==null&&(()=>{
+            const r=getMonthReading(age,year,selectedMonth);
+            const energyColors=['','#ff4444','#ff8844','#f5d060','#4ecdc4','#25D366'];
+            const eColor=energyColors[r.energy];
+            return (
+              <div style={{marginTop:10,padding:'14px',borderRadius:16,background:'linear-gradient(135deg,'+planetColor+'08,rgba(255,255,255,0.02))',border:'1px solid '+planetColor+'15',animation:'fadeInUp 300ms ease-out both'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:800,color:'rgba(255,255,255,0.9)'}}>{MONTH_NAMES_HI[selectedMonth]} {year}</div>
+                    <div style={{fontSize:10,fontWeight:400,color:'rgba(255,255,255,0.4)',marginTop:2}}>{r.planet} dominant · {r.houseNum}वाँ भाव ({r.house})</div>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:22}}>{r.planetIcon}</div>
+                    <div style={{display:'flex',gap:2,marginTop:3}}>{[1,2,3,4,5].map(d=><div key={d} style={{width:6,height:6,borderRadius:'50%',background:d<=r.energy?eColor:'rgba(255,255,255,0.08)'}}/>)}</div>
+                  </div>
+                </div>
+                <div style={{display:'inline-block',padding:'4px 12px',borderRadius:10,background:eColor+'15',border:'1px solid '+eColor+'25',fontSize:11,fontWeight:600,color:eColor,marginBottom:10}}>{r.theme}</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+                  {r.areaReadings.map((a,i)=>(
+                    <div key={i} style={{padding:'10px',borderRadius:12,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:4}}><span style={{fontSize:12}}>{a.icon}</span><span style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.7)'}}>{a.area}</span></div>
+                      <div style={{display:'flex',gap:1.5,marginBottom:4}}>{[1,2,3,4,5].map(d=><div key={d} style={{width:12,height:3,borderRadius:1.5,background:d<=a.score?energyColors[a.score]:'rgba(255,255,255,0.06)'}}/>)}</div>
+                      <div style={{fontSize:9,fontWeight:400,color:'rgba(255,255,255,0.5)',lineHeight:1.5}}>{a.line}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const YearCapsuleOverlay = ({ age, onClose }) => {
+  const year = BIRTH_YEAR + age;
+  const era = getEraForAge(age);
+  const gate = getGateForAge(age);
+  const reading = getYearReading(age);
+  const isCurrent = age === CURRENT_AGE;
+  const planetColor = {Mars:'#ff6644',Saturn:'#8b7fd4',Jupiter:'#5555ff',Moon:'#9898a4',Mercury:'#4ecdc4',Venus:'#9999ff',Rahu:'#000093',Ketu:'#aa66cc',Sun:'#f7ab20'};
+  const color = gate ? gate.color : (planetColor[reading.planet] || '#7777ff');
+  const scoreColor = (s) => { if (!s) return 'rgba(255,255,255,0.4)'; const sl=s.toLowerCase(); if (sl.includes('peak')||sl.includes('high')||sl.includes('strong')||sl.includes('moksha')||sl.includes('guru')) return '#4ecdc4'; if (sl.includes('medium')||sl.includes('growing')||sl.includes('building')||sl.includes('stable')||sl.includes('rising')) return '#f7ab20'; if (sl.includes('careful')||sl.includes('priority')) return '#ff6644'; return 'rgba(255,255,255,0.5)'; };
+  const aspects = reading.aspects ? Object.values(reading.aspects) : [];
+  return (
+    <div style={{position:'absolute',inset:0,zIndex:100,background:era.bg,boxShadow:'inset 0 0 0 2000px rgba(4,0,13,0.92)',animation:'fadeIn 400ms ease-out both',display:'flex',flexDirection:'column'}}>
+      <div style={{display:'flex',alignItems:'center',padding:'10px 16px',background:'rgba(0,0,0,0.3)',borderBottom:'1px solid '+color+'15'}}>
+        <span style={{fontSize:15,fontWeight:900,color}}>{year}</span>
+        <span style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginLeft:8}}>Age {age}</span>
+        <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',marginLeft:8}}>· {era.labelHi}</span>
+        <div style={{flex:1}}/>
+        <div onClick={onClose} style={{width:30,height:30,borderRadius:15,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:13,color:'rgba(255,255,255,0.4)'}}>✕</div>
+      </div>
+      <div style={{flex:1,overflow:'auto',padding:'16px 16px 24px'}}>
+        <div style={{animation:'fadeInUp 400ms ease-out both',display:'flex',alignItems:'center',gap:12,marginBottom:14}}>
+          <div style={{position:'relative',flexShrink:0}}>
+            <div style={{position:'absolute',inset:-12,borderRadius:'50%',background:'radial-gradient(circle, '+color+'20 0%, transparent 70%)',animation:'breathe 3s ease-in-out infinite'}}/>
+            <AvatarFigure stage={era.avatar} size={44} glowing={isCurrent}/>
+          </div>
+          <div style={{flex:1}}>
+            {isCurrent&&<div style={{fontSize:8,fontWeight:800,letterSpacing:1.5,color:'#fff',background:color,padding:'2px 8px',borderRadius:6,display:'inline-block',marginBottom:4}}>✦ YOU ARE HERE</div>}
+            {gate&&!isCurrent&&<div style={{fontSize:8,fontWeight:800,letterSpacing:1.5,color:gate.color,display:'inline-block',marginBottom:4}}>✦ {gate.label.toUpperCase()}</div>}
+            <div style={{fontSize:13,fontWeight:800,color:'rgba(255,255,255,0.9)',lineHeight:1.3}}>{reading.theme}</div>
+          </div>
+        </div>
+        <div style={{animation:'fadeInUp 400ms ease-out 100ms both',padding:'10px 12px',borderRadius:12,background:color+'08',border:'1px solid '+color+'12',marginBottom:14}}>
+          <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,0.7)',lineHeight:1.7}}>{reading.summary}</div>
+        </div>
+        {gate&&<div style={{animation:'fadeInUp 400ms ease-out 150ms both',padding:'10px 12px',borderRadius:12,marginBottom:14,textAlign:'center',background:gate.color+'0a',border:'1px solid '+gate.color+'18'}}>
+          <div style={{fontSize:11,fontWeight:700,color:gate.color}}>{gate.label}</div>
+          <div style={{fontSize:11,fontWeight:500,color:'rgba(255,255,255,0.45)',marginTop:4,lineHeight:1.5}}>{gate.desc}</div>
+        </div>}
+        {aspects.map((asp,i)=>(
+          <div key={i} style={{animation:'fadeInUp 400ms ease-out '+(200+i*80)+'ms both',padding:'12px',borderRadius:14,marginBottom:8,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+              <span style={{fontSize:16}}>{asp.icon}</span>
+              <span style={{fontSize:12,fontWeight:800,color:'rgba(255,255,255,0.85)'}}>{asp.label}</span>
+              <div style={{flex:1}}/>
+              <span style={{fontSize:9,fontWeight:700,color:scoreColor(asp.score),padding:'2px 8px',borderRadius:8,background:scoreColor(asp.score)+'12',border:'1px solid '+scoreColor(asp.score)+'20'}}>{asp.score}</span>
+            </div>
+            <div style={{fontSize:11,fontWeight:500,color:'rgba(255,255,255,0.55)',lineHeight:1.7}}>{asp.text}</div>
+          </div>
+        ))}
+        <MonthlyCalendarView year={year} age={age} planetColor={color}/>
+        <div style={{textAlign:'center',marginTop:12,fontSize:9,color:'rgba(255,255,255,0.12)',letterSpacing:1}}>{era.label} · {era.labelHi} · Age {age}</div>
+      </div>
+    </div>
+  );
+};
+
+const DestinyWalk = ({ onYearTap }) => {
+  const scrollRef = useRef(null);
+  const hasScrolled = useRef(false);
+  const [centeredAge, setCenteredAge] = useState(CURRENT_AGE);
+  const maxAge = Math.min(LIFE_ERAS[LIFE_ERAS.length-1].range[1], 85);
+  const gateAges = DESTINY_GATES.map(g=>g.age);
+  const allAges = [];
+  for (let a=0; a<=maxAge; a++) {
+    const near = a>=CURRENT_AGE-15 && a<=CURRENT_AGE+20;
+    const milestone = a===0||a%5===0||a===CURRENT_AGE||gateAges.includes(a)||LIFE_ERAS.some(e=>e.range[0]===a);
+    if (near||milestone) allAges.push(a);
+  }
+  const NODE_W = 52; const SPACER = 180;
+  const ERA_VISUALS = {
+    dawn:{gradient:'linear-gradient(180deg,#e8e0f0 0%,#d5c8e8 40%,#c8bce0 100%)',terrain:'☽',terrainColor:'#9898a4',label:'चंद्र योग',insight:'Moon shapes your emotional foundation',tag:'FOUNDATION',tagIcon:'🌙'},
+    child:{gradient:'linear-gradient(180deg,#dff0ed 0%,#c4e8e0 40%,#a8ddd2 100%)',terrain:'☿',terrainColor:'#4ecdc4',label:'बुध दशा',insight:'Mercury awakens curiosity — your mind starts absorbing everything',tag:'LEARNING',tagIcon:'📚'},
+    teen:{gradient:'linear-gradient(180deg,#f5e0d5 0%,#f0c8b0 40%,#e8b090 100%)',terrain:'♂',terrainColor:'#ff8844',label:'मंगल युति',insight:'Mars ignites ambition — bold decisions define you',tag:'FIRE PHASE',tagIcon:'🔥'},
+    young:{gradient:'linear-gradient(180deg,#f5ead0 0%,#f0d8a8 40%,#e8c880 100%)',terrain:'☀',terrainColor:'#ff6644',label:'राज योग',insight:'Your golden era — career rise, leadership, and the world notices you',tag:'PEAK RISE',tagIcon:'👑'},
+    prime:{gradient:'linear-gradient(180deg,#dce4f0 0%,#b8c8e8 40%,#8ea8d8 100%)',terrain:'♄',terrainColor:'#3d5a99',label:'शनि दशा',insight:'Saturn rewards discipline — every effort multiplied',tag:'DEPTH',tagIcon:'💎'},
+    mature:{gradient:'linear-gradient(180deg,#f8f0d8 0%,#f0dda8 40%,#e8c870 100%)',terrain:'♃',terrainColor:'#b8860b',label:'गुरु चांडाल',insight:'Jupiter expands your wisdom — you become the guide others seek',tag:'WISDOM',tagIcon:'🔮'},
+    legacy:{gradient:'linear-gradient(180deg,#f0e0e5 0%,#e0c0cc 40%,#d0a0b0 100%)',terrain:'☊',terrainColor:'#8b3a5e',label:'केतु मोक्ष',insight:'Ketu dissolves the material — inner peace and spiritual clarity emerge',tag:'LIBERATION',tagIcon:'✨'},
+  };
+  const centeredEra = getEraForAge(centeredAge);
+  const vis = ERA_VISUALS[centeredEra.id] || ERA_VISUALS.prime;
+  useEffect(()=>{
+    if(hasScrolled.current||!scrollRef.current) return;
+    const doScroll=()=>{ if(hasScrolled.current) return; hasScrolled.current=true; const idx=allAges.indexOf(CURRENT_AGE); if(idx<0) return; const cw=scrollRef.current.clientWidth; if(cw>0) scrollRef.current.scrollLeft=Math.max(0,SPACER+idx*NODE_W-cw/2+NODE_W/2); };
+    if(scrollRef.current.clientWidth>0&&scrollRef.current.getBoundingClientRect().top<window.innerHeight){doScroll();return;}
+    const obs=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){obs.disconnect();requestAnimationFrame(doScroll);}},{threshold:0.1});
+    obs.observe(scrollRef.current);
+    return ()=>obs.disconnect();
+  },[]);
+  useEffect(()=>{
+    const el=scrollRef.current; if(!el) return;
+    let ticking=false;
+    const onScroll=()=>{ if(ticking) return; ticking=true; requestAnimationFrame(()=>{ const centerX=el.scrollLeft+el.clientWidth/2; const idx=Math.round((centerX-SPACER)/NODE_W); const clamped=Math.max(0,Math.min(idx,allAges.length-1)); if(allAges[clamped]!==undefined) setCenteredAge(allAges[clamped]); ticking=false; }); };
+    el.addEventListener('scroll',onScroll,{passive:true});
+    return ()=>el.removeEventListener('scroll',onScroll);
+  },[]);
+  const TerrainSVG = ({eraId})=>{
+    const paths={dawn:'M0,60 Q30,35 60,50 T120,40 T180,55 T240,38 T300,50 T360,45 L360,80 L0,80Z',child:'M0,55 Q40,30 80,45 T160,35 T240,50 T320,30 T360,48 L360,80 L0,80Z',teen:'M0,50 L40,25 L70,45 L110,15 L150,40 L190,20 L230,42 L270,18 L310,38 L360,28 L360,80 L0,80Z',young:'M0,45 Q50,15 100,35 T200,20 T300,30 T360,22 L360,80 L0,80Z',prime:'M0,52 Q60,38 120,48 T240,42 T360,46 L360,80 L0,80Z',mature:'M0,48 Q45,28 90,42 T180,32 T270,45 T360,35 L360,80 L0,80Z',legacy:'M0,55 Q90,40 180,50 T360,45 L360,80 L0,80Z'};
+    const v=ERA_VISUALS[eraId]||ERA_VISUALS.prime;
+    return <svg viewBox="0 0 360 80" style={{width:'100%',height:60,display:'block'}} preserveAspectRatio="none"><defs><linearGradient id={'hill_'+eraId} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={v.terrainColor} stopOpacity="0.2"/><stop offset="100%" stopColor={v.terrainColor} stopOpacity="0.08"/></linearGradient></defs><path d={paths[eraId]||paths.prime} fill={'url(#hill_'+eraId+')'}/><path d={paths[eraId]||paths.prime} fill="none" stroke={v.terrainColor} strokeWidth="1.5" strokeOpacity="0.25"/></svg>;
+  };
+  const DW_PROFILE = typeof PROFILE_PHOTO !== 'undefined' ? PROFILE_PHOTO : 'https://i.pravatar.cc/150?img=47';
+  return (
+    <div style={{margin:'0 16px',borderRadius:20,boxShadow:'0 4px 24px rgba(0,0,0,0.06)',animation:'fadeInUp 500ms ease-out 900ms both',overflow:'hidden',border:'1px solid rgba(0,0,0,0.04)'}}>
+      <div style={{position:'relative',background:vis.gradient,transition:'background 600ms ease',padding:'12px 14px 0',minHeight:130}}>
+        <div style={{display:'flex',alignItems:'center',gap:6}}>
+          <span style={{fontSize:8,fontWeight:800,letterSpacing:1.2,color:vis.terrainColor,background:vis.terrainColor+'15',padding:'3px 10px',borderRadius:10,border:'1px solid '+vis.terrainColor+'25'}}>{vis.tagIcon} {vis.tag}</span>
+          <span style={{fontSize:9,fontWeight:600,color:vis.terrainColor,opacity:0.5}}>Ages {centeredEra.range[0]}–{centeredEra.range[1]}</span>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:14,marginTop:10}}>
+          <div style={{position:'relative',flexShrink:0}}>
+            <div style={{position:'absolute',inset:-4,borderRadius:'50%',background:'conic-gradient('+vis.terrainColor+'40, '+vis.terrainColor+'10, '+vis.terrainColor+'40)',animation:centeredAge===CURRENT_AGE?'pulseRing 2s ease-out infinite':'none'}}/>
+            <div style={{width:52,height:52,borderRadius:'50%',overflow:'hidden',border:'2.5px solid '+vis.terrainColor+'50',position:'relative',boxShadow:'0 4px 16px '+vis.terrainColor+'25'}}>
+              <img src={DW_PROFILE} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+              <div style={{position:'absolute',inset:0,background:vis.terrainColor+'18',mixBlendMode:'overlay'}}/>
+            </div>
+            {centeredAge===CURRENT_AGE&&<div style={{position:'absolute',bottom:-6,left:'50%',transform:'translateX(-50%)',fontSize:6,fontWeight:800,color:'#fff',letterSpacing:0.8,background:vis.terrainColor,padding:'2px 7px',borderRadius:6,whiteSpace:'nowrap',boxShadow:'0 2px 6px '+vis.terrainColor+'40'}}>ABHI</div>}
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+              <span style={{fontSize:16,fontWeight:900,color:vis.terrainColor}}>{vis.terrain}</span>
+              <span style={{fontSize:14,fontWeight:800,color:vis.terrainColor}}>{vis.label}</span>
+            </div>
+            <div style={{fontSize:10,fontWeight:500,color:vis.terrainColor,opacity:0.7,marginTop:4,lineHeight:1.5}}>{vis.insight}</div>
+          </div>
+        </div>
+        <div style={{position:'relative',zIndex:1,marginTop:4}}><TerrainSVG eraId={centeredEra.id}/></div>
+      </div>
+      <div style={{background:'#fff',position:'relative'}}>
+        <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:2,height:'100%',background:vis.terrainColor+'25',zIndex:3,pointerEvents:'none'}}/>
+        <div ref={scrollRef} className="horiz-scroll" style={{overflowX:'auto',overflowY:'hidden',padding:'10px 0 8px',WebkitOverflowScrolling:'touch'}}>
+          <div style={{display:'flex',alignItems:'center',width:'max-content',position:'relative'}}>
+            <div style={{width:SPACER,flexShrink:0}}/>
+            <div style={{position:'absolute',top:14,left:SPACER,width:allAges.indexOf(CURRENT_AGE)*NODE_W,height:2,background:vis.terrainColor,opacity:0.3,zIndex:0}}/>
+            <div style={{position:'absolute',top:14,left:SPACER+allAges.indexOf(CURRENT_AGE)*NODE_W,right:SPACER,height:2,zIndex:0,backgroundImage:'repeating-linear-gradient(90deg, '+vis.terrainColor+'30 0, '+vis.terrainColor+'30 6px, transparent 6px, transparent 12px)'}}/>
+            {allAges.map((age)=>{
+              const isCurr=age===CURRENT_AGE; const isPast=age<CURRENT_AGE; const isCentered=age===centeredAge;
+              const era=getEraForAge(age); const gate=getGateForAge(age); const isGate=!!gate;
+              const eraVis=ERA_VISUALS[era.id]||ERA_VISUALS.prime;
+              const nodeColor=isGate?gate.color:eraVis.terrainColor;
+              return (
+                <div key={age} onClick={()=>onYearTap(age)} style={{width:NODE_W,display:'flex',flexDirection:'column',alignItems:'center',cursor:'pointer',position:'relative',zIndex:1,flexShrink:0}}>
+                  {isGate&&<div style={{fontSize:7,color:gate.color,fontWeight:800,marginBottom:2}}>✦</div>}
+                  <div style={{position:'relative'}}>
+                    {isCurr&&<div style={{position:'absolute',inset:-5,borderRadius:'50%',border:'1.5px solid '+nodeColor+'40',animation:'pulseRing 2s ease-out infinite'}}/>}
+                    <div style={{width:isCurr?28:isCentered?26:isGate?24:20,height:isCurr?28:isCentered?26:isGate?24:20,borderRadius:isGate&&!isCurr?5:'50%',transform:isGate&&!isCurr?'rotate(45deg)':'none',background:isCurr?nodeColor:isPast?nodeColor+'30':nodeColor+'10',border:isCurr?'2px solid '+nodeColor:'1.5px solid '+nodeColor+(isPast?'40':'20'),display:'flex',alignItems:'center',justifyContent:'center',boxShadow:isCurr?'0 0 12px '+nodeColor+'30':isCentered?'0 0 8px '+nodeColor+'15':'none',transition:'all 200ms'}}>
+                      <span style={{fontSize:isCurr?10:8,fontWeight:isCurr?800:600,transform:isGate&&!isCurr?'rotate(-45deg)':'none',color:isCurr?'#fff':isPast?nodeColor:nodeColor+'80'}}>{age}</span>
+                    </div>
+                  </div>
+                  <div style={{fontSize:7,fontWeight:600,marginTop:3,color:isCurr?nodeColor:'var(--text-disabled)',opacity:isCurr||isGate||age%10===0?1:0.5}}>{BIRTH_YEAR+age}</div>
+                  {LIFE_ERAS.some(e=>e.range[0]===age&&age>0)&&<div style={{fontSize:6,fontWeight:700,color:nodeColor,opacity:0.5,marginTop:1}}>{eraVis.label}</div>}
+                </div>
+              );
+            })}
+            <div style={{width:SPACER,flexShrink:0}}/>
+          </div>
+        </div>
+        <div style={{textAlign:'center',padding:'0 0 8px',fontSize:9,color:'var(--text-disabled)'}}>← swipe through your life · tap any year →</div>
+      </div>
+    </div>
+  );
+};
+
+const CelebrityKundliMatch = () => {
+  const [expanded, setExpanded] = useState(false);
+  const CELEB_IMG = 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320,q_50/lsci/db/PICTURES/CMS/316600/316605.png';
+  const USER_IMG = typeof PROFILE_PHOTO !== 'undefined' ? PROFILE_PHOTO : 'https://i.pravatar.cc/150?img=47';
+  const traits = [
+    {label:'Rashi',you:'Vrishchik',celeb:'Vrishchik',match:true},
+    {label:'Nakshatra',you:'Anuradha',celeb:'Anuradha',match:true},
+    {label:'Lagna Lord',you:'Mangal',celeb:'Mangal',match:true},
+    {label:'Dasha Now',you:'Shani',celeb:'Guru',match:false},
+  ];
+  return (
+    <div style={{margin:'8px 16px 16px',borderRadius:20,background:'var(--white)',boxShadow:'0 4px 24px rgba(0,0,0,0.06)',overflow:'hidden',border:'1px solid rgba(0,0,0,0.04)',animation:'fadeInUp 500ms ease-out 400ms both'}}>
+      <div onClick={()=>setExpanded(!expanded)} style={{cursor:'pointer',padding:'20px 16px 16px'}}>
+        <div style={{textAlign:'center',marginBottom:14}}><span style={{fontSize:9,fontWeight:800,color:'var(--primary-50)',textTransform:'uppercase',letterSpacing:1.5}}>♏ Kundli Twin</span></div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16}}>
+          <div style={{textAlign:'center'}}>
+            <div style={{width:80,height:80,borderRadius:'50%',overflow:'hidden',border:'3px solid var(--primary-50)',boxShadow:'0 4px 16px rgba(53,53,243,0.15)'}}><img src={USER_IMG} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/></div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--text-high)',marginTop:6}}>You</div>
+            <div style={{fontSize:9,fontWeight:600,color:'var(--text-disabled)'}}>Vrishchik ♏</div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+            <div style={{background:'var(--primary-50)',borderRadius:12,padding:'5px 12px',fontSize:14,fontWeight:900,color:'#fff'}}>87%</div>
+            <div style={{fontSize:8,fontWeight:700,color:'var(--text-disabled)',letterSpacing:0.5}}>MATCH</div>
+          </div>
+          <div style={{textAlign:'center'}}>
+            <div style={{width:80,height:80,borderRadius:'50%',overflow:'hidden',border:'3px solid var(--primary-50)',boxShadow:'0 4px 16px rgba(53,53,243,0.15)'}}><img src={CELEB_IMG} alt="Virat Kohli" style={{width:'100%',height:'100%',objectFit:'cover'}}/></div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--text-high)',marginTop:6}}>Virat Kohli</div>
+            <div style={{fontSize:9,fontWeight:600,color:'var(--text-disabled)'}}>Vrishchik ♏</div>
+          </div>
+        </div>
+        <div style={{textAlign:'center',marginTop:12}}>
+          <div style={{fontSize:14,fontWeight:800,color:'var(--text-high)',lineHeight:1.3}}>Same rashi, same nakshatra, same fire</div>
+          <div style={{fontSize:10,color:'var(--text-disabled)',marginTop:3,fontWeight:500}}>Mars-ruled warriors — pressure mein aur sharp</div>
+        </div>
+      </div>
+      <div style={{height:1,background:'var(--stroke-minimal)',margin:'0 16px'}}/>
+      <div style={{padding:'12px 14px 14px'}}>
+        <div style={{display:'flex',gap:6}}>
+          {traits.map((t,i)=>(
+            <div key={i} style={{flex:1,textAlign:'center',padding:'6px 2px',background:t.match?'rgba(53,53,243,0.03)':'var(--surface-ghost)',borderRadius:10,border:t.match?'1px solid rgba(53,53,243,0.09)':'1px solid transparent'}}>
+              <div style={{fontSize:8,fontWeight:700,color:'var(--text-disabled)',textTransform:'uppercase',letterSpacing:0.5}}>{t.label}</div>
+              <div style={{fontSize:10,fontWeight:800,marginTop:2,color:t.match?'var(--primary-50)':'var(--text-low)'}}>{t.match?'✓ Same':'≠ Diff'}</div>
+            </div>
+          ))}
+        </div>
+        {!expanded ? (
+          <div onClick={()=>setExpanded(true)} style={{marginTop:10,textAlign:'center',cursor:'pointer'}}>
+            <span style={{fontSize:11,fontWeight:700,color:'var(--primary-50)'}}>See full comparison ↓</span>
+          </div>
+        ) : (
+          <div style={{marginTop:12,animation:'fadeInUp 300ms ease-out'}}>
+            <div style={{display:'flex',gap:8}}>
+              <div style={{flex:1,background:'var(--surface-ghost)',borderRadius:12,padding:'10px'}}>
+                <div style={{fontSize:9,fontWeight:800,color:'var(--text-disabled)',textTransform:'uppercase',letterSpacing:1,marginBottom:6}}>You</div>
+                {traits.map((t,i)=><div key={i} style={{fontSize:11,fontWeight:600,color:'var(--text-high)',padding:'4px 0',borderBottom:i<traits.length-1?'1px solid var(--stroke-minimal)':'none'}}><span style={{color:'var(--text-disabled)',fontSize:9}}>{t.label} </span>{t.you}</div>)}
+              </div>
+              <div style={{flex:1,background:'var(--surface-ghost)',borderRadius:12,padding:'10px'}}>
+                <div style={{fontSize:9,fontWeight:800,color:'var(--text-disabled)',textTransform:'uppercase',letterSpacing:1,marginBottom:6}}>Virat</div>
+                {traits.map((t,i)=><div key={i} style={{fontSize:11,fontWeight:600,color:'var(--text-high)',padding:'4px 0',borderBottom:i<traits.length-1?'1px solid var(--stroke-minimal)':'none'}}><span style={{color:'var(--text-disabled)',fontSize:9}}>{t.label} </span>{t.celeb}</div>)}
+              </div>
+            </div>
+            <div style={{marginTop:10,padding:'10px 12px',background:'rgba(53,53,243,0.04)',borderRadius:12,border:'1px solid rgba(53,53,243,0.08)'}}>
+              <div style={{fontSize:11,fontWeight:500,color:'var(--text-mid)',lineHeight:1.6}}>Virat aur aap dono <b style={{color:'var(--text-high)'}}>Vrishchik rashi</b> ke hain — Mars-ruled warrior energy jo pressure mein aur sharp hoti hai.</div>
+            </div>
+            <div onClick={()=>setExpanded(false)} style={{marginTop:8,textAlign:'center',cursor:'pointer'}}><span style={{fontSize:11,fontWeight:700,color:'var(--text-disabled)'}}>Show less ↑</span></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const AskTheStars = () => {
+  const chips = [
+    {text:'When should I change jobs?',highlighted:true},
+    {text:'Will I find love soon?'},
+    {text:'What health risks to watch?'},
+    {text:'Is this a good year to invest?'},
+    {text:"What's my life purpose?"},
+  ];
+  return (
+    <div style={{padding:'0 16px 24px',animation:'fadeInUp 500ms ease-out 1100ms both'}}>
+      <div style={{textAlign:'center',marginBottom:16}}>
+        <div style={{fontSize:22,fontWeight:900,color:'var(--text-high)',letterSpacing:'-0.03em'}}>Ask the Stars</div>
+        <div style={{fontSize:13,fontWeight:500,color:'var(--text-low)',marginTop:4}}>Your chart has answers. Just ask.</div>
+      </div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+        {chips.map((c,i)=>(
+          <div key={i} style={{padding:'8px 14px',borderRadius:999,cursor:'pointer',background:c.highlighted?'var(--primary-20)':'var(--surface-ghost)',color:c.highlighted?'var(--primary-50)':'var(--text-high)',fontSize:13,fontWeight:c.highlighted?700:500,transition:'transform 100ms'}}
+            onMouseDown={e=>e.currentTarget.style.transform='scale(0.95)'}
+            onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>
+            {c.highlighted&&<span style={{marginRight:4}}>✦</span>}
+            {c.text}
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:16,background:'var(--surface-ghost)',borderRadius:999,padding:'12px 18px',display:'flex',alignItems:'center',gap:8}}>
+        <span style={{fontSize:14,fontWeight:500,color:'var(--text-disabled)',flex:1}}>Ask about your life...</span>
+        <div style={{width:28,height:28,borderRadius:14,background:'var(--primary-50)',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:12,color:'white'}}>🎤</span></div>
+      </div>
+    </div>
+  );
+};
+
+/* ══ NEW COMPONENTS: KundaliEntry, KundaliTab, BottomNav ══ */
+
+const KundaliEntry = ({ onDismiss }) => {
+  useEffect(()=>{ const t=setTimeout(onDismiss,1800); return ()=>clearTimeout(t); },[]);
+  return (
+    <div style={{position:'absolute',inset:0,zIndex:200,background:'linear-gradient(135deg,#0a0a1a,#1a0a30,#0d1a2a)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',animation:'fadeIn 400ms ease-out both'}}>
+      <div style={{fontSize:48,animation:'breathe 1.5s ease-in-out infinite'}}>🔮</div>
+      <div style={{fontSize:22,fontWeight:900,color:'#fff',marginTop:16,letterSpacing:'-0.02em'}}>Kundali</div>
+      <div style={{fontSize:13,fontWeight:500,color:'rgba(255,255,255,0.5)',marginTop:6}}>Aapki janam patrika khul rahi hai...</div>
+      <div style={{marginTop:24,display:'flex',gap:6}}>
+        {[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:'rgba(255,255,255,0.4)',animation:'breathe 1s ease-in-out '+(i*0.2)+'s infinite'}}/>)}
+      </div>
+    </div>
+  );
+};
+
+const KundaliTab = ({ onYearTap, onPlanetTap }) => {
+  const [overlay, setOverlay] = useState(null);
+  const handlePlanetTap = (planet) => {
+    if (onPlanetTap) onPlanetTap(planet);
+    setOverlay({type:'planet', planet, index:ORBIT_PLANETS.indexOf(planet)});
+  };
+  return (
+    <div style={{flex:1,overflowY:'auto',overflowX:'hidden',WebkitOverflowScrolling:'touch',paddingBottom:80,position:'relative',background:'#fff'}}>
+      {/* Identity strip */}
+      <div style={{padding:'16px 16px 12px',background:'linear-gradient(135deg,#0a0a1a,#1a0a30)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:48,height:48,borderRadius:'50%',overflow:'hidden',border:'2px solid rgba(255,255,255,0.2)',flexShrink:0}}>
+            <img src={typeof PROFILE_PHOTO!=='undefined'?PROFILE_PHOTO:'https://i.pravatar.cc/150?img=47'} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+          </div>
+          <div>
+            <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>{typeof USER_NAME!=='undefined'?USER_NAME:'Priya'}</div>
+            <div style={{fontSize:11,fontWeight:500,color:'rgba(255,255,255,0.5)',marginTop:2}}>Vrishchik Lagna · Anuradha Nakshatra · Mulank 9</div>
+          </div>
+          <div style={{flex:1}}/>
+          <div style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.4)',textAlign:'right'}}>
+            <div>Shani Dasha</div>
+            <div style={{color:'rgba(255,255,255,0.2)',marginTop:2}}>Age 30</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Solar System */}
+      <div style={{padding:'16px 0 0',background:'#0a0a1a'}}>
+        <div style={{padding:'0 16px',marginBottom:8}}>
+          <div style={{fontSize:13,fontWeight:800,color:'rgba(255,255,255,0.85)'}}>Apka Graha Mandal</div>
+          <div style={{fontSize:11,fontWeight:400,color:'rgba(255,255,255,0.4)',marginTop:2}}>Tap karke suniye — aapke grah kya keh rahe hain</div>
+        </div>
+        <LivingSolarSystem onPlanetTap={handlePlanetTap}/>
+      </div>
+
+      {/* Story Cards */}
+      <div style={{padding:'16px 0 0',background:'#fff'}}>
+        <div style={{padding:'0 16px',marginBottom:8}}>
+          <div style={{fontSize:13,fontWeight:800,color:'var(--text-high)'}}>Kundli ke Rahasya</div>
+          <div style={{fontSize:11,fontWeight:400,color:'var(--text-low)',marginTop:2}}>Tap karke jaano apne baare mein</div>
+        </div>
+        <div className="horiz-scroll" style={{display:'flex',gap:12,padding:'4px 16px 16px',overflowX:'auto'}}>
+          {STORY_CARDS.map((card,i)=>(
+            <StoryCardPreview key={card.id} card={card} index={i} onTap={(idx)=>setOverlay({type:'story',index:idx})}/>
+          ))}
+        </div>
+      </div>
+
+      {/* Celebrity Kundli Match */}
+      <CelebrityKundliMatch/>
+
+      {/* Destiny Walk */}
+      <div style={{padding:'0 0 0',background:'#fff'}}>
+        <div style={{padding:'0 16px 8px'}}>
+          <div style={{fontSize:13,fontWeight:800,color:'var(--text-high)'}}>Meri Life Graph</div>
+          <div style={{fontSize:11,fontWeight:400,color:'var(--text-low)',marginTop:2}}>Past se future tak — apni life ka cosmic map</div>
+        </div>
+        <DestinyWalk onYearTap={(age)=>setOverlay({type:'yearCapsule',age})}/>
+      </div>
+
+      {/* Ask the Stars */}
+      <div style={{height:24}}/>
+      <div style={{borderTop:'1px solid var(--stroke-minimal)',margin:'0 16px'}}/>
+      <div style={{height:20}}/>
+      <AskTheStars/>
+
+      {/* Overlays */}
+      {overlay?.type==='story'&&<StoryOverlay startIndex={overlay.index} onClose={()=>setOverlay(null)}/>}
+      {overlay?.type==='planet'&&(
+        <PlanetStoryCapsule
+          planet={overlay.planet}
+          currentIndex={overlay.index}
+          total={ORBIT_PLANETS.length}
+          onClose={()=>setOverlay(null)}
+          onPrev={overlay.index>0?()=>setOverlay({type:'planet',planet:ORBIT_PLANETS[overlay.index-1],index:overlay.index-1}):null}
+          onNext={overlay.index<ORBIT_PLANETS.length-1?()=>setOverlay({type:'planet',planet:ORBIT_PLANETS[overlay.index+1],index:overlay.index+1}):null}
+        />
+      )}
+      {overlay?.type==='yearCapsule'&&<YearCapsuleOverlay age={overlay.age} onClose={()=>setOverlay(null)}/>}
+    </div>
+  );
+};
+
+const BottomNav = ({ activeTab, onTabChange }) => (
+  <div style={{position:'absolute',bottom:0,left:0,right:0,height:60,background:'rgba(10,10,26,0.96)',backdropFilter:'blur(12px)',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',zIndex:50}}>
+    {[{id:'aaj',icon:'🌅',label:'Aaj'},{id:'kundali',icon:'✨',label:'Kundali'}].map(tab=>(
+      <div key={tab.id} onClick={()=>onTabChange(tab.id)} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',gap:3}}>
+        {activeTab===tab.id&&<div style={{position:'absolute',top:0,left:'20%',right:'20%',height:2,background:'var(--primary-50)',borderRadius:1}}/>}
+        <span style={{fontSize:20,lineHeight:1}}>{tab.icon}</span>
+        <span style={{fontSize:10,fontWeight:activeTab===tab.id?700:500,color:activeTab===tab.id?'var(--primary-50)':'rgba(255,255,255,0.4)',letterSpacing:0.3}}>{tab.label}</span>
+      </div>
+    ))}
+  </div>
+);
+
 /* ═══════════════════════════════════════
    APP SHELL
    ═══════════════════════════════════════ */
 const App = () => {
   const [entryDone, setEntryDone] = useState(false);
   const alreadyEntered = useRef(!!sessionStorage.getItem('cosmic_entry_done'));
+  const [activeTab, setActiveTab] = useState('aaj');
+  const [showKundaliEntry, setShowKundaliEntry] = useState(false);
+  const kundaliEntryShown = useRef(!!sessionStorage.getItem('kundali_entry_done'));
 
   useEffect(() => {
     if (alreadyEntered.current) {
@@ -2193,6 +3769,17 @@ const App = () => {
   const handleEntryComplete = () => {
     sessionStorage.setItem('cosmic_entry_done', '1');
     setEntryDone(true);
+  };
+
+  const handleTabChange = (tab) => {
+    if (tab === 'kundali' && !kundaliEntryShown.current) {
+      setShowKundaliEntry(true);
+      kundaliEntryShown.current = true;
+      sessionStorage.setItem('kundali_entry_done', '1');
+      setTimeout(() => { setShowKundaliEntry(false); setActiveTab('kundali'); }, 1800);
+    } else {
+      setActiveTab(tab);
+    }
   };
 
   return (
@@ -2211,87 +3798,98 @@ const App = () => {
         <CosmicEntry onComplete={handleEntryComplete} />
       )}
 
-      {/* Background gradient that shifts per zone */}
-      <div className="scroll-feed" style={{
-        background:'linear-gradient(180deg, #0a0a1a 0%, #0d0d2e 15%, #0d0828 35%, #0a1a2a 55%, #0d1a18 75%, #1a1408 100%)',
-        opacity: entryDone ? 1 : 0,
-        transition:'opacity 500ms ease',
-      }}>
+      {/* Kundali Entry cinematic transition */}
+      {showKundaliEntry && <KundaliEntry onDismiss={()=>{ setShowKundaliEntry(false); setActiveTab('kundali'); }} />}
 
-        {/* ═══ ZONE 1: LIVE COSMIC ROOM ═══ */}
-        <CompactHeader />
-        <DailyAstrocast />
-        <div style={{ height:24 }} />
-        <OrbitClock />
-        <div style={{ height:20 }} />
-        <SpeakingPlanetVisit />
+      {/* Tab content container */}
+      <div style={{ flex:1, position:'relative', overflow:'hidden', opacity: entryDone ? 1 : 0, transition:'opacity 500ms ease', display:'flex', flexDirection:'column' }}>
 
-        {/* ═══ ZONE 2: TODAY'S RITUALS ═══ */}
-        <ZoneDivider icon="🕉" label="Today's Rituals" />
-        <RitualChest />
-        <div style={{ height:16 }} />
-        <CosmicAlert />
-        <div style={{ height:16 }} />
-        <TodayEnergyCard />
+        {/* ─── AAJ TAB ─── */}
+        <div style={{ position:'absolute', inset:0, opacity: activeTab==='aaj' ? 1 : 0, pointerEvents: activeTab==='aaj' ? 'auto' : 'none', transition:'opacity 300ms ease', display:'flex', flexDirection:'column' }}>
+          <div className="scroll-feed" style={{
+            flex:1,
+            background:'linear-gradient(180deg, #0a0a1a 0%, #0d0d2e 15%, #0d0828 35%, #0a1a2a 55%, #0d1a18 75%, #1a1408 100%)',
+            paddingBottom:72,
+          }}>
+            {/* ═══ ZONE 1: LIVE COSMIC ROOM ═══ */}
+            <CompactHeader />
+            <DailyAstrocast />
+            <div style={{ height:24 }} />
+            <OrbitClock onPlanetDeepLink={() => handleTabChange('kundali')} />
+            <div style={{ height:20 }} />
+            <SpeakingPlanetVisit />
 
-        {/* ═══ ZONE 3: DEEP INTELLIGENCE ═══ */}
-        <ZoneDivider icon="🔮" label="Deep Intelligence" />
-        <CosmicShiftMap />
-        <div style={{ height:16 }} />
-        <PlanetMoodRings />
+            {/* ═══ ZONE 2: TODAY'S RITUALS ═══ */}
+            <ZoneDivider icon="🕉" label="Today's Rituals" />
+            <RitualChest />
+            <div style={{ height:16 }} />
+            <CosmicAlert />
+            <div style={{ height:16 }} />
+            <TodayEnergyCard />
 
-        {/* ═══ ZONE 4: LIFE PROGRESSION ═══ */}
-        <ZoneDivider icon="⚡" label="Life Progression" />
-        <PredictionCheckIn />
-        <div style={{ height:16 }} />
-        {IS_UNIFIED && <KundliExploreCard />}
-        {IS_UNIFIED && <div style={{ height:16 }} />}
-        {!IS_UNIFIED && <KundliExploreCard />}
-        {!IS_UNIFIED && <div style={{ height:16 }} />}
+            {/* ═══ ZONE 3: DEEP INTELLIGENCE ═══ */}
+            <ZoneDivider icon="🔮" label="Deep Intelligence" />
+            <CosmicShiftMap />
+            <div style={{ height:16 }} />
+            <PlanetMoodRings />
 
-        {/* ═══ CHAT BAR AT BOTTOM ═══ */}
-        <div style={{ padding:'8px 16px 24px' }}>
-          {/* Suggested questions — horizontal scroll */}
-          <div style={{
-            display:'flex', gap:8, overflowX:'auto', marginBottom:10,
-            paddingBottom:4, WebkitOverflowScrolling:'touch',
-          }} className="horiz-scroll">
-            {[
-              'Aaj mera din kaisa rahega?',
-              'Career mein kab milega promotion?',
-              'Shubh muhurat kya hai aaj?',
-              'Kya aaj invest karna chahiye?',
-              'Love life kab improve hogi?',
-            ].map((q, i) => (
-              <div key={i} style={{
-                flexShrink:0, padding:'8px 14px', borderRadius:20,
+            {/* ═══ ZONE 4: LIFE PROGRESSION ═══ */}
+            <ZoneDivider icon="⚡" label="Life Progression" />
+            <PredictionCheckIn />
+            <div style={{ height:16 }} />
+            {IS_UNIFIED && <KundliExploreCard />}
+            {IS_UNIFIED && <div style={{ height:16 }} />}
+            {!IS_UNIFIED && <KundliExploreCard />}
+            {!IS_UNIFIED && <div style={{ height:16 }} />}
+
+            {/* ═══ CHAT BAR AT BOTTOM ═══ */}
+            <div style={{ padding:'8px 16px 24px' }}>
+              <div style={{
+                display:'flex', gap:8, overflowX:'auto', marginBottom:10,
+                paddingBottom:4, WebkitOverflowScrolling:'touch',
+              }} className="horiz-scroll">
+                {[
+                  'Aaj mera din kaisa rahega?',
+                  'Career mein kab milega promotion?',
+                  'Shubh muhurat kya hai aaj?',
+                  'Kya aaj invest karna chahiye?',
+                  'Love life kab improve hogi?',
+                ].map((q, i) => (
+                  <div key={i} style={{
+                    flexShrink:0, padding:'8px 14px', borderRadius:20,
+                    background:'rgba(255,255,255,0.06)',
+                    border:'1px solid rgba(255,255,255,0.1)',
+                    fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.6)',
+                    cursor:'pointer', whiteSpace:'nowrap',
+                  }}>{q}</div>
+                ))}
+              </div>
+              <div style={{
+                display:'flex', alignItems:'center', gap:10,
+                padding:'10px 14px', borderRadius:24,
                 background:'rgba(255,255,255,0.06)',
                 border:'1px solid rgba(255,255,255,0.1)',
-                fontSize:11, fontWeight:500, color:'rgba(255,255,255,0.6)',
-                cursor:'pointer', whiteSpace:'nowrap',
-              }}>{q}</div>
-            ))}
-          </div>
-
-          {/* Chat input bar */}
-          <div style={{
-            display:'flex', alignItems:'center', gap:10,
-            padding:'10px 14px', borderRadius:24,
-            background:'rgba(255,255,255,0.06)',
-            border:'1px solid rgba(255,255,255,0.1)',
-          }}>
-            <div style={{
-              flex:1, fontSize:13, fontWeight:400, color:'rgba(255,255,255,0.3)',
-            }}>Apna sawaal poochiye...</div>
-            <div style={{
-              width:36, height:36, borderRadius:'50%',
-              background:'linear-gradient(135deg, #f5a623, #e8871e)',
-              display:'flex', alignItems:'center', justifyContent:'center',
-              fontSize:16, cursor:'pointer',
-              boxShadow:'0 0 12px rgba(245,166,35,0.3)',
-            }}>✦</div>
+              }}>
+                <div style={{ flex:1, fontSize:13, fontWeight:400, color:'rgba(255,255,255,0.3)' }}>Apna sawaal poochiye...</div>
+                <div style={{
+                  width:36, height:36, borderRadius:'50%',
+                  background:'linear-gradient(135deg, #f5a623, #e8871e)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  fontSize:16, cursor:'pointer',
+                  boxShadow:'0 0 12px rgba(245,166,35,0.3)',
+                }}>✦</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* ─── KUNDALI TAB ─── */}
+        <div style={{ position:'absolute', inset:0, opacity: activeTab==='kundali' ? 1 : 0, pointerEvents: activeTab==='kundali' ? 'auto' : 'none', transition:'opacity 300ms ease', display:'flex', flexDirection:'column' }}>
+          <KundaliTab onYearTap={(age) => {}} onPlanetTap={(planet) => {}} />
+        </div>
+
+        {/* Bottom Nav */}
+        <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </div>
   );
