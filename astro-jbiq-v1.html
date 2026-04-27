@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Astrology · JBIQ · Day 0 & Day 30</title>
+
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+/* ═══ JDS TOKENS ═══ */
+:root {
+  --p:#3535f3; --pb:#3900ad; --lp:#6D17CE; --sp:#1eccb0; --am:#f7ab20;
+  --gh:#eeeeef; --gi:#e7e9ff; --icon:#170054; --g1:#141414;
+  --g6:rgba(20,20,20,0.65); --g4:rgba(20,20,20,0.38); --g2:#f5f5f5;
+  --bd:rgba(36,38,43,0.12); --err:#fa2f40; --suc:#25ab21;
+  --ease-snappy:cubic-bezier(0.2,0,0,1); --ease-emp:cubic-bezier(0.05,0.7,0.1,1); --ease-gentle:cubic-bezier(0.4,0,0.2,1);
+  /* Astro accent */
+  --ast:#6D17CE; --ast-soft:rgba(109,23,206,0.07); --ast-ring:rgba(109,23,206,0.28); --page-bg:#f0eaf7;
+}
+
+/* ═══ PAGE SHELL ═══ */
+body {
+  font-family:'JioType',-apple-system,sans-serif;
+  background:var(--page-bg); min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:22px 14px 40px; -webkit-font-smoothing:antialiased;
+  user-select:none; color:var(--g1);
+}
+
+.page-top { width:100%; max-width:520px; margin:0 auto 10px; }
+.page-top h1 { font-size:14px; font-weight:900; letter-spacing:-0.01em; }
+.page-top p { font-size:11px; color:var(--g6); font-weight:500; margin-top:2px; }
+
+.controls { display:flex; gap:6px; max-width:520px; width:100%; margin:0 auto 14px; flex-wrap:wrap; align-items:center; }
+.tg { display:flex; gap:3px; padding:3px; flex:1; background:#fff; border:1px solid var(--bd); border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.tog { flex:1; padding:7px 4px; border-radius:9px; border:none; font-family:inherit; font-size:12px; font-weight:700; color:var(--g6); background:transparent; cursor:pointer; transition:all 0.16s var(--ease-snappy); }
+.tog small { display:block; font-size:9px; font-weight:500; opacity:0.5; margin-top:1px; }
+.tog.on { background:var(--g1); color:#fff; }
+
+/* ═══ PHONE ═══ */
+.phone { width:360px; height:800px; border-radius:44px; border:8px solid #1c1c1e; box-shadow:0 0 0 1px #333,0 32px 64px rgba(0,0,0,0.28),inset 0 0 0 1px #2c2c2e; position:relative; overflow:hidden; background:#fff; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:32px; background:#1c1c1e; border-radius:0 0 18px 18px; z-index:100; }
+.screen { position:absolute; inset:0; background:#fff; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ═══ STATUS BAR ═══ */
+.sb { height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 22px 0 26px; position:absolute; top:0; left:0; right:0; z-index:30; color:var(--g1); }
+.sbt { font-size:14px; font-weight:700; }
+.sbr { display:flex; gap:5px; align-items:center; }
+.sbr svg { width:14px; height:14px; fill:currentColor; }
+
+/* ═══ HERO ═══ */
+.hero { height:160px; flex-shrink:0; background:var(--ast-soft); position:relative; overflow:hidden; color:var(--g1); border-bottom:1px solid var(--bd); transition:background 300ms; }
+.hero-nav { position:absolute; top:54px; left:14px; right:14px; z-index:20; display:flex; justify-content:space-between; }
+.hero-btn { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.7); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(8px); transition:background 150ms, transform 150ms; }
+.hero-btn:active { background:#fff; transform:scale(0.94); }
+.hero-btn svg { width:16px; height:16px; fill:var(--g1); }
+.hero-id { position:absolute; left:18px; right:18px; top:94px; display:flex; align-items:center; gap:14px; z-index:5; }
+.hero-avatar { width:56px; height:56px; border-radius:50%; background:var(--ast); display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0; box-shadow:0 4px 14px rgba(109,23,206,0.25); overflow:hidden; }
+.hero-avatar::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:1.5px dashed var(--ast-ring); animation:spinSlow 28s linear infinite; }
+.hero-avatar img { width:56px; height:56px; object-fit:cover; border-radius:50%; }
+@keyframes spinSlow { to { transform:rotate(360deg); } }
+.hero-text { flex:1; min-width:0; }
+.hero-name { font-size:22px; font-weight:900; letter-spacing:-0.02em; color:var(--g1); line-height:1.1; }
+.hero-tagline { font-size:12px; font-weight:500; color:var(--g6); margin-top:3px; letter-spacing:0.01em; }
+
+/* ═══ SCROLL ═══ */
+.scroll { flex:1; min-height:0; overflow-y:auto; scrollbar-width:none; padding:16px 0 100px; }
+.scroll::-webkit-scrollbar { display:none; }
+
+.section { padding:4px 18px 4px; margin-bottom:12px; }
+.sec-head { margin-bottom:10px; display:flex; justify-content:space-between; align-items:flex-end; }
+.sec-title { font-size:17px; font-weight:800; letter-spacing:-0.015em; color:var(--g1); line-height:1.15; }
+.sec-sub { font-size:11px; color:var(--g6); font-weight:500; margin-top:2px; }
+
+/* ═══ CARD — ONBOARDING ═══ */
+.card-o { background:#fff; border:1.5px dashed var(--bd); border-radius:16px; padding:22px 18px; cursor:pointer; text-align:center; transition:transform 180ms var(--ease-snappy); }
+.card-o:active { transform:scale(0.994); }
+.ob-ic { width:60px; height:60px; border-radius:18px; background:var(--gi); margin:0 auto 14px; display:flex; align-items:center; justify-content:center; }
+.ob-ic svg { width:28px; height:28px; fill:var(--ast); }
+.ob-t { font-size:18px; font-weight:900; letter-spacing:-0.015em; color:var(--g1); }
+.ob-s { font-size:12.5px; color:var(--g6); font-weight:500; margin-top:7px; line-height:1.5; max-width:260px; margin-left:auto; margin-right:auto; }
+.ob-steps { display:flex; gap:7px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+.ob-step { padding:5px 14px; border-radius:999px; background:var(--gi); color:var(--ast); font-size:11px; font-weight:800; }
+
+/* ═══ CARD — RASHIFAL (dark emphasis) ═══ */
+.rashifal-card { background:var(--g1); border-radius:18px; overflow:hidden; cursor:pointer; position:relative; box-shadow:0 12px 32px rgba(0,0,0,0.22); transition:transform 180ms var(--ease-snappy); }
+.rashifal-card:active { transform:scale(0.994); }
+.rashifal-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--ast); }
+.rf-video-thumb { height:116px; background:var(--g1); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; position:relative; }
+.rf-stars { position:absolute; inset:0; overflow:hidden; }
+.rf-play-btn { width:48px; height:48px; border-radius:50%; background:rgba(109,23,206,0.85); border:2px solid rgba(255,255,255,0.20); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 150ms; }
+.rf-play-btn:active { transform:scale(0.92); }
+.rf-duration { position:absolute; bottom:8px; right:10px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; font-weight:700; padding:3px 7px; border-radius:6px; }
+.rf-live-pill { position:absolute; top:8px; left:10px; display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px; background:var(--ast); color:#fff; font-size:9px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; }
+.rf-pulse { width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+.rf-body { padding:14px 16px 16px; }
+.rf-title { font-size:17px; font-weight:900; letter-spacing:-0.015em; color:#fff; line-height:1.2; margin-bottom:4px; }
+.rf-title .accent { color:var(--ast); filter:brightness(1.4); }
+.rf-sub { font-size:11px; color:rgba(255,255,255,0.55); font-weight:500; line-height:1.4; margin-bottom:12px; }
+
+/* Deep personalisation strip */
+.deep-personal { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:9px 12px; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.deep-personal-icon { font-size:14px; }
+.deep-personal-text { font-size:11px; color:rgba(255,255,255,0.7); font-weight:500; line-height:1.35; }
+.deep-personal-text b { color:#fff; font-weight:800; }
+
+/* Rating row */
+.rating-row { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:12px; }
+.rating-item { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:9px 6px; text-align:center; }
+.rating-label { font-size:9px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:4px; }
+.rating-stars { font-size:11px; letter-spacing:1px; color:var(--am); }
+
+/* Audio waveform */
+.audio-strip { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:9px 11px; display:flex; align-items:center; gap:9px; margin-bottom:12px; cursor:pointer; }
+.audio-play-sm { width:30px; height:30px; border-radius:50%; background:var(--ast); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.audio-play-sm svg { margin-left:2px; }
+.audio-waveform { flex:1; display:flex; align-items:center; gap:2px; height:22px; }
+.aw { flex:1; background:var(--ast); border-radius:2px; opacity:0.5; animation:wave 1.3s ease-in-out infinite; filter:brightness(1.6); }
+.aw:nth-child(1){height:35%;animation-delay:0s;} .aw:nth-child(2){height:65%;animation-delay:0.1s;} .aw:nth-child(3){height:90%;animation-delay:0.2s;} .aw:nth-child(4){height:55%;animation-delay:0.3s;} .aw:nth-child(5){height:80%;animation-delay:0.4s;} .aw:nth-child(6){height:45%;animation-delay:0.5s;} .aw:nth-child(7){height:100%;animation-delay:0.6s;} .aw:nth-child(8){height:70%;animation-delay:0.7s;} .aw:nth-child(9){height:85%;animation-delay:0.8s;} .aw:nth-child(10){height:50%;animation-delay:0.9s;}
+@keyframes wave { 0%,100%{opacity:0.5;transform:scaleY(0.5)} 50%{opacity:1;transform:scaleY(1)} }
+.audio-dur-sm { font-size:10px; font-weight:700; color:rgba(255,255,255,0.55); flex-shrink:0; }
+
+/* Dark CTA buttons */
+.rf-ctas { display:flex; gap:8px; }
+.btn-dark-primary { flex:1; padding:11px 12px; border-radius:999px; font-family:inherit; font-size:12px; font-weight:800; cursor:pointer; background:var(--ast); color:#fff; border:none; transition:opacity 150ms; min-height:42px; }
+.btn-dark-primary:active { opacity:0.85; }
+.btn-dark-ghost { flex:1; padding:11px 12px; border-radius:999px; font-family:inherit; font-size:12px; font-weight:800; cursor:pointer; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.14); transition:background 150ms; min-height:42px; }
+.btn-dark-ghost:active { background:rgba(255,255,255,0.14); }
+
+/* ═══ PLANET CHANGE CARD ═══ */
+.planet-change-card { background:#fff; border:1px solid var(--bd); border-radius:16px; padding:14px; cursor:pointer; transition:transform 180ms var(--ease-snappy); }
+.planet-change-card:active { transform:scale(0.994); }
+.pc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.pc-label { font-size:9.5px; font-weight:800; color:var(--g6); letter-spacing:0.1em; text-transform:uppercase; }
+.pc-badge { padding:3px 8px; border-radius:999px; background:var(--gi); color:var(--ast); font-size:9px; font-weight:800; }
+.planet-row { display:flex; gap:8px; margin-bottom:8px; }
+.planet-block { flex:1; padding:10px; background:var(--g2); border-radius:10px; text-align:center; }
+.planet-block.moved { background:rgba(109,23,206,0.06); border:1px solid rgba(109,23,206,0.18); }
+.pb-symbol { font-size:20px; margin-bottom:4px; }
+.pb-name { font-size:10px; font-weight:800; color:var(--g6); text-transform:uppercase; letter-spacing:0.07em; }
+.pb-rashi { font-size:12px; font-weight:800; color:var(--g1); margin-top:2px; }
+.pb-arrow { display:flex; align-items:center; justify-content:center; color:var(--ast); font-size:16px; font-weight:800; padding-top:16px; }
+.pc-desc { font-size:12px; color:var(--g6); line-height:1.45; margin-bottom:10px; }
+.fyi-audio { background:rgba(109,23,206,0.06); border:1px solid rgba(109,23,206,0.12); border-radius:9px; padding:8px 10px; display:flex; align-items:center; gap:8px; cursor:pointer; }
+.fyi-audio-btn { width:26px; height:26px; border-radius:50%; background:var(--ast); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.fyi-audio-waves { flex:1; display:flex; align-items:center; gap:2px; height:18px; }
+.fw { flex:1; background:var(--ast); border-radius:1.5px; opacity:0.4; animation:wave 1.3s ease-in-out infinite; }
+.fw:nth-child(1){height:40%;animation-delay:0.0s;} .fw:nth-child(2){height:70%;animation-delay:0.15s;} .fw:nth-child(3){height:100%;animation-delay:0.30s;} .fw:nth-child(4){height:60%;animation-delay:0.45s;} .fw:nth-child(5){height:85%;animation-delay:0.60s;} .fw:nth-child(6){height:50%;animation-delay:0.75s;} .fw:nth-child(7){height:75%;animation-delay:0.90s;} .fw:nth-child(8){height:45%;animation-delay:1.05s;}
+.fyi-audio-dur { font-size:10px; font-weight:700; color:var(--g6); flex-shrink:0; }
+
+/* ═══ LUCKY TIMELINE ═══ */
+.lucky-timeline { display:flex; flex-direction:column; gap:0; }
+.lt-row { display:flex; align-items:stretch; gap:0; }
+.lt-line { display:flex; flex-direction:column; align-items:center; width:20px; flex-shrink:0; padding-top:2px; }
+.lt-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.lt-stem { width:2px; flex:1; margin-top:3px; background:var(--bd); }
+.lt-row:last-child .lt-stem { display:none; }
+.lt-content { flex:1; background:#fff; border:1px solid var(--bd); border-radius:12px; padding:10px 12px; margin-bottom:8px; margin-left:6px; cursor:pointer; transition:all 140ms var(--ease-snappy); }
+.lt-content:active { background:var(--g2); transform:scale(0.98); }
+.lt-content.lucky { border-color:rgba(109,23,206,0.30); background:rgba(109,23,206,0.04); }
+.lt-time { font-size:9.5px; font-weight:800; color:var(--g6); letter-spacing:0.08em; text-transform:uppercase; }
+.lt-label { font-size:13px; font-weight:800; color:var(--g1); margin-top:2px; line-height:1.2; }
+.lt-desc { font-size:11px; color:var(--g6); font-weight:500; margin-top:3px; line-height:1.3; }
+.lt-lucky-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; background:var(--ast); color:#fff; font-size:9px; font-weight:800; margin-top:5px; letter-spacing:0.05em; }
+
+/* ═══ UPAY CARD ═══ */
+.upay-single { background:#fff; border:1px solid var(--bd); border-radius:16px; padding:16px; cursor:pointer; transition:transform 160ms var(--ease-snappy); }
+.upay-single:active { transform:scale(0.994); }
+.upay-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.upay-day-badge { padding:4px 10px; border-radius:999px; background:var(--gi); color:var(--ast); font-size:10px; font-weight:800; }
+.upay-title { font-size:16px; font-weight:900; color:var(--g1); letter-spacing:-0.01em; margin-bottom:6px; }
+.upay-sub { font-size:12px; color:var(--g6); font-weight:500; line-height:1.45; margin-bottom:12px; }
+.upay-steps { display:flex; flex-direction:column; gap:6px; }
+.upay-step { display:flex; align-items:flex-start; gap:9px; padding:9px 11px; background:var(--g2); border-radius:10px; }
+.upay-step-num { width:20px; height:20px; border-radius:50%; background:var(--ast); color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.upay-step-text { font-size:12px; font-weight:600; color:var(--g1); line-height:1.4; }
+
+/* ═══ IMMERSIVE — BIRTH CHART ═══ */
+.card-i { background:var(--g1); border-radius:18px; padding:18px 18px 16px; cursor:pointer; position:relative; overflow:hidden; transition:transform 180ms var(--ease-snappy); box-shadow:0 12px 32px rgba(0,0,0,0.22); }
+.card-i::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--ast); }
+.card-i:active { transform:scale(0.994); }
+.im-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:10px; }
+.im-t-left { flex:1; min-width:0; }
+.im-title { font-size:17px; font-weight:900; letter-spacing:-0.02em; line-height:1.2; color:#fff; }
+.im-sub { font-size:11px; color:rgba(255,255,255,0.55); font-weight:500; margin-top:4px; line-height:1.4; }
+.im-badge { padding:5px 10px; border-radius:999px; background:var(--ast); color:#fff; font-size:9.5px; font-weight:800; letter-spacing:0.04em; white-space:nowrap; flex-shrink:0; }
+.im-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:14px; }
+.im-stat { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 6px; text-align:center; }
+.im-stat-n { font-size:22px; font-weight:900; letter-spacing:-0.03em; line-height:1; color:#fff; }
+.im-stat-l { font-size:9px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.08em; margin-top:5px; }
+.im-prog { padding:12px 14px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); }
+.im-prog-row { display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#fff; margin-bottom:8px; }
+.im-prog-bar { height:6px; background:rgba(255,255,255,0.14); border-radius:999px; overflow:hidden; }
+.im-prog-fill { height:100%; background:var(--ast); border-radius:999px; width:74%; }
+.im-prog-note { font-size:10.5px; color:rgba(255,255,255,0.55); margin-top:6px; line-height:1.4; }
+
+/* ═══ FYI CARD ═══ */
+.card-f { background:#fff; border:1px solid var(--bd); border-radius:14px; padding:12px; cursor:pointer; display:flex; gap:12px; align-items:center; transition:transform 180ms var(--ease-snappy); box-shadow:0 1px 3px rgba(0,0,0,0.03); margin-top:8px; }
+.card-f:first-of-type { margin-top:0; }
+.card-f:active { transform:scale(0.994); }
+.fyi-ic { width:44px; height:44px; border-radius:12px; flex-shrink:0; background:var(--g2); display:flex; align-items:center; justify-content:center; }
+.fyi-ic svg { width:20px; height:20px; fill:var(--g1); }
+.fyi-ic.solid { background:var(--ast); }
+.fyi-ic.solid svg { fill:#fff; }
+.fyi-body { flex:1; min-width:0; }
+.fyi-tag { font-size:9.5px; font-weight:800; color:var(--g6); letter-spacing:0.1em; text-transform:uppercase; }
+.fyi-head { font-size:14px; font-weight:800; color:var(--g1); margin-top:2px; line-height:1.25; }
+.fyi-sub { font-size:11px; color:var(--g6); font-weight:500; margin-top:3px; line-height:1.35; }
+
+/* ═══ DISCOVER PILLS ═══ */
+.dc-scroll { display:flex; gap:7px; overflow-x:auto; padding:2px 18px 6px; scrollbar-width:none; margin:0 -18px; }
+.dc-scroll::-webkit-scrollbar { display:none; }
+.dc-pill { flex-shrink:0; padding:8px 13px; border-radius:999px; border:1px solid var(--bd); background:#fff; color:var(--g1); font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; transition:all 130ms; }
+.dc-pill:active { background:var(--g2); transform:scale(0.97); }
+.dc-pill svg { width:12px; height:12px; fill:var(--g6); }
+.dc-pill.feat { background:var(--p); color:#fff; border-color:transparent; }
+
+/* ═══ STARTERS ═══ */
+.st-list { display:flex; flex-direction:column; gap:7px; }
+.st { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; background:#fff; border:1px solid var(--bd); cursor:pointer; font-family:inherit; text-align:left; transition:all 160ms var(--ease-snappy); }
+.st:active { transform:scale(0.993); background:var(--g2); }
+.st-ic { width:30px; height:30px; border-radius:10px; flex-shrink:0; background:var(--g2); display:flex; align-items:center; justify-content:center; }
+.st-ic svg { width:14px; height:14px; fill:var(--g1); }
+.st-t { flex:1; font-size:13px; font-weight:600; color:var(--g1); line-height:1.3; }
+.st-arr svg { width:15px; height:15px; fill:var(--g4); }
+
+/* ═══ BOTTOM MULTIMODAL ═══ */
+.bottom-box { position:absolute; bottom:0; left:0; right:0; padding:10px 12px 20px; background:#fff; }
+.mm-bar { display:flex; align-items:center; gap:8px; background:#fff; border-radius:20px; padding:8px; box-shadow:0 -2px 16px rgba(0,0,0,0.06); }
+.mm-attach { width:40px; height:40px; flex-shrink:0; border:none; border-radius:50%; background:var(--gi); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 150ms; }
+.mm-attach:active { transform:scale(0.9); }
+.mm-attach svg { width:20px; height:20px; fill:var(--icon); }
+.mm-field { flex:1; position:relative; cursor:pointer; min-width:0; }
+.mm-field-inner { height:44px; border-radius:22px; background:var(--gh); display:flex; align-items:center; padding:0 44px 0 16px; }
+.mm-ph { font-size:14.5px; color:var(--g4); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mm-send { position:absolute; right:4px; top:4px; width:36px; height:36px; border-radius:50%; background:var(--gi); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.mm-send svg { width:18px; height:18px; fill:var(--icon); }
+.mm-voice { width:44px; height:44px; flex-shrink:0; border:none; border-radius:50%; background:var(--pb); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:2px; box-shadow:0 2px 10px rgba(57,0,173,0.28); transition:transform 150ms; }
+.mm-voice:active { transform:scale(0.9); }
+.mm-voice span { width:2.5px; border-radius:2px; background:#fff; display:block; }
+.mm-voice span:nth-child(1){height:8px;} .mm-voice span:nth-child(2){height:14px;} .mm-voice span:nth-child(3){height:18px;} .mm-voice span:nth-child(4){height:14px;} .mm-voice span:nth-child(5){height:8px;}
+
+/* ═══ TOAST ═══ */
+.toast { position:absolute; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--g1); color:#fff; border-radius:12px; padding:9px 16px; font-size:12px; font-weight:600; white-space:nowrap; opacity:0; pointer-events:none; z-index:99; transition:opacity 220ms,transform 220ms var(--ease-emp); max-width:280px; text-align:center; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══ ANIMATIONS ═══ */
+.fin { opacity:0; animation:fadeUp 0.32s var(--ease-emp) forwards; }
+.fin.d1{animation-delay:0.04s;} .fin.d2{animation-delay:0.10s;} .fin.d3{animation-delay:0.17s;} .fin.d4{animation-delay:0.24s;} .fin.d5{animation-delay:0.31s;} .fin.d6{animation-delay:0.38s;} .fin.d7{animation-delay:0.45s;}
+@keyframes fadeUp { from{opacity:0;transform:translateY(9px);} to{opacity:1;transform:translateY(0);} }
+
+/* ═══ MOBILE NATIVE ═══ */
+@media(max-width:768px){
+  body{background:#fff!important;padding:0!important;align-items:stretch!important;}
+  .phone{width:100%!important;height:100vh!important;height:100dvh!important;border-radius:0!important;box-shadow:none!important;border:none!important;max-width:100%!important;}
+  .notch,.page-top,.controls{display:none!important;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-top">
+  <h1>Astrology · JBIQ Framework <span style="font-weight:500;color:var(--g6);font-size:11px;margin-left:6px;">Day 0 &amp; Day 30</span></h1>
+  <p>Second-level landing page · same JBIQ shell · content scales with user depth</p>
+</div>
+
+<div class="controls">
+  <div class="tg" id="state-group">
+    <button class="tog" data-val="d0" onclick="setState('d0')">Day 0<small>New user</small></button>
+    <button class="tog" data-val="d30" onclick="setState('d30')">Day 30<small>Returning user</small></button>
+  </div>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="screen" id="screen">
+
+    <!-- Status bar -->
+    <div class="sb">
+      <span class="sbt">9:41</span>
+      <div class="sbr">
+        <svg viewBox="0 0 24 24"><rect x="1" y="9" width="3" height="15" rx="1"/><rect x="6" y="5" width="3" height="19" rx="1"/><rect x="11" y="1" width="3" height="23" rx="1" opacity=".5"/><rect x="16" y="1" width="3" height="23" rx="1" opacity=".25"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M1.5 8.43C4.17 5.8 7.91 4.25 12 4.25S19.83 5.8 22.5 8.43l-1.68 1.68C18.77 7.95 15.53 6.5 12 6.5S5.23 7.95 3.18 10.11zm3.37 3.37C6.6 9.97 9.2 8.75 12 8.75s5.4 1.22 7.13 3.05l-1.68 1.69C16.12 12.08 14.13 11 12 11s-4.12 1.08-5.45 2.49zm3.36 3.37c.97-.88 2.25-1.42 3.77-1.42s2.8.54 3.77 1.42l-1.68 1.69C13.6 16.44 12.83 16 12 16s-1.6.44-2.09.92zm3.77 2.8c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="1.5" y="7" width="17" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="19.5" y="10" width="2.5" height="4" rx="1"/><rect x="3.5" y="9" width="11" height="6" rx="1"/></svg>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero" id="hero">
+      <div class="hero-nav">
+        <button class="hero-btn" onclick="showToast('← JioBharatIQ Home')">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <button class="hero-btn" onclick="showToast('Astrology settings')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>
+      </div>
+      <div class="hero-id">
+        <div class="hero-avatar">
+          <img id="hero-img" src="https://sunit1986.github.io/design-prototypes/Assets/persona-astrology.png" alt="Astrology" onerror="this.style.display='none'">
+        </div>
+        <div class="hero-text">
+          <div class="hero-name" id="hero-name">Astrology</div>
+          <div class="hero-tagline" id="hero-tagline">Rashifal · Muhurat · Kundali</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll content (state-driven) -->
+    <div class="scroll" id="scroll"></div>
+
+    <!-- Bottom multimodal -->
+    <div class="bottom-box">
+      <div class="mm-bar">
+        <button class="mm-attach" onclick="showToast('Attach')" aria-label="Attach">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+        <div class="mm-field" onclick="showToast('Kuch bhi poochho…')">
+          <div class="mm-field-inner">
+            <span class="mm-ph" id="mm-ph">Ask about rashifal, muhurat, kundali</span>
+          </div>
+          <button class="mm-send" onclick="event.stopPropagation();showToast('Bhej raha hoon…')">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <button class="mm-voice" onclick="showToast('Voice input…')">
+          <span></span><span></span><span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+// ─── SHARED HELPERS ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function arrowSvg() {
+  return `<svg viewBox="0 0 24 24" width="15" height="15" fill="rgba(20,20,20,0.38)"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>`;
+}
+
+// ─── CONTENT ────────────────────────────────────────────────────────
+
+const CONTENT = {
+
+  d0: {
+    heroName: 'Astrology',
+    heroTagline: 'Rashifal · Muhurat · Kundali',
+    ph: 'Ask about rashifal, muhurat, kundali',
+    render() {
+      return `
+      <!-- Onboarding -->
+      <div class="section fin d1">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Let's get started</div>
+            <div class="sec-sub">Quick setup · 30 seconds</div>
+          </div>
+        </div>
+        <div class="card-o" onclick="showToast('Birth details setup shuru ho raha hai…')">
+          <div class="ob-ic">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div class="ob-t">Unlock your stars</div>
+          <div class="ob-s">Share your birth date, time, and place — we'll generate your personalised rashifal and kundali.</div>
+          <div class="ob-steps">
+            <div class="ob-step">Date</div>
+            <div class="ob-step">Time</div>
+            <div class="ob-step">Place</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discover -->
+      <div class="section fin d2">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Aur Explore Karo</div>
+            <div class="sec-sub">5 ways to go deeper</div>
+          </div>
+        </div>
+        <div class="dc-scroll">
+          <button class="dc-pill" onclick="showToast('Daily rashifal dekh rahe hain…')">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            Daily Rashifal
+          </button>
+          <button class="dc-pill" onclick="showToast('Muhurat dekh rahe hain…')">
+            <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+            Aaj ka Muhurat
+          </button>
+          <button class="dc-pill" onclick="showToast('Numerology loading…')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Numerology
+          </button>
+          <button class="dc-pill" onclick="showToast('Zodiac 101 loading…')">Zodiac 101</button>
+          <button class="dc-pill" onclick="showToast('Gem guide loading…')">Ratna Guide</button>
+        </div>
+      </div>
+
+      <!-- Starters -->
+      <div class="section fin d3">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Taaron se Poochho</div>
+            <div class="sec-sub">Popular starters for new users</div>
+          </div>
+        </div>
+        <div class="st-list">
+          <button class="st" onclick="showToast('Vedic astrology ke baare mein pooch raha hoon…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+            <div class="st-t">What is Vedic astrology?</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+          <button class="st" onclick="showToast('Auspicious times dekh raha hoon…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></div>
+            <div class="st-t">Show today's auspicious times</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+          <button class="st" onclick="showToast('12 houses ke baare mein pooch raha hoon…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+            <div class="st-t">Explain the 12 houses in kundali</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+        </div>
+      </div>`;
+    }
+  },
+
+  d30: {
+    heroName: 'Shivali',
+    heroTagline: 'Vrishchik · Scorpio Rising · 30 readings done',
+    ph: 'Namasté Shivali · kuch bhi poochho…',
+    render() {
+      return `
+      <!-- 1 · Aaj ka Rashifal — dark emphasis card -->
+      <div class="section fin d1">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Aaj ka Rashifal</div>
+            <div class="sec-sub">30-din ki journey · audio + video</div>
+          </div>
+        </div>
+        <div class="rashifal-card" onclick="showToast('Rashifal video play ho raha hai…')">
+          <div class="rf-video-thumb">
+            <div class="rf-stars">
+              <svg viewBox="0 0 344 116" width="344" height="116" style="position:absolute;inset:0;">
+                <circle cx="40" cy="20" r="1.5" fill="rgba(109,23,206,0.5)"/>
+                <circle cx="80" cy="45" r="1" fill="rgba(109,23,206,0.4)"/>
+                <circle cx="130" cy="15" r="2" fill="rgba(247,171,32,0.6)"/>
+                <circle cx="200" cy="35" r="1.5" fill="rgba(109,23,206,0.5)"/>
+                <circle cx="260" cy="18" r="1" fill="rgba(247,171,32,0.4)"/>
+                <circle cx="310" cy="50" r="2" fill="rgba(109,23,206,0.3)"/>
+                <circle cx="170" cy="60" r="1.5" fill="rgba(255,255,255,0.25)"/>
+                <circle cx="90" cy="80" r="1" fill="rgba(255,255,255,0.2)"/>
+                <circle cx="240" cy="75" r="1.5" fill="rgba(255,255,255,0.25)"/>
+                <path d="M40 20 L80 45 L130 15" stroke="rgba(109,23,206,0.25)" stroke-width="0.8" fill="none"/>
+                <path d="M200 35 L260 18 L310 50" stroke="rgba(109,23,206,0.20)" stroke-width="0.8" fill="none"/>
+              </svg>
+            </div>
+            <div class="rf-live-pill"><div class="rf-pulse"></div>DEEPENED · 30 DAYS</div>
+            <div class="rf-play-btn" onclick="event.stopPropagation();showToast('Video play ho raha hai…')">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="rf-duration">4:21</div>
+          </div>
+          <div class="rf-body">
+            <div class="rf-title">Shivali · Aaj <span class="accent">Guru</span> aapke saath shift kar raha hai</div>
+            <div class="rf-sub">27 April · Vrishabh mein Guru · aapke 30 din ke data se personalized</div>
+            <div class="deep-personal">
+              <div class="deep-personal-icon">🔮</div>
+              <div class="deep-personal-text"><b>30 din ka trend:</b> Career score consistently improve hua · love mein ups/downs · health excellent</div>
+            </div>
+            <div class="rating-row">
+              <div class="rating-item">
+                <div class="rating-label">Career</div>
+                <div class="rating-stars">★★★★★</div>
+              </div>
+              <div class="rating-item">
+                <div class="rating-label">Love</div>
+                <div class="rating-stars">★★★★☆</div>
+              </div>
+              <div class="rating-item">
+                <div class="rating-label">Wealth</div>
+                <div class="rating-stars">★★★★☆</div>
+              </div>
+            </div>
+            <div class="audio-strip" onclick="event.stopPropagation();showToast('Deep audio narration chal raha hai…')">
+              <button class="audio-play-sm">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="white"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <div class="audio-waveform">
+                <div class="aw"></div><div class="aw"></div><div class="aw"></div><div class="aw"></div>
+                <div class="aw"></div><div class="aw"></div><div class="aw"></div><div class="aw"></div>
+                <div class="aw"></div><div class="aw"></div>
+              </div>
+              <span class="audio-dur-sm">2:48</span>
+            </div>
+            <div class="rf-ctas">
+              <button class="btn-dark-primary" onclick="event.stopPropagation();showToast('Mahina ka forecast dekh rahe hain…')">Month Forecast</button>
+              <button class="btn-dark-ghost" onclick="event.stopPropagation();showToast('Expert consultation book ho rahi hai…')">Book Consult</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 · Kal se Kya Badla — planet change -->
+      <div class="section fin d2">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Kal se Kya Badla</div>
+            <div class="sec-sub">2 planet movements · audio + visual</div>
+          </div>
+        </div>
+        <div class="planet-change-card" onclick="showToast('Guru shift ka full analysis sun rahe hain…')">
+          <div class="pc-header">
+            <div class="pc-label">BADA BADLAV · NEXT 48 HOURS</div>
+            <div class="pc-badge">Affects You</div>
+          </div>
+          <div class="planet-row">
+            <div class="planet-block moved">
+              <div class="pb-symbol">♃</div>
+              <div class="pb-name">Guru (Jupiter)</div>
+              <div class="pb-rashi">Mesh → Vrishabh</div>
+            </div>
+            <div class="pb-arrow">→</div>
+            <div class="planet-block moved">
+              <div class="pb-symbol">☽</div>
+              <div class="pb-name">Chandra</div>
+              <div class="pb-rashi">Makar → Kumbh</div>
+            </div>
+          </div>
+          <div class="pc-desc">Guru ka Vrishabh mein pravesha aapke liye bahut powerful hai — finance aur career mein significant uplift aayega.</div>
+          <div class="fyi-audio" onclick="event.stopPropagation();showToast('Planet shift audio chal raha hai…')">
+            <button class="fyi-audio-btn">
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="fyi-audio-waves">
+              <div class="fw"></div><div class="fw"></div><div class="fw"></div><div class="fw"></div>
+              <div class="fw"></div><div class="fw"></div><div class="fw"></div><div class="fw"></div>
+            </div>
+            <span class="fyi-audio-dur">1:12</span>
+          </div>
+        </div>
+        <div class="card-f" onclick="showToast('Budh seedha ho raha hai — communication improve hogi')">
+          <div class="fyi-ic solid">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div class="fyi-body">
+            <div class="fyi-tag">COMING UP · 3 DIN MEIN</div>
+            <div class="fyi-head">Budh seedha ho raha hai</div>
+            <div class="fyi-sub">Rukke hue kaam aur baatein phir shuru hongi · badhiya news</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 · Din ke Shubh Samay — lucky timeline -->
+      <div class="section fin d3">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Din ke Shubh Samay</div>
+            <div class="sec-sub">30-din ke patterns se calculate kiya</div>
+          </div>
+        </div>
+        <div class="lucky-timeline">
+          <div class="lt-row">
+            <div class="lt-line">
+              <div class="lt-dot" style="background:var(--ast)"></div>
+              <div class="lt-stem"></div>
+            </div>
+            <div class="lt-content lucky" onclick="showToast('Subah ka peak window — 7AM–9AM!')">
+              <div class="lt-time">07:00 – 09:00 AM</div>
+              <div class="lt-label">Subah · Meditation Peak</div>
+              <div class="lt-desc">Aapke 30-din ke data mein: is time par aap sabse focused hoti hain</div>
+              <div class="lt-lucky-badge">✦ AAPKA BEST TIME</div>
+            </div>
+          </div>
+          <div class="lt-row">
+            <div class="lt-line">
+              <div class="lt-dot" style="background:var(--am)"></div>
+              <div class="lt-stem"></div>
+            </div>
+            <div class="lt-content lucky" style="border-color:rgba(247,171,32,0.35);background:rgba(247,171,32,0.04);" onclick="showToast('Guru transit peak: 11AM–1PM ideal for big moves')">
+              <div class="lt-time">11:00 AM – 01:00 PM</div>
+              <div class="lt-label">Guru Transit Window</div>
+              <div class="lt-desc">Guru Vrishabh mein aaj peak hora mein — financial decisions, contracts</div>
+              <div class="lt-lucky-badge" style="background:var(--am);">★ GURU WINDOW</div>
+            </div>
+          </div>
+          <div class="lt-row">
+            <div class="lt-line">
+              <div class="lt-dot" style="background:var(--g4)"></div>
+              <div class="lt-stem"></div>
+            </div>
+            <div class="lt-content" onclick="showToast('Dopahar — routine kaam ke liye theek')">
+              <div class="lt-time">01:00 – 05:00 PM</div>
+              <div class="lt-label">Dopahar · Madhyam</div>
+              <div class="lt-desc">Routine kaam ke liye theek · creative projects ke liye avoid karo</div>
+            </div>
+          </div>
+          <div class="lt-row">
+            <div class="lt-line">
+              <div class="lt-dot" style="background:var(--sp)"></div>
+              <div class="lt-stem"></div>
+            </div>
+            <div class="lt-content lucky" style="border-color:rgba(30,204,176,0.30);background:rgba(30,204,176,0.04);" onclick="showToast('Sham ki power window — Chandra Kumbh mein boost dega')">
+              <div class="lt-time">06:30 – 08:30 PM</div>
+              <div class="lt-label">Sham · Social & Creative Peak</div>
+              <div class="lt-desc">Chandra Kumbh mein hai aaj — new connections, social events best rahega</div>
+              <div class="lt-lucky-badge" style="background:var(--sp);">✦ SOCIAL WINDOW</div>
+            </div>
+          </div>
+          <div class="lt-row">
+            <div class="lt-line">
+              <div class="lt-dot" style="background:var(--g4)"></div>
+              <div class="lt-stem"></div>
+            </div>
+            <div class="lt-content" onclick="showToast('Raat — rest and reflect')">
+              <div class="lt-time">10:00 PM onwards</div>
+              <div class="lt-label">Raat · Deep Rest</div>
+              <div class="lt-desc">Meditation, journaling, aur kal ke liye prepare karo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 · Aaj ka Upay — personalized remedy -->
+      <div class="section fin d4">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Aaj ka Upay</div>
+            <div class="sec-sub">30-din ki kundali analysis se · personalized</div>
+          </div>
+        </div>
+        <div class="upay-single" onclick="showToast('Guru upay details dekh rahe hain…')">
+          <div class="upay-header">
+            <div style="font-size:28px;">💛</div>
+            <div class="upay-day-badge">Guru Vrishabh Upay · Aaj</div>
+          </div>
+          <div class="upay-title">Guru ki Shakti ko Activate Karo</div>
+          <div class="upay-sub">Aaj Guru transit aapke career aur finances par direct asar daal raha hai. Yeh upay isko 3x powerful banata hai — especially Vrishchik rashiyon ke liye.</div>
+          <div class="upay-steps">
+            <div class="upay-step">
+              <div class="upay-step-num">1</div>
+              <div class="upay-step-text">Peele kapde pehno ya peela tilak lagao — Guru ko signal milega</div>
+            </div>
+            <div class="upay-step">
+              <div class="upay-step-num">2</div>
+              <div class="upay-step-text">Subah 7–9 AM ke window mein "Om Gurave Namah" 108 baar japo</div>
+            </div>
+            <div class="upay-step">
+              <div class="upay-step-num">3</div>
+              <div class="upay-step-text">Kisi brahmin ya bujurg ko peeli vastu (haldi, chana dal) daan karo</div>
+            </div>
+            <div class="upay-step">
+              <div class="upay-step-num">4</div>
+              <div class="upay-step-text">11AM–1PM window mein bade career ya financial decisions lo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 · Birth Chart — immersive dark card -->
+      <div class="section fin d5">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Aapka Birth Chart</div>
+            <div class="sec-sub">30 din ke baad unlock · deep view</div>
+          </div>
+        </div>
+        <div class="card-i" onclick="showToast('Birth chart deep-dive loading…')">
+          <div class="im-top">
+            <div class="im-t-left">
+              <div class="im-title">Shivali · Scorpio Rising Virgo</div>
+              <div class="im-sub">Sun · Moon · Rising — the three foundation stones of your chart</div>
+            </div>
+            <div class="im-badge">Personalised</div>
+          </div>
+          <div class="im-stats">
+            <div class="im-stat">
+              <div class="im-stat-n" style="font-size:15px;">Scorp</div>
+              <div class="im-stat-l">Sun Sign</div>
+            </div>
+            <div class="im-stat">
+              <div class="im-stat-n" style="font-size:15px;">Pisces</div>
+              <div class="im-stat-l">Moon Sign</div>
+            </div>
+            <div class="im-stat">
+              <div class="im-stat-n" style="font-size:15px;">Virgo</div>
+              <div class="im-stat-l">Rising</div>
+            </div>
+          </div>
+          <div class="im-prog">
+            <div class="im-prog-row"><span>Peak months in 2026</span><span>74%</span></div>
+            <div class="im-prog-bar"><div class="im-prog-fill"></div></div>
+            <div class="im-prog-note">April, July aur November — aapke sabse powerful mahine hain</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 · Discover -->
+      <div class="section fin d6">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Aur Explore Karo</div>
+            <div class="sec-sub">30-din ke baad naye pehlu unlock</div>
+          </div>
+        </div>
+        <div class="dc-scroll">
+          <button class="dc-pill feat" onclick="showToast('2026 forecast loading…')">2026 Forecast</button>
+          <button class="dc-pill feat" onclick="showToast('Guru transit guide loading…')">Guru Guide</button>
+          <button class="dc-pill" onclick="showToast('Birth chart deep-dive loading…')">Chart Deep-dive</button>
+          <button class="dc-pill" onclick="showToast('Kundali match loading…')">Kundali Match</button>
+          <button class="dc-pill" onclick="showToast('Gem therapy loading…')">Ratna Therapy</button>
+          <button class="dc-pill" onclick="showToast('Month calendar loading…')">Monthly Calendar</button>
+        </div>
+      </div>
+
+      <!-- 7 · Starters -->
+      <div class="section fin d7">
+        <div class="sec-head">
+          <div>
+            <div class="sec-title">Taaron se Poochho</div>
+            <div class="sec-sub">30 din ki journey ke baad tuned starters</div>
+          </div>
+        </div>
+        <div class="st-list">
+          <button class="st" onclick="showToast('Guru transit aur career ke baare mein…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+            <div class="st-t">Guru transit mujhe career mein kaise affect karega?</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+          <button class="st" onclick="showToast('Financial outlook ke baare mein…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+            <div class="st-t">Is mahine mera financial outlook kya hai?</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+          <button class="st" onclick="showToast('2026 forecast ke baare mein…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+            <div class="st-t">Mere liye 2026 ke best months kaun se hain?</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+          <button class="st" onclick="showToast('Compatibility ke baare mein…')">
+            <div class="st-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+            <div class="st-t">Virgo partner ke saath meri compatibility?</div>
+            <div class="st-arr">${arrowSvg()}</div>
+          </button>
+        </div>
+      </div>`;
+    }
+  }
+};
+
+// ─── RENDERER ───────────────────────────────────────────────────────
+function setState(state) {
+  // Update toggle buttons
+  document.querySelectorAll('.tog').forEach(b => b.classList.toggle('on', b.dataset.val === state));
+
+  const cfg = CONTENT[state];
+
+  // Update hero
+  document.getElementById('hero-name').textContent = cfg.heroName;
+  document.getElementById('hero-tagline').textContent = cfg.heroTagline;
+
+  // Update input placeholder
+  document.getElementById('mm-ph').textContent = cfg.ph;
+
+  // Hero avatar: show persona image on d0, emoji on d30
+  const img = document.getElementById('hero-img');
+  if (state === 'd0') {
+    img.src = 'https://sunit1986.github.io/design-prototypes/Assets/persona-astrology.png';
+    img.style.display = '';
+    img.parentElement.innerHTML = `<img id="hero-img" src="https://sunit1986.github.io/design-prototypes/Assets/persona-astrology.png" alt="Astrology" onerror="this.style.display='none'" style="width:56px;height:56px;object-fit:cover;border-radius:50%;">`;
+  } else {
+    img.parentElement.innerHTML = `<span id="hero-img" style="font-size:24px;">☿</span>`;
+  }
+
+  // Render content
+  const scroll = document.getElementById('scroll');
+  scroll.innerHTML = cfg.render();
+  scroll.scrollTop = 0;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────
+setState('d0');
+</script>
+</body>
+</html>
