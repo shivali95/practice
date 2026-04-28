@@ -2538,13 +2538,19 @@ function closeSheet() {
 }
 
 function doSeva(kind, toastText) {
+  // Audio playback MUST happen in the same task as the user gesture,
+  // otherwise browsers (Safari/Chrome) block it via autoplay policy.
+  // Visual effects + sheet close can defer.
+  if (kind === 'shankh') playShankh();
+  else if (kind === 'aarti')  startAarti();
+
   closeSheet();
   setTimeout(()=>{
     showToast(toastText);
     if (kind === 'pushp' || kind === 'shringaar') flowerShower();
     else if (kind === 'diya')   { brightenFlash(); startAartiThali(); }
-    else if (kind === 'shankh') { pulseDeity(); playShankh(); }
-    else if (kind === 'aarti')  { brightenFlash(); startAarti(); }
+    else if (kind === 'shankh') { pulseDeity(); }
+    else if (kind === 'aarti')  { brightenFlash(); }
   }, 300);
 }
 
