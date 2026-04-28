@@ -1736,14 +1736,15 @@ const _hashKey = async (str) => {
   } catch { return str.slice(0, 64); }
 };
 
-// Sarvam news-anchor voices — abhilash (default male anchor), anushka (female anchor)
-// Per-card variation kept for "different voice per story" without losing news-anchor energy
+// Sarvam news-anchor voices — MALE ONLY (abhilash, karun, hitesh, arya)
+// All female speaker names redirect to male voices
 const SARVAM_ASTROLOGER_VOICES = {
   advait: 'abhilash', daniel: 'abhilash', raj: 'abhilash', ratan: 'abhilash', arvind: 'abhilash',
   kabir: 'hitesh', aayan: 'hitesh', bill: 'hitesh', chris: 'hitesh',
   manan: 'arya',
   abhilash: 'abhilash', karun: 'karun', hitesh: 'hitesh', arya: 'arya',
-  anushka: 'anushka', manisha: 'manisha', vidya: 'vidya',
+  // Female speaker names → redirect to male voices
+  anushka: 'abhilash', manisha: 'karun', vidya: 'hitesh',
 };
 const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'abhilash';
 
