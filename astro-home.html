@@ -1216,9 +1216,9 @@ const FullCard4_Misunderstood = () => (
   </div>
 );
 
-/* Per-story astrologer voice rotation — distinct voice per Kundali ka Rahasya card */
-/* Sarvam male voices: hitesh (deepest), karun (warm-wise), arya (youthful) */
-const CARD_VOICES = ['hitesh', 'karun', 'arya', 'hitesh', 'karun', 'arya', 'hitesh'];
+/* Per-story news-anchor voice rotation — distinct voice per Kundali ka Rahasya card */
+/* Sarvam voices rotated for variety: abhilash (anchor male), anushka (anchor female), arya (younger), hitesh (deeper) */
+const CARD_VOICES = ['abhilash', 'anushka', 'arya', 'hitesh', 'abhilash', 'anushka', 'arya'];
 
 /* Card 4 — DESTINY PATTERN (Rare Yog) */
 /* Card 5 — RARE YOG — Interactive block-based immersive experience */
@@ -1736,19 +1736,20 @@ const _hashKey = async (str) => {
   } catch { return str.slice(0, 64); }
 };
 
-// Sarvam astrologer voice mapping — hitesh = deepest, karun = warm-wise, arya = youthful
+// Sarvam news-anchor voices — abhilash (default male anchor), anushka (female anchor)
+// Per-card variation kept for "different voice per story" without losing news-anchor energy
 const SARVAM_ASTROLOGER_VOICES = {
-  advait: 'hitesh', daniel: 'hitesh', raj: 'hitesh', ratan: 'hitesh', arvind: 'hitesh',
-  kabir: 'karun', aayan: 'karun', bill: 'karun', chris: 'karun',
+  advait: 'abhilash', daniel: 'abhilash', raj: 'abhilash', ratan: 'abhilash', arvind: 'abhilash',
+  kabir: 'hitesh', aayan: 'hitesh', bill: 'hitesh', chris: 'hitesh',
   manan: 'arya',
   abhilash: 'abhilash', karun: 'karun', hitesh: 'hitesh', arya: 'arya',
   anushka: 'anushka', manisha: 'manisha', vidya: 'vidya',
 };
-const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'hitesh';
+const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'abhilash';
 
 const _sarvamTTS = async (text, speaker) => {
   const voiceId = _sarvamVoice(speaker);
-  const key = await _hashKey('sarvam-astro|' + voiceId + '|' + text);
+  const key = await _hashKey('sarvam-anchor|' + voiceId + '|' + text);
   const cached = await _idbGet(key);
   if (cached) { console.log('[TTS cache hit]', key); return cached; }
   const resp = await fetch(SARVAM_TTS_URL, {
@@ -1757,7 +1758,8 @@ const _sarvamTTS = async (text, speaker) => {
     body: JSON.stringify({
       inputs: [text], target_language_code: 'hi-IN', speaker: voiceId,
       model: 'bulbul:v2',
-      pitch: -0.3, pace: 0.85, loudness: 1.4, enable_preprocessing: true,
+      // News-anchor tuning — neutral pitch, slightly fast pace, projection-loud
+      pitch: 0.0, pace: 1.05, loudness: 1.5, enable_preprocessing: true,
     })
   });
   if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status);

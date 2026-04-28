@@ -95,11 +95,11 @@ const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 const SARVAM_ASTROLOGER_VOICES = {
   abhilash: 'abhilash', karun: 'karun', hitesh: 'hitesh', arya: 'arya',
   anushka: 'anushka', manisha: 'manisha', vidya: 'vidya',
-  // Legacy ElevenLabs voice keys \u2192 Sarvam astrologer voices
-  advait: 'hitesh', daniel: 'hitesh', raj: 'hitesh', ratan: 'hitesh', arvind: 'hitesh',
-  kabir: 'karun', aayan: 'karun', bill: 'karun', chris: 'karun', manan: 'arya',
+  // Legacy keys \u2192 news-anchor voices
+  advait: 'abhilash', daniel: 'abhilash', raj: 'abhilash', ratan: 'abhilash', arvind: 'abhilash',
+  kabir: 'hitesh', aayan: 'hitesh', bill: 'hitesh', chris: 'hitesh', manan: 'arya',
 };
-const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'hitesh';
+const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'abhilash';
 
 const _b64ToBlob = (b64, mime='audio/wav') => {
   const bin = atob(b64);
@@ -116,7 +116,8 @@ const _sarvamCallRaw = async (text, voiceId) => {
     body: JSON.stringify({
       inputs: [text], target_language_code: 'hi-IN', speaker: voiceId,
       model: 'bulbul:v2',
-      pitch: -0.3, pace: 0.85, loudness: 1.4, enable_preprocessing: true,
+      // News-anchor tuning — neutral pitch, slightly fast pace, projection-loud
+      pitch: 0.0, pace: 1.05, loudness: 1.5, enable_preprocessing: true,
     })
   });
   if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status + ' ' + (await resp.text()).slice(0,120));
@@ -129,7 +130,7 @@ const _sarvamTTS = async (text, speaker) => {
   const voiceId = _sarvamVoice(speaker);
   if (typeof _hashKey === 'function' && typeof _idbGet === 'function') {
     try {
-      const k = await _hashKey('sarvam-astro|' + voiceId + '|' + text);
+      const k = await _hashKey('sarvam-anchor|' + voiceId + '|' + text);
       const cached = await _idbGet(k);
       if (cached) { console.log('[TTS cache hit]', k); return cached; }
       const blob = await _sarvamCallRaw(text, voiceId);
