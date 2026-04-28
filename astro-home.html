@@ -1732,22 +1732,37 @@ const _hashKey = async (str) => {
   } catch { return str.slice(0, 64); }
 };
 
+const ELEVEN_REAL_KEY = 'sk_00accf8852cc5d84587657f4c151a59d9a725345e98a9282';
+const ELEVEN_REAL_URL = 'https://api.elevenlabs.io/v1/text-to-speech/';
+// ElevenLabs voice IDs — astrologer character voices
+const ELEVEN_VOICES = {
+  advait: 'onwK4e9ZLuTAKqWW03F9',  // Daniel — deep, warm British
+  raj: 'pNInz6obpgDQGcFmaJgB',     // Adam — narrative gravitas
+  kabir: 'TxGEqnHWrfWFTfGW9XjX',   // Josh — wise male
+  ratan: 'ErXwobaYiN019PkySvjV',   // Antoni — cinematic
+  aayan: 'CYw3kZ02Hs0563khs1Fj',   // Dave — calm storyteller
+  manan: 'IKne3meq5aSn9XLyUdCD',   // Charlie — youthful warm
+  arvind: 'JBFqnCBsd6RMkjVDRZzb',  // George — elder authority
+  daniel: 'onwK4e9ZLuTAKqWW03F9',
+  bill: 'pqHfZKP75CvOlQylNhV4',
+  chris: 'iP95p4xoKVk53GoZ742B',
+};
+const _elevenVoice = (s) => ELEVEN_VOICES[s] || ELEVEN_VOICES.advait;
+
 const _sarvamTTS = async (text, speaker) => {
-  const speakerName = mapSpeaker(speaker);
-  // 1. Persistent IDB cache hit?
-  const key = await _hashKey(speakerName + '|' + text);
+  // Cache key: provider + voice + text → IDB persists across reloads
+  const voiceId = _elevenVoice(speaker);
+  const key = await _hashKey('eleven|' + voiceId + '|' + text);
   const cached = await _idbGet(key);
   if (cached) { console.log('[TTS cache hit]', key); return cached; }
-  // 2. Miss → call Sarvam, then store
-  const resp = await fetch(SARVAM_TTS_URL, {
+  // Miss → ElevenLabs
+  const resp = await fetch(ELEVEN_REAL_URL + voiceId, {
     method: 'POST',
-    headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ inputs:[text], target_language_code:'hi-IN', speaker:speakerName, model:'bulbul:v2', pitch:0, pace:1.0, loudness:1.2, enable_preprocessing:true })
+    headers: { 'xi-api-key': ELEVEN_REAL_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } })
   });
-  if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status);
-  const data = await resp.json();
-  if (!data.audios || !data.audios[0]) throw new Error('Sarvam: no audio');
-  const blob = _b64ToBlob(data.audios[0]);
+  if (!resp.ok) throw new Error('ElevenLabs TTS: ' + resp.status);
+  const blob = await resp.blob();
   _idbPut(key, blob);
   return blob;
 };
