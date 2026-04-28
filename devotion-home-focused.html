@@ -1695,8 +1695,9 @@ const GREETINGS = {
 const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
 const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 const SARVAM_MODEL = 'bulbul:v2';
-// Greeting voice — energetic warm male
-const SARVAM_GREETING_VOICE = 'hitesh';
+// Greeting voice — deep, divine male narrator (karun) with low pitch + slow pace.
+// "Jai Shree Shiv" should feel like a temple priest's invocation, not a news anchor.
+const SARVAM_GREETING_VOICE = 'karun';
 let currentGreetingAudio = null;
 
 // Decode Sarvam's base64-encoded WAV into a Blob URL.
@@ -1791,11 +1792,17 @@ async function playGreeting(deity) {
   try {
     if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
     const g = GREETINGS[deity] || GREETINGS.ganesh;
-    const url = await sarvamSpeak(g.spoken, { speaker: SARVAM_GREETING_VOICE, pace: 0.95 });
+    // Divine invocation — deeper pitch, slower pace, fuller loudness
+    const url = await sarvamSpeak(g.spoken, {
+      speaker: SARVAM_GREETING_VOICE,
+      pitch: -0.25,
+      pace: 0.85,
+      loudness: 1.35
+    });
     if (!url) return;
     const audio = new Audio(url);
     currentGreetingAudio = audio;
-    audio.volume = 0.9;
+    audio.volume = 0.95;
     audio.play().catch(e => console.warn('greeting play failed', e));
   } catch (e) { console.warn('playGreeting error', e); }
 }
@@ -2311,18 +2318,19 @@ const storyAudioCache = {};
 // In-flight warm-up promises so we don't refetch while already fetching.
 const storyAudioInFlight = {};
 
-// Sarvam voice + delivery tuning per kind of story so each card feels distinct.
-// Voices available on bulbul:v2 we're picking from:
-//   hitesh (energetic male), aditya (calm male), karun (storyteller male),
-//   abhilash (warm male), arya (clear female), manisha (mature female),
-//   vidya (narration female).
+// Sarvam voice + delivery tuning per story so each card feels distinct.
+// bulbul:v2 voices: anushka, abhilash, manisha, vidya, arya, karun, hitesh.
+//
+// Sandesh = Bhagwan speaking DIRECTLY to the user (Shiv ji etc.) — must
+// feel divine: deepest voice (karun), low pitch, slow deliberate pace,
+// commanding loudness. Other stories vary voice/tempo for distinctness.
 function sarvamVoiceFor(id) {
-  if (id === 'sandesh')   return { speaker: 'hitesh',   pitch: 0,    pace: 0.95, loudness: 1.25 }; // warm divine greeting
-  if (id === 'gita')      return { speaker: 'arya',     pitch: -0.05, pace: 0.88, loudness: 1.15 }; // philosophical, slow
-  if (id === 'tithi')     return { speaker: 'aditya',   pitch: 0,    pace: 0.95, loudness: 1.15 }; // calm calendar info
-  if (id === 'ramayan')   return { speaker: 'karun',    pitch: 0,    pace: 0.93, loudness: 1.25 }; // epic storytelling
-  if (id === 'bharat')    return { speaker: 'hitesh',   pitch: 0.05, pace: 0.95, loudness: 1.3  }; // heroic
-  /* puranic / default */ return { speaker: 'abhilash', pitch: 0,    pace: 0.92, loudness: 1.2  };
+  if (id === 'sandesh')   return { speaker: 'karun',    pitch: -0.35, pace: 0.78, loudness: 1.5  }; // Bhagwan ki awaaz — deep, slow, commanding
+  if (id === 'gita')      return { speaker: 'arya',     pitch: -0.05, pace: 0.86, loudness: 1.15 }; // philosophical, contemplative
+  if (id === 'tithi')     return { speaker: 'manisha',  pitch: 0,     pace: 0.95, loudness: 1.15 }; // calm calendar info, mature female
+  if (id === 'ramayan')   return { speaker: 'abhilash', pitch: -0.15, pace: 0.9,  loudness: 1.25 }; // epic storytelling, warm male
+  if (id === 'bharat')    return { speaker: 'hitesh',   pitch: -0.1,  pace: 0.94, loudness: 1.3  }; // heroic, energetic
+  /* puranic / default */ return { speaker: 'karun',    pitch: -0.2,  pace: 0.86, loudness: 1.3  }; // mythological, gravitas
 }
 
 // Cache key — sandesh & puranic vary by deity; rest are shared.
