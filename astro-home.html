@@ -4963,9 +4963,335 @@ const CosmicBalance = () => {
 };
 
 /* ═══════════════════════════════════════
+   SAATHI CHAT OVERLAY — ported from jyotish-saathi.html
+   ═══════════════════════════════════════ */
+const SAATHI_RESPONSES = {
+  job: {
+    text: 'Aapki Shani Dasha ka 10th house pe sequel chal raha hai — career change ke liye November 2026 ke baad ka window strong hai. Dasara ke around abhi mat haath dalo, but Diwali ke baad explore zaroor karo. Mars in Lagna says: jab badlo to bold ho ke badlo.',
+    cards: ['dasha'],
+    chips: ['Show me the timeline', 'What field suits me?', 'Should I start own thing?', '✦ Talk to an astrologer live'],
+  },
+  love: {
+    text: 'Venus aapke 4th house mein hai — ghar, family, comfort se relationship banta hai. Saturn Return ke ek saal ke andar (next 8-10 months) ek meaningful person enter karta hai. Tab tak self-work karo — yog kehta hai pehle khud ko jaano.',
+    cards: ['remedy'],
+    chips: ['When exactly?', 'Compatibility check', 'Should I take initiative?', '✦ Talk to an astrologer live'],
+  },
+  health: {
+    text: 'Mars in Lagna means strong vitality, but bhi hyper-acidity tendency hai. Saturn 10th in Pisces — kabhi-kabhi joints/back issue. Daily 20-min walk + Hanuman Chalisa Tuesday ko = baseline. Major risk window: April–June 2027, tab regular checkups.',
+    cards: ['remedy'],
+    chips: ['Detailed remedies', 'Diet advice', 'Stress management', '✦ Talk to an astrologer live'],
+  },
+  invest: {
+    text: 'Jupiter 5th house se 9th drishti deta hai — dharma + wealth alignment achha hai. Lekin Rahu in 12th says foreign exposure tricky. Best windows: 15 May - 30 June, then Sept-Oct (Guru Pushya). Avoid Mercury-retrograde windows (twice this year).',
+    cards: [],
+    chips: ['Stocks vs gold?', 'Best muhurat dates', 'Real estate timing', '✦ Talk to an astrologer live'],
+  },
+  purpose: {
+    text: 'Aapki Atmakaraka Mars hai — leadership + courage aapka swadharma hai. 9th lord Moon in 7th says people-facing work. Combine kar ke: aapka purpose hai logon ko himmat dilana, bold decisions guide karna. Coach, founder, or counsel in some form.',
+    cards: ['remedy'],
+    chips: ['Career fit roles', 'Spiritual practice', 'Daily intention', '✦ Talk to an astrologer live'],
+  },
+  default: {
+    text: 'Mein aapki kundali ke andar dekh raha hoon... Aapka Vrishchik Lagna + Mars in Lagna combo bahut rare hai. Jo bhi sawaal ho — career, love, health, money, ya life direction — directly poocho. Mein chart se hi jawab dunga.',
+    cards: [],
+    chips: ['When should I change jobs?', 'Will I find love?', 'Health concerns', 'Best investment window', "What's my life purpose?"],
+  },
+};
+
+const _matchTopic = (q) => {
+  const t = (q || '').toLowerCase();
+  if (/job|career|naukri|kaam/.test(t)) return 'job';
+  if (/love|shaadi|relation|partner|marry/.test(t)) return 'love';
+  if (/health|bimari|fitness|risk/.test(t)) return 'health';
+  if (/invest|paisa|money|wealth|finance/.test(t)) return 'invest';
+  if (/purpose|life|dharma|why/.test(t)) return 'purpose';
+  return 'default';
+};
+
+const SaathiChatOverlay = ({ initialQuery, onClose }) => {
+  const [messages, setMessages] = useState([]); // {role:'ai'|'user', text, cards?, chips?}
+  const [input, setInput] = useState('');
+  const [thinking, setThinking] = useState(false);
+  const [showAstrologerSheet, setShowAstrologerSheet] = useState(false);
+  const scrollRef = useRef(null);
+
+  const scrollBottom = () => {
+    requestAnimationFrame(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    });
+  };
+
+  const aiReply = (q) => {
+    const topic = _matchTopic(q);
+    const r = SAATHI_RESPONSES[topic];
+    setThinking(true);
+    setTimeout(() => {
+      setThinking(false);
+      setMessages(m => [...m, { role: 'ai', text: r.text, cards: r.cards, chips: r.chips }]);
+      scrollBottom();
+    }, 900);
+  };
+
+  const sendUserMessage = (text) => {
+    const t = (text || '').trim();
+    if (!t) return;
+    setMessages(m => [...m, { role: 'user', text: t }]);
+    setInput('');
+    scrollBottom();
+    if (/talk.*astrologer|astrologer live/i.test(t)) {
+      setTimeout(() => setShowAstrologerSheet(true), 400);
+      return;
+    }
+    aiReply(t);
+  };
+
+  // Initial: greet + auto-send the initial query if any
+  useEffect(() => {
+    setMessages([{
+      role: 'ai',
+      text: 'Namaste Shivali ji ✦ Mein aapka Jyotish Saathi hoon. Aapki Vrishchik Lagna + Ruchak Mahapurush Yog dekh raha hoon. Kya jaanna chahti hain?',
+      chips: ['When should I change jobs?', 'Will I find love?', 'Health concerns', "What's my life purpose?", '✦ Talk to an astrologer live'],
+    }]);
+    if (initialQuery) {
+      setTimeout(() => sendUserMessage(initialQuery), 600);
+    }
+  }, []);
+
+  useEffect(scrollBottom, [thinking, showAstrologerSheet]);
+
+  const onChipTap = (chipText) => sendUserMessage(chipText);
+
+  const renderCard = (type) => {
+    if (type === 'dasha') {
+      return (
+        <div style={{ background: '#fff', borderRadius: 14, padding: 14, marginTop: 10,
+          border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 14px rgba(0,0,0,0.05)' }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: '#8b7fd4', letterSpacing: 1.2,
+            textTransform: 'uppercase', marginBottom: 10 }}>✦ Dasha Timeline</div>
+          {[
+            { dot: 'past', name: 'Mercury Antardasha', sub: '2021 — 2024', badge: 'COMPLETED' },
+            { dot: 'current', name: 'Saturn Mahadasha', sub: 'Now — 2027', badge: 'ACTIVE' },
+            { dot: 'future', name: 'Mercury Mahadasha', sub: '2027 — 2044', badge: 'AHEAD' },
+          ].map((p, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0',
+              borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', marginTop: 5, flexShrink: 0,
+                background: p.dot === 'current' ? '#8b7fd4' : p.dot === 'past' ? '#bbb' : 'transparent',
+                border: p.dot === 'future' ? '1.5px dashed #bbb' : 'none' }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{p.name}</div>
+                <div style={{ fontSize: 11, color: '#777', marginTop: 1 }}>{p.sub}</div>
+              </div>
+              <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: 0.6,
+                color: p.dot === 'current' ? '#8b7fd4' : '#aaa', alignSelf: 'flex-start',
+                background: p.dot === 'current' ? 'rgba(139,127,212,0.12)' : 'rgba(0,0,0,0.04)',
+                padding: '3px 7px', borderRadius: 5 }}>{p.badge}</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (type === 'remedy') {
+      return (
+        <div style={{ background: '#fff', borderRadius: 14, padding: 14, marginTop: 10,
+          border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 14px rgba(0,0,0,0.05)' }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: '#2da764', letterSpacing: 1.2,
+            textTransform: 'uppercase', marginBottom: 10 }}>🌿 Personalised Upay</div>
+          {[
+            { n: 1, t: 'Mahadasha upay', d: 'Shani mantra — 108 times every Saturday' },
+            { n: 2, t: 'Daily mantra', d: 'Om Namah Shivaya — 11 times morning' },
+            { n: 3, t: 'Gemstone', d: 'Blue Sapphire (after consultation)' },
+            { n: 4, t: 'Weekly practice', d: 'Donate black sesame on Saturday' },
+          ].map((it, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, padding: '7px 0' }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(45,167,100,0.12)',
+                color: '#2da764', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', flexShrink: 0 }}>{it.n}</div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{it.t}</div>
+                <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>{it.d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 200, background: '#f5f1ec',
+      display: 'flex', flexDirection: 'column', animation: 'slideUp 350ms ease-out both' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
+        background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <div onClick={onClose} style={{ width: 32, height: 32, borderRadius: 16, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.04)', fontSize: 16, color: '#555' }}>‹</div>
+        <div style={{ width: 36, height: 36, borderRadius: 18,
+          background: 'linear-gradient(135deg, #8b7fd4, #5a4ab8)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff' }}>✦</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>Jyotish Saathi</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#2da764' }}>● Online · powered by your kundali</div>
+        </div>
+        <button onClick={() => setShowAstrologerSheet(true)}
+          style={{ background: 'linear-gradient(135deg, #f5d060, #e8a000)', color: '#1a1a1a',
+            border: 'none', borderRadius: 999, padding: '7px 12px', fontSize: 11, fontWeight: 800,
+            cursor: 'pointer', boxShadow: '0 2px 8px rgba(232,160,0,0.3)', whiteSpace: 'nowrap' }}>
+          ✦ Astrologer
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 16px',
+        display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {messages.map((msg, i) => msg.role === 'ai' ? (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start',
+            animation: 'fadeInUp 300ms ease-out both' }}>
+            <div style={{ width: 30, height: 30, borderRadius: 15, flexShrink: 0,
+              background: 'linear-gradient(135deg, #8b7fd4, #5a4ab8)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#fff' }}>✦</div>
+            <div style={{ flex: 1, minWidth: 0, maxWidth: 'calc(100% - 38px)' }}>
+              <div style={{ background: '#fff', borderRadius: '4px 16px 16px 16px',
+                padding: '10px 14px', fontSize: 13.5, fontWeight: 500, color: '#1a1a1a',
+                lineHeight: 1.55, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                {msg.text}
+              </div>
+              {/* Feedback row */}
+              <div style={{ display: 'flex', gap: 6, marginTop: 5, marginLeft: 4 }}>
+                {['👍','👎','📋','🔊'].map((ic, j) => (
+                  <div key={j} style={{ width: 22, height: 22, borderRadius: 11,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.04)', fontSize: 10, cursor: 'pointer' }}>{ic}</div>
+                ))}
+              </div>
+              {(msg.cards || []).map((c, j) => <div key={j}>{renderCard(c)}</div>)}
+              {msg.chips && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  {msg.chips.map((chip, j) => {
+                    const isGold = chip.startsWith('✦');
+                    return (
+                      <button key={j} onClick={() => onChipTap(chip)}
+                        style={{
+                          padding: '7px 12px', borderRadius: 999,
+                          background: isGold ? 'linear-gradient(135deg, #f5d060, #e8a000)'
+                            : '#fff',
+                          border: isGold ? 'none' : '1.5px solid rgba(0,0,0,0.08)',
+                          color: isGold ? '#1a1a1a' : '#3a3a3a',
+                          fontSize: 12, fontWeight: isGold ? 800 : 600, cursor: 'pointer',
+                          boxShadow: isGold ? '0 2px 6px rgba(232,160,0,0.25)' : 'none',
+                          animation: `fadeInUp 280ms ease-out ${j * 70}ms both`,
+                        }}>
+                        {chip}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div key={i} style={{ display: 'flex', justifyContent: 'flex-end',
+            animation: 'fadeInUp 250ms ease-out both' }}>
+            <div style={{ background: 'var(--primary-50)', color: '#fff',
+              borderRadius: '16px 4px 16px 16px', padding: '9px 14px',
+              fontSize: 13.5, fontWeight: 500, maxWidth: '78%', lineHeight: 1.5 }}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {thinking && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 38 }}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: '#8b7fd4',
+                opacity: 0.5, animation: `breathe 1s ease-in-out ${i * 0.18}s infinite` }} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Composer */}
+      <div style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.06)',
+        padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <input value={input} onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') sendUserMessage(input); }}
+          placeholder="Ask your question..."
+          style={{ flex: 1, background: 'rgba(0,0,0,0.04)', border: 'none',
+            borderRadius: 999, padding: '11px 16px', fontSize: 13, color: '#1a1a1a',
+            outline: 'none' }} />
+        {input.trim() ? (
+          <button onClick={() => sendUserMessage(input)}
+            style={{ width: 38, height: 38, borderRadius: 19, background: 'var(--primary-50)',
+              color: '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+        ) : (
+          <button style={{ width: 38, height: 38, borderRadius: 19, background: 'var(--primary-50)',
+            color: '#fff', border: 'none', fontSize: 14, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🎤</button>
+        )}
+      </div>
+
+      {/* Astrologer sheet */}
+      {showAstrologerSheet && (
+        <div onClick={() => setShowAstrologerSheet(false)}
+          style={{ position: 'absolute', inset: 0, zIndex: 50,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end',
+            animation: 'fadeIn 200ms ease-out both' }}>
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', background: '#fff', borderRadius: '20px 20px 0 0',
+              padding: '20px 18px 24px', animation: 'slideUp 300ms ease-out both',
+              maxHeight: '80%', overflowY: 'auto' }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.15)',
+              margin: '0 auto 16px' }} />
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#1a1a1a', marginBottom: 4 }}>
+              Talk to a Live Astrologer
+            </div>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
+              ₹15/min · First 5 min free for new users
+            </div>
+            {[
+              { name: 'Acharya Vinod Sharma', exp: '22 yrs · Vedic + KP', rating: 4.9, lang: 'Hindi · English', online: true, photo: 'https://i.pravatar.cc/150?img=12' },
+              { name: 'Pandit Rajesh Trivedi', exp: '15 yrs · Lal Kitab', rating: 4.8, lang: 'Hindi', online: true, photo: 'https://i.pravatar.cc/150?img=51' },
+              { name: 'Dr. Anjali Mishra', exp: '18 yrs · Nadi Astrology', rating: 4.9, lang: 'Hindi · English · Marathi', online: false, photo: 'https://i.pravatar.cc/150?img=44' },
+            ].map((a, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0',
+                borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.06)' : 'none', alignItems: 'center' }}>
+                <div style={{ position: 'relative' }}>
+                  <img src={a.photo} alt="" style={{ width: 48, height: 48, borderRadius: 24,
+                    objectFit: 'cover' }} />
+                  {a.online && (
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 12, height: 12,
+                      borderRadius: 6, background: '#2da764', border: '2px solid #fff' }} />
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>{a.name}</div>
+                  <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>{a.exp}</div>
+                  <div style={{ fontSize: 10, color: '#888', marginTop: 1 }}>
+                    ★ {a.rating} · {a.lang}
+                  </div>
+                </div>
+                <button style={{ background: a.online ? 'var(--primary-50)' : 'rgba(0,0,0,0.08)',
+                  color: a.online ? '#fff' : '#777', border: 'none', borderRadius: 999,
+                  padding: '8px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                  whiteSpace: 'nowrap' }}>
+                  {a.online ? 'Call now' : 'Notify me'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════
    PHASE 8 — ASK THE STARS (Chat CTA)
    ═══════════════════════════════════════ */
-const AskTheStars = () => {
+const AskTheStars = ({ onAsk }) => {
   const chips = [
     { text: 'When should I change jobs?', highlighted: true },
     { text: 'Will I find love soon?' },
@@ -4981,7 +5307,7 @@ const AskTheStars = () => {
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {chips.map((c, i) => (
-          <div key={i} style={{
+          <div key={i} onClick={() => onAsk && onAsk(c.text)} style={{
             padding: '8px 14px', borderRadius: 999, cursor: 'pointer',
             background: c.highlighted ? 'var(--primary-20)' : 'var(--surface-ghost)',
             color: c.highlighted ? 'var(--primary-50)' : 'var(--text-high)',
@@ -4997,9 +5323,10 @@ const AskTheStars = () => {
           </div>
         ))}
       </div>
-      {/* Chat input */}
-      <div style={{ marginTop: 16, background: 'var(--surface-ghost)', borderRadius: 999, padding: '12px 18px',
-        display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* Chat input — taps open Saathi chat */}
+      <div onClick={() => onAsk && onAsk('')}
+        style={{ marginTop: 16, background: 'var(--surface-ghost)', borderRadius: 999, padding: '12px 18px',
+          display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
         <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-disabled)', flex: 1 }}>Ask about your life...</span>
         <div style={{ width: 28, height: 28, borderRadius: 14, background: 'var(--primary-50)',
           display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -5114,7 +5441,7 @@ const App = () => {
           <div style={{ height: 24 }} />
           <div style={{ borderTop: '1px solid var(--stroke-minimal)', margin: '0 16px' }} />
           <div style={{ height: 20 }} />
-          <AskTheStars />
+          <AskTheStars onAsk={(q) => setOverlay({ type: 'saathiChat', query: q })} />
 
           <DailyCompanionCTA />
 
@@ -5137,6 +5464,9 @@ const App = () => {
         )}
         {overlay?.type === 'yearCapsule' && (
           <YearCapsuleOverlay age={overlay.age} onClose={() => setOverlay(null)} />
+        )}
+        {overlay?.type === 'saathiChat' && (
+          <SaathiChatOverlay initialQuery={overlay.query} onClose={() => setOverlay(null)} />
         )}
         {overlay?.type === 'ritual' && (
           <RitualRevealOverlay
