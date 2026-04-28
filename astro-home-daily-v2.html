@@ -120,11 +120,61 @@ const VOICE_IDS = {
 };
 const DEFAULT_VOICE_ID = 'CwhRBWXzGAHq8TQ4Fs17';
 
-const audioCache = {};
+/* ── Persistent TTS cache (IndexedDB) ──
+   Survives page reloads, shared across iframe screens (same origin).
+   Stores audio blobs keyed by SHA-256(text + voiceId). */
+const audioCache = {}; // in-memory: hashKey -> objectURL (session)
+let _ttsDB = null;
+const _openTTSDB = () => new Promise((resolve) => {
+  if (_ttsDB) return resolve(_ttsDB);
+  try {
+    const req = indexedDB.open('tts-cache-v1', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('audio');
+    req.onsuccess = () => { _ttsDB = req.result; resolve(_ttsDB); };
+    req.onerror = () => resolve(null);
+  } catch (e) { resolve(null); }
+});
+const _hashKey = async (text, voiceId) => {
+  try {
+    const buf = new TextEncoder().encode(voiceId + '|' + text);
+    const h = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join('');
+  } catch (e) { return voiceId + '|' + text.slice(0, 80); }
+};
+const _idbGet = (db, key) => new Promise((resolve) => {
+  if (!db) return resolve(null);
+  try {
+    const tx = db.transaction('audio', 'readonly');
+    const r = tx.objectStore('audio').get(key);
+    r.onsuccess = () => resolve(r.result || null);
+    r.onerror = () => resolve(null);
+  } catch (e) { resolve(null); }
+});
+const _idbPut = (db, key, blob) => new Promise((resolve) => {
+  if (!db) return resolve();
+  try {
+    const tx = db.transaction('audio', 'readwrite');
+    tx.objectStore('audio').put(blob, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  } catch (e) { resolve(); }
+});
+
 const fetchTTSAudio = async (text, speaker = 'abhilash', cacheKey) => {
-  const key = cacheKey || text.slice(0, 40);
-  if (audioCache[key]) return audioCache[key];
   const voiceId = VOICE_IDS[speaker] || DEFAULT_VOICE_ID;
+  const hashKey = await _hashKey(text, voiceId);
+  // 1. memory cache (fastest)
+  if (audioCache[hashKey]) return audioCache[hashKey];
+  // 2. IndexedDB cache (persistent)
+  const db = await _openTTSDB();
+  const cachedBlob = await _idbGet(db, hashKey);
+  if (cachedBlob) {
+    const src = URL.createObjectURL(cachedBlob);
+    audioCache[hashKey] = src;
+    console.log('[TTS] cache hit:', hashKey.slice(0,8), '·', text.slice(0,40));
+    return src;
+  }
+  // 3. fetch from ElevenLabs
   try {
     const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
       method: 'POST',
@@ -133,10 +183,19 @@ const fetchTTSAudio = async (text, speaker = 'abhilash', cacheKey) => {
     });
     if (!resp.ok) throw new Error('TTS error: ' + resp.status);
     const blob = await resp.blob();
+    await _idbPut(db, hashKey, blob); // persist for next time
     const src = URL.createObjectURL(blob);
-    audioCache[key] = src;
+    audioCache[hashKey] = src;
+    console.log('[TTS] cache miss → fetched + stored:', hashKey.slice(0,8), '·', text.slice(0,40));
     return src;
-  } catch (e) { console.warn('TTS fetch failed:', e); return null; }
+  } catch (e) { console.warn('[TTS] fetch failed:', e); return null; }
+};
+
+/* Util: clear cache from console with `clearTTSCache()` */
+window.clearTTSCache = async () => {
+  Object.keys(audioCache).forEach(k => { try { URL.revokeObjectURL(audioCache[k]); } catch(e){} delete audioCache[k]; });
+  const db = await _openTTSDB();
+  if (db) { try { db.transaction('audio','readwrite').objectStore('audio').clear(); console.log('[TTS] cache cleared'); } catch(e){} }
 };
 
 const playAudioSrc = (src) => new Promise((resolve) => {
@@ -165,15 +224,11 @@ const playTTS = async (text, speaker = 'abhilash') => {
   }
   for (const chunk of chunks) {
     try {
-      const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-        method: 'POST',
-        headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: chunk, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.7, similarity_boost: 0.8, style: 0.35 } }),
-      });
-      if (!resp.ok) throw new Error(await resp.text());
-      const blob = await resp.blob();
-      const audio = new Audio(URL.createObjectURL(blob));
-      await new Promise((resolve) => { audio.onended = resolve; audio.onerror = resolve; audio.play(); });
+      // Use cached fetcher — checks memory + IndexedDB first
+      const src = await fetchTTSAudio(chunk, speaker);
+      if (!src) throw new Error('TTS fetch returned null');
+      const audio = new Audio(src);
+      await new Promise((resolve) => { audio.onended = resolve; audio.onerror = resolve; audio.play().catch(resolve); });
     } catch (err) { console.error('TTS chunk error:', err); throw err; }
   }
 };

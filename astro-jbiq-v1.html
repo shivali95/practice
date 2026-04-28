@@ -256,6 +256,137 @@ body {
 .fin.d1{animation-delay:0.04s;} .fin.d2{animation-delay:0.10s;} .fin.d3{animation-delay:0.17s;} .fin.d4{animation-delay:0.24s;} .fin.d5{animation-delay:0.31s;} .fin.d6{animation-delay:0.38s;} .fin.d7{animation-delay:0.45s;}
 @keyframes fadeUp { from{opacity:0;transform:translateY(9px);} to{opacity:1;transform:translateY(0);} }
 
+/* ═══ COSMIC RASHIFAL CARD (TV-style with zodiac wheel) ═══ */
+.cosmic-card { position:relative; background:radial-gradient(ellipse at 50% 35%, #1a1640 0%, #0a0a1a 70%); border-radius:20px; overflow:hidden; min-height:340px; cursor:pointer; box-shadow:0 12px 32px rgba(0,0,0,0.32); }
+.cosmic-stars { position:absolute; inset:0; pointer-events:none; }
+.cosmic-stars i { position:absolute; width:2px; height:2px; border-radius:50%; background:#fff; opacity:0.5; animation:twinkle 3s ease-in-out infinite; }
+@keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:0.8} }
+
+.zodiac-wheel { position:absolute; top:50%; left:50%; width:340px; height:340px; transform:translate(-50%,-50%); pointer-events:none; opacity:0.55; }
+.zodiac-wheel.spinning { animation:zodiacSpin 60s linear infinite; }
+@keyframes zodiacSpin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+.zodiac-wheel .glow { position:absolute; inset:25%; border-radius:50%; background:radial-gradient(circle,rgba(245,166,35,0.18),transparent 70%); filter:blur(16px); }
+
+.cosmic-content { position:relative; z-index:5; padding:24px 18px 20px; text-align:center; color:#fff; }
+.cosmic-tag { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; background:rgba(245,166,35,0.18); border:1px solid rgba(245,166,35,0.4); color:#f5a623; font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:14px; }
+.cosmic-tag .dot { width:5px; height:5px; border-radius:50%; background:#f5a623; animation:pulse 1.6s ease-in-out infinite; }
+.cosmic-rashi { font-size:64px; line-height:1; margin-bottom:6px; filter:drop-shadow(0 0 16px rgba(245,166,35,0.5)); animation:breathe 3s ease-in-out infinite; }
+@keyframes breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.cosmic-title { font-size:20px; font-weight:900; letter-spacing:-0.02em; margin-bottom:4px; }
+.cosmic-sub { font-size:11px; color:rgba(255,255,255,0.55); font-weight:500; margin-bottom:18px; }
+.cosmic-play { width:64px; height:64px; border-radius:50%; background:rgba(245,166,35,0.92); border:2px solid rgba(255,255,255,0.25); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; cursor:pointer; box-shadow:0 0 32px rgba(245,166,35,0.5); transition:transform 150ms; }
+.cosmic-play:active { transform:scale(0.92); }
+.cosmic-play svg { margin-left:4px; }
+.cosmic-meta { font-size:10px; color:rgba(255,255,255,0.55); font-weight:600; letter-spacing:0.06em; margin-bottom:14px; }
+.scene-chips { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; padding:0 8px; }
+.scene-chip { padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.78); font-size:10px; font-weight:700; cursor:pointer; transition:all 160ms; display:inline-flex; align-items:center; gap:4px; }
+.scene-chip:active { transform:scale(0.96); }
+.scene-chip .ic { font-size:11px; }
+.scene-chip.career { background:rgba(53,53,243,0.22); border-color:rgba(53,53,243,0.45); }
+.scene-chip.love { background:rgba(232,67,147,0.22); border-color:rgba(232,67,147,0.45); }
+.scene-chip.wealth { background:rgba(245,166,35,0.22); border-color:rgba(245,166,35,0.45); }
+.scene-chip.health { background:rgba(0,196,140,0.22); border-color:rgba(0,196,140,0.45); }
+.scene-chip.lucky { background:rgba(78,205,196,0.22); border-color:rgba(78,205,196,0.45); }
+
+/* ═══ TRANSIT CHANGE CARD (Kal se Kya Badla) ═══ */
+.transit-card { background:#fff; border:1px solid var(--bd); border-radius:16px; padding:14px; margin-bottom:8px; cursor:pointer; transition:transform 180ms var(--ease-snappy); }
+.transit-card:active { transform:scale(0.994); }
+.tc-head { display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+.tc-planet { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff; flex-shrink:0; box-shadow:0 4px 12px rgba(0,0,0,0.12); }
+.tc-name { flex:1; }
+.tc-name-l { font-size:9px; font-weight:800; color:var(--g6); letter-spacing:0.1em; text-transform:uppercase; }
+.tc-name-v { font-size:14px; font-weight:800; color:var(--g1); margin-top:1px; }
+.tc-shift { display:flex; align-items:center; gap:8px; padding:9px 11px; background:var(--g2); border-radius:10px; margin-bottom:10px; }
+.tc-from, .tc-to { flex:1; text-align:center; }
+.tc-l { font-size:9px; font-weight:800; color:var(--g6); text-transform:uppercase; letter-spacing:0.07em; }
+.tc-v { font-size:13px; font-weight:800; color:var(--g1); margin-top:2px; }
+.tc-arr { color:var(--ast); font-size:18px; font-weight:900; }
+.tc-meaning { font-size:12px; color:var(--g6); line-height:1.45; margin-bottom:10px; }
+.tc-audio { background:rgba(109,23,206,0.06); border:1px solid rgba(109,23,206,0.12); border-radius:9px; padding:8px 10px; display:flex; align-items:center; gap:8px; cursor:pointer; }
+
+/* ═══ SKY MAP — Kal Se Kya Badla (animated planet transit) ═══ */
+.skymap-card { background:linear-gradient(160deg,#111640 0%,#0c0e28 40%,#0f1235 100%); border:1px solid rgba(139,156,247,0.12); border-radius:18px; overflow:hidden; box-shadow:0 12px 32px rgba(0,0,0,0.32); }
+.skymap-head { padding:14px 16px 10px; }
+.skymap-head .h { font-size:15px; font-weight:800; color:rgba(255,255,255,0.92); letter-spacing:-0.01em; }
+.skymap-head .s { font-size:10.5px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.skymap-stage { position:relative; height:260px; overflow:hidden; }
+.skymap-stage .grid { position:absolute; inset:0; opacity:0.08; pointer-events:none; }
+.skymap-stage .star { position:absolute; width:2px; height:2px; border-radius:50%; background:#fff; opacity:0.4; animation:twinkle 3s ease-in-out infinite; }
+.skymap-phase { position:absolute; top:12px; left:14px; display:flex; align-items:center; gap:6px; z-index:5; font-size:10px; font-weight:800; letter-spacing:0.15em; transition:color 500ms; }
+.skymap-phase.kal { color:rgba(255,255,255,0.5); }
+.skymap-phase.transit { color:#f5a623; }
+.skymap-phase.aaj { color:#4ecdc4; }
+.skymap-phase .pdot { width:5px; height:5px; border-radius:50%; background:#f5a623; animation:pulseDot 0.8s ease-in-out infinite; }
+@keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.6} }
+@keyframes pulseRing { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(1.6);opacity:0} }
+
+.sm-planet { position:absolute; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; font-weight:bold; transform:translate(-50%,-50%); transition:left 1.6s cubic-bezier(.25,.46,.45,.94),top 1.6s cubic-bezier(.25,.46,.45,.94),box-shadow 600ms; z-index:3; text-shadow:0 0 6px rgba(0,0,0,0.5); }
+.sm-ghost { position:absolute; width:42px; height:42px; border-radius:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; font-size:16px; border:2px dashed; opacity:0; transition:opacity 400ms; z-index:2; }
+.sm-ghost.show { opacity:1; }
+.sm-trail { position:absolute; inset:0; pointer-events:none; z-index:1; }
+.sm-trail line { opacity:0; transition:opacity 500ms,stroke-width 500ms; stroke-dasharray:2 2; filter:blur(0.3px); }
+.sm-trail.show line { opacity:0.35; stroke-width:0.8; }
+.sm-trail.show.aaj line { opacity:0.65; stroke-width:1.3; }
+.sm-label { position:absolute; transform:translateX(-50%); font-size:10px; font-weight:800; white-space:nowrap; padding:2px 8px; border-radius:5px; opacity:0; transition:opacity 400ms; z-index:4; background:rgba(0,0,0,0.55); }
+.sm-label.from { font-size:9.5px; font-weight:700; text-decoration:line-through; }
+.sm-label.show { opacity:1; }
+
+.skymap-changes { padding:12px 12px 14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; background:rgba(0,0,0,0.18); }
+.skymap-change { padding:10px 10px; border-radius:11px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.smc-row1 { display:flex; align-items:center; gap:8px; }
+.smc-orb { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; flex-shrink:0; }
+.smc-name { font-size:12px; font-weight:800; color:rgba(255,255,255,0.92); }
+.smc-meaning { font-size:10.5px; color:rgba(255,255,255,0.55); line-height:1.4; }
+.smc-shift { font-size:9.5px; font-weight:700; display:flex; align-items:center; gap:4px; margin-left:auto; flex-shrink:0; }
+.smc-shift .from { color:rgba(255,255,255,0.4); text-decoration:line-through; }
+.smc-shift .to { font-weight:800; }
+
+/* ═══ ORBIT CLOCK (Aaj ka Cosmic Map) ═══ */
+.orbit-card { background:radial-gradient(ellipse at 50% 50%, #161433 0%, #0a0a1a 75%); border-radius:20px; padding:18px 0 16px; position:relative; overflow:hidden; box-shadow:0 12px 32px rgba(0,0,0,0.28); }
+.orbit-head { display:flex; align-items:center; justify-content:space-between; padding:0 18px 12px; }
+.orbit-title { font-size:14px; font-weight:800; color:rgba(255,255,255,0.92); }
+.orbit-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.orbit-counter { font-size:9px; font-weight:800; padding:4px 9px; border-radius:8px; background:rgba(78,205,196,0.12); color:#4ecdc4; letter-spacing:0.08em; }
+.golden-pill { display:flex; align-items:center; gap:8px; margin:0 16px 12px; padding:8px 12px; border-radius:12px; background:linear-gradient(90deg,rgba(245,166,35,0.18),rgba(245,166,35,0.04)); border:1px solid rgba(245,166,35,0.3); }
+.golden-pill .gp-icon { font-size:18px; }
+.golden-pill .gp-text { flex:1; }
+.golden-pill .gp-l { font-size:9px; font-weight:800; color:#f5a623; letter-spacing:0.1em; text-transform:uppercase; }
+.golden-pill .gp-v { font-size:12px; font-weight:800; color:#fff; margin-top:1px; }
+.orbit-progress { margin:0 18px 10px; height:2px; border-radius:1px; background:rgba(255,255,255,0.06); overflow:hidden; }
+.orbit-progress div { height:100%; width:0%; background:#4ecdc4; transition:width 100ms linear; }
+.clock-wrap { display:flex; justify-content:center; position:relative; padding:6px 0 4px; }
+.clock { position:relative; width:280px; height:280px; }
+.clock svg { position:absolute; inset:0; }
+.clock-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:130px; height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
+.clock-center-time { font-size:10px; color:rgba(255,255,255,0.4); font-weight:600; }
+.clock-center-icon { font-size:30px; margin:2px 0 1px; animation:breathe 3s ease-in-out infinite; }
+.clock-center-name { font-size:14px; font-weight:800; transition:color 300ms; }
+.clock-center-planet { font-size:9px; color:rgba(255,255,255,0.4); font-weight:600; margin-top:1px; }
+.clock-icon { position:absolute; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; transition:all 350ms ease; transform:translate(-50%,-50%); z-index:5; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.5); }
+.clock-icon.active { transform:translate(-50%,-50%) scale(1.2); color:#fff; }
+
+.orbit-detail { margin:14px 16px 0; padding:12px 14px; border-radius:12px; transition:all 350ms; }
+.orbit-detail-l { font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px; }
+.orbit-detail-h { font-size:13px; font-weight:800; color:#fff; margin-bottom:4px; }
+.orbit-detail-d { font-size:11px; color:rgba(255,255,255,0.6); line-height:1.4; }
+
+/* ═══ RITUAL CHEST (Aaj ka Upay) ═══ */
+.ritual-chest { position:relative; background:linear-gradient(180deg, #2a1a08 0%, #1a0e04 100%); border:1px solid rgba(245,166,35,0.3); border-radius:18px; padding:18px 16px 16px; overflow:hidden; cursor:pointer; box-shadow:0 12px 32px rgba(60,30,0,0.4); }
+.ritual-chest::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(245,166,35,0.16), transparent 60%); pointer-events:none; }
+.ritual-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; position:relative; }
+.ritual-day-circle { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; box-shadow:0 0 20px currentColor; flex-shrink:0; }
+.ritual-day-meta { flex:1; }
+.ritual-day-tag { display:inline-block; font-size:9px; font-weight:800; padding:3px 9px; border-radius:999px; background:rgba(245,166,35,0.2); color:#f5a623; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
+.ritual-day-name { font-size:13px; font-weight:800; color:#fff; }
+.ritual-title { font-size:18px; font-weight:900; color:#fff; line-height:1.25; margin-bottom:6px; letter-spacing:-0.015em; position:relative; }
+.ritual-sub { font-size:11.5px; color:rgba(245,200,140,0.75); line-height:1.45; margin-bottom:14px; position:relative; }
+.ritual-steps { display:flex; flex-direction:column; gap:6px; position:relative; }
+.ritual-step { display:flex; align-items:flex-start; gap:9px; padding:9px 11px; background:rgba(245,166,35,0.07); border:1px solid rgba(245,166,35,0.14); border-radius:10px; }
+.ritual-step-num { width:20px; height:20px; border-radius:50%; background:#f5a623; color:#1a0e04; font-size:10px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ritual-step-text { font-size:12px; font-weight:600; color:rgba(255,235,200,0.92); line-height:1.4; }
+.ritual-cta { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:12px; padding:10px; border-radius:999px; background:rgba(245,166,35,0.15); border:1px solid rgba(245,166,35,0.35); color:#f5a623; font-size:12px; font-weight:800; cursor:pointer; transition:all 150ms; position:relative; }
+.ritual-cta:active { transform:scale(0.98); background:rgba(245,166,35,0.25); }
+
 /* ═══ MOBILE NATIVE ═══ */
 @media(max-width:768px){
   body{background:#fff!important;padding:0!important;align-items:stretch!important;}
@@ -448,229 +579,166 @@ const CONTENT = {
     ph: 'Namasté Shivali · kuch bhi poochho…',
     render() {
       return `
-      <!-- 1 · Aaj ka Rashifal — dark emphasis card -->
+      <!-- 1 · Aaj ka Rashifal — TV-style cosmic card with zodiac wheel -->
       <div class="section fin d1">
         <div class="sec-head">
           <div>
             <div class="sec-title">Aaj ka Rashifal</div>
-            <div class="sec-sub">30-din ki journey · audio + video</div>
+            <div class="sec-sub">Audio + Video · 30-din ki journey ke hisaab se</div>
           </div>
         </div>
-        <div class="rashifal-card" onclick="showToast('Rashifal video play ho raha hai…')">
-          <div class="rf-video-thumb">
-            <div class="rf-stars">
-              <svg viewBox="0 0 344 116" width="344" height="116" style="position:absolute;inset:0;">
-                <circle cx="40" cy="20" r="1.5" fill="rgba(109,23,206,0.5)"/>
-                <circle cx="80" cy="45" r="1" fill="rgba(109,23,206,0.4)"/>
-                <circle cx="130" cy="15" r="2" fill="rgba(247,171,32,0.6)"/>
-                <circle cx="200" cy="35" r="1.5" fill="rgba(109,23,206,0.5)"/>
-                <circle cx="260" cy="18" r="1" fill="rgba(247,171,32,0.4)"/>
-                <circle cx="310" cy="50" r="2" fill="rgba(109,23,206,0.3)"/>
-                <circle cx="170" cy="60" r="1.5" fill="rgba(255,255,255,0.25)"/>
-                <circle cx="90" cy="80" r="1" fill="rgba(255,255,255,0.2)"/>
-                <circle cx="240" cy="75" r="1.5" fill="rgba(255,255,255,0.25)"/>
-                <path d="M40 20 L80 45 L130 15" stroke="rgba(109,23,206,0.25)" stroke-width="0.8" fill="none"/>
-                <path d="M200 35 L260 18 L310 50" stroke="rgba(109,23,206,0.20)" stroke-width="0.8" fill="none"/>
-              </svg>
-            </div>
-            <div class="rf-live-pill"><div class="rf-pulse"></div>DEEPENED · 30 DAYS</div>
-            <div class="rf-play-btn" onclick="event.stopPropagation();showToast('Video play ho raha hai…')">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-            <div class="rf-duration">4:21</div>
+        <div class="cosmic-card" onclick="showToast('Rashifal video play ho raha hai…')">
+          <div class="cosmic-stars">
+            <i style="top:12%;left:18%"></i><i style="top:24%;left:72%;animation-delay:0.6s"></i>
+            <i style="top:42%;left:8%;animation-delay:1.2s"></i><i style="top:58%;left:88%;animation-delay:0.3s"></i>
+            <i style="top:74%;left:22%;animation-delay:1.8s"></i><i style="top:88%;left:64%;animation-delay:0.9s"></i>
+            <i style="top:32%;left:48%;animation-delay:1.5s"></i><i style="top:66%;left:54%;animation-delay:0.4s"></i>
           </div>
-          <div class="rf-body">
-            <div class="rf-title">Shivali · Aaj <span class="accent">Guru</span> aapke saath shift kar raha hai</div>
-            <div class="rf-sub">27 April · Vrishabh mein Guru · aapke 30 din ke data se personalized</div>
-            <div class="deep-personal">
-              <div class="deep-personal-icon">🔮</div>
-              <div class="deep-personal-text"><b>30 din ka trend:</b> Career score consistently improve hua · love mein ups/downs · health excellent</div>
+          <svg class="zodiac-wheel spinning" viewBox="-170 -170 340 340" aria-hidden="true">
+            <circle r="160" fill="none" stroke="rgba(245,166,35,0.18)" stroke-width="0.6"/>
+            <circle r="120" fill="none" stroke="rgba(245,166,35,0.12)" stroke-width="0.5"/>
+            <circle r="80" fill="none" stroke="rgba(245,166,35,0.10)" stroke-width="0.4"/>
+            ${[...Array(12)].map((_,i)=>{const a=(i*30-90)*Math.PI/180;const x1=Math.cos(a)*80,y1=Math.sin(a)*80,x2=Math.cos(a)*160,y2=Math.sin(a)*160;return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(245,166,35,0.14)" stroke-width="0.5"/>`;}).join('')}
+            ${['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'].map((s,i)=>{const a=(i*30-75)*Math.PI/180;const x=Math.cos(a)*140,y=Math.sin(a)*140;return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(245,166,35,0.55)" font-size="14" font-weight="700">${s}</text>`;}).join('')}
+            <g class="glow"></g>
+          </svg>
+          <div class="cosmic-content">
+            <div class="cosmic-tag"><span class="dot"></span>LIVE NARRATION · 4:21</div>
+            <div class="cosmic-rashi">♏</div>
+            <div class="cosmic-title">Vrishchik · Aaj ka Brahmand</div>
+            <div class="cosmic-sub">27 April · Guru Vrishabh mein · 30-din ke data se personalized</div>
+            <div class="cosmic-play" onclick="event.stopPropagation();showToast('Video + audio narration chal raha hai…')">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="#1a0e04"><path d="M8 5v14l11-7z"/></svg>
             </div>
-            <div class="rating-row">
-              <div class="rating-item">
-                <div class="rating-label">Career</div>
-                <div class="rating-stars">★★★★★</div>
-              </div>
-              <div class="rating-item">
-                <div class="rating-label">Love</div>
-                <div class="rating-stars">★★★★☆</div>
-              </div>
-              <div class="rating-item">
-                <div class="rating-label">Wealth</div>
-                <div class="rating-stars">★★★★☆</div>
-              </div>
-            </div>
-            <div class="audio-strip" onclick="event.stopPropagation();showToast('Deep audio narration chal raha hai…')">
-              <button class="audio-play-sm">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="white"><path d="M8 5v14l11-7z"/></svg>
-              </button>
-              <div class="audio-waveform">
-                <div class="aw"></div><div class="aw"></div><div class="aw"></div><div class="aw"></div>
-                <div class="aw"></div><div class="aw"></div><div class="aw"></div><div class="aw"></div>
-                <div class="aw"></div><div class="aw"></div>
-              </div>
-              <span class="audio-dur-sm">2:48</span>
-            </div>
-            <div class="rf-ctas">
-              <button class="btn-dark-primary" onclick="event.stopPropagation();showToast('Mahina ka forecast dekh rahe hain…')">Month Forecast</button>
-              <button class="btn-dark-ghost" onclick="event.stopPropagation();showToast('Expert consultation book ho rahi hai…')">Book Consult</button>
+            <div class="cosmic-meta">7 SCENES · TAP KISI BHI ASPECT KO</div>
+            <div class="scene-chips">
+              <button class="scene-chip career" onclick="event.stopPropagation();showToast('Career: Guru ka boost — bade decisions ka time')"><span class="ic">💼</span>Career</button>
+              <button class="scene-chip love" onclick="event.stopPropagation();showToast('Love: Chandra Kumbh mein — open conversations')"><span class="ic">💗</span>Love</button>
+              <button class="scene-chip wealth" onclick="event.stopPropagation();showToast('Wealth: Vrishabh Guru = financial uplift')"><span class="ic">💰</span>Wealth</button>
+              <button class="scene-chip health" onclick="event.stopPropagation();showToast('Health: Excellent · 30-din trend best')"><span class="ic">🌿</span>Health</button>
+              <button class="scene-chip lucky" onclick="event.stopPropagation();showToast('Lucky window: 11AM–1PM Guru hora')"><span class="ic">✦</span>Lucky</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 2 · Kal se Kya Badla — planet change -->
+      <!-- 2 · Kal se Kya Badla — animated sky map (single immersive card) -->
       <div class="section fin d2">
         <div class="sec-head">
           <div>
             <div class="sec-title">Kal se Kya Badla</div>
-            <div class="sec-sub">2 planet movements · audio + visual</div>
+            <div class="sec-sub">Overnight planetary movements</div>
           </div>
         </div>
-        <div class="planet-change-card" onclick="showToast('Guru shift ka full analysis sun rahe hain…')">
-          <div class="pc-header">
-            <div class="pc-label">BADA BADLAV · NEXT 48 HOURS</div>
-            <div class="pc-badge">Affects You</div>
+        <div class="skymap-card" onclick="showToast('Planet shifts ka full audio sun rahe hain…')">
+          <div class="skymap-stage" id="skymap-stage">
+            <svg class="grid" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <line x1="50" y1="0" x2="50" y2="100" stroke="#8b9cf7" stroke-width="0.3"/>
+              <line x1="0" y1="50" x2="100" y2="50" stroke="#8b9cf7" stroke-width="0.3"/>
+              <line x1="0" y1="0" x2="100" y2="100" stroke="#8b9cf7" stroke-width="0.15" stroke-dasharray="2 3"/>
+              <line x1="100" y1="0" x2="0" y2="100" stroke="#8b9cf7" stroke-width="0.15" stroke-dasharray="2 3"/>
+            </svg>
+            <div id="sm-stars"></div>
+            <div class="skymap-phase kal" id="sm-phase"><span id="sm-phase-text">KAL</span><span class="pdot" id="sm-phase-dot" style="display:none;"></span></div>
+            <svg class="sm-trail" id="sm-trail" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            <div id="sm-planets"></div>
           </div>
-          <div class="planet-row">
-            <div class="planet-block moved">
-              <div class="pb-symbol">♃</div>
-              <div class="pb-name">Guru (Jupiter)</div>
-              <div class="pb-rashi">Mesh → Vrishabh</div>
+          <div class="skymap-changes">
+            <div class="skymap-change" style="background:linear-gradient(135deg,rgba(232,196,74,0.12),rgba(232,196,74,0.04));border:1px solid rgba(232,196,74,0.32);">
+              <div class="smc-row1">
+                <div class="smc-orb" style="background:radial-gradient(circle at 35% 35%,#e8c44a80,#e8c44a30);box-shadow:0 0 10px rgba(232,196,74,0.4);">☽</div>
+                <div class="smc-name">Chandra</div>
+                <div class="smc-shift"><span class="from">7th</span><span style="color:#e8c44a;">→</span><span class="to" style="color:#e8c44a;">8th</span></div>
+              </div>
+              <div class="smc-meaning">Emotional sensitivity badhi hai — family ke saath soft tone rakhein</div>
             </div>
-            <div class="pb-arrow">→</div>
-            <div class="planet-block moved">
-              <div class="pb-symbol">☽</div>
-              <div class="pb-name">Chandra</div>
-              <div class="pb-rashi">Makar → Kumbh</div>
+            <div class="skymap-change" style="background:linear-gradient(135deg,rgba(95,255,176,0.12),rgba(95,255,176,0.04));border:1px solid rgba(95,255,176,0.32);">
+              <div class="smc-row1">
+                <div class="smc-orb" style="background:radial-gradient(circle at 35% 35%,#5fffb080,#5fffb030);box-shadow:0 0 10px rgba(95,255,176,0.4);">☿</div>
+                <div class="smc-name">Budh</div>
+                <div class="smc-shift"><span class="from">Retro</span><span style="color:#5fffb0;">→</span><span class="to" style="color:#5fffb0;">Direct</span></div>
+              </div>
+              <div class="smc-meaning">Communication mein clarity waapas — pending emails aaj karo</div>
             </div>
-          </div>
-          <div class="pc-desc">Guru ka Vrishabh mein pravesha aapke liye bahut powerful hai — finance aur career mein significant uplift aayega.</div>
-          <div class="fyi-audio" onclick="event.stopPropagation();showToast('Planet shift audio chal raha hai…')">
-            <button class="fyi-audio-btn">
-              <svg viewBox="0 0 24 24" width="11" height="11" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div class="fyi-audio-waves">
-              <div class="fw"></div><div class="fw"></div><div class="fw"></div><div class="fw"></div>
-              <div class="fw"></div><div class="fw"></div><div class="fw"></div><div class="fw"></div>
-            </div>
-            <span class="fyi-audio-dur">1:12</span>
-          </div>
-        </div>
-        <div class="card-f" onclick="showToast('Budh seedha ho raha hai — communication improve hogi')">
-          <div class="fyi-ic solid">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-          </div>
-          <div class="fyi-body">
-            <div class="fyi-tag">COMING UP · 3 DIN MEIN</div>
-            <div class="fyi-head">Budh seedha ho raha hai</div>
-            <div class="fyi-sub">Rukke hue kaam aur baatein phir shuru hongi · badhiya news</div>
           </div>
         </div>
       </div>
 
-      <!-- 3 · Din ke Shubh Samay — lucky timeline -->
+      <!-- 3 · Aaj ka Cosmic Map — circular orbit clock -->
       <div class="section fin d3">
         <div class="sec-head">
           <div>
-            <div class="sec-title">Din ke Shubh Samay</div>
-            <div class="sec-sub">30-din ke patterns se calculate kiya</div>
+            <div class="sec-title">Aaj ka Cosmic Map</div>
+            <div class="sec-sub">Din ke alag-alag time · aapka lucky window</div>
           </div>
         </div>
-        <div class="lucky-timeline">
-          <div class="lt-row">
-            <div class="lt-line">
-              <div class="lt-dot" style="background:var(--ast)"></div>
-              <div class="lt-stem"></div>
+        <div class="orbit-card">
+          <div class="orbit-head">
+            <div>
+              <div class="orbit-title">8 Hora · Day Cycle</div>
+              <div class="orbit-sub">Tap any planet · auto-rotates every 5s</div>
             </div>
-            <div class="lt-content lucky" onclick="showToast('Subah ka peak window — 7AM–9AM!')">
-              <div class="lt-time">07:00 – 09:00 AM</div>
-              <div class="lt-label">Subah · Meditation Peak</div>
-              <div class="lt-desc">Aapke 30-din ke data mein: is time par aap sabse focused hoti hain</div>
-              <div class="lt-lucky-badge">✦ AAPKA BEST TIME</div>
+            <div class="orbit-counter" id="orbit-counter">2 / 8</div>
+          </div>
+          <div class="golden-pill">
+            <div class="gp-icon">✦</div>
+            <div class="gp-text">
+              <div class="gp-l">Aapka Golden Window · Guru Hora</div>
+              <div class="gp-v">11:00 AM – 1:00 PM · big decisions ka time</div>
             </div>
           </div>
-          <div class="lt-row">
-            <div class="lt-line">
-              <div class="lt-dot" style="background:var(--am)"></div>
-              <div class="lt-stem"></div>
-            </div>
-            <div class="lt-content lucky" style="border-color:rgba(247,171,32,0.35);background:rgba(247,171,32,0.04);" onclick="showToast('Guru transit peak: 11AM–1PM ideal for big moves')">
-              <div class="lt-time">11:00 AM – 01:00 PM</div>
-              <div class="lt-label">Guru Transit Window</div>
-              <div class="lt-desc">Guru Vrishabh mein aaj peak hora mein — financial decisions, contracts</div>
-              <div class="lt-lucky-badge" style="background:var(--am);">★ GURU WINDOW</div>
-            </div>
-          </div>
-          <div class="lt-row">
-            <div class="lt-line">
-              <div class="lt-dot" style="background:var(--g4)"></div>
-              <div class="lt-stem"></div>
-            </div>
-            <div class="lt-content" onclick="showToast('Dopahar — routine kaam ke liye theek')">
-              <div class="lt-time">01:00 – 05:00 PM</div>
-              <div class="lt-label">Dopahar · Madhyam</div>
-              <div class="lt-desc">Routine kaam ke liye theek · creative projects ke liye avoid karo</div>
+          <div class="orbit-progress"><div id="orbit-progress-fill"></div></div>
+          <div class="clock-wrap">
+            <div class="clock" id="orbit-clock">
+              <svg viewBox="-140 -140 280 280" aria-hidden="true">
+                <circle r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <circle r="90" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <g id="orbit-segments"></g>
+              </svg>
+              <div class="clock-center">
+                <div class="clock-center-time" id="oc-time">11:00 AM – 1:00 PM</div>
+                <div class="clock-center-icon" id="oc-icon">✦</div>
+                <div class="clock-center-name" id="oc-name" style="color:#f5a623;">Guru Hora</div>
+                <div class="clock-center-planet" id="oc-planet">Vrishabh · Lucky</div>
+              </div>
+              <div id="clock-icons"></div>
             </div>
           </div>
-          <div class="lt-row">
-            <div class="lt-line">
-              <div class="lt-dot" style="background:var(--sp)"></div>
-              <div class="lt-stem"></div>
-            </div>
-            <div class="lt-content lucky" style="border-color:rgba(30,204,176,0.30);background:rgba(30,204,176,0.04);" onclick="showToast('Sham ki power window — Chandra Kumbh mein boost dega')">
-              <div class="lt-time">06:30 – 08:30 PM</div>
-              <div class="lt-label">Sham · Social & Creative Peak</div>
-              <div class="lt-desc">Chandra Kumbh mein hai aaj — new connections, social events best rahega</div>
-              <div class="lt-lucky-badge" style="background:var(--sp);">✦ SOCIAL WINDOW</div>
-            </div>
-          </div>
-          <div class="lt-row">
-            <div class="lt-line">
-              <div class="lt-dot" style="background:var(--g4)"></div>
-              <div class="lt-stem"></div>
-            </div>
-            <div class="lt-content" onclick="showToast('Raat — rest and reflect')">
-              <div class="lt-time">10:00 PM onwards</div>
-              <div class="lt-label">Raat · Deep Rest</div>
-              <div class="lt-desc">Meditation, journaling, aur kal ke liye prepare karo</div>
-            </div>
+          <div class="orbit-detail" id="orbit-detail" style="background:rgba(245,166,35,0.10); border:1px solid rgba(245,166,35,0.25);">
+            <div class="orbit-detail-l" id="od-tag" style="color:#f5a623;">★ GOLDEN WINDOW</div>
+            <div class="orbit-detail-h" id="od-head">Guru ki shakti peak par hai</div>
+            <div class="orbit-detail-d" id="od-desc">Career, contracts, aur financial decisions ke liye sabse powerful 2 ghante. Bade moves abhi karo.</div>
           </div>
         </div>
       </div>
 
-      <!-- 4 · Aaj ka Upay — personalized remedy -->
+      <!-- 4 · Aaj ka Upay — ritual chest, day-aligned -->
       <div class="section fin d4">
         <div class="sec-head">
           <div>
             <div class="sec-title">Aaj ka Upay</div>
-            <div class="sec-sub">30-din ki kundali analysis se · personalized</div>
+            <div class="sec-sub">Somvaar · Chandra ka din · personalized remedy</div>
           </div>
         </div>
-        <div class="upay-single" onclick="showToast('Guru upay details dekh rahe hain…')">
-          <div class="upay-header">
-            <div style="font-size:28px;">💛</div>
-            <div class="upay-day-badge">Guru Vrishabh Upay · Aaj</div>
+        <div class="ritual-chest" onclick="showToast('Chandra upay ki full vidhi dekh rahe hain…')">
+          <div class="ritual-head">
+            <div class="ritual-day-circle" style="background:linear-gradient(135deg,#e8e8ff,#a3b8ff);color:#1a0e04;">☽</div>
+            <div class="ritual-day-meta">
+              <div class="ritual-day-tag">Somvaar · Chandra</div>
+              <div class="ritual-day-name">Mann ki shanti aur bhavnaayein</div>
+            </div>
           </div>
-          <div class="upay-title">Guru ki Shakti ko Activate Karo</div>
-          <div class="upay-sub">Aaj Guru transit aapke career aur finances par direct asar daal raha hai. Yeh upay isko 3x powerful banata hai — especially Vrishchik rashiyon ke liye.</div>
-          <div class="upay-steps">
-            <div class="upay-step">
-              <div class="upay-step-num">1</div>
-              <div class="upay-step-text">Peele kapde pehno ya peela tilak lagao — Guru ko signal milega</div>
-            </div>
-            <div class="upay-step">
-              <div class="upay-step-num">2</div>
-              <div class="upay-step-text">Subah 7–9 AM ke window mein "Om Gurave Namah" 108 baar japo</div>
-            </div>
-            <div class="upay-step">
-              <div class="upay-step-num">3</div>
-              <div class="upay-step-text">Kisi brahmin ya bujurg ko peeli vastu (haldi, chana dal) daan karo</div>
-            </div>
-            <div class="upay-step">
-              <div class="upay-step-num">4</div>
-              <div class="upay-step-text">11AM–1PM window mein bade career ya financial decisions lo</div>
-            </div>
+          <div class="ritual-title">Chandra ki Shakti ko Activate Karo</div>
+          <div class="ritual-sub">Aaj Chandra aapke 8th house mein gaya — bhavnaayein gehri ho rahi hain. Yeh upay mann ko shaant aur strong banata hai.</div>
+          <div class="ritual-steps">
+            <div class="ritual-step"><div class="ritual-step-num">1</div><div class="ritual-step-text">Safed kapde pehno ya safed phool ghar mein rakho — Chandra ko signal</div></div>
+            <div class="ritual-step"><div class="ritual-step-num">2</div><div class="ritual-step-text">Subah ek glass thanda doodh piyo · "Om Som Somaaya Namah" 108 baar</div></div>
+            <div class="ritual-step"><div class="ritual-step-num">3</div><div class="ritual-step-text">Raat ko chand dekhke 5 minute meditation · journaling karo</div></div>
+            <div class="ritual-step"><div class="ritual-step-num">4</div><div class="ritual-step-text">Kisi ko safed mithai (kheer, rasgulla) khilao — punya milega</div></div>
+          </div>
+          <div class="ritual-cta" onclick="event.stopPropagation();showToast('Ritual ki audio guide chal rahi hai…')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Audio Guide · 3:24 ke saath karo
           </div>
         </div>
       </div>
@@ -794,10 +862,192 @@ function setState(state) {
   const scroll = document.getElementById('scroll');
   scroll.innerHTML = cfg.render();
   scroll.scrollTop = 0;
+
+  // Boot orbit clock + sky map if d30
+  if (state === 'd30') {
+    setTimeout(initOrbitClock, 50);
+    setTimeout(initSkyMap, 50);
+  }
 }
 
+// ─── SKY MAP (Kal Se Kya Badla) ──────────────────────────────────────
+const SKY_PLANETS = [
+  { icon:'☽', color:'#e8c44a', fromX:65, fromY:35, toX:78, toY:62, fromLabel:'7th House', toLabel:'8th House' },
+  { icon:'☿', color:'#5fffb0', fromX:28, fromY:65, toX:35, toY:40, fromLabel:'Retrograde', toLabel:'Direct' }
+];
+let skyInterval = null;
+let skyPhase = 0; // 0=KAL, 1=TRANSIT, 2=AAJ
+function initSkyMap() {
+  const stage = document.getElementById('skymap-stage');
+  if (!stage) return;
+  // stars
+  const starsEl = document.getElementById('sm-stars');
+  if (starsEl && !starsEl.children.length) {
+    let h = '';
+    for (let i=0;i<28;i++) {
+      h += `<i class="star" style="top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${(Math.random()*3).toFixed(2)}s"></i>`;
+    }
+    starsEl.innerHTML = h;
+  }
+  // build planets + ghosts + labels
+  const pHost = document.getElementById('sm-planets');
+  const trail = document.getElementById('sm-trail');
+  if (pHost && !pHost.children.length) {
+    let html = '';
+    let trailHTML = '';
+    SKY_PLANETS.forEach((p, i) => {
+      html += `<div class="sm-ghost" id="sm-ghost-${i}" style="left:${p.fromX}%;top:${p.fromY}%;border-color:${p.color}70;background:${p.color}15;color:${p.color}b0;box-shadow:0 0 12px ${p.color}20;">${p.icon}</div>`;
+      html += `<div class="sm-planet" id="sm-planet-${i}" style="left:${p.fromX}%;top:${p.fromY}%;background:radial-gradient(circle at 30% 30%,#fff 0%,${p.color} 35%,${p.color}99 100%);border:2px solid ${p.color}90;box-shadow:0 0 16px ${p.color}70,0 0 40px ${p.color}30;">${p.icon}</div>`;
+      html += `<div class="sm-label from" id="sm-from-${i}" style="left:${p.fromX}%;top:${p.fromY+14}%;color:${p.color}b0;border:1px solid ${p.color}40;">${p.fromLabel}</div>`;
+      html += `<div class="sm-label to" id="sm-to-${i}" style="left:${p.toX}%;top:${p.toY+15}%;color:${p.color};border:1px solid ${p.color}55;">${p.toLabel}</div>`;
+      trailHTML += `<line id="sm-line-${i}" x1="${p.fromX}" y1="${p.fromY}" x2="${p.toX}" y2="${p.toY}" stroke="${p.color}"/>`;
+    });
+    pHost.innerHTML = html;
+    if (trail) trail.innerHTML = trailHTML;
+  }
+  if (skyInterval) clearInterval(skyInterval);
+  skyPhase = 0;
+  setSkyPhase(0);
+  // Cycle: KAL (1.5s) → TRANSIT (1.6s) → AAJ (3s) → loop
+  const tick = () => {
+    skyPhase = (skyPhase + 1) % 3;
+    setSkyPhase(skyPhase);
+  };
+  // Use a self-managing setTimeout chain so each phase has its own duration
+  function loop() {
+    const dur = skyPhase === 0 ? 1500 : skyPhase === 1 ? 1700 : 3000;
+    skyInterval = setTimeout(() => { tick(); loop(); }, dur);
+  }
+  loop();
+}
+function setSkyPhase(phase) {
+  const phEl = document.getElementById('sm-phase');
+  const phText = document.getElementById('sm-phase-text');
+  const phDot = document.getElementById('sm-phase-dot');
+  if (phEl) {
+    phEl.classList.remove('kal','transit','aaj');
+    phEl.classList.add(phase===0?'kal':phase===1?'transit':'aaj');
+  }
+  if (phText) phText.textContent = phase===0?'KAL':phase===1?'TRANSIT...':'AAJ';
+  if (phDot) phDot.style.display = phase===1 ? 'inline-block' : 'none';
+  const trail = document.getElementById('sm-trail');
+  if (trail) {
+    trail.classList.toggle('show', phase>=1);
+    trail.classList.toggle('aaj', phase>=2);
+  }
+  SKY_PLANETS.forEach((p, i) => {
+    const planet = document.getElementById('sm-planet-'+i);
+    const ghost = document.getElementById('sm-ghost-'+i);
+    const fromL = document.getElementById('sm-from-'+i);
+    const toL = document.getElementById('sm-to-'+i);
+    if (planet) {
+      const x = phase>=1 ? p.toX : p.fromX;
+      const y = phase>=1 ? p.toY : p.fromY;
+      planet.style.left = x+'%';
+      planet.style.top = y+'%';
+      planet.style.boxShadow = phase>=2
+        ? `0 0 30px ${p.color}aa, 0 0 60px ${p.color}50, 0 0 100px ${p.color}20`
+        : `0 0 16px ${p.color}70, 0 0 40px ${p.color}30`;
+    }
+    if (ghost) ghost.classList.toggle('show', phase>=1);
+    if (fromL) fromL.classList.toggle('show', phase>=1);
+    if (toL) toL.classList.toggle('show', phase>=2);
+  });
+}
+
+// ─── ORBIT CLOCK ─────────────────────────────────────────────────────
+const ORBIT_SLOTS = [
+  { time:'05:00 – 07:00 AM', icon:'☀', name:'Surya Hora', planet:'Mesh · Energy', color:'#f5a623', tag:'EARLY · DHYAN', head:'Surya udaay · meditation peak', desc:'Sabse shanti wala time — yoga, pranayam, aur naye plans banane ke liye.' },
+  { time:'07:00 – 09:00 AM', icon:'☽', name:'Chandra Hora', planet:'Karka · Calm', color:'#a3b8ff', tag:'MORNING · CALM', head:'Mann shaant · routine ka start', desc:'Daily routine, breakfast, aur emotional connect ke liye theek time.' },
+  { time:'09:00 – 11:00 AM', icon:'♂', name:'Mangal Hora', planet:'Mesh · Action', color:'#ff5e3a', tag:'POWER · ACTION', head:'Energy peak · bade kaam', desc:'Workout, meetings, aur action-oriented kaam ke liye sabse strong.' },
+  { time:'11:00 AM – 01:00 PM', icon:'✦', name:'Guru Hora', planet:'Vrishabh · Lucky', color:'#f5a623', tag:'★ GOLDEN WINDOW', head:'Guru ki shakti peak par hai', desc:'Career, contracts, aur financial decisions ke liye sabse powerful 2 ghante. Bade moves abhi karo.', golden:true },
+  { time:'01:00 – 03:00 PM', icon:'♀', name:'Shukra Hora', planet:'Tula · Love', color:'#e84393', tag:'AFTERNOON · CHARM', head:'Rishton aur creativity ka time', desc:'Lunch dates, art, music, aur charm wale interactions ke liye best.' },
+  { time:'03:00 – 05:00 PM', icon:'☿', name:'Budh Hora', planet:'Mithun · Mind', color:'#3a9b1f', tag:'COMMS · CLEAR', head:'Communication aur learning', desc:'Calls, emails, study, aur problem-solving ke liye sharp time.' },
+  { time:'05:00 – 07:00 PM', icon:'♄', name:'Shani Hora', planet:'Makar · Discipline', color:'#5a6fd8', tag:'EVENING · FOCUS', head:'Discipline aur lambe goals', desc:'Long-term planning, accounts, aur serious commitments ke liye.' },
+  { time:'07:00 PM onwards', icon:'☊', name:'Rahu Hora', planet:'Kumbh · Mystery', color:'#8e44ad', tag:'NIGHT · INTUITION', head:'Antar-mann aur reflection', desc:'Journaling, intuitive decisions, aur deep conversations ka time.' }
+];
+let orbitInterval = null;
+let orbitIdx = 3; // default to Guru Hora (golden)
+function initOrbitClock() {
+  const segG = document.getElementById('orbit-segments');
+  const iconsC = document.getElementById('clock-icons');
+  if (!segG || !iconsC) return;
+
+  const N = 8, R = 120, IR = 90;
+  let segHTML = '', iconHTML = '';
+  for (let i=0; i<N; i++) {
+    const a1 = (i*45 - 90 - 22.5) * Math.PI/180;
+    const a2 = ((i+1)*45 - 90 - 22.5) * Math.PI/180;
+    const x1 = Math.cos(a1)*R, y1 = Math.sin(a1)*R;
+    const x2 = Math.cos(a2)*R, y2 = Math.sin(a2)*R;
+    const x3 = Math.cos(a2)*IR, y3 = Math.sin(a2)*IR;
+    const x4 = Math.cos(a1)*IR, y4 = Math.sin(a1)*IR;
+    segHTML += `<path id="seg-${i}" d="M ${x1} ${y1} A ${R} ${R} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${IR} ${IR} 0 0 0 ${x4} ${y4} Z" fill="${ORBIT_SLOTS[i].color}" fill-opacity="0.08" stroke="${ORBIT_SLOTS[i].color}" stroke-opacity="0.25" stroke-width="1"/>`;
+    const ac = (i*45 - 90) * Math.PI/180;
+    const cx = 50 + (Math.cos(ac)*105/280)*100;
+    const cy = 50 + (Math.sin(ac)*105/280)*100;
+    iconHTML += `<div class="clock-icon" data-idx="${i}" style="left:${cx}%;top:${cy}%;" onclick="setOrbitSlot(${i}); event.stopPropagation();">${ORBIT_SLOTS[i].icon}</div>`;
+  }
+  segG.innerHTML = segHTML;
+  iconsC.innerHTML = iconHTML;
+
+  setOrbitSlot(orbitIdx);
+  if (orbitInterval) clearInterval(orbitInterval);
+  let progress = 0;
+  orbitInterval = setInterval(() => {
+    progress += 2;
+    const fill = document.getElementById('orbit-progress-fill');
+    if (!fill) { clearInterval(orbitInterval); return; }
+    fill.style.width = progress + '%';
+    if (progress >= 100) {
+      progress = 0;
+      orbitIdx = (orbitIdx + 1) % 8;
+      setOrbitSlot(orbitIdx);
+    }
+  }, 100);
+}
+function setOrbitSlot(i) {
+  orbitIdx = i;
+  const s = ORBIT_SLOTS[i];
+  document.querySelectorAll('.clock-icon').forEach(el => {
+    const idx = +el.dataset.idx;
+    if (idx === i) {
+      el.classList.add('active');
+      el.style.background = s.color;
+      el.style.borderColor = s.color;
+      el.style.boxShadow = `0 0 16px ${s.color}`;
+    } else {
+      el.classList.remove('active');
+      el.style.background = 'rgba(0,0,0,0.4)';
+      el.style.borderColor = 'rgba(255,255,255,0.1)';
+      el.style.boxShadow = 'none';
+    }
+  });
+  document.querySelectorAll('#orbit-segments path').forEach((p, idx) => {
+    p.setAttribute('fill-opacity', idx === i ? '0.22' : '0.08');
+    p.setAttribute('stroke-opacity', idx === i ? '0.6' : '0.25');
+  });
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('oc-time', s.time);
+  set('oc-icon', s.icon);
+  set('oc-name', s.name);
+  set('oc-planet', s.planet);
+  const nameEl = document.getElementById('oc-name'); if (nameEl) nameEl.style.color = s.color;
+  set('od-tag', s.tag);
+  set('od-head', s.head);
+  set('od-desc', s.desc);
+  const tagEl = document.getElementById('od-tag'); if (tagEl) tagEl.style.color = s.color;
+  const detEl = document.getElementById('orbit-detail');
+  if (detEl) {
+    detEl.style.background = `rgba(${hexToRgb(s.color)},0.10)`;
+    detEl.style.border = `1px solid rgba(${hexToRgb(s.color)},0.28)`;
+  }
+  set('orbit-counter', `${i+1} / 8`);
+}
+function hexToRgb(h) { const n = parseInt(h.slice(1),16); return `${(n>>16)&255},${(n>>8)&255},${n&255}`; }
+
 // ─── INIT ────────────────────────────────────────────────────────────
-setState('d0');
+setState('d30');
 </script>
 </body>
 </html>
