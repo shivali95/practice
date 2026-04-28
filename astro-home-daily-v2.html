@@ -93,14 +93,15 @@ const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
 const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
 const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 const SARVAM_ASTROLOGER_VOICES = {
-  abhilash: 'abhilash', karun: 'karun', hitesh: 'hitesh', arya: 'arya',
-  // Female speaker names \u2192 redirected to male voices
-  anushka: 'abhilash', manisha: 'karun', vidya: 'hitesh',
+  // Energetic male news-anchor voices only \u2014 abhilash dropped (too flat)
+  abhilash: 'arya', karun: 'karun', hitesh: 'hitesh', arya: 'arya',
+  // Female speaker names \u2192 redirected to male energetic voices
+  anushka: 'arya', manisha: 'karun', vidya: 'hitesh',
   // Legacy keys \u2192 male news-anchor voices
-  advait: 'abhilash', daniel: 'abhilash', raj: 'abhilash', ratan: 'abhilash', arvind: 'abhilash',
+  advait: 'arya', daniel: 'arya', raj: 'arya', ratan: 'arya', arvind: 'hitesh',
   kabir: 'hitesh', aayan: 'hitesh', bill: 'hitesh', chris: 'hitesh', manan: 'arya',
 };
-const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'abhilash';
+const _sarvamVoice = (s) => SARVAM_ASTROLOGER_VOICES[s] || 'arya';
 
 const _b64ToBlob = (b64, mime='audio/wav') => {
   const bin = atob(b64);
@@ -117,8 +118,8 @@ const _sarvamCallRaw = async (text, voiceId) => {
     body: JSON.stringify({
       inputs: [text], target_language_code: 'hi-IN', speaker: voiceId,
       model: 'bulbul:v2',
-      // News-anchor tuning — neutral pitch, slightly fast pace, projection-loud
-      pitch: 0.0, pace: 1.05, loudness: 1.5, enable_preprocessing: true,
+      // News-anchor tuning — bright pitch, urgent pace, punchy projection
+      pitch: 0.15, pace: 1.1, loudness: 1.7, enable_preprocessing: true,
     })
   });
   if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status + ' ' + (await resp.text()).slice(0,120));
@@ -131,7 +132,7 @@ const _sarvamTTS = async (text, speaker) => {
   const voiceId = _sarvamVoice(speaker);
   if (typeof _hashKey === 'function' && typeof _idbGet === 'function') {
     try {
-      const k = await _hashKey('sarvam-anchor|' + voiceId + '|' + text);
+      const k = await _hashKey('sarvam-anchor-v2|' + voiceId + '|' + text);
       const cached = await _idbGet(k);
       if (cached) { console.log('[TTS cache hit]', k); return cached; }
       const blob = await _sarvamCallRaw(text, voiceId);
