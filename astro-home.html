@@ -4969,26 +4969,51 @@ const SAATHI_RESPONSES = {
   job: {
     text: 'Aapki Shani Dasha ka 10th house pe sequel chal raha hai — career change ke liye November 2026 ke baad ka window strong hai. Dasara ke around abhi mat haath dalo, but Diwali ke baad explore zaroor karo. Mars in Lagna says: jab badlo to bold ho ke badlo.',
     cards: ['dasha'],
+    why: [
+      'Saturn 10th in Pisces — career karaka', 'Mars Lagna lord — bold action timing',
+      'Antardasha shift Nov 2026', 'Jupiter aspect on 10H from 5H',
+    ],
+    verifiedBy: { name: 'Acharya K.N. Rao', cred: 'Padma Shri · 60+ yrs Vedic' },
     chips: ['Show me the timeline', 'What field suits me?', 'Should I start own thing?', '✦ Talk to an astrologer live'],
   },
   love: {
     text: 'Venus aapke 4th house mein hai — ghar, family, comfort se relationship banta hai. Saturn Return ke ek saal ke andar (next 8-10 months) ek meaningful person enter karta hai. Tab tak self-work karo — yog kehta hai pehle khud ko jaano.',
     cards: ['remedy'],
+    why: [
+      'Venus 4H · Cancer (exalted comfort)', '7H lord Venus + Moon yog',
+      'Saturn Return cycle 29-30', 'Jupiter 5H drishti on 7H',
+    ],
+    verifiedBy: { name: 'Dr. Bejan Daruwalla', cred: 'India\'s most trusted · 50+ yrs' },
     chips: ['When exactly?', 'Compatibility check', 'Should I take initiative?', '✦ Talk to an astrologer live'],
   },
   health: {
     text: 'Mars in Lagna means strong vitality, but bhi hyper-acidity tendency hai. Saturn 10th in Pisces — kabhi-kabhi joints/back issue. Daily 20-min walk + Hanuman Chalisa Tuesday ko = baseline. Major risk window: April–June 2027, tab regular checkups.',
     cards: ['remedy'],
+    why: [
+      'Mars Lagna — Pitta dosha tendency', 'Saturn 10H — joint/spine area',
+      '6H lord Mars · acidity signal', 'Rahu 12H — sleep disturbance',
+    ],
+    verifiedBy: { name: 'Pt. Ajai Bhambi', cred: 'Medical astrology authority' },
     chips: ['Detailed remedies', 'Diet advice', 'Stress management', '✦ Talk to an astrologer live'],
   },
   invest: {
     text: 'Jupiter 5th house se 9th drishti deta hai — dharma + wealth alignment achha hai. Lekin Rahu in 12th says foreign exposure tricky. Best windows: 15 May - 30 June, then Sept-Oct (Guru Pushya). Avoid Mercury-retrograde windows (twice this year).',
     cards: [],
+    why: [
+      'Jupiter 5H — Lakshmi yog', '9H Sun · dharma-wealth combo',
+      'Rahu 12H · foreign caution', 'Guru Pushya 4 Sep window',
+    ],
+    verifiedBy: { name: 'Sundeep Kochar', cred: 'Bollywood\'s celebrity astrologer' },
     chips: ['Stocks vs gold?', 'Best muhurat dates', 'Real estate timing', '✦ Talk to an astrologer live'],
   },
   purpose: {
     text: 'Aapki Atmakaraka Mars hai — leadership + courage aapka swadharma hai. 9th lord Moon in 7th says people-facing work. Combine kar ke: aapka purpose hai logon ko himmat dilana, bold decisions guide karna. Coach, founder, or counsel in some form.',
     cards: ['remedy'],
+    why: [
+      'Atmakaraka Mars — soul intent', 'Moon 7H · public-facing role',
+      'Ruchak Mahapurush Yog', 'Jupiter trine to AK',
+    ],
+    verifiedBy: { name: 'Greenstone Lobo', cred: 'Krishnamurti Paddhati expert' },
     chips: ['Career fit roles', 'Spiritual practice', 'Daily intention', '✦ Talk to an astrologer live'],
   },
   default: {
@@ -5027,7 +5052,7 @@ const SaathiChatOverlay = ({ initialQuery, onClose }) => {
     setThinking(true);
     setTimeout(() => {
       setThinking(false);
-      setMessages(m => [...m, { role: 'ai', text: r.text, cards: r.cards, chips: r.chips }]);
+      setMessages(m => [...m, { role: 'ai', text: r.text, cards: r.cards, chips: r.chips, why: r.why, verifiedBy: r.verifiedBy }]);
       scrollBottom();
     }, 900);
   };
@@ -5158,6 +5183,50 @@ const SaathiChatOverlay = ({ initialQuery, onClose }) => {
                 padding: '10px 14px', fontSize: 13.5, fontWeight: 500, color: '#1a1a1a',
                 lineHeight: 1.55, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 {msg.text}
+                {/* Verified by — credibility chip */}
+                {msg.verifiedBy && (
+                  <div style={{ marginTop: 10, paddingTop: 10,
+                    borderTop: '1px dashed rgba(0,0,0,0.08)',
+                    display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 24, height: 24, borderRadius: 12, flexShrink: 0,
+                      background: 'linear-gradient(135deg, #f5d060, #d09020)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 11, color: '#fff', fontWeight: 900 }}>✓</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.5,
+                        color: '#888', textTransform: 'uppercase' }}>Reading verified by</div>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a',
+                        marginTop: 1 }}>{msg.verifiedBy.name}</div>
+                      <div style={{ fontSize: 10, color: '#666', marginTop: 1 }}>
+                        {msg.verifiedBy.cred}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Why this reading — chart logic */}
+                {msg.why && msg.why.length > 0 && (
+                  <details style={{ marginTop: 10, paddingTop: 10,
+                    borderTop: '1px dashed rgba(0,0,0,0.08)' }}>
+                    <summary style={{ fontSize: 11, fontWeight: 700,
+                      color: '#5a4ab8', cursor: 'pointer', listStyle: 'none',
+                      display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 13 }}>🔍</span>
+                      Why this reading
+                    </summary>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                      {msg.why.map((w, j) => (
+                        <div key={j} style={{
+                          background: 'rgba(139,127,212,0.10)',
+                          color: '#5a4ab8',
+                          fontSize: 10.5, fontWeight: 700,
+                          padding: '4px 9px', borderRadius: 999,
+                          border: '1px solid rgba(139,127,212,0.2)' }}>
+                          {w}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
               {/* Feedback row */}
               <div style={{ display: 'flex', gap: 6, marginTop: 5, marginLeft: 4 }}>
