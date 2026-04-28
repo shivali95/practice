@@ -2370,7 +2370,12 @@ async function playStoryTTS(text, id) {
       url = await warmStoryAudio(text, id);
       if (myGen !== storyGen) { setKathaLoading(false); return; }
       setKathaLoading(false);
-      if (!url) return;
+      if (!url) {
+        // ElevenLabs unavailable (e.g., expired API key). Fall back to the
+        // browser's built-in SpeechSynthesis so the user still hears narration.
+        playStoryFallbackTTS(text);
+        return;
+      }
     }
 
     const audio = new Audio(url);
@@ -2388,6 +2393,45 @@ async function playStoryTTS(text, id) {
   } catch (e) { console.warn('playStoryTTS error', e); setKathaLoading(false); }
 }
 
+// ---- Browser speechSynthesis fallback (used only when ElevenLabs fails) ----
+let fallbackUtterance = null;
+function pickHindiVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  return voices.find(v => v.lang === 'hi-IN')
+      || voices.find(v => (v.lang || '').toLowerCase().startsWith('hi'))
+      || voices.find(v => /hindi/i.test(v.name))
+      || null;
+}
+function playStoryFallbackTTS(text) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'hi-IN';
+    utt.rate = 0.92;
+    utt.pitch = 1.0;
+    utt.volume = 1.0;
+    const v = pickHindiVoice();
+    if (v) utt.voice = v;
+    utt.onend = () => {
+      try {
+        const p = document.getElementById('darshanPlayer');
+        if (p) p.classList.add('paused');
+        const ic = document.getElementById('dpPlayIc');
+        if (ic) ic.textContent = '▶';
+      } catch(e){}
+      fallbackUtterance = null;
+    };
+    fallbackUtterance = utt;
+    window.speechSynthesis.speak(utt);
+  } catch(e) { console.warn('speechSynthesis fallback failed', e); }
+}
+// Some browsers load voices asynchronously — re-pick voice once they're ready.
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { /* triggers a re-fetch on next play */ };
+}
+
 function stopStoryTTS() {
   storyGen++;   // invalidate any in-flight playback start
   setKathaLoading(false);
@@ -2399,6 +2443,11 @@ function stopStoryTTS() {
     try { bgMantraAudio.loop = false; bgMantraAudio.pause(); bgMantraAudio.currentTime = 0; bgMantraAudio.src = ''; } catch(e){}
     bgMantraAudio = null;
   }
+  // Cancel any speechSynthesis fallback narration in progress
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.cancel(); } catch(e){}
+  }
+  fallbackUtterance = null;
 }
 
 function getKatha(id) {
@@ -2516,6 +2565,12 @@ function togglePlayKatha() {
     try {
       if (isPaused) storyAudio.pause();
       else storyAudio.play().catch(e=>{});
+    } catch(e){}
+  } else if (fallbackUtterance && 'speechSynthesis' in window) {
+    // SpeechSynthesis fallback path — pause/resume the utterance.
+    try {
+      if (isPaused) window.speechSynthesis.pause();
+      else window.speechSynthesis.resume();
     } catch(e){}
   }
 }
