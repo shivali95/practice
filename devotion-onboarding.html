@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=360, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Devotion — अपना मंदिर बनाएँ</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; }
+html, body { font-family:'JioType', 'Noto Sans Devanagari', sans-serif; }
+body {
+  background:#0a0500;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:24px 0;
+}
+
+/* ── Phone Frame ── */
+.phone {
+  width:360px; background:#0a0500;
+  border-radius:40px; border:8px solid #141414;
+  box-shadow:0 24px 64px rgba(0,0,0,0.4);
+  overflow:hidden; position:relative;
+  height:820px;
+}
+.notch {
+  background:#141414; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; z-index:50;
+}
+.notch::after {
+  content:''; width:84px; height:18px; background:#141414;
+  border-radius:0 0 14px 14px;
+}
+.statusbar {
+  background:transparent; padding:6px 20px;
+  display:flex; justify-content:space-between;
+  font-size:12px; font-weight:500; color:rgba(255,255,255,0.85);
+  position:relative; z-index:50;
+  transition:color 600ms ease;
+}
+.statusbar .right { display:flex; gap:4px; align-items:center; }
+.statusbar .right svg { width:14px; height:14px; }
+.statusbar.light { color:#3d1a00; }
+
+/* ── Stage: where scenes live ── */
+.stage {
+  position:absolute; top:34px; left:0; right:0; bottom:0;
+  overflow:hidden;
+}
+
+/* ── Scene base ── */
+.scene {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; pointer-events:none;
+  transition:opacity 900ms cubic-bezier(0.2,0,0,1);
+  overflow:hidden;
+}
+.scene.active { opacity:1; pointer-events:auto; }
+
+.reveal { opacity:0; transition:opacity 1400ms cubic-bezier(0.2,0,0,1), transform 1400ms cubic-bezier(0.2,0,0,1); transform:translateY(10px); }
+.reveal.show { opacity:1; transform:translateY(0); }
+
+/* ════════════════════════════════════════════ */
+/* SCENE 0 — WELCOME                           */
+/* ════════════════════════════════════════════ */
+#s-welcome {
+  background:radial-gradient(ellipse at 50% 60%, #2a1400 0%, #0a0500 70%);
+  align-items:center; justify-content:center;
+  padding:0 32px;
+}
+.welcome-diya {
+  width:120px; height:140px;
+  position:relative;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+  margin-bottom:40px;
+  opacity:0;
+  animation:diyaEmerge 2400ms ease-out forwards;
+  animation-delay:400ms;
+}
+.welcome-diya .aura {
+  position:absolute; top:-40px; left:50%; transform:translateX(-50%);
+  width:260px; height:260px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.35) 0%, rgba(247,171,32,0.08) 50%, transparent 75%);
+  animation:auraBreath 5s ease-in-out infinite;
+}
+.welcome-diya .flame-tall {
+  position:relative;
+  width:22px; height:38px;
+  background:linear-gradient(180deg, #fff1c2 0%, #f7ab20 50%, #f06d0f 100%);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 24px rgba(247,171,32,0.9), 0 0 48px rgba(247,171,32,0.55), 0 0 90px rgba(247,171,32,0.3);
+  animation:flameFlicker 420ms ease-in-out infinite alternate;
+  transform-origin:bottom center;
+}
+.welcome-diya .bowl {
+  width:56px; height:16px;
+  background:linear-gradient(180deg, #a8651a 0%, #6b3a08 100%);
+  border-radius:0 0 32px 32px / 0 0 16px 16px;
+  box-shadow:0 6px 14px rgba(0,0,0,0.5);
+  margin-top:-2px;
+}
+@keyframes diyaEmerge {
+  from { opacity:0; transform:translateY(16px) scale(0.9); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes auraBreath {
+  0%,100% { opacity:0.7; transform:translateX(-50%) scale(1); }
+  50% { opacity:1; transform:translateX(-50%) scale(1.08); }
+}
+@keyframes flameFlicker {
+  0% { transform:scale(1) rotate(-2deg); }
+  100% { transform:scale(1.07) rotate(2deg); }
+}
+
+.welcome-copy {
+  text-align:center;
+  color:#fff1c2;
+}
+.welcome-copy .line1 {
+  font-size:38px; font-weight:700;
+  letter-spacing:0.5px;
+  margin-bottom:14px;
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  line-height:1.1;
+}
+.welcome-copy .line2 {
+  font-size:17px; font-weight:400;
+  color:rgba(255,241,194,0.78);
+  letter-spacing:0.3px;
+}
+.welcome-cta {
+  margin-top:64px;
+  padding:14px 40px;
+  background:transparent;
+  color:#fff1c2;
+  border:1px solid rgba(247,171,32,0.5);
+  border-radius:999px;
+  font-family:'JioType',sans-serif; font-size:15px; font-weight:500;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  transition:all 300ms cubic-bezier(0.2,0,0,1);
+}
+.welcome-cta:active {
+  background:rgba(247,171,32,0.15);
+  border-color:#f7ab20;
+  transform:scale(0.97);
+}
+
+/* Ambient embers floating up */
+.ember {
+  position:absolute; width:3px; height:3px; border-radius:50%;
+  background:#f7ab20;
+  box-shadow:0 0 6px rgba(247,171,32,0.8);
+  opacity:0;
+  animation:emberFloat 7s linear infinite;
+}
+.ember.e1 { left:25%; animation-delay:0s; }
+.ember.e2 { left:68%; animation-delay:2s; }
+.ember.e3 { left:45%; animation-delay:4s; }
+.ember.e4 { left:82%; animation-delay:5.5s; }
+.ember.e5 { left:15%; animation-delay:3.2s; }
+@keyframes emberFloat {
+  0% { bottom:30%; opacity:0; transform:translateX(0); }
+  10% { opacity:0.7; }
+  90% { opacity:0.4; }
+  100% { bottom:95%; opacity:0; transform:translateX(18px); }
+}
+
+/* Ambient sound indicator */
+.ambient-indicator {
+  position:absolute; top:16px; left:50%;
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:6px;
+  padding:5px 12px; border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:10px; font-weight:500; color:rgba(255,241,194,0.7);
+  letter-spacing:1px; text-transform:uppercase;
+}
+.sound-wave {
+  display:flex; gap:2px; align-items:center;
+}
+.sound-wave span {
+  width:2px; background:#f7ab20; border-radius:1px;
+  animation:waveBob 1.4s ease-in-out infinite;
+}
+.sound-wave span:nth-child(1) { height:6px; animation-delay:0s; }
+.sound-wave span:nth-child(2) { height:10px; animation-delay:0.2s; }
+.sound-wave span:nth-child(3) { height:7px; animation-delay:0.4s; }
+@keyframes waveBob {
+  0%,100% { transform:scaleY(0.5); }
+  50% { transform:scaleY(1.2); }
+}
+
+/* ════════════════════════════════════════════ */
+/* SCENES 1-3 — FAITH / DEITY / LANGUAGE       */
+/* ════════════════════════════════════════════ */
+#s-faith, #s-deity, #s-lang {
+  background:linear-gradient(180deg, #fef7e9 0%, #fde4c1 60%, #f7d098 100%);
+  padding:44px 24px 24px;
+  align-items:stretch;
+}
+.scene-temple-silhouette {
+  position:absolute; bottom:0; left:0; right:0;
+  height:160px;
+  pointer-events:none;
+  opacity:0.1;
+}
+.scene-temple-silhouette svg { width:100%; height:100%; display:block; }
+
+.progress-dots {
+  display:flex; gap:6px; justify-content:center;
+  margin-bottom:28px;
+}
+.progress-dots .d {
+  width:24px; height:3px; border-radius:2px;
+  background:rgba(127,75,16,0.18);
+  transition:background 400ms;
+}
+.progress-dots .d.active { background:#7f4b10; }
+
+.sc-question {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:22px; font-weight:700; color:#3d1a00;
+  text-align:center; line-height:1.35;
+  margin-bottom:8px;
+  padding:0 8px;
+}
+.sc-sub {
+  font-size:13px; font-weight:400;
+  color:rgba(61,26,0,0.62);
+  text-align:center;
+  margin-bottom:28px;
+}
+
+/* Faith card */
+.faith-card {
+  background:rgba(255,255,255,0.72);
+  border:1.5px solid rgba(127,75,16,0.2);
+  border-radius:20px;
+  padding:22px;
+  display:flex; align-items:center; gap:14px;
+  cursor:pointer;
+  transition:all 400ms cubic-bezier(0.2,0,0,1);
+  backdrop-filter:blur(8px);
+  position:relative;
+  overflow:hidden;
+}
+.faith-card::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(circle at 20% 50%, rgba(247,171,32,0.22) 0%, transparent 60%);
+  opacity:0;
+  transition:opacity 400ms;
+}
+.faith-card.selected {
+  border-color:#f7ab20;
+  box-shadow:0 8px 28px rgba(247,171,32,0.35);
+  transform:scale(1.02);
+}
+.faith-card.selected::before { opacity:1; }
+.faith-icon {
+  width:56px; height:56px; border-radius:28px;
+  background:linear-gradient(135deg, #f7ab20, #f06d0f);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff1c2;
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:32px; font-weight:900;
+  box-shadow:0 4px 16px rgba(247,171,32,0.45);
+  flex-shrink:0;
+  position:relative; z-index:1;
+}
+.faith-info { flex:1; position:relative; z-index:1; }
+.faith-name {
+  font-size:18px; font-weight:700; color:#3d1a00;
+  margin-bottom:2px;
+}
+.faith-desc {
+  font-size:12px; color:rgba(61,26,0,0.62);
+}
+.faith-future {
+  margin-top:16px;
+  text-align:center;
+  font-size:11px; color:rgba(61,26,0,0.48);
+  letter-spacing:0.3px;
+}
+
+/* Deity grid */
+.deity-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  overflow-y:auto;
+  max-height:500px;
+  padding-bottom:16px;
+}
+.deity-grid::-webkit-scrollbar { width:0; }
+.deity-card {
+  background:rgba(255,255,255,0.7);
+  border:1.5px solid rgba(127,75,16,0.15);
+  border-radius:18px;
+  padding:18px 12px 14px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  cursor:pointer;
+  transition:all 350ms cubic-bezier(0.2,0,0,1);
+  position:relative;
+  overflow:hidden;
+  backdrop-filter:blur(6px);
+}
+.deity-card::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 30%, rgba(247,171,32,0.3) 0%, transparent 60%);
+  opacity:0;
+  transition:opacity 400ms;
+}
+.deity-card.selected {
+  border-color:#f7ab20;
+  box-shadow:0 10px 30px rgba(247,171,32,0.35);
+  transform:translateY(-2px);
+}
+.deity-card.selected::before { opacity:1; }
+.deity-glyph {
+  position:relative; z-index:1;
+  width:72px; height:72px; border-radius:36px;
+  background:radial-gradient(circle, #fff3e0 0%, #ffe0b2 60%, #f7ab20 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:36px; font-weight:900; color:#7f4b10;
+  box-shadow:0 4px 14px rgba(247,171,32,0.3), inset 0 2px 6px rgba(255,255,255,0.7);
+}
+.deity-card.selected .deity-glyph {
+  box-shadow:0 6px 22px rgba(247,171,32,0.55), inset 0 2px 6px rgba(255,255,255,0.85);
+}
+.deity-name {
+  font-size:14px; font-weight:700; color:#3d1a00;
+  text-align:center; position:relative; z-index:1;
+}
+.deity-epithet {
+  font-size:10px; color:rgba(61,26,0,0.55);
+  text-align:center;
+  letter-spacing:0.2px;
+  position:relative; z-index:1;
+}
+
+/* Language cards */
+.lang-list { display:flex; flex-direction:column; gap:12px; }
+.lang-card {
+  background:rgba(255,255,255,0.72);
+  border:1.5px solid rgba(127,75,16,0.18);
+  border-radius:18px;
+  padding:20px 22px;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer;
+  transition:all 350ms cubic-bezier(0.2,0,0,1);
+  backdrop-filter:blur(6px);
+}
+.lang-card.selected {
+  border-color:#f7ab20;
+  box-shadow:0 8px 28px rgba(247,171,32,0.32);
+}
+.lang-name {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:20px; font-weight:700; color:#3d1a00;
+}
+.lang-sub {
+  font-size:11px; color:rgba(61,26,0,0.55);
+  margin-top:2px;
+}
+.lang-check {
+  width:22px; height:22px; border-radius:11px;
+  border:1.5px solid rgba(127,75,16,0.3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all 300ms;
+}
+.lang-card.selected .lang-check {
+  background:#f7ab20; border-color:#f7ab20;
+}
+.lang-card.selected .lang-check svg { opacity:1; }
+.lang-check svg { width:14px; height:14px; color:#fff; opacity:0; transition:opacity 200ms; }
+
+/* ════════════════════════════════════════════ */
+/* SCENE 4 — TRANSITION TO MANDIR              */
+/* ════════════════════════════════════════════ */
+#s-transition {
+  background:radial-gradient(ellipse at 50% 55%, #2a1400 0%, #0a0500 75%);
+  align-items:center; justify-content:center;
+  padding:0 24px;
+  position:relative;
+}
+.tr-temple {
+  position:absolute; top:4%; left:50%;
+  transform:translateX(-50%);
+  width:300px; height:400px;
+  opacity:0;
+  transition:opacity 2200ms cubic-bezier(0.2,0,0,1);
+}
+.tr-temple.show { opacity:1; }
+.tr-temple svg { width:100%; height:100%; }
+
+.tr-halo {
+  position:absolute; left:50%; top:40%;
+  transform:translate(-50%,-50%) scale(0.5);
+  width:340px; height:340px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.4) 0%, rgba(247,171,32,0.1) 50%, transparent 75%);
+  opacity:0;
+  transition:opacity 2600ms ease-out, transform 2600ms ease-out;
+}
+.tr-halo.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+.tr-deity {
+  position:absolute; left:50%; top:40%;
+  transform:translate(-50%,-50%) scale(0.7);
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:120px; font-weight:900;
+  color:#f7ab20;
+  text-shadow:0 0 40px rgba(247,171,32,0.75), 0 0 80px rgba(247,171,32,0.4);
+  opacity:0;
+  transition:opacity 2400ms cubic-bezier(0.2,0,0,1), transform 2400ms cubic-bezier(0.2,0,0,1);
+  line-height:1;
+}
+.tr-deity.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+.tr-diya {
+  position:absolute; left:50%; top:62%;
+  transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+  opacity:0;
+  transition:opacity 1600ms ease-out;
+}
+.tr-diya.show { opacity:1; }
+.tr-diya .flame {
+  width:14px; height:22px;
+  background:linear-gradient(180deg, #fff1c2 0%, #f7ab20 50%, #f06d0f 100%);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 18px rgba(247,171,32,0.9), 0 0 40px rgba(247,171,32,0.5);
+  animation:flameFlicker 400ms ease-in-out infinite alternate;
+}
+.tr-diya .bowl {
+  margin-top:-2px;
+  width:38px; height:11px;
+  background:linear-gradient(180deg, #a8651a, #6b3a08);
+  border-radius:0 0 20px 20px / 0 0 10px 10px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.4);
+}
+
+.tr-petal {
+  position:absolute; top:-10px;
+  width:8px; height:12px;
+  background:#f7ab20;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  opacity:0;
+  animation:petalDrift 6s linear infinite;
+}
+.tr-petal.tp1 { left:22%; animation-delay:3s; background:#ffd947; }
+.tr-petal.tp2 { left:76%; animation-delay:4s; background:#f7ab20; }
+.tr-petal.tp3 { left:48%; animation-delay:5s; background:#ffe3ae; }
+@keyframes petalDrift {
+  0% { transform:translateY(0) rotate(0); opacity:0; }
+  10% { opacity:0.75; }
+  90% { opacity:0.4; }
+  100% { transform:translateY(560px) rotate(260deg); opacity:0; }
+}
+
+.tr-copy {
+  position:absolute; bottom:70px; left:0; right:0;
+  text-align:center;
+  color:#fff1c2;
+  padding:0 32px;
+}
+.tr-copy .tline {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:22px; font-weight:500;
+  letter-spacing:0.4px;
+  opacity:0;
+  transition:opacity 1400ms cubic-bezier(0.2,0,0,1);
+  margin-bottom:10px;
+}
+.tr-copy .tline.show { opacity:1; }
+.tr-copy .tsub {
+  font-size:13px; font-weight:400;
+  color:rgba(255,241,194,0.6);
+  letter-spacing:0.3px;
+  opacity:0;
+  transition:opacity 1400ms cubic-bezier(0.2,0,0,1);
+}
+.tr-copy .tsub.show { opacity:1; }
+
+/* ════════════════════════════════════════════ */
+/* SCENE 5 — MERA MANDIR (FIRST VISIT)         */
+/* ════════════════════════════════════════════ */
+#s-mandir {
+  background:radial-gradient(ellipse at 50% 45%, #1a0a00 0%, #0a0500 80%);
+  padding:0;
+  flex-direction:column;
+}
+.mandir-top {
+  padding:14px 18px 0;
+  display:flex; justify-content:space-between; align-items:center;
+  z-index:10;
+}
+.mandir-greet .g1 {
+  font-size:10px; color:rgba(255,241,194,0.55);
+  letter-spacing:2px; text-transform:uppercase;
+  font-weight:500;
+}
+.mandir-greet .g2 {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:15px; font-weight:700; margin-top:2px;
+  color:rgba(255,241,194,0.88);
+}
+.mandir-icon-btn {
+  width:34px; height:34px; border-radius:17px;
+  background:rgba(255,255,255,0.08);
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(255,241,194,0.8);
+  border:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+.mandir-icon-btn svg { width:16px; height:16px; }
+
+.mandir-sanctum {
+  flex:1; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  min-height:440px;
+}
+.m-halo {
+  position:absolute; left:50%; top:44%;
+  transform:translate(-50%,-50%);
+  width:340px; height:340px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.32) 0%, rgba(247,171,32,0.08) 50%, transparent 75%);
+  animation:auraBreath 6s ease-in-out infinite;
+}
+.m-arch {
+  position:absolute; left:50%; top:12%;
+  transform:translateX(-50%);
+  width:260px; height:380px;
+  opacity:0.4;
+  pointer-events:none;
+}
+.m-arch svg { width:100%; height:100%; }
+.m-deity {
+  position:relative; z-index:2;
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:120px; font-weight:900;
+  color:#f7ab20;
+  text-shadow:0 0 36px rgba(247,171,32,0.8), 0 0 72px rgba(247,171,32,0.35);
+  animation:deityBreath 5s ease-in-out infinite;
+  line-height:1;
+}
+@keyframes deityBreath {
+  0%,100% { transform:scale(1); text-shadow:0 0 36px rgba(247,171,32,0.75), 0 0 72px rgba(247,171,32,0.3); }
+  50% { transform:scale(1.03); text-shadow:0 0 48px rgba(247,171,32,0.95), 0 0 96px rgba(247,171,32,0.5); }
+}
+.m-name {
+  position:absolute; bottom:22%; left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,241,194,0.8);
+  font-size:11px; font-weight:500;
+  letter-spacing:4px; text-transform:uppercase;
+}
+.m-diya {
+  position:absolute; left:50%; bottom:12%;
+  transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+  z-index:3;
+}
+.m-diya .flame {
+  width:12px; height:18px;
+  background:linear-gradient(180deg, #fff1c2 0%, #f7ab20 50%, #f06d0f 100%);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 14px rgba(247,171,32,0.85), 0 0 28px rgba(247,171,32,0.5);
+  animation:flameFlicker 400ms ease-in-out infinite alternate;
+}
+.m-diya .bowl {
+  margin-top:-2px;
+  width:32px; height:10px;
+  background:linear-gradient(180deg, #a8651a, #6b3a08);
+  border-radius:0 0 18px 18px / 0 0 9px 9px;
+}
+.m-floating-petal {
+  position:absolute; top:-10px;
+  width:6px; height:9px;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  opacity:0;
+  animation:petalDrift 10s linear infinite;
+}
+.m-floating-petal.fp1 { left:18%; animation-delay:1s; background:#ffd947; }
+.m-floating-petal.fp2 { left:82%; animation-delay:4s; background:#f7ab20; }
+
+.mandir-prompt {
+  padding:0 24px 28px;
+  text-align:center;
+  z-index:10;
+  position:relative;
+}
+.prompt-nudge {
+  font-size:11px; font-weight:500;
+  color:rgba(255,241,194,0.62);
+  letter-spacing:2px; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.prompt-cta {
+  background:linear-gradient(135deg, #f7ab20 0%, #f06d0f 100%);
+  color:#3d1a00;
+  border:none;
+  border-radius:999px;
+  padding:15px 44px;
+  font-family:'JioType','Noto Sans Devanagari',sans-serif;
+  font-size:16px; font-weight:700;
+  letter-spacing:0.3px;
+  cursor:pointer;
+  box-shadow:0 10px 32px rgba(247,171,32,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition:all 220ms cubic-bezier(0.2,0,0,1);
+  position:relative;
+}
+.prompt-cta:active { transform:scale(0.96); }
+.prompt-cta .pulse-ring {
+  position:absolute; inset:-6px;
+  border-radius:999px;
+  border:1.5px solid rgba(247,171,32,0.5);
+  animation:ctaPulse 2.4s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes ctaPulse {
+  0% { opacity:0.8; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.25); }
+}
+.prompt-alt {
+  margin-top:14px;
+  font-size:12px; color:rgba(255,241,194,0.55);
+  font-weight:400;
+}
+.prompt-alt a { color:#f7ab20; text-decoration:none; font-weight:500; cursor:pointer; }
+
+/* ════════════════════════════════════════════ */
+/* AARTI FLOW OVERLAY                          */
+/* ════════════════════════════════════════════ */
+.aarti-overlay {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 40%, #2a1400 0%, #0a0500 80%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:40px 24px;
+  opacity:0; pointer-events:none;
+  z-index:60;
+  transition:opacity 600ms ease;
+}
+.aarti-overlay.show { opacity:1; pointer-events:auto; }
+.aarti-label {
+  font-size:11px; color:#f7ab20; letter-spacing:4px;
+  text-transform:uppercase; font-weight:700; margin-bottom:10px;
+}
+.aarti-title {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:22px; color:#fff1c2; font-weight:700;
+  margin-bottom:32px;
+  text-align:center;
+}
+.thali-container {
+  position:relative;
+  width:260px; height:260px;
+  display:flex; align-items:center; justify-content:center;
+}
+.thali-disk {
+  position:absolute; width:240px; height:240px;
+  border-radius:50%;
+  border:2px solid rgba(247,171,32,0.4);
+  background:radial-gradient(circle, rgba(247,171,32,0.08) 0%, transparent 70%);
+  animation:thaliRotate 7s linear infinite;
+}
+.thali-disk .dflame {
+  position:absolute;
+  width:14px; height:22px;
+  background:linear-gradient(180deg, #fff1c2 0%, #f7ab20 60%, #f06d0f 100%);
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 16px rgba(247,171,32,0.9), 0 0 36px rgba(247,171,32,0.5);
+  animation:flameFlicker 380ms ease-in-out infinite alternate;
+}
+.thali-disk .dflame.d1 { top:8px; left:50%; transform:translateX(-50%); }
+.thali-disk .dflame.d2 { right:8px; top:50%; transform:translateY(-50%); }
+.thali-disk .dflame.d3 { bottom:8px; left:50%; transform:translateX(-50%); }
+.thali-disk .dflame.d4 { left:8px; top:50%; transform:translateY(-50%); }
+@keyframes thaliRotate {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+.thali-center-om {
+  position:relative; z-index:2;
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:88px; font-weight:900;
+  color:#f7ab20;
+  text-shadow:0 0 28px rgba(247,171,32,0.8);
+  animation:deityBreath 4s ease-in-out infinite;
+  line-height:1;
+}
+.aarti-chant {
+  margin-top:36px; text-align:center;
+  color:rgba(255,241,194,0.88);
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:15px; font-weight:500;
+  line-height:1.6;
+  letter-spacing:0.3px;
+  padding:0 16px;
+}
+.aarti-chant .jai {
+  margin-top:12px; display:block;
+  color:#f7ab20; font-size:11px; letter-spacing:3px; text-transform:uppercase;
+}
+.aarti-progress {
+  position:absolute; bottom:40px; left:24px; right:24px;
+  text-align:center;
+}
+.aarti-progress-bar {
+  width:100%; height:3px; border-radius:2px;
+  background:rgba(247,171,32,0.15); overflow:hidden;
+  margin-bottom:10px;
+}
+.aarti-progress-fill {
+  width:0%; height:100%; background:#f7ab20;
+  transition:width 100ms linear;
+}
+.aarti-progress-label {
+  font-size:11px; color:rgba(255,241,194,0.55);
+  letter-spacing:2px; text-transform:uppercase;
+}
+
+/* ════════════════════════════════════════════ */
+/* PRAYER JOURNEY OVERLAY                      */
+/* ════════════════════════════════════════════ */
+.journey-overlay {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 40%, #1a0a00 0%, #0a0500 80%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:40px 24px;
+  opacity:0; pointer-events:none;
+  z-index:60;
+  transition:opacity 800ms ease;
+}
+.journey-overlay.show { opacity:1; pointer-events:auto; }
+.journey-label {
+  font-size:11px; color:#f7ab20; letter-spacing:4px;
+  text-transform:uppercase; font-weight:700; margin-bottom:10px;
+}
+.journey-title {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:20px; color:#fff1c2; font-weight:700;
+  margin-bottom:4px; text-align:center;
+}
+.journey-sub {
+  font-size:12px; color:rgba(255,241,194,0.55);
+  margin-bottom:24px; text-align:center;
+}
+.journey-map {
+  width:300px; height:300px;
+  position:relative;
+  margin-bottom:24px;
+}
+.journey-map svg { width:100%; height:100%; }
+.journey-pin-label {
+  position:absolute;
+  font-size:10px; color:rgba(255,241,194,0.8);
+  letter-spacing:1px; font-weight:600;
+  white-space:nowrap;
+  padding:3px 8px;
+  border-radius:6px;
+  background:rgba(247,171,32,0.15);
+  border:1px solid rgba(247,171,32,0.3);
+}
+.journey-pin-label.from { left:10%; top:76%; }
+.journey-pin-label.to { right:6%; top:10%; }
+.journey-light {
+  position:absolute;
+  width:10px; height:10px; border-radius:50%;
+  background:#fff1c2;
+  box-shadow:0 0 18px #f7ab20, 0 0 36px rgba(247,171,32,0.8);
+  opacity:0;
+  top:0; left:0;
+  offset-rotate:0deg;
+}
+.journey-light.travel {
+  animation:lightTravel 3.2s cubic-bezier(0.4,0,0.3,1) forwards;
+}
+@keyframes lightTravel {
+  0% { opacity:0; offset-distance:0%; }
+  12% { opacity:1; }
+  88% { opacity:1; }
+  100% { opacity:0.2; offset-distance:100%; }
+}
+.journey-status {
+  text-align:center;
+  color:rgba(255,241,194,0.88);
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:15px; font-weight:500;
+  margin-bottom:12px;
+  min-height:22px;
+  transition:opacity 600ms;
+}
+.journey-accepted {
+  padding:10px 18px; border-radius:999px;
+  background:rgba(247,171,32,0.15);
+  border:1px solid rgba(247,171,32,0.35);
+  color:#f7ab20;
+  font-size:12px; font-weight:600; letter-spacing:0.4px;
+  opacity:0;
+  transition:opacity 800ms;
+}
+.journey-accepted.show { opacity:1; }
+.journey-close {
+  position:absolute; top:14px; right:14px;
+  width:34px; height:34px; border-radius:17px;
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,241,194,0.7);
+  display:none; align-items:center; justify-content:center;
+  cursor:pointer; border:1px solid rgba(255,255,255,0.06);
+}
+.journey-close.show { display:flex; }
+.journey-close svg { width:14px; height:14px; }
+
+/* Bell visual ping */
+.bell-ping {
+  position:absolute;
+  width:10px; height:10px; border-radius:50%;
+  background:rgba(247,171,32,0.6);
+  animation:bellPing 900ms ease-out;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+}
+@keyframes bellPing {
+  0% { opacity:0.7; transform:translate(-50%,-50%) scale(0.4); }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(7); }
+}
+
+/* Debug chip (dev only) */
+.debug-skip {
+  position:absolute; top:40px; right:10px;
+  font-size:9px; color:rgba(247,171,32,0.6);
+  background:rgba(0,0,0,0.4); border:1px solid rgba(247,171,32,0.3);
+  padding:3px 8px; border-radius:10px;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; z-index:100;
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar" id="statusbar">
+    <span>9:41</span>
+    <span class="right">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h2v-6H2v6zm4 0h2V12H6v10zm4 0h2V8h-2v14zm4 0h2V4h-2v18zm4 0h2V16h-2v6z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2H6v2H3v16h14V4zm-2 14H5V6h2v2h6V6h2v12z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v14H3V5zm2 2v10h14V7H5z"/></svg>
+    </span>
+  </div>
+
+  <div class="debug-skip" onclick="skipToMandir()">skip →</div>
+
+  <div class="stage">
+
+    <!-- ═════════ SCENE 0: WELCOME ═════════ -->
+    <div class="scene active" id="s-welcome">
+      <div class="ambient-indicator">
+        <div class="sound-wave"><span></span><span></span><span></span></div>
+        <span>Shankh · Ghanti</span>
+      </div>
+
+      <div class="ember e1"></div>
+      <div class="ember e2"></div>
+      <div class="ember e3"></div>
+      <div class="ember e4"></div>
+      <div class="ember e5"></div>
+
+      <div class="welcome-diya">
+        <div class="aura"></div>
+        <div class="flame-tall"></div>
+        <div class="bowl"></div>
+      </div>
+
+      <div class="welcome-copy">
+        <div class="line1 reveal" id="wc1">स्वागत है</div>
+        <div class="line2 reveal" id="wc2">अपना मंदिर बनाएँ</div>
+      </div>
+
+      <button class="welcome-cta reveal" id="wcBtn" onclick="goToScene('s-faith')">आगे बढ़ें</button>
+    </div>
+
+    <!-- ═════════ SCENE 1: FAITH ═════════ -->
+    <div class="scene" id="s-faith">
+      <div class="scene-temple-silhouette">
+        <svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+          <path d="M0,180 L0,150 L40,150 L40,120 L60,120 L60,80 L80,80 L80,50 L100,30 L120,50 L120,80 L140,80 L140,120 L160,120 L160,100 L180,70 L200,100 L200,120 L220,120 L220,80 L240,80 L240,50 L260,30 L280,50 L280,80 L300,80 L300,120 L320,120 L320,150 L360,150 L360,180 Z" fill="#7f4b10"/>
+        </svg>
+      </div>
+
+      <div class="progress-dots">
+        <div class="d active"></div>
+        <div class="d"></div>
+        <div class="d"></div>
+      </div>
+
+      <div class="sc-question">आप किस आस्था से जुड़े हैं?</div>
+      <div class="sc-sub">हम आपके लिए आपका मंदिर बनाएँगे</div>
+
+      <div class="faith-card selected" data-faith="hindu" onclick="selectFaith(this,'hindu')">
+        <div class="faith-icon">ॐ</div>
+        <div class="faith-info">
+          <div class="faith-name">Hindu</div>
+          <div class="faith-desc">मंदिर · पूजा · पंचांग · त्योहार</div>
+        </div>
+      </div>
+
+      <div class="faith-future">जल्द: Muslim · Sikh · Jain · Christian</div>
+    </div>
+
+    <!-- ═════════ SCENE 2: DEITY ═════════ -->
+    <div class="scene" id="s-deity">
+      <div class="scene-temple-silhouette">
+        <svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+          <path d="M0,180 L0,150 L40,150 L40,120 L60,120 L60,80 L80,80 L80,50 L100,30 L120,50 L120,80 L140,80 L140,120 L160,120 L160,100 L180,70 L200,100 L200,120 L220,120 L220,80 L240,80 L240,50 L260,30 L280,50 L280,80 L300,80 L300,120 L320,120 L320,150 L360,150 L360,180 Z" fill="#7f4b10"/>
+        </svg>
+      </div>
+
+      <div class="progress-dots">
+        <div class="d active"></div>
+        <div class="d active"></div>
+        <div class="d"></div>
+      </div>
+
+      <div class="sc-question">आप किस देवता से<br/>सबसे अधिक जुड़ाव महसूस करते हैं?</div>
+      <div class="sc-sub">आप बाद में और भी जोड़ सकते हैं</div>
+
+      <div class="deity-grid">
+        <div class="deity-card" data-deity="ganesh" onclick="selectDeity(this,'ganesh')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Shree Ganesh</div>
+          <div class="deity-epithet">Vighnaharta</div>
+        </div>
+        <div class="deity-card" data-deity="shiva" onclick="selectDeity(this,'shiva')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Mahadev</div>
+          <div class="deity-epithet">Shankar</div>
+        </div>
+        <div class="deity-card" data-deity="krishna" onclick="selectDeity(this,'krishna')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Shree Krishna</div>
+          <div class="deity-epithet">Govind</div>
+        </div>
+        <div class="deity-card" data-deity="durga" onclick="selectDeity(this,'durga')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Maa Durga</div>
+          <div class="deity-epithet">Shakti</div>
+        </div>
+        <div class="deity-card" data-deity="hanuman" onclick="selectDeity(this,'hanuman')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Hanuman Ji</div>
+          <div class="deity-epithet">Bajrangbali</div>
+        </div>
+        <div class="deity-card" data-deity="ram" onclick="selectDeity(this,'ram')">
+          <div class="deity-glyph">ॐ</div>
+          <div class="deity-name">Shree Ram</div>
+          <div class="deity-epithet">Maryada</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════════ SCENE 3: LANGUAGE ═════════ -->
+    <div class="scene" id="s-lang">
+      <div class="scene-temple-silhouette">
+        <svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+          <path d="M0,180 L0,150 L40,150 L40,120 L60,120 L60,80 L80,80 L80,50 L100,30 L120,50 L120,80 L140,80 L140,120 L160,120 L160,100 L180,70 L200,100 L200,120 L220,120 L220,80 L240,80 L240,50 L260,30 L280,50 L280,80 L300,80 L300,120 L320,120 L320,150 L360,150 L360,180 Z" fill="#7f4b10"/>
+        </svg>
+      </div>
+
+      <div class="progress-dots">
+        <div class="d active"></div>
+        <div class="d active"></div>
+        <div class="d active"></div>
+      </div>
+
+      <div class="sc-question">आप किस भाषा में<br/>अनुभव करना चाहेंगे?</div>
+      <div class="sc-sub">आप बाद में बदल सकते हैं</div>
+
+      <div class="lang-list">
+        <div class="lang-card selected" data-lang="hi" onclick="selectLang(this,'hi')">
+          <div>
+            <div class="lang-name">हिन्दी</div>
+            <div class="lang-sub">Hindi · Default</div>
+          </div>
+          <div class="lang-check">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        </div>
+        <div class="lang-card" data-lang="en" onclick="selectLang(this,'en')">
+          <div>
+            <div class="lang-name">English</div>
+            <div class="lang-sub">अंग्रेज़ी</div>
+          </div>
+          <div class="lang-check">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════════ SCENE 4: TRANSITION ═════════ -->
+    <div class="scene" id="s-transition">
+      <div class="tr-temple" id="trTemple">
+        <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 400 L30 160 Q30 40 150 40 Q270 40 270 160 L270 400"
+                fill="none" stroke="#f7ab20" stroke-width="1.5" opacity="0.45"/>
+          <path d="M60 400 L60 170 Q60 70 150 70 Q240 70 240 170 L240 400"
+                fill="none" stroke="#f7ab20" stroke-width="1" opacity="0.3"/>
+          <path d="M150 10 L138 40 L162 40 Z" fill="#f7ab20" opacity="0.55"/>
+          <circle cx="150" cy="8" r="3" fill="#fff1c2"/>
+          <circle cx="30" cy="160" r="4" fill="#f7ab20" opacity="0.5"/>
+          <circle cx="270" cy="160" r="4" fill="#f7ab20" opacity="0.5"/>
+          <line x1="90" y1="100" x2="90" y2="122" stroke="#f7ab20" stroke-width="1" opacity="0.4"/>
+          <path d="M84 122 Q90 132 96 122 L96 126 Q90 128 84 126 Z" fill="#f7ab20" opacity="0.75"/>
+          <line x1="210" y1="100" x2="210" y2="122" stroke="#f7ab20" stroke-width="1" opacity="0.4"/>
+          <path d="M204 122 Q210 132 216 122 L216 126 Q210 128 204 126 Z" fill="#f7ab20" opacity="0.75"/>
+        </svg>
+      </div>
+
+      <div class="tr-halo" id="trHalo"></div>
+      <div class="tr-deity" id="trDeity">ॐ</div>
+
+      <div class="tr-diya" id="trDiya">
+        <div class="flame"></div>
+        <div class="bowl"></div>
+      </div>
+
+      <div class="tr-petal tp1"></div>
+      <div class="tr-petal tp2"></div>
+      <div class="tr-petal tp3"></div>
+
+      <div class="tr-copy">
+        <div class="tline" id="trLine1">यह आपका मंदिर है</div>
+        <div class="tsub" id="trLine2">जब भी चाहें, यहाँ आ सकते हैं</div>
+      </div>
+    </div>
+
+    <!-- ═════════ SCENE 5: MERA MANDIR (FIRST VISIT) ═════════ -->
+    <div class="scene" id="s-mandir">
+      <div class="mandir-top">
+        <div class="mandir-greet">
+          <div class="g1">Shubh Prabhat</div>
+          <div class="g2" id="mandirName">Shree Ganesh जी</div>
+        </div>
+        <div class="mandir-icon-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"/></svg>
+        </div>
+      </div>
+
+      <div class="mandir-sanctum">
+        <div class="m-arch">
+          <svg viewBox="0 0 260 380" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 380 L20 140 Q20 30 130 30 Q240 30 240 140 L240 380"
+                  fill="none" stroke="#f7ab20" stroke-width="1.2" opacity="0.35"/>
+            <path d="M50 380 L50 150 Q50 60 130 60 Q210 60 210 150 L210 380"
+                  fill="none" stroke="#f7ab20" stroke-width="1" opacity="0.22"/>
+            <path d="M130 5 L120 30 L140 30 Z" fill="#f7ab20" opacity="0.4"/>
+            <circle cx="130" cy="3" r="2.5" fill="#fff1c2"/>
+            <line x1="75" y1="85" x2="75" y2="105" stroke="#f7ab20" stroke-width="1" opacity="0.35"/>
+            <path d="M70 105 Q75 113 80 105 L80 108 Q75 110 70 108 Z" fill="#f7ab20" opacity="0.65"/>
+            <line x1="185" y1="85" x2="185" y2="105" stroke="#f7ab20" stroke-width="1" opacity="0.35"/>
+            <path d="M180 105 Q185 113 190 105 L190 108 Q185 110 180 108 Z" fill="#f7ab20" opacity="0.65"/>
+          </svg>
+        </div>
+
+        <div class="m-halo"></div>
+        <div class="m-deity" id="mDeity">ॐ</div>
+        <div class="m-name" id="mName">SHREE GANESH</div>
+        <div class="m-diya">
+          <div class="flame"></div>
+          <div class="bowl"></div>
+        </div>
+
+        <div class="m-floating-petal fp1"></div>
+        <div class="m-floating-petal fp2"></div>
+      </div>
+
+      <div class="mandir-prompt">
+        <div class="prompt-nudge">आज की प्रार्थना शुरू करें</div>
+        <button class="prompt-cta" onclick="startAarti()">
+          आरती करें
+          <span class="pulse-ring"></span>
+        </button>
+        <div class="prompt-alt">या <a onclick="startAarti()">दीप जलाएँ</a></div>
+      </div>
+
+      <!-- Aarti overlay -->
+      <div class="aarti-overlay" id="aartiOverlay">
+        <div class="aarti-label">Aarti</div>
+        <div class="aarti-title" id="aartiTitle">Shree Ganesh Aarti</div>
+        <div class="thali-container">
+          <div class="thali-disk">
+            <div class="dflame d1"></div>
+            <div class="dflame d2"></div>
+            <div class="dflame d3"></div>
+            <div class="dflame d4"></div>
+          </div>
+          <div class="thali-center-om">ॐ</div>
+        </div>
+        <div class="aarti-chant" id="aartiChant">
+          सुखकर्ता दुखहर्ता, वार्ता विघ्नाची<br>
+          नुरवी पुरवी प्रेम, कृपा जयाची
+          <span class="jai">Jai Ganesh Deva</span>
+        </div>
+        <div class="aarti-progress">
+          <div class="aarti-progress-bar">
+            <div class="aarti-progress-fill" id="aartiFill"></div>
+          </div>
+          <div class="aarti-progress-label" id="aartiLabel">Aarti chal rahi hai</div>
+        </div>
+      </div>
+
+      <!-- Prayer journey overlay -->
+      <div class="journey-overlay" id="journeyOverlay">
+        <button class="journey-close" id="journeyClose" onclick="closeJourney()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <div class="journey-label">Prayer Journey</div>
+        <div class="journey-title">आपकी प्रार्थना यात्रा पर है</div>
+        <div class="journey-sub">मुंबई से केदारनाथ</div>
+
+        <div class="journey-map">
+          <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <!-- Simplified India silhouette -->
+            <path d="M120 20 L155 30 L175 28 L195 42 L215 60 L235 70 L250 90 L258 115 L262 145 L252 170 L238 190 L218 215 L195 235 L175 255 L155 272 L135 278 L115 268 L100 245 L88 220 L78 200 L65 182 L55 162 L48 142 L55 120 L70 102 L85 88 L100 70 L110 50 L120 30 Z"
+                  fill="none" stroke="rgba(247,171,32,0.25)" stroke-width="1.2"/>
+            <!-- Travel path from Mumbai (lower-left) to Kedarnath (upper-center) -->
+            <path id="journeyPath" d="M 70 230 Q 140 160 200 55" fill="none" stroke="rgba(247,171,32,0.4)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <!-- Source + destination pins -->
+            <circle cx="70" cy="230" r="5" fill="#f7ab20"/>
+            <circle cx="70" cy="230" r="10" fill="none" stroke="rgba(247,171,32,0.4)" stroke-width="1">
+              <animate attributeName="r" from="5" to="14" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.8" to="0" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="200" cy="55" r="5" fill="#f7ab20"/>
+            <circle cx="200" cy="55" r="10" fill="none" stroke="rgba(247,171,32,0.4)" stroke-width="1">
+              <animate attributeName="r" from="5" to="14" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.8" to="0" dur="2s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+          <div class="journey-pin-label from">आप · Mumbai</div>
+          <div class="journey-pin-label to">Kedarnath</div>
+          <div class="journey-light" id="journeyLight" style="offset-path:path('M 70 230 Q 140 160 200 55');"></div>
+        </div>
+
+        <div class="journey-status" id="journeyStatus">प्रार्थना भेजी जा रही है...</div>
+        <div class="journey-accepted" id="journeyAccepted">🙏 आपकी प्रार्थना अर्पित हुई</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var state = {
+  faith: 'hindu',
+  deity: 'ganesh',
+  lang: 'hi',
+  scene: 's-welcome'
+};
+
+var deityNames = {
+  ganesh: { hi:'Shree Ganesh', title:'Shree Ganesh Aarti', c1:'सुखकर्ता दुखहर्ता, वार्ता विघ्नाची', c2:'नुरवी पुरवी प्रेम, कृपा जयाची', jai:'Jai Ganesh Deva' },
+  shiva:  { hi:'Mahadev',      title:'Shiv Aarti',         c1:'ॐ जय शिव ओंकारा, प्रभु हर शिव ओंकारा', c2:'ब्रह्मा विष्णु सदाशिव, अर्द्धांगी धारा', jai:'Har Har Mahadev' },
+  krishna:{ hi:'Shree Krishna',title:'Krishna Aarti',      c1:'आरती कुंजबिहारी की', c2:'श्री गिरिधर कृष्ण मुरारी की', jai:'Jai Shree Krishna' },
+  durga:  { hi:'Maa Durga',    title:'Durga Aarti',        c1:'जय अंबे गौरी, मैया जय श्यामा गौरी', c2:'तुमको निशदिन ध्यावत, हरि ब्रह्मा शिवरी', jai:'Jai Maa Durga' },
+  hanuman:{ hi:'Hanuman Ji',   title:'Hanuman Aarti',      c1:'आरती कीजै हनुमान लला की', c2:'दुष्ट दलन रघुनाथ कला की', jai:'Jai Bajrangbali' },
+  ram:    { hi:'Shree Ram',    title:'Ram Aarti',          c1:'श्री रामचंद्र कृपालु भजमन', c2:'हरण भवभय दारुणम्', jai:'Jai Shree Ram' }
+};
+
+function goToScene(id) {
+  var cur = document.querySelector('.scene.active');
+  var next = document.getElementById(id);
+  if (!next || cur === next) return;
+  var sb = document.getElementById('statusbar');
+  if (id === 's-faith' || id === 's-deity' || id === 's-lang') {
+    sb.classList.add('light');
+  } else {
+    sb.classList.remove('light');
+  }
+  cur.classList.remove('active');
+  setTimeout(function(){
+    next.classList.add('active');
+    state.scene = id;
+    if (id === 's-transition') runTransition();
+    if (id === 's-mandir') enterMandir();
+  }, 600);
+}
+
+// Scene 0: paced reveal
+setTimeout(function(){ document.getElementById('wc1').classList.add('show'); }, 2200);
+setTimeout(function(){ document.getElementById('wc2').classList.add('show'); }, 4100);
+setTimeout(function(){ document.getElementById('wcBtn').classList.add('show'); }, 5800);
+
+function selectFaith(el, faith) {
+  document.querySelectorAll('.faith-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.faith = faith;
+  softBellPing(el);
+  setTimeout(function(){ goToScene('s-deity'); }, 750);
+}
+
+function selectDeity(el, deity) {
+  document.querySelectorAll('.deity-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.deity = deity;
+  softBellPing(el);
+  // Unified-shell mode: skip lang/transition/mandir — emit completion to parent
+  var unified = new URLSearchParams(location.search).get('unified') === '1';
+  if (unified) {
+    setTimeout(function(){
+      try {
+        parent.postMessage({
+          type: 'onboarding-complete',
+          faith: state.faith || 'hindu',
+          deity: deity,
+          name: 'Shivali'
+        }, '*');
+      } catch(e) {}
+    }, 900);
+    return;
+  }
+  setTimeout(function(){ goToScene('s-lang'); }, 850);
+}
+
+function selectLang(el, lang) {
+  document.querySelectorAll('.lang-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.lang = lang;
+  softBellPing(el);
+  setTimeout(function(){ goToScene('s-transition'); }, 750);
+}
+
+function runTransition() {
+  setTimeout(function(){ document.getElementById('trTemple').classList.add('show'); }, 700);
+  setTimeout(function(){ document.getElementById('trHalo').classList.add('show'); }, 1800);
+  setTimeout(function(){ document.getElementById('trDeity').classList.add('show'); }, 2600);
+  setTimeout(function(){ document.getElementById('trDiya').classList.add('show'); }, 4400);
+  setTimeout(function(){ document.getElementById('trLine1').classList.add('show'); }, 5600);
+  setTimeout(function(){ document.getElementById('trLine2').classList.add('show'); }, 7400);
+  setTimeout(function(){ goToScene('s-mandir'); }, 10400);
+}
+
+function enterMandir() {
+  var d = deityNames[state.deity] || deityNames.ganesh;
+  document.getElementById('mName').textContent = d.hi.toUpperCase();
+  document.getElementById('mandirName').textContent = d.hi + ' जी';
+  document.getElementById('aartiTitle').textContent = d.title;
+}
+
+var aartiTimer = null;
+function startAarti() {
+  var d = deityNames[state.deity] || deityNames.ganesh;
+  var overlay = document.getElementById('aartiOverlay');
+  document.getElementById('aartiChant').innerHTML = d.c1 + '<br>' + d.c2 + '<span class="jai">' + d.jai + '</span>';
+  overlay.classList.add('show');
+
+  var fill = document.getElementById('aartiFill');
+  var label = document.getElementById('aartiLabel');
+  var progress = 0;
+  fill.style.width = '0%';
+  label.textContent = 'Aarti chal rahi hai';
+  clearInterval(aartiTimer);
+  aartiTimer = setInterval(function(){
+    progress += 1.4;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(aartiTimer);
+      label.textContent = 'Aarti poorna · Prarthna arpan';
+      setTimeout(function(){
+        overlay.classList.remove('show');
+        setTimeout(startJourney, 700);
+      }, 1400);
+    }
+    fill.style.width = progress + '%';
+  }, 100);
+}
+
+function startJourney() {
+  var overlay = document.getElementById('journeyOverlay');
+  var light = document.getElementById('journeyLight');
+  var status = document.getElementById('journeyStatus');
+  var accepted = document.getElementById('journeyAccepted');
+  var close = document.getElementById('journeyClose');
+
+  overlay.classList.add('show');
+  accepted.classList.remove('show');
+  close.classList.remove('show');
+  status.style.opacity = 1;
+  status.textContent = 'प्रार्थना भेजी जा रही है...';
+
+  light.classList.remove('travel');
+  void light.offsetWidth;
+  light.classList.add('travel');
+
+  setTimeout(function(){
+    status.textContent = 'केदारनाथ पहुँच रही है...';
+  }, 1600);
+
+  setTimeout(function(){
+    status.style.opacity = 0;
+    setTimeout(function(){
+      status.textContent = 'केदारनाथ में अर्पित';
+      status.style.opacity = 1;
+    }, 600);
+    accepted.classList.add('show');
+    close.classList.add('show');
+  }, 3400);
+}
+
+function closeJourney() {
+  document.getElementById('journeyOverlay').classList.remove('show');
+}
+
+function softBellPing(el) {
+  var rect = el.getBoundingClientRect();
+  var parent = el.closest('.phone');
+  var parentRect = parent.getBoundingClientRect();
+  var ping = document.createElement('div');
+  ping.className = 'bell-ping';
+  ping.style.left = (rect.left + rect.width/2 - parentRect.left) + 'px';
+  ping.style.top = (rect.top + rect.height/2 - parentRect.top) + 'px';
+  parent.appendChild(ping);
+  setTimeout(function(){ ping.remove(); }, 900);
+}
+
+// Dev helper
+function skipToMandir() {
+  goToScene('s-mandir');
+}
+</script>
+
+</body>
+</html>

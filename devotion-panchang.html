@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panchang · Aaj ka Cosmic Dashboard</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0500; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; z-index:40; position:relative; }
+
+.screen { position:relative; background:#0a0500; color:#fff; min-height:820px; }
+
+/* ===== HERO: COSMIC WHEEL ===== */
+.hero {
+  position:relative; padding:20px 20px 24px; overflow:hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 10%, rgba(247,171,32,0.22), transparent 70%),
+    linear-gradient(180deg, #1a0a00 0%, #0a0500 100%);
+}
+.hero-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.hero-label { font-size:10px; font-weight:700; letter-spacing:2px; color:#ffc870; text-transform:uppercase; }
+.hero-date { font-size:11px; opacity:0.7; }
+
+.cosmic-wheel {
+  position:relative; width:240px; height:240px; margin:0 auto 18px;
+}
+.wheel-ring {
+  position:absolute; inset:0; border-radius:50%;
+  border:1px dashed rgba(255,200,120,0.35);
+  animation: spinSlow 80s linear infinite;
+}
+.wheel-ring.inner {
+  inset:22px; border:1px solid rgba(255,200,120,0.22);
+  animation: spinSlow 120s linear infinite reverse;
+}
+@keyframes spinSlow { to { transform:rotate(360deg); } }
+
+.wheel-center {
+  position:absolute; inset:44px; border-radius:50%;
+  background:
+    radial-gradient(circle, rgba(255,200,120,0.4) 0%, rgba(247,171,32,0.15) 50%, transparent 80%),
+    linear-gradient(145deg, #2a1000 0%, #0a0500 100%);
+  border:1px solid rgba(255,200,120,0.35);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  box-shadow:inset 0 0 40px rgba(247,171,32,0.2);
+}
+.wc-glyph { font-size:32px; color:#ffdc80; text-shadow:0 0 16px rgba(255,200,100,0.85); font-weight:900; }
+.wc-tithi { font-size:12px; font-weight:700; color:#fff8e1; letter-spacing:0.3px; }
+.wc-tithi-sub { font-size:9px; opacity:0.7; letter-spacing:1px; text-transform:uppercase; }
+
+/* Planet dots on the ring */
+.planet {
+  position:absolute; width:14px; height:14px; border-radius:50%;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  box-shadow:0 0 10px currentColor;
+}
+.planet::after {
+  content:attr(data-name); position:absolute; top:18px; left:50%;
+  transform:translateX(-50%); font-size:9px; font-weight:600; color:#fff; opacity:0.85;
+  white-space:nowrap; letter-spacing:0.3px;
+}
+
+.hero-verdict {
+  text-align:center; padding:14px 16px;
+  background:rgba(255,200,120,0.08); border-radius:14px;
+  border:1px solid rgba(255,200,120,0.25);
+}
+.hv-main { font-size:14px; font-weight:700; color:#fff8e1; line-height:1.5; }
+.hv-main em { color:#5be0c7; font-style:normal; font-weight:900; }
+.hv-sub { font-size:10px; opacity:0.7; margin-top:4px; }
+
+/* ===== SHUBH MUHURAT STRIP ===== */
+.section { padding:20px; }
+.sec-label { font-size:10px; font-weight:700; letter-spacing:1.8px; color:#ffc870; text-transform:uppercase; margin-bottom:12px; }
+
+.muhurat-strip { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.muhurat-strip::-webkit-scrollbar { display:none; }
+.mu-card {
+  flex-shrink:0; width:120px; padding:12px; border-radius:14px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+}
+.mu-card.good {
+  background:linear-gradient(145deg, rgba(30,204,176,0.14) 0%, rgba(30,204,176,0.04) 100%);
+  border-color:rgba(30,204,176,0.35);
+}
+.mu-card.bad {
+  background:linear-gradient(145deg, rgba(250,47,64,0.12) 0%, rgba(250,47,64,0.03) 100%);
+  border-color:rgba(250,47,64,0.3);
+}
+.mu-time { font-size:13px; font-weight:900; color:#fff8e1; }
+.mu-name { font-size:11px; opacity:0.82; margin-top:2px; }
+.mu-tag { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; padding:2px 7px; border-radius:999px; margin-top:6px; }
+.mu-card.good .mu-tag { background:rgba(30,204,176,0.2); color:#8be8d3; }
+.mu-card.bad .mu-tag { background:rgba(250,47,64,0.2); color:#ff9080; }
+.mu-card.neutral .mu-tag { background:rgba(255,200,120,0.15); color:#ffc870; }
+
+/* ===== TITHI DETAILS GRID ===== */
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.g-card {
+  padding:14px; border-radius:14px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+}
+.g-label { font-size:9px; font-weight:700; letter-spacing:1.3px; color:#ffc870; text-transform:uppercase; margin-bottom:4px; }
+.g-value { font-size:14px; font-weight:700; color:#fff8e1; }
+.g-sub { font-size:10px; opacity:0.62; margin-top:2px; }
+
+/* ===== SUNRISE/SUNSET BAND ===== */
+.sun-band {
+  padding:16px; border-radius:16px; position:relative; overflow:hidden;
+  background:
+    linear-gradient(90deg, #0a0418 0%, #2a1000 15%, #c25514 48%, #f7ab20 60%, #c25514 75%, #2a1000 92%, #0a0418 100%);
+  border:1px solid rgba(255,200,120,0.25);
+}
+.sb-wrap { position:relative; height:90px; }
+.sb-arc {
+  position:absolute; top:10px; left:0; right:0; height:60px;
+  border-top:1px dashed rgba(255,255,255,0.3); border-radius:90px 90px 0 0;
+}
+.sb-sun {
+  position:absolute; top:38px; left:56%; width:20px; height:20px; border-radius:50%;
+  background:radial-gradient(circle, #fff8c0 0%, #f7ab20 60%, transparent 100%);
+  box-shadow:0 0 16px #ffc870;
+  transform:translate(-50%,-50%);
+}
+.sb-times {
+  position:absolute; bottom:0; left:0; right:0;
+  display:flex; justify-content:space-between; font-size:10px; opacity:0.88;
+}
+.sb-times strong { display:block; font-size:13px; font-weight:900; color:#fff; }
+
+/* ===== FESTIVAL COUNTDOWN ===== */
+.festival {
+  padding:16px; border-radius:18px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(30,204,176,0.25), transparent 65%),
+    linear-gradient(145deg, rgba(30,204,176,0.12) 0%, rgba(30,204,176,0.03) 100%);
+  border:1px solid rgba(30,204,176,0.3);
+}
+.fest-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.fest-l { flex:1; }
+.fest-label { font-size:9px; font-weight:700; letter-spacing:1.6px; color:#5be0c7; text-transform:uppercase; margin-bottom:3px; }
+.fest-name { font-size:17px; font-weight:900; color:#fff8e1; letter-spacing:-0.2px; }
+.fest-date { font-size:11px; opacity:0.7; margin-top:2px; }
+.fest-count {
+  text-align:center; padding:8px 12px; border-radius:12px;
+  background:rgba(30,204,176,0.2); border:1px solid rgba(30,204,176,0.4);
+}
+.fest-count-num { font-size:22px; font-weight:900; color:#5be0c7; line-height:1; }
+.fest-count-label { font-size:9px; opacity:0.82; letter-spacing:0.4px; text-transform:uppercase; }
+.fest-desc { font-size:11px; opacity:0.75; line-height:1.5; margin-top:10px; }
+.fest-cta {
+  display:flex; gap:8px; margin-top:12px;
+}
+.fc-btn {
+  flex:1; padding:9px; border-radius:999px; text-align:center;
+  font-size:11px; font-weight:700; cursor:pointer;
+}
+.fc-btn.primary {
+  background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%);
+  color:#0a2d26;
+}
+.fc-btn.secondary {
+  background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2);
+}
+
+/* ===== VRAT BANNER ===== */
+.vrat-banner {
+  padding:16px; border-radius:16px; display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg, rgba(247,171,32,0.18) 0%, rgba(247,171,32,0.05) 100%);
+  border:1px solid rgba(247,171,32,0.35);
+  cursor:pointer; transition:transform 200ms;
+}
+.vrat-banner:active { transform:scale(0.98); }
+.vb-icon {
+  width:52px; height:52px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle, #ffdc80 0%, #f7ab20 55%, #7f4b10 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; box-shadow:0 0 18px rgba(247,171,32,0.5);
+}
+.vb-body { flex:1; }
+.vb-label { font-size:9px; font-weight:700; color:#ffc870; letter-spacing:1.4px; text-transform:uppercase; }
+.vb-title { font-size:14px; font-weight:700; color:#fff8e1; margin-top:2px; }
+.vb-meta { font-size:10px; opacity:0.65; margin-top:2px; }
+
+/* ===== CHOGHADIYA TIMELINE ===== */
+.choghadiya { position:relative; }
+.ch-now-line {
+  position:absolute; top:0; bottom:18px; width:2px; background:#5be0c7;
+  box-shadow:0 0 8px #5be0c7; left:45%; z-index:5; border-radius:2px;
+}
+.ch-now-line::before {
+  content:"ABHI"; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+  font-size:8px; font-weight:900; letter-spacing:1px; color:#5be0c7;
+  background:#0a0500; padding:1px 5px; border-radius:4px;
+}
+.ch-row { display:flex; gap:3px; height:56px; }
+.ch-block {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:6px 2px; border-radius:8px; font-size:9px; font-weight:700; line-height:1.2;
+  text-align:center;
+}
+.ch-block.amrit { background:rgba(30,204,176,0.22); color:#8be8d3; border:1px solid rgba(30,204,176,0.35); }
+.ch-block.shubh { background:rgba(247,171,32,0.18); color:#ffc870; border:1px solid rgba(247,171,32,0.3); }
+.ch-block.labh { background:rgba(30,204,176,0.14); color:#8be8d3; border:1px solid rgba(30,204,176,0.25); }
+.ch-block.chal { background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.12); }
+.ch-block.rog, .ch-block.kaal, .ch-block.udveg {
+  background:rgba(250,47,64,0.12); color:#ff9080; border:1px solid rgba(250,47,64,0.25);
+}
+.ch-times { display:flex; font-size:8px; opacity:0.55; margin-top:4px; }
+.ch-times span { flex:1; text-align:center; }
+
+/* ===== DAILY GUIDANCE ===== */
+.guidance {
+  padding:16px; border-radius:16px;
+  background:linear-gradient(135deg, rgba(53,53,243,0.12) 0%, rgba(53,53,243,0.03) 100%);
+  border:1px solid rgba(103,103,255,0.3);
+}
+.gu-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.gu-orb { width:28px; height:28px; border-radius:50%; background:radial-gradient(circle, #8b8bff 0%, #3535f3 100%); box-shadow:0 0 12px rgba(103,103,255,0.6); }
+.gu-title { font-size:13px; font-weight:700; color:#c7c7ff; }
+.gu-text { font-size:13px; line-height:1.55; color:#fff; font-weight:500; }
+.gu-text em { color:#a5a5ff; font-style:normal; font-weight:700; }
+.gu-dos-donts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.gu-col { padding:10px; border-radius:10px; }
+.gu-col.dos { background:rgba(30,204,176,0.1); border:1px solid rgba(30,204,176,0.25); }
+.gu-col.donts { background:rgba(250,47,64,0.08); border:1px solid rgba(250,47,64,0.22); }
+.gu-col-label { font-size:9px; font-weight:700; letter-spacing:1px; margin-bottom:5px; text-transform:uppercase; }
+.gu-col.dos .gu-col-label { color:#5be0c7; }
+.gu-col.donts .gu-col-label { color:#ff9080; }
+.gu-item { font-size:11px; line-height:1.45; opacity:0.9; margin-bottom:3px; }
+
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+  <div class="screen">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-top">
+        <div class="hero-label">✦ Aaj ka Panchang</div>
+        <div class="hero-date">Mangalwar · 21 April</div>
+      </div>
+
+      <div class="cosmic-wheel">
+        <div class="wheel-ring"></div>
+        <div class="wheel-ring inner"></div>
+        <!-- Planet markers -->
+        <div class="planet" data-name="Surya" style="background:#ffc870; color:#ffc870; transform:translate(-50%,-50%) rotate(0deg) translateY(-110px);"></div>
+        <div class="planet" data-name="Chandra" style="background:#c7d2ff; color:#c7d2ff; transform:translate(-50%,-50%) rotate(55deg) translateY(-110px);"></div>
+        <div class="planet" data-name="Mangal" style="background:#ff7050; color:#ff7050; transform:translate(-50%,-50%) rotate(120deg) translateY(-110px);"></div>
+        <div class="planet" data-name="Budh" style="background:#8be8d3; color:#8be8d3; transform:translate(-50%,-50%) rotate(180deg) translateY(-110px);"></div>
+        <div class="planet" data-name="Guru" style="background:#ffd080; color:#ffd080; transform:translate(-50%,-50%) rotate(235deg) translateY(-90px);"></div>
+        <div class="planet" data-name="Shukra" style="background:#ffb0c0; color:#ffb0c0; transform:translate(-50%,-50%) rotate(300deg) translateY(-90px);"></div>
+
+        <div class="wheel-center">
+          <div class="wc-glyph">ॐ</div>
+          <div class="wc-tithi">Shukla Panchami</div>
+          <div class="wc-tithi-sub">Vaishakh · Rohini</div>
+        </div>
+      </div>
+
+      <div class="hero-verdict">
+        <div class="hv-main">Aaj ka din <em>karya ke liye anukool</em> hai. Nayi shuruaat kar sakte hain.</div>
+        <div class="hv-sub">Shubh yog: Siddhi · Ravi Yog subah 9:18 tak</div>
+      </div>
+    </div>
+
+    <!-- SHUBH MUHURAT STRIP -->
+    <div class="section">
+      <div class="sec-label">🕉 Aaj ke Muhurat</div>
+      <div class="muhurat-strip">
+        <div class="mu-card good">
+          <div class="mu-time">6:12–7:48</div>
+          <div class="mu-name">Amrit Kaal</div>
+          <div class="mu-tag">Shubh</div>
+        </div>
+        <div class="mu-card good">
+          <div class="mu-time">9:18–10:54</div>
+          <div class="mu-name">Abhijit</div>
+          <div class="mu-tag">Vijay Yog</div>
+        </div>
+        <div class="mu-card bad">
+          <div class="mu-time">3:30–5:06</div>
+          <div class="mu-name">Rahu Kaal</div>
+          <div class="mu-tag">Tyaag</div>
+        </div>
+        <div class="mu-card good">
+          <div class="mu-time">5:42–6:28</div>
+          <div class="mu-name">Godhuli Bela</div>
+          <div class="mu-tag">Divya</div>
+        </div>
+        <div class="mu-card bad">
+          <div class="mu-time">12:06–12:54</div>
+          <div class="mu-name">Yamaganda</div>
+          <div class="mu-tag">Tyaag</div>
+        </div>
+        <div class="mu-card neutral">
+          <div class="mu-time">1:48–3:24</div>
+          <div class="mu-name">Gulika Kaal</div>
+          <div class="mu-tag">Madhyam</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUN BAND -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">☀ Surya Darshan</div>
+      <div class="sun-band">
+        <div class="sb-wrap">
+          <div class="sb-arc"></div>
+          <div class="sb-sun"></div>
+        </div>
+        <div class="sb-times">
+          <div>Suryoday<strong>5:42 AM</strong></div>
+          <div>Madhyahn<strong>12:12 PM</strong></div>
+          <div>Suryast<strong>6:28 PM</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TITHI DETAILS GRID -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">🌙 Aaj ki Vistrit Jaankari</div>
+      <div class="grid">
+        <div class="g-card">
+          <div class="g-label">Tithi</div>
+          <div class="g-value">Shukla Panchami</div>
+          <div class="g-sub">Raat 11:42 tak</div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Nakshatra</div>
+          <div class="g-value">Rohini</div>
+          <div class="g-sub">Subah 8:54 tak</div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Yog</div>
+          <div class="g-value">Siddhi</div>
+          <div class="g-sub">Shubh</div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Karan</div>
+          <div class="g-value">Balav</div>
+          <div class="g-sub">Dopahar 12:18 tak</div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Paksha</div>
+          <div class="g-value">Shukla</div>
+          <div class="g-sub">Vaishakh Maas</div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Ritu</div>
+          <div class="g-value">Vasant</div>
+          <div class="g-sub">Samvat 2082</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHOGHADIYA TIMELINE -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">⏳ Din ka Choghadiya</div>
+      <div class="choghadiya">
+        <div class="ch-now-line"></div>
+        <div class="ch-row">
+          <div class="ch-block amrit">Amrit<br>6–7</div>
+          <div class="ch-block kaal">Kaal<br>7–9</div>
+          <div class="ch-block shubh">Shubh<br>9–10</div>
+          <div class="ch-block rog">Rog<br>10–12</div>
+          <div class="ch-block udveg">Udveg<br>12–1</div>
+          <div class="ch-block chal">Chal<br>1–3</div>
+          <div class="ch-block labh">Labh<br>3–5</div>
+          <div class="ch-block amrit">Amrit<br>5–6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FESTIVAL COUNTDOWN -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">🎆 Agla Parv</div>
+      <div class="festival">
+        <div class="fest-top">
+          <div class="fest-l">
+            <div class="fest-label">Aane Wala Parv</div>
+            <div class="fest-name">Akshaya Tritiya</div>
+            <div class="fest-date">Shukravar · 30 April · Vaishakh Shukla Tritiya</div>
+          </div>
+          <div class="fest-count">
+            <div class="fest-count-num">9</div>
+            <div class="fest-count-label">din baaki</div>
+          </div>
+        </div>
+        <div class="fest-desc">
+          Akshaya Tritiya ko jo bhi daan karte hain, uska punya kabhi kshay nahi hota. Sona kharidne aur nayi shuruaat ka sabse shubh din.
+        </div>
+        <div class="fest-cta">
+          <div class="fc-btn primary">Reminder laga dein</div>
+          <div class="fc-btn secondary">Puri jaankari →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VRAT BANNER -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">🕯 Vrat Saathi</div>
+      <div class="vrat-banner">
+        <div class="vb-icon">🌙</div>
+        <div class="vb-body">
+          <div class="vb-label">Agla Vrat · 3 din mein</div>
+          <div class="vb-title">Varuthini Ekadashi</div>
+          <div class="vb-meta">24 April · Paran: 25 April 6:18 AM</div>
+        </div>
+        <div style="font-size:20px; opacity:0.6;">›</div>
+      </div>
+    </div>
+
+    <!-- DAILY GUIDANCE -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">✨ Aaj ka Margdarshan</div>
+      <div class="guidance">
+        <div class="gu-top">
+          <div class="gu-orb"></div>
+          <div class="gu-title">Jyotish Saathi kehte hain</div>
+        </div>
+        <div class="gu-text">
+          Rohini Nakshatra mein Mangal Panchami hai · <em>nayi cheezein shuru karne ka shreshth din</em>. Dopahar mein zaruri nirnay na lein — Yamaganda kaal rahega.
+        </div>
+        <div class="gu-dos-donts">
+          <div class="gu-col dos">
+            <div class="gu-col-label">✓ Yeh karein</div>
+            <div class="gu-item">• Nayi property dekhein</div>
+            <div class="gu-item">• Pooja-path mein samay den</div>
+            <div class="gu-item">• Daan karein</div>
+          </div>
+          <div class="gu-col donts">
+            <div class="gu-col-label">✕ Yeh na karein</div>
+            <div class="gu-item">• Yatra shuru karna</div>
+            <div class="gu-item">• Udhar lena-dena</div>
+            <div class="gu-item">• Vivad karna</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:24px;"></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=360, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Devotion — Aapka Digital Mandir</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; }
+html, body { font-family:'JioType', sans-serif; }
+body {
+  background:#f0f0f0;
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:24px 0;
+}
+
+/* ── Phone Frame ── */
+.phone {
+  width:360px; background:#ffffff;
+  border-radius:40px; border:8px solid #141414;
+  box-shadow:0 24px 64px rgba(0,0,0,0.18);
+  overflow:hidden; position:relative;
+}
+.notch {
+  background:#141414; height:28px;
+  display:flex; align-items:center; justify-content:center;
+}
+.notch::after {
+  content:''; width:84px; height:18px; background:#141414;
+  border-radius:0 0 14px 14px;
+}
+.statusbar {
+  background:#ffffff; padding:6px 20px;
+  display:flex; justify-content:space-between;
+  font-size:12px; font-weight:500; color:#141414;
+}
+.statusbar .right { display:flex; gap:4px; align-items:center; }
+.statusbar .right svg { width:14px; height:14px; }
+.screen {
+  background:#ffffff;
+  scroll-behavior:smooth;
+  position:relative;
+  padding-bottom:0;
+}
+.screen::-webkit-scrollbar { display:none; }
+
+/* ── Top bar ── */
+.topbar {
+  padding:12px 16px 4px;
+  display:flex; justify-content:space-between; align-items:center;
+  position:relative; z-index:20;
+}
+.avatar {
+  width:36px; height:36px; border-radius:18px;
+  background:#ffffff; color:#141414;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  letter-spacing:0.5px;
+}
+.pill {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.88); backdrop-filter:blur(12px);
+  padding:7px 12px; border-radius:999px;
+  font-size:12px; font-weight:500; color:#141414;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.pill .dot { width:6px; height:6px; border-radius:50%; background:#25ab21; }
+.icon-btn {
+  width:36px; height:36px; border-radius:18px;
+  background:#ffffff;
+  display:flex; align-items:center; justify-content:center;
+  color:#141414;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+.icon-btn svg { width:18px; height:18px; }
+
+/* ── Hero: Sanctum ── */
+.sanctum {
+  position:relative; height:440px; overflow:hidden;
+  background:#fef7e9;
+}
+/* Soft halo behind deity */
+.halo {
+  position:absolute; top:42%; left:50%;
+  transform:translate(-50%,-50%);
+  width:320px; height:320px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.35) 0%, rgba(247,171,32,0.08) 55%, transparent 75%);
+  animation:haloPulse 5s ease-in-out infinite;
+}
+@keyframes haloPulse {
+  0%,100% { opacity:0.75; transform:translate(-50%,-50%) scale(1); }
+  50% { opacity:1; transform:translate(-50%,-50%) scale(1.06); }
+}
+/* Temple arch */
+.arch {
+  position:absolute; top:20px; left:50%;
+  transform:translateX(-50%);
+  width:260px; height:340px;
+  pointer-events:none;
+}
+.arch svg { width:100%; height:100%; display:block; }
+
+/* Deity seat */
+.deity-seat {
+  position:absolute; left:50%; top:44%;
+  transform:translate(-50%,-50%);
+  width:180px; height:200px;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column;
+}
+.om-glyph {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:104px; font-weight:900;
+  color:#7f4b10;
+  line-height:1;
+  text-shadow:0 2px 14px rgba(247,171,32,0.55);
+  animation:omBreath 4s ease-in-out infinite;
+}
+@keyframes omBreath {
+  0%,100% { transform:scale(1); text-shadow:0 2px 14px rgba(247,171,32,0.45); }
+  50% { transform:scale(1.04); text-shadow:0 2px 24px rgba(247,171,32,0.75); }
+}
+.deity-name {
+  margin-top:8px;
+  font-size:13px; font-weight:500;
+  color:rgba(25,27,30,0.65);
+  letter-spacing:2px; text-transform:uppercase;
+}
+
+/* Diya at feet */
+.diya-flame {
+  position:absolute; left:50%; top:76%;
+  transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+}
+.flame {
+  width:14px; height:22px;
+  background:#f7ab20;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 18px rgba(247,171,32,0.85), 0 0 36px rgba(247,171,32,0.55);
+  animation:flameFlicker 0.4s ease-in-out infinite alternate;
+  transform-origin:bottom center;
+}
+@keyframes flameFlicker {
+  0% { transform:scale(1) rotate(-2deg); opacity:0.9; }
+  100% { transform:scale(1.08) rotate(2deg); opacity:1; }
+}
+.diya-bowl {
+  margin-top:-4px;
+  width:36px; height:12px;
+  background:#7f4b10;
+  border-radius:0 0 18px 18px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Falling petals */
+.petal {
+  position:absolute; width:7px; height:10px;
+  background:#f7ab20;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  opacity:0.7;
+  animation:petalFall 8s linear infinite;
+}
+.petal.p1 { left:18%; top:-20px; animation-delay:0s; background:#ffd947; }
+.petal.p2 { left:72%; top:-20px; animation-delay:1.5s; background:#f7ab20; }
+.petal.p3 { left:44%; top:-20px; animation-delay:3s; background:#ffe3ae; }
+.petal.p4 { left:88%; top:-20px; animation-delay:4.5s; background:#f7ab20; }
+.petal.p5 { left:28%; top:-20px; animation-delay:6s; background:#ffd947; }
+@keyframes petalFall {
+  0% { transform:translateY(0) rotate(0deg); opacity:0; }
+  10% { opacity:0.75; }
+  90% { opacity:0.6; }
+  100% { transform:translateY(440px) rotate(220deg); opacity:0; }
+}
+
+/* Mantra caption */
+.mantra-strip {
+  position:absolute; bottom:20px; left:0; right:0;
+  text-align:center;
+  padding:0 24px;
+}
+.mantra-sanskrit {
+  font-size:15px; font-weight:500;
+  color:#141414;
+  letter-spacing:0.4px;
+}
+.mantra-trans {
+  margin-top:4px;
+  font-size:11px; font-weight:400;
+  color:rgba(25,27,30,0.65);
+  letter-spacing:0.3px;
+}
+
+/* ── Ritual Dock ── */
+.dock {
+  margin:-36px 16px 0;
+  background:#ffffff;
+  border-radius:20px;
+  padding:16px 12px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:4px;
+  box-shadow:0 8px 28px rgba(20,20,20,0.1), 0 1px 3px rgba(20,20,20,0.06);
+  position:relative; z-index:5;
+  border:1px solid rgba(36,38,43,0.06);
+}
+.dock-item {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:8px 4px;
+  cursor:pointer;
+  transition:transform 200ms cubic-bezier(0.2,0,0,1);
+}
+.dock-item:active { transform:scale(0.94); }
+.dock-icon {
+  width:44px; height:44px; border-radius:22px;
+  background:#fef7e9;
+  display:flex; align-items:center; justify-content:center;
+  color:#7f4b10;
+}
+.dock-icon svg { width:22px; height:22px; }
+.dock-label {
+  font-size:11px; font-weight:500;
+  color:#141414;
+  text-align:center;
+  line-height:1.2;
+}
+
+/* ── Section title ── */
+.section {
+  padding:28px 16px 4px;
+}
+.section-head {
+  display:flex; align-items:baseline; justify-content:space-between;
+  margin-bottom:12px;
+}
+.section-title {
+  font-size:16px; font-weight:700; color:#141414;
+  letter-spacing:-0.2px;
+}
+.section-link {
+  font-size:12px; font-weight:500; color:#3535f3;
+}
+
+/* ── Temples row ── */
+.hscroll {
+  display:flex; gap:12px; overflow-x:auto; overflow-y:hidden;
+  padding:0 16px 4px; margin:0 -16px;
+  scroll-snap-type:x mandatory;
+}
+.hscroll::-webkit-scrollbar { display:none; }
+.temple-card {
+  flex:0 0 232px;
+  background:#ffffff;
+  border-radius:16px;
+  border:1px solid rgba(36,38,43,0.12);
+  overflow:hidden;
+  scroll-snap-align:start;
+}
+.temple-thumb {
+  height:120px; position:relative;
+  background:#fef7e9;
+  overflow:hidden;
+}
+.temple-thumb.shiva { background:#e8e8fc; }
+.temple-arch-mini {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.temple-arch-mini svg { width:80%; height:80%; }
+.live-badge {
+  position:absolute; top:10px; left:10px;
+  display:flex; align-items:center; gap:5px;
+  padding:4px 8px; border-radius:6px;
+  background:#fa2f40;
+  font-size:10px; font-weight:700; color:#ffffff;
+  letter-spacing:0.4px;
+}
+.live-badge .dot {
+  width:5px; height:5px; border-radius:50%; background:#ffffff;
+  animation:livePulse 1.2s infinite;
+}
+@keyframes livePulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.temple-meta {
+  padding:12px 14px 14px;
+}
+.temple-name { font-size:14px; font-weight:700; color:#141414; margin-bottom:2px; }
+.temple-location {
+  font-size:12px; color:rgba(25,27,30,0.65);
+  display:flex; align-items:center; gap:4px;
+}
+.temple-ctas {
+  display:flex; gap:8px; margin-top:10px;
+}
+.btn-primary {
+  flex:1; padding:8px 10px; border:none;
+  background:#3535f3; color:#ffffff;
+  border-radius:999px;
+  font-family:'JioType',sans-serif; font-size:12px; font-weight:700;
+  cursor:pointer;
+}
+.btn-ghost {
+  flex:1; padding:8px 10px; border:1px solid rgba(36,38,43,0.12);
+  background:#ffffff; color:#141414;
+  border-radius:999px;
+  font-family:'JioType',sans-serif; font-size:12px; font-weight:500;
+  cursor:pointer;
+}
+
+/* ── Panchang card ── */
+.panchang-card {
+  margin:0 16px;
+  background:#fef7e9;
+  border-radius:16px;
+  padding:16px;
+}
+.panchang-row {
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px;
+}
+.panchang-left { flex:1; }
+.panchang-label {
+  font-size:11px; font-weight:500; color:#7f4b10;
+  letter-spacing:1px; text-transform:uppercase;
+}
+.panchang-title {
+  margin-top:4px;
+  font-size:16px; font-weight:700; color:#141414;
+}
+.panchang-meta {
+  margin-top:4px;
+  font-size:12px; color:rgba(25,27,30,0.65);
+}
+.panchang-chip {
+  padding:8px 12px; border-radius:999px;
+  background:#ffffff;
+  font-size:11px; font-weight:500; color:#141414;
+  display:flex; align-items:center; gap:6px;
+}
+.panchang-chip .dotg { width:6px; height:6px; border-radius:50%; background:#25ab21; }
+
+.panchang-grid {
+  margin-top:14px; padding-top:14px;
+  border-top:1px solid rgba(127,75,16,0.15);
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+}
+.panchang-cell { display:flex; flex-direction:column; gap:2px; }
+.panchang-cell .k {
+  font-size:10px; color:rgba(25,27,30,0.65);
+  letter-spacing:0.5px; text-transform:uppercase;
+}
+.panchang-cell .v {
+  font-size:13px; font-weight:700; color:#141414;
+}
+
+/* ── Thought card ── */
+.thought-card {
+  margin:12px 16px 0;
+  background:#e7e9ff;
+  border-radius:16px;
+  padding:16px;
+  position:relative;
+}
+.thought-quote {
+  font-size:14px; font-weight:500; color:#141414;
+  line-height:1.5; font-style:italic;
+}
+.thought-source {
+  margin-top:8px;
+  font-size:11px; font-weight:500; color:#3535f3;
+  letter-spacing:0.5px;
+}
+
+/* ── Bhajans strip ── */
+.bhajan-row {
+  display:flex; gap:10px; padding:0 16px 4px; margin:0 -16px;
+  overflow-x:auto;
+}
+.bhajan-row::-webkit-scrollbar { display:none; }
+.bhajan {
+  flex:0 0 140px;
+  background:#ffffff;
+  border:1px solid rgba(36,38,43,0.12);
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+}
+.bhajan-thumb {
+  height:90px; position:relative;
+  background:#fef7e9;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.bhajan-thumb.b2 { background:#e8e8fc; }
+.bhajan-thumb.b3 { background:#e8faf7; }
+.bhajan-play {
+  width:34px; height:34px; border-radius:17px;
+  background:#ffffff;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  color:#141414;
+}
+.bhajan-play svg { width:14px; height:14px; margin-left:2px; }
+.bhajan-duration {
+  position:absolute; bottom:8px; right:8px;
+  padding:2px 6px; border-radius:4px;
+  background:rgba(20,20,20,0.72);
+  font-size:10px; font-weight:500; color:#ffffff;
+  letter-spacing:0.3px;
+}
+.bhajan-meta { padding:10px 12px; }
+.bhajan-title {
+  font-size:13px; font-weight:700; color:#141414;
+  line-height:1.3;
+  display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;
+}
+.bhajan-artist {
+  margin-top:2px;
+  font-size:11px; color:rgba(25,27,30,0.65);
+}
+
+/* ── Bottom Nav ── */
+.bottomnav-spacer { height:24px; }
+.bottomnav {
+  position:relative;
+  background:#ffffff;
+  border-top:1px solid rgba(36,38,43,0.12);
+  padding:10px 16px 14px;
+  display:flex; justify-content:space-around;
+}
+.navitem {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:4px 8px;
+  color:rgba(25,27,30,0.65);
+}
+.navitem.active { color:#3535f3; }
+.navitem svg { width:22px; height:22px; }
+.navitem-label {
+  font-size:10px; font-weight:500;
+  letter-spacing:0.2px;
+}
+
+/* ── Entrance animations ── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.fade-up { animation:fadeInUp 600ms cubic-bezier(0.2,0,0,1) both; }
+.d1 { animation-delay:100ms; }
+.d2 { animation-delay:180ms; }
+.d3 { animation-delay:260ms; }
+.d4 { animation-delay:340ms; }
+.d5 { animation-delay:420ms; }
+
+/* Ripple on tap */
+@keyframes ripple {
+  0% { transform:scale(0); opacity:0.5; }
+  100% { transform:scale(2.4); opacity:0; }
+}
+
+/* ═══════ RITUAL OVERLAYS ═══════ */
+.ritual-overlay {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:360px; height:820px; max-height:100vh;
+  background:rgba(10,5,0,0.88);
+  backdrop-filter:blur(18px);
+  border-radius:32px;
+  z-index:40;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:32px 24px;
+  opacity:0; pointer-events:none;
+  transition:opacity 360ms cubic-bezier(0.2,0,0,1);
+  overflow:hidden;
+}
+.ritual-overlay.active { opacity:1; pointer-events:auto; }
+.ritual-close {
+  position:absolute; top:20px; right:20px;
+  width:36px; height:36px; border-radius:18px;
+  background:rgba(255,255,255,0.14); color:#ffffff;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:none;
+}
+.ritual-close svg { width:16px; height:16px; }
+.ritual-label {
+  color:#f7ab20; font-size:11px; font-weight:700; letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:12px;
+}
+.ritual-title {
+  color:#ffffff; font-size:22px; font-weight:700; text-align:center;
+  margin-bottom:4px;
+}
+.ritual-sub {
+  color:rgba(255,255,255,0.65); font-size:12px; text-align:center;
+  margin-bottom:32px;
+}
+.ritual-deity {
+  position:relative; width:200px; height:200px;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:24px;
+}
+.ritual-deity .halo-ring {
+  position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.55) 0%, rgba(247,171,32,0.15) 50%, transparent 75%);
+}
+.ritual-deity .om-big {
+  position:relative; font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:120px; font-weight:900; color:#f7ab20;
+  text-shadow:0 0 24px rgba(247,171,32,0.8);
+  line-height:1;
+}
+
+/* ── AARTI: rotating thali ── */
+.thali-wrap {
+  position:relative; width:220px; height:220px;
+  display:flex; align-items:center; justify-content:center;
+  margin-top:8px;
+}
+.thali {
+  position:absolute; width:220px; height:220px;
+  border-radius:50%;
+  border:2px solid rgba(247,171,32,0.4);
+  animation:thaliSpin 6s linear infinite;
+}
+.thali-flame {
+  position:absolute; top:10px; left:50%;
+  transform:translateX(-50%);
+  width:16px; height:24px;
+  background:#f7ab20;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 20px rgba(247,171,32,0.9), 0 0 40px rgba(247,171,32,0.6);
+  animation:flameFlicker 0.4s ease-in-out infinite alternate;
+}
+.thali-flame.t2 { top:50%; left:10px; transform:translateY(-50%); }
+.thali-flame.t3 { bottom:10px; left:50%; transform:translateX(-50%); top:auto; }
+.thali-flame.t4 { top:50%; right:10px; left:auto; transform:translateY(-50%); }
+@keyframes thaliSpin {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+.aarti-chant {
+  margin-top:28px; text-align:center;
+  color:rgba(255,255,255,0.9); font-size:14px; font-weight:500;
+  letter-spacing:0.3px; line-height:1.6;
+}
+.aarti-chant .line2 { color:#f7ab20; margin-top:4px; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
+
+/* ── PHOOL: petal shower ── */
+.phool-stage {
+  position:absolute; inset:0;
+  pointer-events:none; overflow:hidden;
+}
+.phool-stage .fpetal {
+  position:absolute; top:-20px;
+  width:10px; height:14px;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  opacity:0;
+}
+.ritual-overlay.active .phool-stage .fpetal {
+  animation:petalShower 4.5s linear infinite;
+}
+@keyframes petalShower {
+  0% { transform:translateY(0) rotate(0deg); opacity:0; }
+  10% { opacity:0.9; }
+  90% { opacity:0.7; }
+  100% { transform:translateY(780px) rotate(360deg); opacity:0; }
+}
+.cta-offer {
+  margin-top:24px;
+  background:#f7ab20; color:#141414;
+  border:none; border-radius:999px;
+  padding:14px 32px;
+  font-family:'JioType',sans-serif; font-size:14px; font-weight:700;
+  cursor:pointer;
+  box-shadow:0 6px 24px rgba(247,171,32,0.4);
+}
+.cta-offer:active { transform:scale(0.96); }
+
+/* ── DEEP: tap to light ── */
+.deep-stage {
+  position:relative; width:200px; height:260px;
+  display:flex; align-items:flex-end; justify-content:center;
+  margin-top:8px;
+}
+.deep-bowl-big {
+  width:120px; height:40px;
+  background:linear-gradient(180deg, #a8651a 0%, #7f4b10 100%);
+  border-radius:0 0 60px 60px / 0 0 40px 40px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.4);
+  position:relative; z-index:2;
+}
+.deep-wick {
+  position:absolute; bottom:38px; left:50%;
+  width:2px; height:14px; background:#7f4b10;
+  transform:translateX(-50%);
+}
+.deep-flame-big {
+  position:absolute; bottom:48px; left:50%;
+  transform:translateX(-50%) scale(0);
+  width:24px; height:36px;
+  background:#f7ab20;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow:0 0 30px rgba(247,171,32,0.9), 0 0 60px rgba(247,171,32,0.6), 0 0 100px rgba(247,171,32,0.4);
+  opacity:0;
+  transition:all 600ms cubic-bezier(0.2,0,0,1);
+}
+.deep-flame-big.lit {
+  transform:translateX(-50%) scale(1);
+  opacity:1;
+  animation:flameFlicker 0.4s ease-in-out infinite alternate;
+}
+.deep-glow {
+  position:absolute; bottom:20px; left:50%;
+  transform:translate(-50%,0) scale(0);
+  width:280px; height:280px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.4) 0%, transparent 65%);
+  transition:transform 800ms cubic-bezier(0.2,0,0,1);
+  z-index:1;
+}
+.deep-glow.lit { transform:translate(-50%,0) scale(1); }
+.deep-hint {
+  position:absolute; bottom:-8px; left:0; right:0;
+  text-align:center;
+  color:rgba(255,255,255,0.6); font-size:12px;
+}
+
+/* ── JAAP: mala counter ── */
+.jaap-mala {
+  position:relative; width:240px; height:240px;
+  margin-top:8px;
+}
+.jaap-mala svg { width:100%; height:100%; }
+.jaap-mala .bead {
+  fill:#7f4b10;
+  transition:fill 200ms;
+}
+.jaap-mala .bead.active { fill:#f7ab20; }
+.jaap-count {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.jaap-count .num {
+  font-size:56px; font-weight:900; color:#f7ab20;
+  line-height:1;
+}
+.jaap-count .total {
+  margin-top:4px; font-size:12px; color:rgba(255,255,255,0.55);
+  letter-spacing:2px; text-transform:uppercase;
+}
+.jaap-tap {
+  margin-top:28px;
+  background:#f7ab20; color:#141414;
+  border:none; border-radius:999px;
+  padding:14px 40px;
+  font-family:'JioType',sans-serif; font-size:14px; font-weight:700;
+  cursor:pointer;
+}
+.jaap-tap:active { transform:scale(0.96); }
+.jaap-mantra {
+  margin-top:16px; text-align:center;
+  color:rgba(255,255,255,0.8); font-size:12px; letter-spacing:0.4px;
+}
+
+/* ── Toast ── */
+.toast {
+  position:absolute; left:50%; bottom:90px;
+  transform:translateX(-50%) translateY(40px);
+  background:#141414; color:#ffffff;
+  padding:12px 20px; border-radius:12px;
+  font-size:13px; font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  opacity:0; pointer-events:none;
+  transition:all 280ms cubic-bezier(0.2,0,0,1);
+  z-index:60;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Notch -->
+  <div class="notch"></div>
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="right">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h2v-6H2v6zm4 0h2V12H6v10zm4 0h2V8h-2v14zm4 0h2V4h-2v18zm4 0h2V16h-2v6z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2H6v2H3v16h14V4zm-2 14H5V6h2v2h6V6h2v12z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h18v10H3z" opacity=".3"/><path d="M3 5h18v14H3V5zm2 2v10h14V7H5z"/></svg>
+    </span>
+  </div>
+
+  <div class="screen">
+
+    <!-- ═══ SANCTUM ═══ -->
+    <div class="sanctum">
+      <!-- Top bar sits on hero -->
+      <div class="topbar">
+        <div class="avatar">श</div>
+        <div class="pill">
+          <span class="dot"></span>
+          <span>Aapka Mandir</span>
+        </div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"/></svg>
+        </div>
+      </div>
+      <!-- Halo glow -->
+      <div class="halo"></div>
+
+      <!-- Temple arch -->
+      <div class="arch">
+        <svg viewBox="0 0 260 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- Arch silhouette -->
+          <path d="M40 340 L40 140 Q40 40 130 40 Q220 40 220 140 L220 340"
+                fill="none" stroke="#7f4b10" stroke-width="2" opacity="0.3"/>
+          <!-- Inner arch -->
+          <path d="M60 340 L60 150 Q60 60 130 60 Q200 60 200 150 L200 340"
+                fill="none" stroke="#7f4b10" stroke-width="1" opacity="0.22"/>
+          <!-- Shikhar (temple spire) top -->
+          <path d="M130 10 L120 40 L140 40 Z" fill="#7f4b10" opacity="0.4"/>
+          <circle cx="130" cy="8" r="3" fill="#f7ab20"/>
+          <!-- Side finials -->
+          <circle cx="40" cy="140" r="4" fill="#7f4b10" opacity="0.35"/>
+          <circle cx="220" cy="140" r="4" fill="#7f4b10" opacity="0.35"/>
+          <!-- Hanging bells (suggested, minimal) -->
+          <line x1="80" y1="90" x2="80" y2="112" stroke="#7f4b10" stroke-width="1" opacity="0.3"/>
+          <path d="M75 112 Q80 122 85 112 L85 116 Q80 118 75 116 Z" fill="#f7ab20" opacity="0.7"/>
+          <line x1="180" y1="90" x2="180" y2="112" stroke="#7f4b10" stroke-width="1" opacity="0.3"/>
+          <path d="M175 112 Q180 122 185 112 L185 116 Q180 118 175 116 Z" fill="#f7ab20" opacity="0.7"/>
+        </svg>
+      </div>
+
+      <!-- Falling petals -->
+      <div class="petal p1"></div>
+      <div class="petal p2"></div>
+      <div class="petal p3"></div>
+      <div class="petal p4"></div>
+      <div class="petal p5"></div>
+
+      <!-- Deity center -->
+      <div class="deity-seat">
+        <div class="om-glyph">ॐ</div>
+        <div class="deity-name">Shree Ganesh</div>
+      </div>
+
+      <!-- Diya -->
+      <div class="diya-flame">
+        <div class="flame"></div>
+        <div class="diya-bowl"></div>
+      </div>
+
+      <!-- Mantra -->
+      <div class="mantra-strip">
+        <div class="mantra-sanskrit">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ</div>
+        <div class="mantra-trans">Shubh Prabhat, Shivali · Shukla Panchami</div>
+      </div>
+    </div>
+
+    <!-- ═══ RITUAL DOCK ═══ -->
+    <div class="dock fade-up d1">
+      <div class="dock-item" data-ritual="aarti">
+        <div class="dock-icon">
+          <!-- Aarti: rotating thali = jiodot ring -->
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="dock-label">Aarti</div>
+      </div>
+      <div class="dock-item" data-ritual="phool">
+        <div class="dock-icon">
+          <!-- Flower (6-petal rose) -->
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 7.5a4.5 4.5 0 014.5 4.5 4.5 4.5 0 01-4.5 4.5A4.5 4.5 0 017.5 12 4.5 4.5 0 0112 7.5zm0-6a3 3 0 013 3v1.5a4.48 4.48 0 00-3-1.16 4.48 4.48 0 00-3 1.16V4.5a3 3 0 013-3zm9 10.5a3 3 0 01-3 3h-1.5a4.48 4.48 0 001.16-3 4.48 4.48 0 00-1.16-3H18a3 3 0 013 3zm-9 10.5a3 3 0 01-3-3v-1.5a4.48 4.48 0 003 1.16 4.48 4.48 0 003-1.16v1.5a3 3 0 01-3 3zM1.5 12a3 3 0 013-3H6a4.48 4.48 0 00-1.16 3A4.48 4.48 0 006 15H4.5a3 3 0 01-3-3z"/>
+          </svg>
+        </div>
+        <div class="dock-label">Phool</div>
+      </div>
+      <div class="dock-item" data-ritual="deep">
+        <div class="dock-icon">
+          <!-- Diya / Flame -->
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13.5 2c-1 3-4 4-4 8a4.5 4.5 0 009 0c0-1.5-.5-2.5-1-3.5.5 1.5-1 2.5-2 2 .5-1.5 1-3-.5-4-1 1-1 2.5-1.5 3 .5-2 .5-4 0-5.5zM7 18h10l-1 3H8z"/>
+          </svg>
+        </div>
+        <div class="dock-label">Deep</div>
+      </div>
+      <div class="dock-item" data-ritual="jaap">
+        <div class="dock-icon">
+          <!-- Mala / Chant beads -->
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2a8 8 0 110 16 8 8 0 010-16zm0 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-5 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm10 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-5 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
+          </svg>
+        </div>
+        <div class="dock-label">Jaap</div>
+      </div>
+    </div>
+
+    <!-- ═══ TEMPLES ═══ -->
+    <div class="section fade-up d2">
+      <div class="section-head">
+        <div class="section-title">Aapke Mandir se</div>
+        <span class="section-link">Sabhi dekhen</span>
+      </div>
+    </div>
+    <div class="hscroll fade-up d2">
+      <div class="temple-card">
+        <div class="temple-thumb">
+          <div class="temple-arch-mini">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 90 L20 50 Q20 20 50 20 Q80 20 80 50 L80 90" fill="none" stroke="#7f4b10" stroke-width="1.5" opacity="0.4"/>
+              <path d="M50 12 L44 26 L56 26 Z" fill="#7f4b10" opacity="0.55"/>
+              <circle cx="50" cy="55" r="10" fill="#f7ab20" opacity="0.6"/>
+              <text x="50" y="62" text-anchor="middle" font-family="JioType" font-weight="900" font-size="18" fill="#7f4b10">ॐ</text>
+            </svg>
+          </div>
+          <div class="live-badge">
+            <span class="dot"></span>
+            <span>LIVE</span>
+          </div>
+        </div>
+        <div class="temple-meta">
+          <div class="temple-name">Siddhivinayak</div>
+          <div class="temple-location">Mumbai · 2.3K dekh rahe</div>
+          <div class="temple-ctas">
+            <button class="btn-primary">Darshan karein</button>
+            <button class="btn-ghost">Puja</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="temple-card">
+        <div class="temple-thumb shiva">
+          <div class="temple-arch-mini">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 90 L20 50 Q20 20 50 20 Q80 20 80 50 L80 90" fill="none" stroke="#3800ac" stroke-width="1.5" opacity="0.4"/>
+              <path d="M50 12 L44 26 L56 26 Z" fill="#3800ac" opacity="0.55"/>
+              <circle cx="50" cy="55" r="10" fill="#6464ff" opacity="0.5"/>
+              <text x="50" y="62" text-anchor="middle" font-family="JioType" font-weight="900" font-size="18" fill="#3800ac">ॐ</text>
+            </svg>
+          </div>
+        </div>
+        <div class="temple-meta">
+          <div class="temple-name">Kashi Vishwanath</div>
+          <div class="temple-location">Varanasi · Aarti 6 baje</div>
+          <div class="temple-ctas">
+            <button class="btn-primary">Yaad dilayein</button>
+            <button class="btn-ghost">Puja</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANCHANG ═══ -->
+    <div class="section fade-up d3">
+      <div class="section-head">
+        <div class="section-title">Aaj ka Panchang</div>
+        <span class="section-link">Poora dekhen</span>
+      </div>
+    </div>
+    <div class="panchang-card fade-up d3">
+      <div class="panchang-row">
+        <div class="panchang-left">
+          <div class="panchang-label">Shubh Muhurat</div>
+          <div class="panchang-title">6:48 — 8:15 AM</div>
+          <div class="panchang-meta">Abhijit · Puja ke liye uttam</div>
+        </div>
+        <div class="panchang-chip">
+          <span class="dotg"></span>
+          <span>Chal raha hai</span>
+        </div>
+      </div>
+      <div class="panchang-grid">
+        <div class="panchang-cell"><span class="k">Tithi</span><span class="v">Panchami</span></div>
+        <div class="panchang-cell"><span class="k">Nakshatra</span><span class="v">Rohini</span></div>
+        <div class="panchang-cell"><span class="k">Rahu Kaal</span><span class="v">10:30</span></div>
+      </div>
+    </div>
+
+    <!-- ═══ THOUGHT ═══ -->
+    <div class="thought-card fade-up d4">
+      <div class="thought-quote">"Man se aap jaise sochte hain, vaise hi aap ban jaate hain."</div>
+      <div class="thought-source">— Bhagavad Gita 6.5</div>
+    </div>
+
+    <!-- ═══ BHAJANS ═══ -->
+    <div class="section fade-up d5">
+      <div class="section-head">
+        <div class="section-title">Bhajan aur Kathayein</div>
+        <span class="section-link">Sabhi</span>
+      </div>
+    </div>
+    <div class="bhajan-row fade-up d5">
+      <div class="bhajan">
+        <div class="bhajan-thumb">
+          <div class="bhajan-play">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z"/></svg>
+          </div>
+          <span class="bhajan-duration">4:32</span>
+        </div>
+        <div class="bhajan-meta">
+          <div class="bhajan-title">Sukhkarta Dukhharta</div>
+          <div class="bhajan-artist">Lata Mangeshkar</div>
+        </div>
+      </div>
+      <div class="bhajan">
+        <div class="bhajan-thumb b2">
+          <div class="bhajan-play">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z"/></svg>
+          </div>
+          <span class="bhajan-duration">6:08</span>
+        </div>
+        <div class="bhajan-meta">
+          <div class="bhajan-title">Vakratunda Mantra</div>
+          <div class="bhajan-artist">Pandit Jasraj</div>
+        </div>
+      </div>
+      <div class="bhajan">
+        <div class="bhajan-thumb b3">
+          <div class="bhajan-play">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z"/></svg>
+          </div>
+          <span class="bhajan-duration">3:21</span>
+        </div>
+        <div class="bhajan-meta">
+          <div class="bhajan-title">Ganesh Chalisa Katha</div>
+          <div class="bhajan-artist">Anup Jalota</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottomnav-spacer"></div>
+
+    <!-- Bottom Nav (sticky within screen) -->
+    <div class="bottomnav">
+      <div class="navitem active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v10h-4v-6h-4v6H6V11H3z"/></svg>
+        <span class="navitem-label">Mandir</span>
+      </div>
+      <div class="navitem">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 3h-1a1 1 0 00-2 0H9a1 1 0 00-2 0H6a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3zm-1.79 8.71l-5 5a1.002 1.002 0 01-1.42 0l-2-2a1.003 1.003 0 111.42-1.42l1.29 1.3 4.29-4.3a1.004 1.004 0 111.42 1.42zM19 7H5V6a1 1 0 011-1h1a1 1 0 002 0h6a1 1 0 002 0h1a1 1 0 011 1v1z"/></svg>
+        <span class="navitem-label">Panchang</span>
+      </div>
+      <div class="navitem">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 4l1.76 3.56L18 11.12l-3 2.92.71 4.14L12 16.25l-3.71 1.94L9 14.04l-3-2.92 4.24-.56z"/></svg>
+        <span class="navitem-label">Utsav</span>
+      </div>
+      <div class="navitem">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6a4 4 0 11-8 0 4 4 0 018 0zm4 10.5c0 3.038-3.582 5.5-8 5.5s-8-2.462-8-5.5S7.582 11 12 11s8 2.462 8 5.5z"/></svg>
+        <span class="navitem-label">Main</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ RITUAL OVERLAYS ═══════ -->
+
+  <!-- AARTI -->
+  <div class="ritual-overlay" id="overlay-aarti">
+    <button class="ritual-close" onclick="closeRitual()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <div class="ritual-label">Aarti</div>
+    <div class="ritual-title">Shree Ganesh Aarti</div>
+    <div class="ritual-sub">Thali ghumayein · 5 diye jalaayein</div>
+    <div class="thali-wrap">
+      <div class="thali">
+        <div class="thali-flame"></div>
+        <div class="thali-flame t2"></div>
+        <div class="thali-flame t3"></div>
+        <div class="thali-flame t4"></div>
+      </div>
+      <div style="font-family:'JioType','Noto Sans Devanagari',serif;font-size:72px;font-weight:900;color:#f7ab20;text-shadow:0 0 20px rgba(247,171,32,0.7);">ॐ</div>
+    </div>
+    <div class="aarti-chant">
+      सुखकर्ता दुखहर्ता, वार्ता विघ्नाची<br>
+      <span class="line2">Jai Ganesh Deva</span>
+    </div>
+  </div>
+
+  <!-- PHOOL -->
+  <div class="ritual-overlay" id="overlay-phool">
+    <button class="ritual-close" onclick="closeRitual()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <div class="phool-stage" id="phoolStage"></div>
+    <div class="ritual-label">Phool Arpan</div>
+    <div class="ritual-title">Pushpa Arpit Karein</div>
+    <div class="ritual-sub">Genda, gulab aur champa · Ganesh ji ko arpit</div>
+    <div class="ritual-deity">
+      <div class="halo-ring"></div>
+      <div class="om-big">ॐ</div>
+    </div>
+    <button class="cta-offer" onclick="offerFlowers()">🌸 Phool Arpit Karein</button>
+  </div>
+
+  <!-- DEEP -->
+  <div class="ritual-overlay" id="overlay-deep">
+    <button class="ritual-close" onclick="closeRitual()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <div class="ritual-label">Deep Prajwalan</div>
+    <div class="ritual-title">Diya Jalaayein</div>
+    <div class="ritual-sub">Touch the diya to light it</div>
+    <div class="deep-stage" id="deepStage">
+      <div class="deep-glow" id="deepGlow"></div>
+      <div class="deep-wick"></div>
+      <div class="deep-flame-big" id="deepFlame"></div>
+      <div class="deep-bowl-big"></div>
+      <div class="deep-hint" id="deepHint">Tap diya to light</div>
+    </div>
+  </div>
+
+  <!-- JAAP -->
+  <div class="ritual-overlay" id="overlay-jaap">
+    <button class="ritual-close" onclick="closeRitual()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <div class="ritual-label">Mantra Jaap</div>
+    <div class="ritual-title">108 Baar Om Gan Ganapataye</div>
+    <div class="ritual-sub">Har tap ek mantra</div>
+    <div class="jaap-mala" id="jaapMala">
+      <svg viewBox="0 0 240 240">
+        <circle cx="120" cy="120" r="100" fill="none" stroke="rgba(247,171,32,0.15)" stroke-width="1"/>
+      </svg>
+      <div class="jaap-count">
+        <div class="num" id="jaapNum">0</div>
+        <div class="total">/ 108</div>
+      </div>
+    </div>
+    <button class="jaap-tap" onclick="doJaap()">Jaap Karein</button>
+    <div class="jaap-mantra">ॐ गं गणपतये नमः</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ═══ Ritual dock interactions ═══
+var ritualMap = {
+  'aarti': 'overlay-aarti',
+  'phool': 'overlay-phool',
+  'deep':  'overlay-deep',
+  'jaap':  'overlay-jaap'
+};
+
+function openRitual(kind) {
+  var id = ritualMap[kind];
+  if (!id) return;
+  var el = document.getElementById(id);
+  el.classList.add('active');
+  // Kind-specific setup
+  if (kind === 'phool') spawnPetalShower();
+  if (kind === 'deep') resetDeep();
+  if (kind === 'jaap') resetJaap();
+}
+
+function closeRitual() {
+  document.querySelectorAll('.ritual-overlay.active').forEach(function(el){
+    el.classList.remove('active');
+  });
+}
+
+// Wire dock items
+document.querySelectorAll('.dock-item').forEach(function(el){
+  el.addEventListener('click', function(){
+    el.style.transition = 'transform 120ms ease';
+    el.style.transform = 'scale(0.92)';
+    setTimeout(function(){ el.style.transform = 'scale(1)'; }, 140);
+    var kind = el.getAttribute('data-ritual');
+    openRitual(kind);
+  });
+});
+
+// ═══ PHOOL: petal shower ═══
+function spawnPetalShower() {
+  var stage = document.getElementById('phoolStage');
+  stage.innerHTML = '';
+  var colors = ['#f7ab20','#ffd947','#ffe3ae','#f06d0f','#ff7a9a'];
+  for (var i = 0; i < 18; i++) {
+    var p = document.createElement('div');
+    p.className = 'fpetal';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random() * 3) + 's';
+    p.style.animationDuration = (3.5 + Math.random() * 2) + 's';
+    stage.appendChild(p);
+  }
+}
+
+function offerFlowers() {
+  showToast('🌸 Pushpa arpit ho gaya · Ganesh ji prasann hain');
+}
+
+// ═══ DEEP: light the diya ═══
+function resetDeep() {
+  document.getElementById('deepFlame').classList.remove('lit');
+  document.getElementById('deepGlow').classList.remove('lit');
+  document.getElementById('deepHint').textContent = 'Tap diya to light';
+}
+
+document.getElementById('deepStage').addEventListener('click', function(){
+  var flame = document.getElementById('deepFlame');
+  if (flame.classList.contains('lit')) return;
+  flame.classList.add('lit');
+  document.getElementById('deepGlow').classList.add('lit');
+  document.getElementById('deepHint').textContent = '✨ Deep prajwalit · Andhera door hua';
+});
+
+// ═══ JAAP: 108 count ═══
+var jaapCount = 0;
+function resetJaap() {
+  jaapCount = 0;
+  document.getElementById('jaapNum').textContent = '0';
+}
+function doJaap() {
+  if (jaapCount >= 108) {
+    showToast('🙏 108 Jaap poora · Aapki prarthna sweekar');
+    return;
+  }
+  jaapCount++;
+  document.getElementById('jaapNum').textContent = jaapCount;
+  if (jaapCount === 108) {
+    showToast('🙏 108 Jaap poora · Aapki prarthna sweekar');
+  }
+  // haptic-ish tactile
+  var num = document.getElementById('jaapNum');
+  num.style.transform = 'scale(1.15)';
+  setTimeout(function(){ num.style.transform = 'scale(1)'; }, 120);
+}
+
+// ═══ Toast ═══
+var toastTimer = null;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+</script>
+
+</body>
+</html>

@@ -1693,83 +1693,23 @@ const _b64ToBlob = (b64, mime='audio/wav') => {
   for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   return new Blob([bytes], { type: mime });
 };
-/* ── Persistent IndexedDB cache for TTS audio (survives reloads) ── */
-const TTS_DB = 'tts-cache-v1';
-const TTS_STORE = 'audio';
-const _openTTSDB = () => new Promise((res, rej) => {
-  const req = indexedDB.open(TTS_DB, 1);
-  req.onupgradeneeded = () => req.result.createObjectStore(TTS_STORE);
-  req.onsuccess = () => res(req.result);
-  req.onerror = () => rej(req.error);
-});
-const _idbGet = async (key) => {
-  try {
-    const db = await _openTTSDB();
-    return await new Promise((res) => {
-      const tx = db.transaction(TTS_STORE, 'readonly');
-      const r = tx.objectStore(TTS_STORE).get(key);
-      r.onsuccess = () => res(r.result || null);
-      r.onerror = () => res(null);
-    });
-  } catch { return null; }
-};
-const _idbPut = async (key, blob) => {
-  try {
-    const db = await _openTTSDB();
-    return await new Promise((res) => {
-      const tx = db.transaction(TTS_STORE, 'readwrite');
-      tx.objectStore(TTS_STORE).put(blob, key);
-      tx.oncomplete = () => res(true);
-      tx.onerror = () => res(false);
-    });
-  } catch { return false; }
-};
-const _hashKey = async (str) => {
-  try {
-    const buf = new TextEncoder().encode(str);
-    const hash = await crypto.subtle.digest('SHA-256', buf);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
-  } catch { return str.slice(0, 64); }
-};
-
-const ELEVEN_REAL_KEY = 'sk_00accf8852cc5d84587657f4c151a59d9a725345e98a9282';
-const ELEVEN_REAL_URL = 'https://api.elevenlabs.io/v1/text-to-speech/';
-// ElevenLabs voice IDs — astrologer character voices
-const ELEVEN_VOICES = {
-  advait: 'onwK4e9ZLuTAKqWW03F9',  // Daniel — deep, warm British
-  raj: 'pNInz6obpgDQGcFmaJgB',     // Adam — narrative gravitas
-  kabir: 'TxGEqnHWrfWFTfGW9XjX',   // Josh — wise male
-  ratan: 'ErXwobaYiN019PkySvjV',   // Antoni — cinematic
-  aayan: 'CYw3kZ02Hs0563khs1Fj',   // Dave — calm storyteller
-  manan: 'IKne3meq5aSn9XLyUdCD',   // Charlie — youthful warm
-  arvind: 'JBFqnCBsd6RMkjVDRZzb',  // George — elder authority
-  daniel: 'onwK4e9ZLuTAKqWW03F9',
-  bill: 'pqHfZKP75CvOlQylNhV4',
-  chris: 'iP95p4xoKVk53GoZ742B',
-};
-const _elevenVoice = (s) => ELEVEN_VOICES[s] || ELEVEN_VOICES.advait;
-
 const _sarvamTTS = async (text, speaker) => {
-  // Cache key: provider + voice + text → IDB persists across reloads
-  const voiceId = _elevenVoice(speaker);
-  const key = await _hashKey('eleven|' + voiceId + '|' + text);
-  const cached = await _idbGet(key);
-  if (cached) { console.log('[TTS cache hit]', key); return cached; }
-  // Miss → ElevenLabs
-  const resp = await fetch(ELEVEN_REAL_URL + voiceId, {
+  const speakerName = mapSpeaker(speaker);
+  const resp = await fetch(SARVAM_TTS_URL, {
     method: 'POST',
-    headers: { 'xi-api-key': ELEVEN_REAL_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } })
+    headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inputs:[text], target_language_code:'hi-IN', speaker:speakerName, model:'bulbul:v2', pitch:0, pace:1.0, loudness:1.2, enable_preprocessing:true })
   });
-  if (!resp.ok) throw new Error('ElevenLabs TTS: ' + resp.status);
-  const blob = await resp.blob();
-  _idbPut(key, blob);
-  return blob;
+  if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status);
+  const data = await resp.json();
+  if (!data.audios || !data.audios[0]) throw new Error('Sarvam: no audio');
+  return _b64ToBlob(data.audios[0]);
 };
 
-// In-memory blob-URL cache (per session) — IDB underneath survives reloads
+// Cache generated audio so we don't re-call the API
 const audioCache = {};
 
+// Standalone TTS fetch (used by scene-synced cards + narration hook)
 const fetchTTS = async (text, cacheKey, speaker = 'advait') => {
   if (audioCache[cacheKey]) return audioCache[cacheKey];
   try {

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divine Response · Aashirwaad</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone {
+  width:360px; border-radius:40px; border:8px solid #1a1a1a;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  overflow:hidden; position:relative; background:#0a0500;
+}
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar {
+  padding:6px 20px; display:flex; justify-content:space-between;
+  font-size:11px; font-weight:600; color:#ffffff; z-index:40; position:relative;
+  background:transparent;
+}
+
+/* ===== SCREEN ===== */
+.screen {
+  position:relative; width:100%; background:#0a0500; overflow:hidden;
+}
+
+/* ===== HERO: DARSHAN MOMENT ===== */
+.hero {
+  position:relative; height:420px; overflow:hidden;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 25%, rgba(247,171,32,0.35), transparent 68%),
+    radial-gradient(ellipse 70% 30% at 50% 90%, rgba(120,40,20,0.45), transparent 72%),
+    linear-gradient(180deg, #1a0a00 0%, #2a1000 45%, #0a0500 100%);
+}
+
+.arch {
+  position:absolute; bottom:-4px; left:50%; transform:translateX(-50%);
+  width:300px; height:380px;
+  opacity:0; animation: archRise 1800ms cubic-bezier(.22,.7,.25,1) 300ms forwards;
+}
+@keyframes archRise {
+  from { opacity:0; transform:translateX(-50%) translateY(24px); }
+  to { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+
+.halo {
+  position:absolute; bottom:130px; left:50%; width:220px; height:220px;
+  border-radius:50%; transform:translateX(-50%) scale(0);
+  background:radial-gradient(circle, rgba(255,210,120,0.95) 0%, rgba(255,160,60,0.55) 28%, rgba(255,120,40,0.2) 55%, transparent 78%);
+  filter:blur(2px); z-index:3;
+  animation: haloGrow 2000ms cubic-bezier(.22,.7,.25,1) 1200ms forwards, haloBreath 4s ease-in-out 3500ms infinite;
+}
+@keyframes haloGrow {
+  from { transform:translateX(-50%) scale(0); opacity:0; }
+  to { transform:translateX(-50%) scale(1); opacity:1; }
+}
+@keyframes haloBreath {
+  0%, 100% { transform:translateX(-50%) scale(1); opacity:0.92; }
+  50% { transform:translateX(-50%) scale(1.08); opacity:1; }
+}
+
+/* Drishti — light beams from deity (the GAZE) */
+.drishti {
+  position:absolute; bottom:220px; left:50%; transform:translateX(-50%);
+  width:260px; height:220px; z-index:4; opacity:0; pointer-events:none;
+  animation: drishtiIn 1200ms ease 2600ms forwards;
+}
+@keyframes drishtiIn { to { opacity:1; } }
+.beam {
+  position:absolute; top:0; width:2px; height:140px;
+  background:linear-gradient(180deg, rgba(255,220,140,0) 0%, rgba(255,210,120,0.8) 40%, rgba(255,180,80,0.95) 75%, rgba(255,210,120,0) 100%);
+  filter:blur(0.5px);
+  transform-origin:top center;
+}
+.beam.l { left:42%; transform:rotate(18deg); }
+.beam.r { right:42%; transform:rotate(-18deg); }
+.beam::after {
+  content:""; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+  width:8px; height:8px; border-radius:50%; background:#ffdc80;
+  box-shadow:0 0 12px #ffba40, 0 0 24px rgba(255,180,80,0.6);
+  animation: beamPulse 1.8s ease-in-out infinite;
+}
+@keyframes beamPulse {
+  0%, 100% { transform:translateX(-50%) scale(1); opacity:0.85; }
+  50% { transform:translateX(-50%) scale(1.4); opacity:1; }
+}
+
+.deity {
+  position:absolute; bottom:160px; left:50%; transform:translateX(-50%) scale(0);
+  font-size:128px; line-height:1; color:#fff8e1; font-weight:900;
+  text-shadow:0 0 28px rgba(255,180,80,0.9), 0 0 72px rgba(255,140,40,0.5);
+  z-index:5;
+  animation: deityIn 1400ms cubic-bezier(.22,.7,.25,1) 1500ms forwards, deityBreath 6s ease-in-out 3500ms infinite;
+}
+@keyframes deityIn {
+  from { transform:translateX(-50%) scale(0); opacity:0; }
+  to { transform:translateX(-50%) scale(1); opacity:1; }
+}
+@keyframes deityBreath {
+  0%, 100% { transform:translateX(-50%) scale(1); }
+  50% { transform:translateX(-50%) scale(1.025); }
+}
+
+/* Name appearing in the light */
+.darshan-text {
+  position:absolute; bottom:36px; left:0; right:0; text-align:center;
+  z-index:10; opacity:0; animation: dtIn 1400ms ease 3200ms forwards;
+}
+@keyframes dtIn {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.darshan-label {
+  font-size:10px; font-weight:700; letter-spacing:2.8px; text-transform:uppercase;
+  color:#ffc870; margin-bottom:5px;
+}
+.darshan-main {
+  font-size:18px; font-weight:700; color:#fff8e1;
+  text-shadow:0 2px 10px rgba(0,0,0,0.6);
+}
+.darshan-main em { font-style:normal; color:#ffd69a; }
+.darshan-sub {
+  font-size:11px; opacity:0.7; margin-top:4px; color:#ffe8c4;
+}
+
+/* Floor gradient */
+.floor {
+  position:absolute; bottom:0; left:0; right:0; height:110px; z-index:5;
+  background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 55%, rgba(10,5,0,0.95) 100%);
+  pointer-events:none;
+}
+
+/* Floating blessings particles in hero */
+.particles { position:absolute; inset:0; z-index:2; pointer-events:none; }
+.particle {
+  position:absolute; bottom:-8px; width:4px; height:4px; border-radius:50%;
+  background:radial-gradient(circle, #ffdc80 0%, rgba(255,170,60,0.6) 60%, transparent 100%);
+  box-shadow:0 0 8px #ffba40;
+  animation: pRise var(--pd, 9s) linear infinite;
+  opacity:0;
+}
+@keyframes pRise {
+  0% { transform:translateY(0) translateX(0); opacity:0; }
+  12% { opacity:0.9; }
+  85% { opacity:0.9; }
+  100% { transform:translateY(-380px) translateX(var(--px, 12px)); opacity:0; }
+}
+
+/* ===== SECTION WRAPPER ===== */
+.sections { padding:20px 20px 24px; background:#0a0500; color:#fff; }
+.section { margin-bottom:22px; }
+.section-label {
+  font-size:10px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase;
+  color:#ffc870; margin-bottom:10px; padding-left:2px;
+}
+
+/* ===== AASHIRWAAD CARD (today's blessing) ===== */
+.blessing {
+  border-radius:22px; padding:22px 20px 20px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,200,100,0.28), transparent 70%),
+    linear-gradient(145deg, #3a1d05 0%, #1a0a00 100%);
+  border:1px solid rgba(255,200,120,0.28);
+  position:relative; overflow:hidden;
+}
+.blessing::before {
+  content:""; position:absolute; top:-30px; right:-30px;
+  width:120px; height:120px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.35) 0%, transparent 70%);
+  filter:blur(8px);
+}
+.bl-header {
+  display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  position:relative;
+}
+.bl-sigil {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle, #ffdc80 0%, #f7ab20 55%, #7f4b10 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:#2a1400; font-weight:900;
+  box-shadow:0 0 16px rgba(247,171,32,0.55);
+}
+.bl-meta { flex:1; }
+.bl-title { font-size:12px; font-weight:700; color:#ffd69a; letter-spacing:0.3px; }
+.bl-date { font-size:10px; opacity:0.65; margin-top:1px; }
+.bl-body {
+  font-size:15px; font-weight:500; line-height:1.55; color:#fff8e1;
+  letter-spacing:0.1px; position:relative;
+}
+.bl-quote {
+  font-style:italic; color:#ffd69a; font-weight:700;
+}
+.bl-foot {
+  margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,200,120,0.2);
+  display:flex; justify-content:space-between; align-items:center;
+  position:relative;
+}
+.bl-save {
+  font-size:11px; font-weight:700; color:#ffc870; letter-spacing:0.3px;
+  background:rgba(255,200,120,0.12); padding:7px 12px; border-radius:999px;
+  border:1px solid rgba(255,200,120,0.3); cursor:pointer;
+  transition:all 200ms ease;
+}
+.bl-save:active { transform:scale(0.97); }
+.bl-share { font-size:11px; opacity:0.7; cursor:pointer; }
+
+/* ===== PRAYER INPUT (Prarthana) ===== */
+.prayer-card {
+  border-radius:22px; padding:18px; overflow:hidden; position:relative;
+  background:linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  border:1px solid rgba(255,255,255,0.12);
+}
+.pr-title {
+  font-size:15px; font-weight:700; color:#fff8e1; margin-bottom:4px;
+}
+.pr-sub {
+  font-size:11px; opacity:0.65; margin-bottom:14px;
+}
+.pr-input-wrap {
+  display:flex; gap:8px; align-items:center;
+  background:rgba(0,0,0,0.35); border-radius:14px; padding:4px 4px 4px 16px;
+  border:1px solid rgba(255,200,120,0.18);
+}
+.pr-input {
+  flex:1; background:transparent; border:0; outline:0;
+  color:#fff; font-family:'JioType',sans-serif; font-size:13px; font-weight:500;
+  padding:10px 0;
+}
+.pr-input::placeholder { color:rgba(255,255,255,0.4); }
+.pr-send {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg, #ffc870 0%, #f7ab20 100%);
+  display:flex; align-items:center; justify-content:center;
+  color:#2a1400; font-size:16px; font-weight:900;
+  border:0; cursor:pointer; box-shadow:0 2px 10px rgba(247,171,32,0.4);
+}
+.pr-send:active { transform:scale(0.94); }
+
+/* Prayer response (shown after submit) */
+.pr-response {
+  margin-top:14px; padding:14px; border-radius:14px;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(247,171,32,0.18), transparent 70%), rgba(0,0,0,0.35);
+  border:1px solid rgba(247,171,32,0.35);
+  display:none;
+  animation: respIn 800ms cubic-bezier(.22,.7,.25,1);
+}
+.pr-response.show { display:block; }
+@keyframes respIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.pr-resp-label {
+  font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:#ffc870; margin-bottom:4px;
+}
+.pr-resp-text {
+  font-size:13px; font-weight:500; line-height:1.55; color:#fff8e1;
+}
+.pr-resp-text em { color:#ffd69a; font-style:normal; font-weight:700; }
+
+/* Prayer journey canvas (light flying up) */
+.journey {
+  position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden;
+}
+.light-orb {
+  position:absolute; bottom:60px; left:50%; width:10px; height:10px;
+  border-radius:50%;
+  background:radial-gradient(circle, #fff8e1 0%, #ffc870 40%, rgba(255,180,80,0.4) 70%, transparent 100%);
+  box-shadow:0 0 20px #ffc870, 0 0 40px rgba(247,171,32,0.6);
+  opacity:0; pointer-events:none;
+}
+.light-orb.fly {
+  animation: orbFly 1400ms cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes orbFly {
+  0% { bottom:60px; left:50%; transform:translateX(-50%) scale(1); opacity:1; }
+  100% { bottom:640px; left:50%; transform:translateX(-50%) scale(0.4); opacity:0; }
+}
+
+/* ===== SANKALP TRACKER ===== */
+.sankalp {
+  padding:16px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(30,204,176,0.1) 0%, rgba(30,204,176,0.04) 100%);
+  border:1px solid rgba(30,204,176,0.28);
+}
+.sk-top {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:12px;
+}
+.sk-label {
+  font-size:9px; font-weight:700; letter-spacing:1.8px; color:#5be0c7;
+  text-transform:uppercase;
+}
+.sk-days {
+  font-size:10px; font-weight:700; color:#5be0c7;
+  padding:3px 9px; border-radius:999px; background:rgba(30,204,176,0.15);
+  border:1px solid rgba(30,204,176,0.35);
+}
+.sk-text {
+  font-size:14px; font-weight:500; color:#fff; line-height:1.5;
+}
+.sk-text strong { color:#8be8d3; font-weight:700; }
+.sk-progress {
+  margin-top:14px; height:6px; background:rgba(255,255,255,0.08);
+  border-radius:999px; overflow:hidden;
+}
+.sk-fill {
+  height:100%; width:33%; border-radius:999px;
+  background:linear-gradient(90deg, #1eccb0 0%, #5be0c7 100%);
+  box-shadow:0 0 12px rgba(30,204,176,0.6);
+}
+.sk-foot {
+  margin-top:8px; display:flex; justify-content:space-between;
+  font-size:10px; opacity:0.7;
+}
+
+/* ===== RITUAL FEEDBACK (quick offer) ===== */
+.offer-card {
+  padding:16px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(255,120,80,0.1) 0%, rgba(255,80,40,0.04) 100%);
+  border:1px solid rgba(255,180,120,0.25);
+  display:flex; align-items:center; gap:14px; cursor:pointer;
+  transition:all 200ms ease;
+}
+.offer-card:active { transform:scale(0.98); }
+.offer-icon {
+  width:52px; height:52px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle, #ffc870 0%, #f7ab20 55%, #7f4b10 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; box-shadow:0 0 18px rgba(247,171,32,0.45);
+}
+.offer-body { flex:1; }
+.offer-title { font-size:14px; font-weight:700; color:#fff8e1; }
+.offer-sub { font-size:11px; opacity:0.65; margin-top:2px; }
+.offer-arrow { font-size:18px; opacity:0.7; }
+
+/* ===== DIYARI (Divine Diary) ===== */
+.diyari {
+  border-radius:18px; overflow:hidden;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+}
+.dy-head {
+  padding:14px 16px 12px; display:flex; justify-content:space-between; align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.dy-head-l {
+  font-size:13px; font-weight:700; color:#fff8e1;
+}
+.dy-head-r {
+  font-size:10px; opacity:0.65;
+}
+.dy-entry {
+  padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex; gap:12px; align-items:flex-start;
+}
+.dy-entry:last-child { border-bottom:0; }
+.dy-bullet {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px;
+  background:#ffc870; box-shadow:0 0 8px #ffba40;
+}
+.dy-bullet.teal { background:#5be0c7; box-shadow:0 0 8px #1eccb0; }
+.dy-bullet.rose { background:#ff8068; box-shadow:0 0 8px #ff5030; }
+.dy-entry-body { flex:1; }
+.dy-entry-title {
+  font-size:13px; font-weight:600; color:#fff8e1; line-height:1.4;
+}
+.dy-entry-meta {
+  font-size:10px; opacity:0.55; margin-top:3px;
+}
+.dy-footer {
+  padding:12px 16px; text-align:center;
+  font-size:11px; color:#ffc870; font-weight:700; cursor:pointer;
+  letter-spacing:0.3px;
+}
+
+/* ===== MILESTONE CARD ===== */
+.milestone {
+  border-radius:18px; overflow:hidden; position:relative;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 0%, rgba(247,171,32,0.4), transparent 65%),
+    linear-gradient(145deg, #2a0f03 0%, #1a0500 100%);
+  border:1px solid rgba(255,200,120,0.35);
+  padding:18px;
+}
+.ms-crown {
+  font-size:22px; margin-bottom:6px;
+}
+.ms-label {
+  font-size:9px; font-weight:700; letter-spacing:2.2px; color:#ffc870;
+  text-transform:uppercase; margin-bottom:4px;
+}
+.ms-title {
+  font-size:17px; font-weight:900; color:#fff8e1; letter-spacing:-0.3px;
+  margin-bottom:4px;
+}
+.ms-desc {
+  font-size:11px; opacity:0.72; line-height:1.5;
+}
+.ms-cta {
+  margin-top:12px; display:inline-block;
+  font-size:11px; font-weight:700; color:#2a1400;
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);
+  padding:8px 14px; border-radius:999px; cursor:pointer;
+  box-shadow:0 2px 10px rgba(247,171,32,0.45);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(10,5,0,0.95); color:#ffd69a;
+  padding:10px 18px; border-radius:999px; backdrop-filter:blur(12px);
+  border:1px solid rgba(255,200,120,0.35);
+  font-size:12px; font-weight:600; z-index:50;
+  opacity:0; pointer-events:none; transition:all 300ms ease;
+  white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ===== PETAL OVERLAY (ritual feedback) ===== */
+.petal-overlay {
+  position:absolute; inset:0; pointer-events:none; z-index:45; overflow:hidden;
+}
+.petal {
+  position:absolute; top:-20px; width:10px; height:14px; border-radius:50% 50% 0 50%;
+  background:linear-gradient(135deg, #ffb0a0 0%, #ff7060 100%);
+  opacity:0;
+  animation: petalFall var(--pfd, 3s) linear forwards;
+}
+@keyframes petalFall {
+  0% { transform:translateY(0) rotate(0deg); opacity:1; }
+  100% { transform:translateY(820px) rotate(720deg); opacity:0; }
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar">
+    <span>9:41</span>
+    <span>●●● ▲ ▮</span>
+  </div>
+
+  <div class="screen" id="screen">
+    <!-- ===== HERO: DARSHAN MOMENT ===== -->
+    <div class="hero">
+      <div class="particles" id="particles"></div>
+
+      <svg class="arch" viewBox="0 0 300 380" preserveAspectRatio="xMidYMax meet">
+        <path d="M 150 0 L 180 40 L 165 50 L 192 85 L 175 95 L 202 135 L 98 135 L 125 95 L 108 85 L 135 50 L 120 40 Z" fill="#1a0a00" opacity="0.88"/>
+        <path d="M 55 380 L 55 200 Q 55 140 150 140 Q 245 140 245 200 L 245 380 Z" fill="#1a0a00" opacity="0.92"/>
+        <path d="M 88 380 L 88 228 Q 88 178 150 178 Q 212 178 212 228 L 212 380 Z" fill="#2a1000" opacity="0.95"/>
+        <rect x="52" y="200" width="8" height="180" fill="#3a1a00" opacity="0.92"/>
+        <rect x="240" y="200" width="8" height="180" fill="#3a1a00" opacity="0.92"/>
+        <circle cx="100" cy="195" r="4" fill="#c89020"/>
+        <line x1="100" y1="160" x2="100" y2="191" stroke="#7f4b10" stroke-width="1" opacity="0.7"/>
+        <circle cx="200" cy="195" r="4" fill="#c89020"/>
+        <line x1="200" y1="160" x2="200" y2="191" stroke="#7f4b10" stroke-width="1" opacity="0.7"/>
+      </svg>
+
+      <div class="halo"></div>
+      <div class="deity">ॐ</div>
+
+      <div class="drishti">
+        <div class="beam l"></div>
+        <div class="beam r"></div>
+      </div>
+
+      <div class="floor"></div>
+
+      <div class="darshan-text">
+        <div class="darshan-label">✨ Aaj ka Darshan</div>
+        <div class="darshan-main">Prabhu ne aapko dekha, <em>Shivali</em></div>
+        <div class="darshan-sub">Aapka darshan sampurna hua</div>
+      </div>
+
+      <!-- Flying light orb for prayer journey -->
+      <div class="journey"><div class="light-orb" id="lightOrb"></div></div>
+    </div>
+
+    <!-- ===== SECTIONS ===== -->
+    <div class="sections">
+
+      <!-- AASHIRWAAD CARD -->
+      <div class="section">
+        <div class="section-label">✦ Aaj ka Aashirwaad</div>
+        <div class="blessing">
+          <div class="bl-header">
+            <div class="bl-sigil">ॐ</div>
+            <div class="bl-meta">
+              <div class="bl-title">Prabhu Ganesh ka Sandesh</div>
+              <div class="bl-date">Shukla Panchami · Vaishakh · Rohini</div>
+            </div>
+          </div>
+          <div class="bl-body">
+            <span class="bl-quote">"Jo kaam tum dar se rok rahi ho, aaj uski shuruaat karo.</span>
+            Mera haath tumhare saath hai. Vighn tumhe chhu bhi nahi paayega."
+          </div>
+          <div class="bl-foot">
+            <div class="bl-save" onclick="saveBlessing()">Diyari mein rakhein</div>
+            <div class="bl-share" onclick="toast('Bhej rahe hain...')">Bhejein →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRARTHANA -->
+      <div class="section">
+        <div class="section-label">✦ Prarthana · Prabhu se kahein</div>
+        <div class="prayer-card">
+          <div class="pr-title">Kya kehna chahti hain aap?</div>
+          <div class="pr-sub">Aapki baat sidhe Prabhu tak pahunchayi jayegi</div>
+          <div class="pr-input-wrap">
+            <input type="text" class="pr-input" id="prInput" placeholder="Mann ki baat likhein..." maxlength="120">
+            <button class="pr-send" onclick="sendPrayer()">↑</button>
+          </div>
+          <div class="pr-response" id="prResponse">
+            <div class="pr-resp-label">✧ Prabhu ka uttar</div>
+            <div class="pr-resp-text" id="prRespText">
+              <em>Tumhari prarthana sun li gayi.</em> Aaj raat Hanuman Chalisa padhna. Kal subah jawab mil jayega.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SANKALP -->
+      <div class="section">
+        <div class="section-label">✦ Aapka Sankalp</div>
+        <div class="sankalp">
+          <div class="sk-top">
+            <div class="sk-label">21-din ka vrat</div>
+            <div class="sk-days">Din 7 / 21</div>
+          </div>
+          <div class="sk-text">
+            "Mujhe apni naukri mein <strong>sthirta</strong> chahiye"
+          </div>
+          <div class="sk-progress"><div class="sk-fill"></div></div>
+          <div class="sk-foot">
+            <span>Shuru: 14 April</span>
+            <span>Poorn: 5 May</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RITUAL FEEDBACK -->
+      <div class="section">
+        <div class="section-label">✦ Seva Arpan</div>
+        <div class="offer-card" onclick="offerFlower()">
+          <div class="offer-icon">🌸</div>
+          <div class="offer-body">
+            <div class="offer-title">Phool arpan karein</div>
+            <div class="offer-sub">Aaj Ganesha ko gulab bhent karein</div>
+          </div>
+          <div class="offer-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- MILESTONE -->
+      <div class="section">
+        <div class="section-label">✦ Sampurnata · Milestone</div>
+        <div class="milestone">
+          <div class="ms-crown">🏅</div>
+          <div class="ms-label">108 Mala Sampurna</div>
+          <div class="ms-title">Aapne 11,664 baar Om Gan Ganapataye Namah japa</div>
+          <div class="ms-desc">Yeh ek vishesh upalabdhi hai. Aapka samarpan Prabhu tak pahuncha.</div>
+          <div class="ms-cta" onclick="toast('Prashasti patra taiyaar ho raha hai...')">Prashasti patra dekhein</div>
+        </div>
+      </div>
+
+      <!-- DIYARI -->
+      <div class="section">
+        <div class="section-label">✦ Meri Diyari · Divine Journal</div>
+        <div class="diyari">
+          <div class="dy-head">
+            <div class="dy-head-l">Pichhle 7 din</div>
+            <div class="dy-head-r">23 sparsh</div>
+          </div>
+          <div class="dy-entry">
+            <div class="dy-bullet"></div>
+            <div class="dy-entry-body">
+              <div class="dy-entry-title">"Tumhara sankalp dekh raha hoon" — Aashirwaad mila</div>
+              <div class="dy-entry-meta">Aaj · 6:42 AM · Suprabhat</div>
+            </div>
+          </div>
+          <div class="dy-entry">
+            <div class="dy-bullet teal"></div>
+            <div class="dy-entry-body">
+              <div class="dy-entry-title">Hanuman Chalisa padhi · Sankalp din 6 poorn</div>
+              <div class="dy-entry-meta">Kal · 9:18 PM</div>
+            </div>
+          </div>
+          <div class="dy-entry">
+            <div class="dy-bullet rose"></div>
+            <div class="dy-entry-body">
+              <div class="dy-entry-title">Prarthana bheji: "Maa ki tabiyat ke liye aashirwaad"</div>
+              <div class="dy-entry-meta">2 din pehle · Sandhya</div>
+            </div>
+          </div>
+          <div class="dy-entry">
+            <div class="dy-bullet"></div>
+            <div class="dy-entry-body">
+              <div class="dy-entry-title">Sandhya Aarti mein shamil · Kashi Vishwanath</div>
+              <div class="dy-entry-meta">3 din pehle · 6:30 PM</div>
+            </div>
+          </div>
+          <div class="dy-entry">
+            <div class="dy-bullet teal"></div>
+            <div class="dy-entry-body">
+              <div class="dy-entry-title">108 mala sampurna · 11,664 jaap</div>
+              <div class="dy-entry-meta">4 din pehle · Pradosh Vrat</div>
+            </div>
+          </div>
+          <div class="dy-footer" onclick="toast('Puri Diyari khul rahi hai...')">Puri Diyari dekhein →</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="petal-overlay" id="petalOverlay"></div>
+  </div>
+</div>
+
+<script>
+/* ===== SEED FLOATING PARTICLES IN HERO ===== */
+(function() {
+  var c = document.getElementById('particles');
+  var html = '';
+  for (var i = 0; i < 16; i++) {
+    var l = 10 + Math.random() * 80;
+    var d = (7 + Math.random() * 6).toFixed(2) + 's';
+    var px = (Math.random() * 30 - 15).toFixed(1) + 'px';
+    var delay = (Math.random() * 7).toFixed(2) + 's';
+    html += '<div class="particle" style="left:'+l+'%;--pd:'+d+';--px:'+px+';animation-delay:'+delay+'"></div>';
+  }
+  c.innerHTML = html;
+})();
+
+/* ===== TOAST ===== */
+var _t;
+function toast(text) {
+  var el = document.getElementById('toast');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(_t);
+  _t = setTimeout(function() { el.classList.remove('show'); }, 2600);
+}
+
+/* ===== PRAYER SEND ===== */
+var PRAYER_RESPONSES = [
+  { match:['maa','mata','mother','mummy'], text:'<em>Tumhari maa ke liye aashirwaad bhej diya.</em> Aaj unhe phone karna zaruri hai. Mera prem unke saath hai.' },
+  { match:['naukri','job','kaam','work','career'], text:'<em>Tumhari mehnat dekh raha hoon.</em> Agle Budhwar ko Ganesh mandir jao · peeche mudkar mat dekho.' },
+  { match:['shaadi','biyah','marriage','jivansathi'], text:'<em>Sahi samay aa raha hai.</em> Subah aur sandhya ko Mangal Gayatri japo. Mann shant karo · uttar swayam milega.' },
+  { match:['paisa','dhan','money','loan','karza'], text:'<em>Shubh labh tumhari prateeksha kar raha hai.</em> Guruvar ko Lakshmi ji ko peele phool · Ghar ki taraf vastu sudharo.' },
+  { match:['beemar','swasth','health','tabiyat','dard'], text:'<em>Mahamrityunjaya tumhare saath hai.</em> Aaj 11 baar Om Tryambakam japo · Vaidya se bhi miley.' },
+  { match:['dar','fear','tension','chinta','worry'], text:'<em>Bhay ka samay khatam ho raha hai.</em> Raat ko sone se pehle Hanuman Chalisa · Har vighn door hoga.' }
+];
+function pickResponse(text) {
+  var t = text.toLowerCase();
+  for (var i = 0; i < PRAYER_RESPONSES.length; i++) {
+    var r = PRAYER_RESPONSES[i];
+    for (var j = 0; j < r.match.length; j++) {
+      if (t.indexOf(r.match[j]) > -1) return r.text;
+    }
+  }
+  return '<em>Tumhari prarthana sun li gayi.</em> Shant raho · uttar aa raha hai. Aaj raat sone se pehle diya jalana.';
+}
+function sendPrayer() {
+  var input = document.getElementById('prInput');
+  var text = input.value.trim();
+  if (!text) { toast('Kuch likhein pehle'); return; }
+
+  // Fly light orb up toward deity
+  var orb = document.getElementById('lightOrb');
+  orb.classList.remove('fly');
+  void orb.offsetWidth; // reflow
+  orb.classList.add('fly');
+
+  // After orb arrives, show response
+  setTimeout(function() {
+    var resp = document.getElementById('prResponse');
+    var respText = document.getElementById('prRespText');
+    respText.innerHTML = pickResponse(text);
+    resp.classList.remove('show');
+    void resp.offsetWidth;
+    resp.classList.add('show');
+    toast('Prabhu ne aapki baat suni');
+    input.value = '';
+  }, 1200);
+}
+
+/* ===== OFFER FLOWER ===== */
+function offerFlower() {
+  var overlay = document.getElementById('petalOverlay');
+  overlay.innerHTML = '';
+  for (var i = 0; i < 22; i++) {
+    var p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.animationDelay = (Math.random() * 0.9) + 's';
+    p.style.setProperty('--pfd', (2.4 + Math.random() * 1.8).toFixed(2) + 's');
+    p.style.background = Math.random() > 0.5
+      ? 'linear-gradient(135deg, #ffb0a0 0%, #ff7060 100%)'
+      : 'linear-gradient(135deg, #ffd080 0%, #ff9030 100%)';
+    overlay.appendChild(p);
+  }
+  // Pulse the halo
+  var halo = document.querySelector('.halo');
+  halo.style.animation = 'none';
+  void halo.offsetWidth;
+  halo.style.animation = 'haloGrow 400ms ease, haloBreath 4s ease-in-out 500ms infinite';
+
+  setTimeout(function() { toast('🙏 Aashirwaad mila · Phool arpan sampurna'); }, 1200);
+  setTimeout(function() { overlay.innerHTML = ''; }, 4500);
+}
+
+/* ===== SAVE BLESSING ===== */
+function saveBlessing() {
+  toast('✓ Diyari mein rakh diya');
+}
+
+/* ===== ENTER KEY ON PRAYER INPUT ===== */
+document.getElementById('prInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') sendPrayer();
+});
+</script>
+</body>
+</html>

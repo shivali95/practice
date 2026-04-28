@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katha Saathi · Devotion</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType'; -webkit-font-smoothing:antialiased; }
+body { background:#f0f0f0; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #141414; box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden; position:relative; background:#ffffff; }
+.notch { background:#141414; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#141414; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#141414; background:#ffffff; }
+
+.screen { position:relative; background:#ffffff; color:#141414; height:760px; display:flex; flex-direction:column; }
+
+/* TOP BAR (JDS) */
+.topbar {
+  background:#ffffff; padding:12px 16px; display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid rgba(36,38,43,0.12); position:relative; z-index:5;
+}
+.icon-btn { width:36px; height:36px; border-radius:50%; background:#e7e9ff; border:none; color:#170054; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.topbar-title { flex:1; }
+.topbar-title .t { font-size:16px; font-weight:700; color:#141414; line-height:1.25; }
+.topbar-title .s { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+.avatar-mini { width:36px; height:36px; border-radius:50%; background:#3535f3; color:#ffffff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+/* CHAT */
+.chat { flex:1; overflow-y:auto; padding:16px 16px 8px; scroll-behavior:smooth; background:#ffffff; }
+.chat::-webkit-scrollbar { display:none; }
+
+.msg { max-width:88%; margin-bottom:12px; animation:msgIn 320ms ease-out; }
+@keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+.msg.ai { display:flex; gap:8px; align-items:flex-start; }
+.msg.ai .av { width:28px; height:28px; border-radius:50%; background:#3535f3; color:#ffffff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.msg.ai .bubble { background:#f5f5f5; border-radius:4px 16px 16px 16px; padding:10px 14px; font-size:14px; font-weight:500; color:#141414; line-height:1.5; }
+.msg.ai .bubble b { font-weight:700; color:#141414; }
+
+.msg.user { margin-left:auto; }
+.msg.user .bubble { background:#3535f3; border-radius:16px 16px 4px 16px; padding:10px 14px; font-size:14px; font-weight:500; color:#ffffff; line-height:1.5; }
+
+/* JDS Card */
+.story-card {
+  max-width:92%; margin:0 0 12px 36px;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12); border-radius:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  padding:14px; animation:msgIn 380ms ease-out;
+}
+.story-head { display:flex; gap:12px; align-items:center; }
+.story-thumb { width:48px; height:48px; border-radius:12px; background:#e7e9ff; color:#170054; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.story-thumb svg { width:24px; height:24px; }
+.story-meta { flex:1; min-width:0; }
+.story-title { font-size:15px; font-weight:700; color:#141414; line-height:1.25; }
+.story-sub { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:3px; }
+.story-row { display:flex; gap:8px; margin-top:14px; }
+.btn-primary {
+  flex:1; background:#3535f3; color:#ffffff; font-family:inherit;
+  font-size:14px; font-weight:700; padding:0 16px; height:44px; border-radius:999px; border:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.btn-primary svg { width:16px; height:16px; }
+.btn-secondary {
+  background:#eeeeef; border:none; color:#141414; font-family:inherit;
+  font-size:13px; font-weight:700; padding:0 16px; height:44px; border-radius:999px; cursor:pointer;
+}
+
+/* Shlok card */
+.shlok-card {
+  max-width:92%; margin:0 0 12px 36px;
+  background:#fef7e9; border:1px solid rgba(247,171,32,0.3); border-radius:16px;
+  padding:16px; animation:msgIn 380ms ease-out;
+}
+.shlok-label { font-size:10px; font-weight:700; color:#7f4b10; text-transform:uppercase; letter-spacing:0.5px; }
+.shlok-sans { font-size:16px; font-weight:700; color:#141414; margin-top:8px; line-height:1.6; }
+.shlok-trans { font-size:13px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:10px; line-height:1.5; }
+.shlok-source { font-size:11px; font-weight:700; color:#7f4b10; margin-top:8px; }
+
+/* CHIPS — JDS pill */
+.chips { margin-left:36px; margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap; animation:msgIn 380ms ease-out 100ms backwards; }
+.chip {
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+  color:#3535f3; font-family:inherit; font-size:13px; font-weight:700; padding:8px 14px;
+  height:36px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center;
+  transition: background 200ms ease, transform 120ms ease;
+}
+.chip:hover { background:#e7e9ff; }
+.chip:active { transform:scale(0.97); }
+
+.typing { display:flex; gap:4px; padding:10px 14px; align-items:center; }
+.typing span { width:6px; height:6px; border-radius:50%; background:#3535f3; opacity:0.5; animation: tdot 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay:0.15s; }
+.typing span:nth-child(3) { animation-delay:0.3s; }
+@keyframes tdot { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-3px); opacity:1; } }
+
+/* JDS ChatInput composer */
+.composer {
+  padding:10px 14px 14px; background:#ffffff;
+  border-top:1px solid rgba(36,38,43,0.12);
+  display:flex; gap:10px; align-items:center;
+}
+.composer .input-wrap {
+  flex:1; height:46px; background:#eeeeef; border-radius:23px;
+  display:flex; align-items:center; padding:0 8px 0 16px;
+}
+.composer input {
+  flex:1; background:transparent; border:none; color:#141414;
+  font-family:inherit; font-size:14px; font-weight:500; outline:none;
+}
+.composer input::placeholder { color:rgba(25,27,30,0.38); }
+.composer .mic-btn {
+  width:32px; height:32px; border-radius:50%; background:transparent; border:none;
+  color:#170054; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.composer .mic-btn svg { width:18px; height:18px; }
+.composer .send {
+  width:46px; height:46px; border-radius:50%; background:#3535f3; color:#ffffff; border:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.composer .send svg { width:20px; height:20px; }
+
+/* Player banner */
+.player-banner {
+  margin:0 0 12px 36px; max-width:92%;
+  background:#e7e9ff; border-radius:14px;
+  padding:12px 14px; display:flex; align-items:center; gap:12px;
+  animation:msgIn 380ms ease-out;
+}
+.player-banner .pl-ic { width:40px; height:40px; border-radius:50%; background:#3535f3; color:#ffffff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.player-banner .pl-ic svg { width:18px; height:18px; }
+.player-banner .pl-meta { flex:1; min-width:0; }
+.player-banner .pl-ti { font-size:13px; font-weight:700; color:#141414; }
+.player-banner .pl-su { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+.player-banner .pl-bar { height:3px; background:rgba(53,53,243,0.18); border-radius:2px; overflow:hidden; margin-top:6px; }
+.player-banner .pl-bar::after { content:""; display:block; width:30%; height:100%; background:#3535f3; border-radius:2px; animation:prog 180s linear; }
+@keyframes prog { to { width:100%; } }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>5G</span></div>
+
+  <div class="screen">
+    <div class="topbar">
+      <button class="icon-btn" onclick="goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M2.29 12.71l6 6a1.004 1.004 0 101.42-1.42L5.41 13H21a1 1 0 100-2H5.41l4.3-4.29a1 1 0 000-1.42 1 1 0 00-1.42 0l-6 6a1 1 0 000 1.42z" fill="currentColor"/></svg>
+      </button>
+      <div class="topbar-title">
+        <div class="t">Katha Saathi</div>
+        <div class="s">Jaya Kishori . online</div>
+      </div>
+      <div class="avatar-mini">JK</div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="composer">
+      <div class="input-wrap">
+        <input id="composerInput" placeholder="Jo katha sunni ho, boliye..."/>
+        <button class="mic-btn" aria-label="Voice">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3zm6-5a1 1 0 00-1 1v1a5 5 0 11-10 0v-1a1 1 0 10-2 0v1a7 7 0 1014 0v-1a1 1 0 00-1-1zm-3 10H9a1 1 0 000 2h6a1 1 0 000-2z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button class="send" onclick="sendCustom()" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function goHome(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+const chat = document.getElementById('chat');
+function scrollBottom() { chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' }); }
+
+function aiMsg(text, delay=320) {
+  return new Promise(res => {
+    const t = document.createElement('div');
+    t.className = 'msg ai';
+    t.innerHTML = `<div class="av">JK</div><div class="bubble typing"><span></span><span></span><span></span></div>`;
+    chat.appendChild(t); scrollBottom();
+    setTimeout(() => {
+      t.remove();
+      const m = document.createElement('div');
+      m.className = 'msg ai';
+      m.innerHTML = `<div class="av">JK</div><div class="bubble">${text}</div>`;
+      chat.appendChild(m); scrollBottom();
+      res();
+    }, delay);
+  });
+}
+
+function userMsg(text) {
+  const m = document.createElement('div');
+  m.className = 'msg user';
+  m.innerHTML = `<div class="bubble">${text}</div>`;
+  chat.appendChild(m); scrollBottom();
+}
+
+function addChips(items) {
+  const row = document.createElement('div');
+  row.className = 'chips';
+  items.forEach(it => {
+    const c = document.createElement('button');
+    c.className = 'chip';
+    c.textContent = it.label;
+    c.onclick = () => { [...row.children].forEach(x => x.style.opacity='0.38'); it.onClick(); };
+    row.appendChild(c);
+  });
+  chat.appendChild(row); scrollBottom();
+  return row;
+}
+
+const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z" fill="currentColor"/></svg>';
+const BOOK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M19 2H7a3 3 0 00-3 3v14a3 3 0 003 3h12a1 1 0 001-1V3a1 1 0 00-1-1zm-1 18H7a1 1 0 010-2h11v2zm0-4H7a3 3 0 00-1 .18V5a1 1 0 011-1h11v12z" fill="currentColor"/></svg>';
+
+function addStory(opts) {
+  const el = document.createElement('div');
+  el.className = 'story-card';
+  el.innerHTML = `
+    <div class="story-head">
+      <div class="story-thumb">${BOOK_SVG}</div>
+      <div class="story-meta">
+        <div class="story-title">${opts.title}</div>
+        <div class="story-sub">${opts.sub}</div>
+      </div>
+    </div>
+    <div class="story-row">
+      <button class="btn-primary" onclick='playStory(${JSON.stringify(opts.title)}, ${JSON.stringify(opts.sub)})'>${PLAY_SVG}Sunen . ${opts.duration}</button>
+      <button class="btn-secondary">Save</button>
+    </div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function addShlok(opts) {
+  const el = document.createElement('div');
+  el.className = 'shlok-card';
+  el.innerHTML = `
+    <div class="shlok-label">${opts.label}</div>
+    <div class="shlok-sans">${opts.sans}</div>
+    <div class="shlok-trans">${opts.trans}</div>
+    <div class="shlok-source">— ${opts.source}</div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function addPlayerBanner(title, sub) {
+  const el = document.createElement('div');
+  el.className = 'player-banner';
+  el.innerHTML = `
+    <div class="pl-ic">${PLAY_SVG}</div>
+    <div class="pl-meta">
+      <div class="pl-ti">${title}</div>
+      <div class="pl-su">${sub}</div>
+      <div class="pl-bar"></div>
+    </div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function playStory(title, sub) {
+  addPlayerBanner(title, sub);
+  setTimeout(async () => {
+    await aiMsg(`Shuru kar rahi hun. Aankhein band kar ke suniye. Katha ke baad kuch poochiye, main saath hun.`, 600);
+    addChips([
+      { label:'Uska moral kya?', onClick: () => askMoral(title) },
+      { label:'Aur katha', onClick: showMenu },
+      { label:'Aaj ka shlok', onClick: showShlok }
+    ]);
+  }, 500);
+}
+
+function askMoral(title) {
+  userMsg('Uska moral kya hai?');
+  setTimeout(async () => {
+    await aiMsg(`${title} humein sikhati hai — <b>vishwas aur samarpan</b> se koi bhi parisaithi paar hoti hai. Jab dil saaf ho aur niyat sachi, tab Bhagwan swayam raasta dikhate hain.`, 800);
+    addChips([
+      { label:'Ek aur katha', onClick: showMenu },
+      { label:'Aaj ki prarthana', onClick: showPrayer }
+    ]);
+  }, 280);
+}
+
+function showShlok() {
+  userMsg('Aaj ka shlok sunao');
+  setTimeout(async () => {
+    addShlok({
+      label: 'Aaj Ka Shlok . Bhagavad Gita 2.47',
+      sans: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन',
+      trans: 'Tumhara adhikaar sirf karm par hai, phal par kabhi nahi. Phal ki chinta chhod do, kaam karte raho.',
+      source: 'Shrimad Bhagavad Gita, Adhyay 2'
+    });
+    await aiMsg('Yeh Krishna ka sabse gehra upadesh hai. Jab tension ho, yaad rakhna — tum sirf prayas karo, baaki sab uspar chhod do.', 600);
+    addChips([
+      { label:'Katha sunao', onClick: showMenu },
+      { label:'Dhyan karwao', onClick: doDhyan }
+    ]);
+  }, 200);
+}
+
+function showPrayer() {
+  userMsg('Aaj ki prarthana');
+  setTimeout(async () => {
+    await aiMsg(`<b>He Prabhu</b>, aaj ke din humein himmat dena, sahi raasta dikhana, aur apne priya-jano ki raksha karna. Jo ho raha hai, usme teri marzi hai — hum sweekar karte hain.`, 700);
+    addChips([
+      { label:'Katha sunao', onClick: showMenu }
+    ]);
+  }, 200);
+}
+
+function doDhyan() {
+  userMsg('Dhyan karwao');
+  setTimeout(async () => {
+    await aiMsg('Aankhein band karein. Saans gehri lein — 4 second andar, 4 second baahar. Main aapke saath hun, 2 minute ka dhyan karayengi.', 600);
+    addPlayerBanner('2-min Guided Dhyan', 'Om Namah Shivaya');
+  }, 200);
+}
+
+const STORIES = {
+  ganesh: { title:'Ganesh Janm Katha', sub:'Parvati aur Shiv ji . 12 min', duration:'12 min' },
+  ramayan: { title:'Sundar Kand', sub:'Hanuman ki Lanka yatra . 18 min', duration:'18 min' },
+  gita: { title:'Arjun aur Krishna Samvaad', sub:'Bhagavad Gita Adhyay 1-2 . 15 min', duration:'15 min' },
+  shiv: { title:'Samudra Manthan', sub:'Neelkanth ki katha . 14 min', duration:'14 min' },
+  krishna: { title:'Makhan Chor Leela', sub:'Bal Krishna . Yashoda Maiya . 10 min', duration:'10 min' },
+  hanuman: { title:'Hanuman Chalisa Vyakhyan', sub:'Har chaupai ka arth . 20 min', duration:'20 min' }
+};
+
+function pickStory(key) {
+  const s = STORIES[key];
+  userMsg(s.title);
+  setTimeout(async () => {
+    await aiMsg(`Bahut sundar chunaav. <b>${s.title}</b> — yeh katha mere dil ke bohot paas hai. Sunaati hun?`, 600);
+    addStory(s);
+    addChips([
+      { label:'Abhi suno', onClick: () => playStory(s.title, s.sub) },
+      { label:'Koi aur', onClick: showMenu }
+    ]);
+  }, 200);
+}
+
+function showMenu() {
+  setTimeout(async () => {
+    await aiMsg('Aaj konsi katha sunni hai?', 500);
+    addChips([
+      { label:'Ganesh Katha', onClick: () => pickStory('ganesh') },
+      { label:'Sundar Kand', onClick: () => pickStory('ramayan') },
+      { label:'Gita Gyan', onClick: () => pickStory('gita') },
+      { label:'Shiv Puran', onClick: () => pickStory('shiv') },
+      { label:'Krishna Leela', onClick: () => pickStory('krishna') },
+      { label:'Hanuman Katha', onClick: () => pickStory('hanuman') },
+      { label:'Aaj ka shlok', onClick: showShlok }
+    ]);
+  }, 100);
+}
+
+function sendCustom() {
+  const input = document.getElementById('composerInput');
+  const v = input.value.trim();
+  if (!v) return;
+  userMsg(v);
+  input.value = '';
+  setTimeout(async () => {
+    await aiMsg(`Theek hai, <b>"${v}"</b> ke baare mein batati hun. Aapke liye sabse relevant katha yeh hogi:`, 800);
+    addStory(STORIES.gita);
+    addChips([
+      { label:'Abhi suno', onClick: () => playStory(STORIES.gita.title, STORIES.gita.sub) },
+      { label:'Aur options', onClick: showMenu }
+    ]);
+  }, 200);
+}
+
+document.getElementById('composerInput').addEventListener('keydown', e => { if (e.key==='Enter') sendCustom(); });
+
+async function start() {
+  await aiMsg('Jai Shree Ganesh, <b>Shivali</b>. Main Jaya Kishori hun, aapki katha saathi.', 500);
+  await aiMsg('Aaj konsi katha sunni hai? Ya koi prashn hai toh poochiye.', 500);
+  addChips([
+    { label:'Ganesh Katha', onClick: () => pickStory('ganesh') },
+    { label:'Sundar Kand', onClick: () => pickStory('ramayan') },
+    { label:'Gita Gyan', onClick: () => pickStory('gita') },
+    { label:'Shiv Puran', onClick: () => pickStory('shiv') },
+    { label:'Krishna Leela', onClick: () => pickStory('krishna') },
+    { label:'Aaj ka shlok', onClick: showShlok }
+  ]);
+}
+start();
+</script>
+</body>
+</html>

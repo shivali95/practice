@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Live Darshan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050000; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone {
+  width:360px; border-radius:40px; border:8px solid #1a1a1a;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  overflow:hidden; position:relative; background:#000;
+}
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+
+.screen { position:relative; height:760px; overflow:hidden; color:#fff; background:#000; }
+
+/* ============ STREAM STAGE (top 62%) ============ */
+.stream {
+  position:relative; width:100%; height:62%;
+  background:#0a0300;
+  overflow:hidden;
+}
+.stream-img {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover;
+  /* subtle ken-burns so it feels "live" */
+  animation: kenBurns 22s ease-in-out infinite alternate;
+}
+@keyframes kenBurns {
+  0%   { transform:scale(1.06) translate(0,0); }
+  100% { transform:scale(1.14) translate(-2%, -1%); }
+}
+.stream::after {
+  /* vignette + warm glow */
+  content:""; position:absolute; inset:0; z-index:1;
+  background:
+    radial-gradient(ellipse at center 40%, transparent 35%, rgba(0,0,0,0.35) 75%, rgba(0,0,0,0.75) 100%),
+    linear-gradient(180deg, rgba(255,150,60,0.12) 0%, transparent 40%, rgba(0,0,0,0.45) 100%);
+  pointer-events:none;
+}
+
+/* Floating diyas */
+.diya {
+  position:absolute; z-index:3;
+  width:10px; height:10px; border-radius:50%;
+  background:radial-gradient(circle, #fff4c2 0%, #ffb055 50%, transparent 75%);
+  filter: blur(0.5px);
+  animation: diyaFloat 5s ease-in-out infinite;
+}
+.diya.d2 { animation-duration:6s; animation-delay:-1.5s; }
+.diya.d3 { animation-duration:7s; animation-delay:-3s; }
+.diya.d4 { animation-duration:5.5s; animation-delay:-2s; }
+@keyframes diyaFloat {
+  0%,100% { transform:translateY(0) scale(1); opacity:0.9; }
+  50%     { transform:translateY(-12px) scale(1.15); opacity:1; }
+}
+
+/* Top overlay bar */
+.top-bar {
+  position:absolute; top:12px; left:12px; right:12px; z-index:5;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.top-back {
+  width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+}
+.top-back:active { transform:scale(0.93); }
+.top-right { display:flex; gap:6px; align-items:center; }
+.live-tag {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px; border-radius:5px;
+  background:#d94a1a; color:#fff; font-size:10px; font-weight:900; letter-spacing:0.7px;
+}
+.live-tag::before {
+  content:""; width:6px; height:6px; border-radius:50%; background:#fff;
+  animation: livePulse 1.3s ease-in-out infinite;
+}
+@keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+.viewers-tag {
+  padding:5px 10px; border-radius:999px;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  color:#fff; font-size:11px; font-weight:700;
+  display:inline-flex; align-items:center; gap:4px;
+}
+.icon-btn {
+  width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+}
+.icon-btn:active { transform:scale(0.92); }
+
+/* Bottom overlay on stream */
+.stream-foot {
+  position:absolute; left:14px; right:14px; bottom:14px; z-index:4;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
+}
+.sf-left { min-width:0; flex:1 1 auto; }
+.sf-temple { font-size:18px; font-weight:900; line-height:1.15; text-shadow:0 2px 12px rgba(0,0,0,0.6); }
+.sf-place { margin-top:2px; font-size:12px; color:#ffce99; font-weight:600; text-shadow:0 1px 6px rgba(0,0,0,0.5); }
+/* "Powered by Srimandir" credit — small subtle pill */
+.srimandir-credit {
+  display:inline-flex; align-items:center; gap:5px;
+  margin-top:8px;
+  padding:3px 9px; border-radius:999px;
+  background:rgba(0,0,0,0.45);
+  border:1px solid rgba(255,206,153,0.28);
+  font-size:10px; font-weight:600; letter-spacing:0.2px;
+  color:rgba(255,236,210,0.92);
+  backdrop-filter:blur(6px);
+  text-shadow:0 1px 4px rgba(0,0,0,0.55);
+}
+.srimandir-credit::before { content:"✦"; color:#ffb874; font-size:9px; }
+.srimandir-credit b { font-weight:900; color:#fff3d8; letter-spacing:0.6px; text-transform:uppercase; font-size:10.5px; }
+/* Aarti status pill — block so it sits on its own line */
+.sf-aarti {
+  margin-top:8px;
+  display:flex; align-items:center; gap:6px;
+  width:max-content; max-width:100%;
+  padding:5px 10px; border-radius:999px;
+  background:rgba(255,170,60,0.22); border:1px solid rgba(255,206,153,0.35);
+  font-size:11px; font-weight:700; color:#ffce99;
+  backdrop-filter:blur(6px);
+  text-shadow:0 1px 6px rgba(0,0,0,0.5);
+}
+
+/* Reactions (floating hearts/flowers) */
+.reactions { position:absolute; right:14px; bottom:60px; z-index:5; pointer-events:none; width:40px; height:150px; overflow:hidden; }
+.rxn { position:absolute; bottom:0; right:0; font-size:22px; opacity:0; animation: rxnFloat 3.6s ease-out infinite; }
+.rxn.r1 { animation-delay:0s; }
+.rxn.r2 { animation-delay:1.2s; right:-6px; }
+.rxn.r3 { animation-delay:2.4s; right:8px; }
+@keyframes rxnFloat {
+  0%   { opacity:0; transform:translateY(0) scale(0.7); }
+  20%  { opacity:1; }
+  80%  { opacity:0.9; }
+  100% { opacity:0; transform:translateY(-150px) scale(1.15); }
+}
+
+/* ============ INFO SHEET (bottom 38%) ============ */
+.sheet {
+  position:relative; height:38%;
+  background:linear-gradient(180deg, #1a0a00 0%, #0a0400 100%);
+  padding:16px 18px 14px;
+  color:#fff;
+  display:flex; flex-direction:column; gap:12px;
+}
+
+.meta-strip {
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  padding-bottom:2px;
+}
+.meta-strip::-webkit-scrollbar { display:none; }
+.meta-pill {
+  flex:0 0 auto; padding:7px 12px; border-radius:12px;
+  background:rgba(255,206,153,0.1); border:1px solid rgba(255,206,153,0.2);
+  font-size:11px; color:#ffce99; font-weight:700;
+  display:inline-flex; align-items:center; gap:5px;
+}
+.meta-pill .k { color:#b88460; font-weight:500; }
+.meta-pill .v { color:#fff; font-weight:800; }
+
+.action-row {
+  display:flex; gap:8px;
+}
+.action-btn {
+  flex:1 1 0; height:44px; border:none; border-radius:14px;
+  font-family:inherit; font-size:12px; font-weight:700;
+  cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,206,153,0.18);
+  color:#fff;
+}
+.action-btn:active { transform:scale(0.96); }
+.action-btn .ai { font-size:16px; line-height:1; }
+.action-btn .al { font-size:10px; color:#ffce99; line-height:1; font-weight:600; }
+
+.cta-row { margin-top:auto; display:flex; gap:8px; }
+.cta {
+  flex:1 1 0; min-width:0; height:46px; border:none; border-radius:999px;
+  font-family:inherit; font-size:13px; font-weight:800; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  white-space:nowrap; padding:0 10px;
+  letter-spacing:0.1px;
+}
+.cta .cta-ic { font-size:15px; line-height:1; }
+.cta.primary {
+  background:linear-gradient(180deg, #ff8a2e, #d94a1a); color:#fff;
+  box-shadow:0 6px 18px rgba(217,74,26,0.45);
+}
+.cta.secondary {
+  background:rgba(255,255,255,0.08); color:#fff;
+  border:1px solid rgba(255,206,153,0.25);
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"><div></div></div>
+
+  <div class="screen">
+
+    <!-- ═══════════ LIVE STREAM STAGE ═══════════ -->
+    <div class="stream">
+      <img class="stream-img" id="streamImg" alt="live darshan" />
+
+      <!-- Top overlay -->
+      <div class="top-bar">
+        <button class="top-back" onclick="goBack()" aria-label="Wapas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <div class="top-right">
+          <span class="live-tag">LIVE</span>
+          <span class="viewers-tag" id="viewersTag">👥 2.4K</span>
+          <button class="icon-btn" aria-label="Share" onclick="sharePopup()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating diyas for ambience -->
+      <div class="diya d1" style="left:12%; bottom:42%;"></div>
+      <div class="diya d2" style="left:28%; bottom:30%;"></div>
+      <div class="diya d3" style="right:18%; bottom:38%;"></div>
+      <div class="diya d4" style="right:32%; bottom:26%;"></div>
+
+      <!-- Reactions -->
+      <div class="reactions">
+        <div class="rxn r1">🪔</div>
+        <div class="rxn r2">🌼</div>
+        <div class="rxn r3">🙏</div>
+      </div>
+
+      <!-- Bottom info -->
+      <div class="stream-foot">
+        <div class="sf-left">
+          <div class="sf-temple" id="sfTemple">Kashi Vishwanath</div>
+          <div class="sf-place"  id="sfPlace">Varanasi, Uttar Pradesh</div>
+          <div class="srimandir-credit" style="margin-top:10px;">Powered by <b>Srimandir</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ INFO SHEET ═══════════ -->
+    <div class="sheet">
+
+      <div class="meta-strip" id="metaStrip">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn" onclick="react('🪔')"><span class="ai">🪔</span><span class="al">Diya</span></button>
+        <button class="action-btn" onclick="react('🌼')"><span class="ai">🌼</span><span class="al">Phool</span></button>
+        <button class="action-btn" onclick="react('🙏')"><span class="ai">🙏</span><span class="al">Pranam</span></button>
+        <button class="action-btn" onclick="react('🔔')"><span class="ai">🔔</span><span class="al">Ghanti</span></button>
+      </div>
+
+      <div class="cta-row">
+        <button class="cta secondary" onclick="goSeva()">
+          <span class="cta-ic">🌸</span> Chadhava bhejein
+        </button>
+        <button class="cta primary" onclick="goAarti()">
+          <span class="cta-ic">🪔</span> Aarti me judein
+        </button>
+      </div>
+
+    </div>
+
+  </div><!-- /screen -->
+</div><!-- /phone -->
+
+<script>
+// ══════════════════════════════════════════════════════════
+//   Temple photo + metadata library — keyed by temple id
+// ══════════════════════════════════════════════════════════
+const TEMPLE_DATA = {
+  kashi:     { img:'assets/temples/kashi.jpg',     name:'Kashi Vishwanath', place:'Varanasi, Uttar Pradesh', aarti:'Mangala Aarti', deity:'Bhagwan Shiva',  viewers:'8.2K', next:'Sapta Rishi · 7:15 PM' },
+  kedarnath: { img:'assets/temples/kedarnath.jpg', name:'Kedarnath',        place:'Rudraprayag, Uttarakhand', aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'2.1K', next:'Mangla Aarti · 4:00 AM' },
+  ujjain:    { img:'assets/temples/ujjain.jpg',    name:'Mahakaleshwar',    place:'Ujjain, Madhya Pradesh',  aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'4.1K', next:'Bhasma Aarti · 4:00 AM' },
+  somnath:   { img:'assets/temples/somnath.jpg',   name:'Somnath',          place:'Veraval, Gujarat',        aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'2.5K', next:'Prabhat Aarti · 7:00 AM' },
+  puri:      { img:'assets/temples/puri.jpg',      name:'Jagannath Puri',   place:'Puri, Odisha',            aarti:'Sandhya Dhupa', deity:'Bhagwan Jagannath', viewers:'3.9K', next:'Mangal Aarti · 5:00 AM' },
+  rameshwar: { img:'assets/temples/rameshwar.jpg', name:'Rameshwaram',      place:'Ramanathapuram, Tamil Nadu', aarti:'Ardhajama Pooja', deity:'Bhagwan Shiva', viewers:'2.0K', next:'Spatika Linga · 5:00 AM' }
+};
+
+// Map incoming deity ids from home page → default temple
+const DEITY_DEFAULT_TEMPLE = {
+  shiva:'kashi', krishna:'puri', ram:'rameshwar', durga:'ujjain', ganesh:'puri', hanuman:'rameshwar'
+};
+
+// Reconcile query params into a single temple record
+function getTempleFromQuery() {
+  const qs = new URLSearchParams(location.search);
+
+  // Preferred: explicit id
+  const id = (qs.get('id') || '').toLowerCase();
+  if (id && TEMPLE_DATA[id]) return TEMPLE_DATA[id];
+
+  // Try match by temple name fragment
+  const templeStr = (qs.get('temple') || '').toLowerCase();
+  if (templeStr) {
+    const key = Object.keys(TEMPLE_DATA).find(k => templeStr.includes(k) || templeStr.includes(TEMPLE_DATA[k].name.toLowerCase().split(' ')[0]));
+    if (key) return TEMPLE_DATA[key];
+  }
+
+  // Explicit img url passed
+  const img = qs.get('img');
+  if (img) {
+    return {
+      img, name: qs.get('temple') || 'Live Darshan', place: qs.get('place') || '',
+      aarti: qs.get('aarti') || 'Live Darshan', deity: qs.get('deity') || '',
+      viewers: qs.get('viewers') || '2.4K', next:''
+    };
+  }
+
+  // Fallback by deity
+  const d = (qs.get('deity') || '').toLowerCase();
+  const defaultId = DEITY_DEFAULT_TEMPLE[d];
+  if (defaultId && TEMPLE_DATA[defaultId]) return TEMPLE_DATA[defaultId];
+
+  return TEMPLE_DATA.kashi;
+}
+
+function renderTemple(t) {
+  document.getElementById('streamImg').src = t.img;
+  document.getElementById('streamImg').onerror = () => {
+    document.getElementById('streamImg').src = 'assets/temples/kashi.jpg';
+  };
+  document.getElementById('sfTemple').textContent = t.name;
+  document.getElementById('sfPlace').textContent  = t.place;
+  document.getElementById('viewersTag').textContent = '👥 ' + t.viewers;
+  document.title = 'Live Darshan · ' + t.name;
+
+  const meta = document.getElementById('metaStrip');
+  meta.innerHTML = '';
+  const rows = [
+    { k:'🕉 Devta',   v: t.deity || '—' },
+    { k:'📍 Sthan',   v: t.place || '—' },
+    { k:'🪔 Abhi',    v: t.aarti || 'Live Darshan' },
+    { k:'⏰ Agli',    v: t.next || 'Roz sawere 5:00 AM' },
+    { k:'👥 Saath',   v: t.viewers + ' log' }
+  ];
+  rows.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'meta-pill';
+    d.innerHTML = '<span class="k">' + r.k + '</span><span class="v">' + r.v + '</span>';
+    meta.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//   Interactions
+// ══════════════════════════════════════════════════════════
+function react(emoji) {
+  const c = document.querySelector('.reactions');
+  const s = document.createElement('div');
+  s.className = 'rxn';
+  s.textContent = emoji;
+  s.style.animation = 'rxnFloat 2.8s ease-out forwards';
+  s.style.right = (6 + Math.random() * 22) + 'px';
+  c.appendChild(s);
+  setTimeout(() => s.remove(), 3000);
+  bumpViewers();
+}
+
+let viewersCount = 0;
+function bumpViewers() {
+  const tag = document.getElementById('viewersTag');
+  // parse e.g. "👥 2.4K"
+  const match = tag.textContent.match(/([\d.]+)\s*K?/);
+  if (!match) return;
+  let n = parseFloat(match[1]);
+  n = +(n + 0.1).toFixed(1);
+  tag.textContent = '👥 ' + n + 'K';
+}
+
+function sharePopup() {
+  if (navigator.share) {
+    navigator.share({ title:'Live Darshan', text:'Aao darshan karein — abhi live!', url: location.href })
+      .catch(()=>{});
+  } else {
+    alert('Link copy ho gaya');
+  }
+}
+
+function goBack() {
+  // Always go back to home, preserving the deity query param so the user lands
+  // on the same personalized home they left instead of deity selection.
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+function goAarti() {
+  // The old aarti page — if the user wants to actually join aarti
+  const qs = new URLSearchParams(location.search);
+  window.location.href = 'devotion-live-aarti.html?' + qs.toString();
+}
+function goSeva() {
+  window.location.href = 'devotion-seva.html';
+}
+
+// Auto-bump viewer count every ~9s so it feels live
+setInterval(bumpViewers, 9000);
+
+// Init
+renderTemple(getTempleFromQuery());
+</script>
+</body>
+</html>
