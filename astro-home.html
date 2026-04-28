@@ -1673,25 +1673,38 @@ const CARD_NARRATIONS = [
   `शिवाली जी, अब सबसे ज़रूरी बात। आपके गुरु यानी Jupiter, अगले चौदह महीनों में आपके कर्म भाव में आ रहे हैं — ये दसवाँ घर है, legacy और public recognition का घर। और जब गुरु यहाँ आता है, तो career में कुछ बड़ा होता है। पिछली बार जब ये energy align हुई थी — याद कीजिए, आपकी work life में कुछ बदला था ना? इस बार window और भी बड़ा है। जो decisions आप अभी से लेंगी — वो अगले दस साल तक echo करेंगी। ये आपका time है शिवाली जी। तैयार रहिए।`,
 ];
 
-/* ElevenLabs TTS — Indian astrologer voices */
-const ELEVEN_KEY = 'sk_86a2daf2318ba84afa5190ff9a2c09fcc9e7f9dafea1fe79';
-const ELEVEN_TTS_URL = 'https://api.elevenlabs.io/v1/text-to-speech/';
-/* Map speaker names to ElevenLabs voice IDs — Indian astrologer feel */
+/* Sarvam TTS — bulbul:v2 Indian voices */
+const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
+const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 const VOICE_MAP = {
-  'raj': 'CwhRBWXzGAHq8TQ4Fs17',       // Raj — warm Indian male (primary astrologer)
-  'daniel': 'onwK4e9ZLuTAKqWW03F9',     // Daniel — deep authoritative
-  'bill': 'pqHfZKP75CvOlQylNhV4',       // Bill — calm narrator
-  'chris': 'iP95p4xoKVk53GoZ742B',      // Chris — friendly
-  // Legacy Sarvam speaker → ElevenLabs mapping
-  'advait': 'CwhRBWXzGAHq8TQ4Fs17',    // was primary → Raj
-  'kabir': 'onwK4e9ZLuTAKqWW03F9',     // was Mars/fire → Daniel (deep)
-  'ratan': 'pqHfZKP75CvOlQylNhV4',     // was Saturn → Bill (calm)
-  'aayan': 'iP95p4xoKVk53GoZ742B',     // was Moon → Chris (friendly)
-  'manan': 'CwhRBWXzGAHq8TQ4Fs17',     // was Jupiter → Raj
-  'arvind': 'onwK4e9ZLuTAKqWW03F9',    // destiny walk → Daniel
+  'raj': 'abhilash', 'daniel': 'karun', 'bill': 'hitesh', 'chris': 'arya',
+  'advait': 'abhilash', 'kabir': 'karun', 'ratan': 'hitesh', 'aayan': 'arya',
+  'manan': 'abhilash', 'arvind': 'karun',
+  'abhilash': 'abhilash', 'karun': 'karun', 'hitesh': 'hitesh', 'arya': 'arya',
+  'anushka': 'anushka', 'manisha': 'manisha', 'vidya': 'vidya'
 };
-const DEFAULT_VOICE = 'CwhRBWXzGAHq8TQ4Fs17'; // Raj
+const DEFAULT_VOICE = 'abhilash';
 const mapSpeaker = (s) => VOICE_MAP[s] || DEFAULT_VOICE;
+// Legacy aliases
+const ELEVEN_KEY = SARVAM_KEY;
+const ELEVEN_TTS_URL = SARVAM_TTS_URL;
+const _b64ToBlob = (b64, mime='audio/wav') => {
+  const bin = atob(b64); const bytes = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+};
+const _sarvamTTS = async (text, speaker) => {
+  const speakerName = mapSpeaker(speaker);
+  const resp = await fetch(SARVAM_TTS_URL, {
+    method: 'POST',
+    headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inputs:[text], target_language_code:'hi-IN', speaker:speakerName, model:'bulbul:v2', pitch:0, pace:1.0, loudness:1.2, enable_preprocessing:true })
+  });
+  if (!resp.ok) throw new Error('Sarvam TTS: ' + resp.status);
+  const data = await resp.json();
+  if (!data.audios || !data.audios[0]) throw new Error('Sarvam: no audio');
+  return _b64ToBlob(data.audios[0]);
+};
 
 // Cache generated audio so we don't re-call the API
 const audioCache = {};
@@ -1699,19 +1712,12 @@ const audioCache = {};
 // Standalone TTS fetch (used by scene-synced cards + narration hook)
 const fetchTTS = async (text, cacheKey, speaker = 'advait') => {
   if (audioCache[cacheKey]) return audioCache[cacheKey];
-  const voiceId = mapSpeaker(speaker);
   try {
-    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-      method: 'POST',
-      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-    });
-    if (!resp.ok) { console.warn('TTS error:', resp.status); return null; }
-    const blob = await resp.blob();
+    const blob = await _sarvamTTS(text, speaker);
     const src = URL.createObjectURL(blob);
     audioCache[cacheKey] = src;
     return src;
-  } catch (e) { console.warn('TTS fetch failed:', e); return null; }
+  } catch (e) { console.warn('Sarvam TTS fetch failed:', e); return null; }
 };
 
 const useNarration = () => {
@@ -1748,24 +1754,15 @@ const useNarration = () => {
     return chunks;
   };
 
-  // Fetch audio for a single chunk (with cache) — ElevenLabs
+  // Fetch audio for a single chunk (with cache) — Sarvam
   const fetchChunkAudio = async (chunkText, chunkKey, speaker) => {
     if (audioCache[chunkKey]) return audioCache[chunkKey];
-    const voiceId = mapSpeaker(speaker);
-    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-      method: 'POST',
-      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: chunkText,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
-    });
-    if (!resp.ok) { console.warn('ElevenLabs TTS error:', await resp.text()); return null; }
-    const blob = await resp.blob();
-    const src = URL.createObjectURL(blob);
-    audioCache[chunkKey] = src;
-    return src;
+    try {
+      const blob = await _sarvamTTS(chunkText, speaker);
+      const src = URL.createObjectURL(blob);
+      audioCache[chunkKey] = src;
+      return src;
+    } catch (e) { console.warn('Sarvam TTS error:', e); return null; }
   };
 
   const speak = useCallback(async (text, cacheKey, speaker = 'advait') => {
@@ -1867,18 +1864,10 @@ const _drainPrefetchQueue = async () => {
     const { chunk, key, speaker } = _prefetchQueue.shift();
     if (audioCache[key]) continue;
     try {
-      const voiceId = mapSpeaker(speaker);
-      const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-        method: 'POST',
-        headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: chunk, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-      });
-      if (resp.ok) {
-        const blob = await resp.blob();
-        audioCache[key] = URL.createObjectURL(blob);
-        console.log('Pre-cached', key);
-      }
-    } catch(e) { console.warn('Prefetch failed for', key); }
+      const blob = await _sarvamTTS(chunk, speaker);
+      audioCache[key] = URL.createObjectURL(blob);
+      console.log('Pre-cached', key);
+    } catch(e) { console.warn('Prefetch failed for', key, e); }
     // 400ms gap between requests to avoid rate-limiting
     await new Promise(r => setTimeout(r, 400));
   }
@@ -2637,19 +2626,14 @@ const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, tot
         await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
       } else {
         const voiceId = mapSpeaker(planet.speaker || 'advait');
-        const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-          method: 'POST',
-          headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: reply, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-        });
-        if (resp.ok) {
-          const blob = await resp.blob();
+        try {
+          const blob = await _sarvamTTS(reply, voiceId);
           const src = URL.createObjectURL(blob);
           audioCache[cacheKey] = src;
           const audio = new Audio(src);
           chatAudioRef.current = audio;
           await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
-        }
+        } catch(err) { console.warn('Sarvam TTS failed:', err); }
       }
     } catch(e) { console.warn('Chat TTS error:', e); }
     chatAudioRef.current = null;
@@ -4110,8 +4094,294 @@ const MonthlyCalendarView = ({ year, age, planetColor }) => {
   );
 };
 
-/* Meri Life Graph — Era-First Exploration Map */
-const DestinyWalk = ({ onYearTap }) => {
+/* Meri Life Graph — Era-First Exploration Map (V2) */
+const DestinyWalkV2 = ({ onYearTap }) => {
+  const currentEra = getEraForAge(CURRENT_AGE);
+  const [expandedEra, setExpandedEra] = useState(currentEra.id);
+  const [showTip1, setShowTip1] = useState(false);
+  const [showTip2, setShowTip2] = useState(false);
+  const [pulseEra, setPulseEra] = useState(false);
+  const eraScrollRef = useRef(null);
+  const yearScrollRef = useRef(null);
+  const hasPlayed = useRef(false);
+  const timersRef = useRef([]);
+
+  const ERA_TAGS = {
+    dawn: 'Foundation', child: 'Learning Bloom', teen: 'Fire Spark',
+    young: 'Peak Rise', prime: 'Depth Era', mature: 'Wisdom Phase', legacy: 'Liberation',
+  };
+
+  const cancelTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+    setShowTip1(false);
+    setShowTip2(false);
+    setPulseEra(false);
+  };
+
+  // Onboarding choreography — once per mount
+  useEffect(() => {
+    if (hasPlayed.current) return;
+    hasPlayed.current = true;
+    timersRef.current.push(setTimeout(() => { setPulseEra(true); setShowTip1(true); }, 1500));
+    timersRef.current.push(setTimeout(() => { setPulseEra(false); }, 2200));
+    timersRef.current.push(setTimeout(() => { setShowTip2(true); }, 3400));
+    timersRef.current.push(setTimeout(() => { setShowTip1(false); setShowTip2(false); }, 4200));
+    return cancelTimers;
+  }, []);
+
+  // Auto-scroll era strip to center current era on mount
+  useEffect(() => {
+    const el = eraScrollRef.current;
+    if (!el) return;
+    const idx = LIFE_ERAS.findIndex(e => e.id === currentEra.id);
+    const cardW = 96 + 8;
+    requestAnimationFrame(() => {
+      el.scrollLeft = Math.max(0, idx * cardW - el.clientWidth / 2 + cardW / 2);
+    });
+  }, []);
+
+  // Auto-scroll year rail to center CURRENT_AGE when current era opens
+  useEffect(() => {
+    if (!expandedEra) return;
+    const el = yearScrollRef.current;
+    if (!el) return;
+    const era = LIFE_ERAS.find(e => e.id === expandedEra);
+    if (!era) return;
+    const ages = [];
+    for (let a = era.range[0]; a <= Math.min(era.range[1], 85); a++) ages.push(a);
+    const targetAge = expandedEra === currentEra.id ? CURRENT_AGE : ages[Math.floor(ages.length / 2)];
+    const idx = ages.indexOf(targetAge);
+    if (idx < 0) return;
+    const NODE_W = 52;
+    requestAnimationFrame(() => {
+      el.scrollLeft = Math.max(0, idx * NODE_W - el.clientWidth / 2 + NODE_W / 2);
+    });
+  }, [expandedEra]);
+
+  const onEraTap = (eraId) => {
+    cancelTimers();
+    setExpandedEra(prev => prev === eraId ? null : eraId);
+  };
+
+  const onNowTap = () => {
+    cancelTimers();
+    onYearTap(CURRENT_AGE);
+  };
+
+  // Build year list for expanded era
+  const expandedEraObj = expandedEra ? LIFE_ERAS.find(e => e.id === expandedEra) : null;
+  const expandedAges = [];
+  if (expandedEraObj) {
+    for (let a = expandedEraObj.range[0]; a <= Math.min(expandedEraObj.range[1], 85); a++) expandedAges.push(a);
+  }
+
+  const primaryColor = 'var(--primary-50)';
+  const greyText = 'var(--text-disabled)';
+
+  return (
+    <div style={{ margin: '0 16px', borderRadius: 20, background: '#fff',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.06)', overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.04)',
+      animation: 'fadeInUp 500ms ease-out 900ms both' }}>
+
+      {/* ── A. NOW Moment Bar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10,
+        padding: '10px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <div style={{ flexShrink: 0 }}>
+          <AvatarFigure stage={currentEra.avatar} size={28} glowing={true} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)' }}>
+            Age {CURRENT_AGE} · <span style={{ fontWeight: 700 }}>{currentEra.labelHi}</span>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: primaryColor, marginTop: 1 }}>
+            Your {ERA_TAGS[currentEra.id] || 'Now'}
+          </div>
+        </div>
+        <button onClick={onNowTap}
+          style={{ flexShrink: 0, background: primaryColor, color: '#fff',
+            border: 'none', borderRadius: 999, padding: '7px 14px',
+            fontSize: 11, fontWeight: 800, cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(53,53,243,0.25)',
+            display: 'flex', alignItems: 'center', gap: 4,
+            animation: 'walkBounce 2s ease-in-out infinite' }}>
+          Mera Year <span style={{ fontSize: 13 }}>›</span>
+        </button>
+      </div>
+
+      {/* ── B. Era Strip ── */}
+      <div ref={eraScrollRef} className="horiz-scroll"
+        style={{ overflowX: 'auto', overflowY: 'visible', padding: '12px 14px 10px',
+          WebkitOverflowScrolling: 'touch', position: 'relative' }}>
+        <div style={{ display: 'flex', gap: 8, width: 'max-content', position: 'relative' }}>
+          {LIFE_ERAS.map((era) => {
+            const isCurrent = era.id === currentEra.id;
+            const isExpanded = era.id === expandedEra;
+            const showPulseHere = pulseEra && isCurrent;
+            return (
+              <div key={era.id} onClick={() => onEraTap(era.id)}
+                style={{ position: 'relative', width: 96, flexShrink: 0,
+                  background: isExpanded ? `${era.roadColor}14` : '#fff',
+                  border: isCurrent ? `1.5px solid ${primaryColor}` : '1px solid rgba(0,0,0,0.08)',
+                  borderRadius: 12, padding: '8px 6px', cursor: 'pointer',
+                  boxShadow: isCurrent ? '0 4px 14px rgba(53,53,243,0.12)' : 'none',
+                  transform: showPulseHere ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'transform 350ms ease, background 200ms',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                {/* Color bar */}
+                <div style={{ width: '100%', height: 4, borderRadius: 2,
+                  background: era.roadColor, opacity: isCurrent ? 1 : 0.5 }} />
+                {/* ABHI badge */}
+                {isCurrent && (
+                  <div style={{ position: 'absolute', top: -7, right: 6,
+                    fontSize: 7, fontWeight: 800, color: '#fff', letterSpacing: 0.6,
+                    background: primaryColor, padding: '2px 6px', borderRadius: 5,
+                    boxShadow: '0 2px 6px rgba(53,53,243,0.3)' }}>ABHI</div>
+                )}
+                <div style={{ marginTop: 2 }}>
+                  <AvatarFigure stage={era.avatar} size={20} glowing={isCurrent} />
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: era.roadColor,
+                  textAlign: 'center', lineHeight: 1.1 }}>{era.labelHi}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, color: greyText }}>
+                  {era.range[0]}–{era.range[1]}
+                </div>
+                {/* Bottom arrow indicator when expanded */}
+                {isExpanded && (
+                  <div style={{ position: 'absolute', bottom: -7, left: '50%',
+                    transform: 'translateX(-50%)', width: 0, height: 0,
+                    borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
+                    borderTop: `7px solid ${era.roadColor}` }} />
+                )}
+                {/* Tooltip on current era during onboarding */}
+                {showTip1 && isCurrent && (
+                  <div style={{ position: 'absolute', top: -32, left: '50%',
+                    transform: 'translateX(-50%)', whiteSpace: 'nowrap',
+                    background: '#1a1a1a', color: '#fff', fontSize: 10, fontWeight: 600,
+                    padding: '4px 9px', borderRadius: 6, zIndex: 5,
+                    animation: 'fadeInUp 250ms ease-out both' }}>
+                    Tap to explore ›
+                    <div style={{ position: 'absolute', bottom: -4, left: '50%',
+                      transform: 'translateX(-50%)', width: 0, height: 0,
+                      borderLeft: '4px solid transparent', borderRight: '4px solid transparent',
+                      borderTop: '4px solid #1a1a1a' }} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── C. Year Rail ── */}
+      {expandedEraObj && (
+        <div style={{ borderTop: `1px solid ${expandedEraObj.roadColor}25`,
+          background: `linear-gradient(180deg, ${expandedEraObj.roadColor}08 0%, #fff 100%)`,
+          padding: '12px 0 14px', position: 'relative',
+          animation: 'fadeInUp 300ms ease-out both' }}>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.8,
+            color: expandedEraObj.roadColor, textAlign: 'center',
+            textTransform: 'uppercase', marginBottom: 8, opacity: 0.7 }}>
+            {expandedEraObj.labelHi} · {expandedEraObj.range[0]}–{expandedEraObj.range[1]}
+          </div>
+          <div ref={yearScrollRef} className="horiz-scroll"
+            style={{ overflowX: 'auto', overflowY: 'visible',
+              WebkitOverflowScrolling: 'touch', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end',
+              width: 'max-content', padding: '14px 50% 4px', position: 'relative' }}>
+              {expandedAges.map((age, i) => {
+                const isCurrent = age === CURRENT_AGE;
+                const isPast = age < CURRENT_AGE;
+                const gate = getGateForAge(age);
+                const isGate = !!gate;
+                const nodeColor = isGate ? gate.color : expandedEraObj.roadColor;
+                const showNowTip = showTip2 && isCurrent;
+                return (
+                  <div key={age} onClick={() => { cancelTimers(); onYearTap(age); }}
+                    style={{ width: 52, display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', cursor: 'pointer', flexShrink: 0,
+                      position: 'relative' }}>
+                    {/* Connector line */}
+                    {i > 0 && (
+                      <div style={{ position: 'absolute', left: -26, top: isCurrent ? 22 : 18,
+                        width: 52, height: 2, zIndex: 0,
+                        background: isPast ? `${expandedEraObj.roadColor}50` : 'transparent',
+                        backgroundImage: !isPast
+                          ? `repeating-linear-gradient(90deg, ${expandedEraObj.roadColor}40 0, ${expandedEraObj.roadColor}40 4px, transparent 4px, transparent 8px)`
+                          : 'none' }} />
+                    )}
+                    {/* NOW label */}
+                    {isCurrent && (
+                      <div style={{ fontSize: 7, fontWeight: 800, color: primaryColor,
+                        letterSpacing: 0.6, marginBottom: 3 }}>NOW</div>
+                    )}
+                    {/* Gate marker */}
+                    {isGate && !isCurrent && (
+                      <div style={{ fontSize: 7, color: gate.color, fontWeight: 800,
+                        marginBottom: 2 }}>✦</div>
+                    )}
+                    {/* Node */}
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      {isCurrent && (
+                        <div style={{ position: 'absolute', inset: -5, borderRadius: '50%',
+                          border: `1.5px solid ${primaryColor}40`,
+                          animation: 'pulseRing 2s ease-out infinite' }} />
+                      )}
+                      <div style={{
+                        width: isCurrent ? 32 : 24, height: isCurrent ? 32 : 24,
+                        borderRadius: isGate && !isCurrent ? 5 : '50%',
+                        transform: isGate && !isCurrent ? 'rotate(45deg)' : 'none',
+                        background: isCurrent ? primaryColor :
+                          isPast ? `${nodeColor}30` : '#fff',
+                        border: isCurrent ? `2px solid ${primaryColor}` :
+                          `1.5px solid ${nodeColor}${isPast ? '60' : '40'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: isCurrent ? '0 0 14px rgba(53,53,243,0.35)' : 'none',
+                        transition: 'all 200ms',
+                      }}>
+                        <span style={{
+                          fontSize: isCurrent ? 11 : 9, fontWeight: isCurrent ? 800 : 700,
+                          color: isCurrent ? '#fff' : isPast ? nodeColor : `${nodeColor}99`,
+                          transform: isGate && !isCurrent ? 'rotate(-45deg)' : 'none',
+                        }}>{age}</span>
+                      </div>
+                    </div>
+                    {/* Year label every 2nd */}
+                    {(i % 2 === 0 || isCurrent || isGate) && (
+                      <div style={{ fontSize: 8, fontWeight: 600, marginTop: 4,
+                        color: isCurrent ? primaryColor : greyText,
+                        opacity: isCurrent ? 1 : 0.7 }}>
+                        {BIRTH_YEAR + age}
+                      </div>
+                    )}
+                    {/* Tooltip on current year during onboarding */}
+                    {showNowTip && (
+                      <div style={{ position: 'absolute', top: -28, left: '50%',
+                        transform: 'translateX(-50%)', whiteSpace: 'nowrap',
+                        background: '#1a1a1a', color: '#fff', fontSize: 10, fontWeight: 600,
+                        padding: '4px 9px', borderRadius: 6, zIndex: 5,
+                        animation: 'fadeInUp 250ms ease-out both' }}>
+                        Tap any year
+                        <div style={{ position: 'absolute', bottom: -4, left: '50%',
+                          transform: 'translateX(-50%)', width: 0, height: 0,
+                          borderLeft: '4px solid transparent', borderRight: '4px solid transparent',
+                          borderTop: '4px solid #1a1a1a' }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* Legacy DestinyWalk kept for reference — DestinyWalkV2 is used */
+const DestinyWalk_OLD = ({ onYearTap }) => {
   const scrollRef = useRef(null);
   const hasScrolled = useRef(false);
   const [centeredAge, setCenteredAge] = useState(CURRENT_AGE);
@@ -4771,7 +5041,7 @@ const App = () => {
 
           {/* Phase 5 — My Destiny Walk */}
           <SectionHeader title="Meri Life Graph" subtitle="Past se future tak — apni life ka cosmic map" delay={800} />
-          <DestinyWalk onYearTap={(age) => setOverlay({ type: 'yearCapsule', age })} />
+          <DestinyWalkV2 onYearTap={(age) => setOverlay({ type: 'yearCapsule', age })} />
 
           {/* Phase 6 — removed Cosmic Balance */}
 

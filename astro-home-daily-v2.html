@@ -109,16 +109,55 @@ if (new URLSearchParams(window.location.search).has('unified')) {
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 const IS_UNIFIED = new URLSearchParams(window.location.search).has('unified');
 
-/* ========== ELEVENLABS TTS ========== */
-const ELEVEN_KEY = 'sk_86a2daf2318ba84afa5190ff9a2c09fcc9e7f9dafea1fe79';
-const ELEVEN_TTS_URL = 'https://api.elevenlabs.io/v1/text-to-speech/';
+/* ========== SARVAM TTS (bulbul:v2 — Hindi-native) ========== */
+const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
+const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
+// Speaker names map directly to Sarvam bulbul:v2 voices
 const VOICE_IDS = {
-  'abhilash': 'CwhRBWXzGAHq8TQ4Fs17',
-  'karun': 'onwK4e9ZLuTAKqWW03F9',
-  'hitesh': 'pqHfZKP75CvOlQylNhV4',
-  'arya': 'iP95p4xoKVk53GoZ742B',
+  'abhilash': 'abhilash',
+  'karun': 'karun',
+  'hitesh': 'hitesh',
+  'arya': 'arya',
+  'anushka': 'anushka',
+  'manisha': 'manisha',
+  'vidya': 'vidya',
 };
-const DEFAULT_VOICE_ID = 'CwhRBWXzGAHq8TQ4Fs17';
+const DEFAULT_VOICE_ID = 'abhilash';
+
+// Legacy aliases (so unchanged code paths still work)
+const ELEVEN_KEY = SARVAM_KEY;
+const ELEVEN_TTS_URL = SARVAM_TTS_URL;
+
+/* Sarvam returns base64 WAV in JSON; convert to Blob */
+const _b64ToBlob = (b64, mime='audio/wav') => {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+};
+
+/* Single source of truth for Sarvam TTS — returns Blob or throws */
+const _sarvamTTS = async (text, speaker) => {
+  const speakerName = VOICE_IDS[speaker] || DEFAULT_VOICE_ID;
+  const resp = await fetch(SARVAM_TTS_URL, {
+    method: 'POST',
+    headers: { 'api-subscription-key': SARVAM_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      inputs: [text],
+      target_language_code: 'hi-IN',
+      speaker: speakerName,
+      model: 'bulbul:v2',
+      pitch: 0,
+      pace: 1.0,
+      loudness: 1.2,
+      enable_preprocessing: true
+    })
+  });
+  if (!resp.ok) throw new Error('Sarvam TTS error: ' + resp.status + ' ' + (await resp.text()).slice(0,120));
+  const data = await resp.json();
+  if (!data.audios || !data.audios[0]) throw new Error('Sarvam: no audio in response');
+  return _b64ToBlob(data.audios[0], 'audio/wav');
+};
 
 /* ── Persistent TTS cache (IndexedDB) ──
    Survives page reloads, shared across iframe screens (same origin).
@@ -174,15 +213,9 @@ const fetchTTSAudio = async (text, speaker = 'abhilash', cacheKey) => {
     console.log('[TTS] cache hit:', hashKey.slice(0,8), '·', text.slice(0,40));
     return src;
   }
-  // 3. fetch from ElevenLabs
+  // 3. fetch from Sarvam
   try {
-    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-      method: 'POST',
-      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.7, similarity_boost: 0.8, style: 0.35 } }),
-    });
-    if (!resp.ok) throw new Error('TTS error: ' + resp.status);
-    const blob = await resp.blob();
+    const blob = await _sarvamTTS(text, speaker);
     await _idbPut(db, hashKey, blob); // persist for next time
     const src = URL.createObjectURL(blob);
     audioCache[hashKey] = src;
@@ -3018,9 +3051,12 @@ const PlanetStoryCapsule = ({ planet, onClose, onNext, onPrev, currentIndex, tot
         const audio = new Audio(audioCache[cacheKey]); chatAudioRef.current = audio;
         await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
       } else {
-        const voiceId = mapSpeaker(planet.speaker || 'advait');
-        const resp = await fetch(ELEVEN_TTS_URL + voiceId, { method: 'POST', headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ text: reply, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) });
-        if (resp.ok) { const blob = await resp.blob(); const src = URL.createObjectURL(blob); audioCache[cacheKey] = src; const audio = new Audio(src); chatAudioRef.current = audio; await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); }); }
+        try {
+          const blob = await _sarvamTTS(reply, planet.speaker || 'abhilash');
+          const src = URL.createObjectURL(blob); audioCache[cacheKey] = src;
+          const audio = new Audio(src); chatAudioRef.current = audio;
+          await new Promise(r => { audio.onended = r; audio.onerror = r; audio.play().catch(r); });
+        } catch (sarvamErr) { console.warn('Sarvam chat TTS:', sarvamErr); }
       }
     } catch(e) { console.warn('Chat TTS error:', e); }
     chatAudioRef.current = null; setChatSpeaking(false);
@@ -3148,17 +3184,12 @@ const useNarration = () => {
 
   const fetchChunkAudio = async (chunkText, chunkKey, speaker) => {
     if (audioCache[chunkKey]) return audioCache[chunkKey];
-    const voiceId = mapSpeaker(speaker);
-    const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-      method: 'POST',
-      headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: chunkText, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-    });
-    if (!resp.ok) { console.warn('ElevenLabs TTS error:', await resp.text()); return null; }
-    const blob = await resp.blob();
-    const src = URL.createObjectURL(blob);
-    audioCache[chunkKey] = src;
-    return src;
+    try {
+      const blob = await _sarvamTTS(chunkText, speaker);
+      const src = URL.createObjectURL(blob);
+      audioCache[chunkKey] = src;
+      return src;
+    } catch (e) { console.warn('Sarvam TTS error:', e); return null; }
   };
 
   const speak = useCallback(async (text, cacheKey, speaker = 'advait') => {
@@ -3245,14 +3276,9 @@ const _drainPrefetchQueue = async () => {
     const { chunk, key, speaker } = _prefetchQueue.shift();
     if (audioCache[key]) continue;
     try {
-      const voiceId = mapSpeaker(speaker);
-      const resp = await fetch(ELEVEN_TTS_URL + voiceId, {
-        method: 'POST',
-        headers: { 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: chunk, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-      });
-      if (resp.ok) { const blob = await resp.blob(); audioCache[key] = URL.createObjectURL(blob); }
-    } catch(e) { console.warn('Prefetch failed for', key); }
+      const blob = await _sarvamTTS(chunk, speaker);
+      audioCache[key] = URL.createObjectURL(blob);
+    } catch(e) { console.warn('Prefetch failed for', key, e); }
     await new Promise(r => setTimeout(r, 400));
   }
   _prefetchRunning = false;
