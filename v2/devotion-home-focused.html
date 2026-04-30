@@ -55,6 +55,39 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
 .deity-card .name { font-size:13px; font-weight:700; color:#fff; margin-top:8px; z-index:2; position:relative; }
 .deity-card .epithet { font-size:10px; color:#ffce99; margin-top:2px; z-index:2; position:relative; }
 
+/* ============ V2 GREETING FOLD ============ */
+.greeting-fold {
+  padding:40px 20px 28px;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(247,171,32,0.18), transparent 70%),
+    linear-gradient(180deg, #1a0a00 0%, #0a0500 100%);
+  border-bottom:1px solid rgba(255,206,153,0.12);
+  position:relative;
+}
+.gf-namaste {
+  font-size:13px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase;
+  color:#f7ab20; margin-bottom:6px;
+}
+.gf-name {
+  font-size:34px; font-weight:900; color:#fff8e1; line-height:1.05;
+  letter-spacing:-0.6px;
+}
+.gf-tithi {
+  margin-top:10px; font-size:12px; font-weight:600;
+  color:rgba(255,220,178,0.78); letter-spacing:0.2px;
+}
+.gf-blessing {
+  margin-top:14px; padding:9px 14px;
+  display:inline-block; border-radius:999px;
+  background:rgba(247,171,32,0.14); border:1px solid rgba(247,171,32,0.32);
+  font-size:11px; font-weight:700; color:#ffd69a;
+}
+
+/* ============ V2 SEVA FOLD ============ */
+.seva-fold {
+  padding:8px 20px 24px;
+}
+
 /* ============ FOLD 1 — PURE DARSHAN ============ */
 /* Full-bleed. Deity owns the screen. No container. No chrome. */
 .darshan {
@@ -1203,8 +1236,16 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
     <!-- STEP 2 — HOME -->
     <div id="home">
 
-      <!-- =========== FOLD 1 — PURE DARSHAN =========== -->
-      <div class="darshan" id="darshan">
+      <!-- =========== V2 GREETING FOLD — replaces full deity hero =========== -->
+      <div class="greeting-fold fade-in">
+        <div class="gf-namaste" id="gfNamaste">Namaskar</div>
+        <div class="gf-name">Shivali</div>
+        <div class="gf-tithi" id="gfTithi">Vaishakh Shukla Panchami · Rohini Nakshatra</div>
+        <div class="gf-blessing" id="gfBlessing">Aaj ka din shubh ho aapke liye</div>
+      </div>
+
+      <!-- =========== FOLD 1 — HIDDEN IN V2 (deity hero, shankh, aarti removed) =========== -->
+      <div class="darshan" id="darshan" style="display:none">
 
         <!-- Full-bleed deity image -->
         <div class="deity-img-wrap" id="deityWrap">
@@ -1494,17 +1535,8 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
         </div>
       </div>
 
-      <!-- =========== FOLD 3 — AAJ KA DARSHAN (audio-visual daily ritual) =========== -->
-      <div class="aaj-darshan fade-in">
-        <div class="darshan-head">
-          <div class="dh-title">Aaj ki Kahaniyaan</div>
-          <div class="dh-sub" id="dhSub">24 APR · SHUKLA PANCHAMI</div>
-        </div>
-
-        <!-- 6 audio-visual katha cards (Sandesh is now the 1st card, not a separate hero) -->
-        <div class="katha-scroll" id="kathaScroll"></div>
-
-        <!-- Chadhava discovery card -->
+      <!-- =========== V2 SEVA WIDGET — moved up, kahaniyaan removed =========== -->
+      <div class="seva-fold fade-in">
         <div class="chadhava-discover" onclick="goChadhava()">
           <div class="cd-ico-wrap">
             <div class="cd-ico-ring"></div>
@@ -1517,6 +1549,15 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
           </div>
           <div class="cd-arrow">›</div>
         </div>
+      </div>
+
+      <!-- =========== FOLD 3 — HIDDEN IN V2 (Aaj ki Kahaniyaan removed) =========== -->
+      <div class="aaj-darshan fade-in" style="display:none">
+        <div class="darshan-head">
+          <div class="dh-title">Aaj ki Kahaniyaan</div>
+          <div class="dh-sub" id="dhSub">24 APR · SHUKLA PANCHAMI</div>
+        </div>
+        <div class="katha-scroll" id="kathaScroll"></div>
       </div>
 
       <!-- Bottom nav -->
@@ -2076,14 +2117,7 @@ function pickDeity(id) {
   currentDeity = id;
   currentForm = 0;
   applyDeity(id);
-  if (id === 'shiva') {
-    // Stop any currently playing TTS greeting — Shiv Ji gets the mantra only
-    if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
-    playShivMantra();
-  } else {
-    stopShivMantra();
-    playGreeting(id);
-  }
+  // V2: no auto audio on deity pick — silent home, only greeting card
   document.getElementById('picker').classList.add('hide');
   setTimeout(()=>{
     document.querySelectorAll('.fade-in').forEach((el,i)=>{
@@ -2098,13 +2132,7 @@ function switchDeity(id) {
   currentDeity = id;
   currentForm = 0;
   applyDeity(id);
-  if (id === 'shiva') {
-    if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
-    playShivMantra();
-  } else {
-    stopShivMantra();
-    playGreeting(id);
-  }
+  // V2: no audio on deity switch
 }
 
 function renderDeitySwitcher() {
