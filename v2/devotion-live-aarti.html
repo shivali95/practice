@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Aarti · Kashi Vishwanath</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050000; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0300; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; z-index:40; position:relative; }
+
+.screen { position:relative; background:#0a0300; color:#fff; min-height:820px; overflow:hidden; }
+
+/* ===== LIVE STAGE ===== */
+.stage {
+  position:relative; height:380px; overflow:hidden;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 25%, rgba(255,120,40,0.35), transparent 68%),
+    radial-gradient(ellipse 60% 40% at 50% 90%, rgba(80,20,10,0.8), transparent 72%),
+    linear-gradient(180deg, #200a00 0%, #3a1200 40%, #0a0300 100%);
+}
+
+/* Live badge */
+.live-bar {
+  position:absolute; top:14px; left:14px; right:14px; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.live-back {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,0.55); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; border:1px solid rgba(255,255,255,0.18);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.live-back:active { transform:scale(0.92); background:rgba(0,0,0,0.75); }
+.live-badge {
+  display:flex; align-items:center; gap:6px;
+  background:#fa2f40; padding:5px 11px; border-radius:999px;
+  font-size:10px; font-weight:900; letter-spacing:1.2px; color:#fff;
+}
+.live-dot { width:6px; height:6px; background:#fff; border-radius:50%; animation:livePulse 1.4s ease-in-out infinite; }
+@keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.live-viewers {
+  background:rgba(0,0,0,0.45); backdrop-filter:blur(10px); padding:5px 11px; border-radius:999px;
+  font-size:10px; font-weight:700; color:#fff;
+  border:1px solid rgba(255,255,255,0.18);
+}
+
+/* Stage scene */
+.arch {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:320px; height:360px;
+}
+.halo {
+  position:absolute; bottom:120px; left:50%; width:220px; height:220px;
+  border-radius:50%; transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(255,210,120,0.95) 0%, rgba(255,160,60,0.55) 28%, rgba(255,120,40,0.22) 55%, transparent 78%);
+  filter:blur(2px); z-index:3;
+  animation:haloPulse 3.6s ease-in-out infinite;
+}
+@keyframes haloPulse {
+  0%,100% { transform:translateX(-50%) scale(1); opacity:0.92; }
+  50% { transform:translateX(-50%) scale(1.1); opacity:1; }
+}
+.deity {
+  position:absolute; bottom:135px; left:50%; transform:translateX(-50%);
+  width:168px; height:168px; z-index:5;
+  border-radius:50%; overflow:hidden;
+  box-shadow:0 0 28px rgba(255,180,80,0.9), 0 0 80px rgba(255,140,40,0.55);
+  animation:deityBreath 5s ease-in-out infinite;
+  background:#1a0600;
+  display:flex; align-items:center; justify-content:center;
+  font-size:96px; color:#fff8e1; font-weight:900;
+  text-shadow:0 0 28px rgba(255,180,80,0.9);
+}
+.deity img { width:100%; height:100%; object-fit:cover; display:block; }
+@keyframes deityBreath {
+  0%,100% { transform:translateX(-50%) scale(1); }
+  50% { transform:translateX(-50%) scale(1.025); }
+}
+
+/* Rotating aarti thali */
+.thali-wrap {
+  position:absolute; bottom:115px; left:50%; transform:translateX(-50%);
+  width:180px; height:180px; z-index:6; pointer-events:none;
+  animation:thaliSpin 8s linear infinite;
+}
+@keyframes thaliSpin { to { transform:translateX(-50%) rotate(360deg); } }
+.thali-flame {
+  position:absolute; width:10px; height:18px; border-radius:50% 50% 35% 35%;
+  background:radial-gradient(ellipse at 50% 100%, #fff8b0 0%, #ffba40 35%, #ff6020 75%, transparent 100%);
+  box-shadow:0 0 12px #ffa040, 0 0 28px rgba(255,120,40,0.7);
+  animation:flameFlicker 0.8s ease-in-out infinite;
+}
+@keyframes flameFlicker {
+  0%,100% { transform:scaleY(1) rotate(-2deg); }
+  40% { transform:scaleY(0.88) rotate(2deg); }
+  60% { transform:scaleY(1.12) rotate(-1deg); }
+}
+
+/* Floating embers */
+.embers { position:absolute; inset:0; pointer-events:none; }
+.ember {
+  position:absolute; bottom:-10px; width:4px; height:4px; border-radius:50%;
+  background:radial-gradient(circle, #ffcc70 0%, #ff6020 60%, transparent 100%);
+  box-shadow:0 0 8px #ff9040;
+  animation:emberRise var(--ed) linear infinite;
+}
+@keyframes emberRise {
+  0% { transform:translateY(0) translateX(0); opacity:0; }
+  12% { opacity:1; }
+  85% { opacity:1; }
+  100% { transform:translateY(-420px) translateX(var(--ex)); opacity:0; }
+}
+
+/* Floor shadow */
+.floor {
+  position:absolute; bottom:0; left:0; right:0; height:90px; z-index:5;
+  background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.65) 55%, #0a0300 100%);
+}
+
+/* Temple info strip */
+.stage-info {
+  position:absolute; bottom:14px; left:14px; right:14px; z-index:10;
+  display:flex; justify-content:space-between; align-items:flex-end;
+}
+.si-l { color:#fff; }
+.si-aarti { font-size:11px; font-weight:700; color:#ffc870; letter-spacing:0.6px; text-transform:uppercase; }
+.si-temple { font-size:15px; font-weight:900; color:#fff8e1; margin-top:3px; }
+.si-loc { font-size:10px; opacity:0.8; margin-top:1px; }
+
+/* Subtle "Powered by Srimandir" credit — visible but not hero */
+.srimandir-credit {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:9px; font-weight:600; letter-spacing:0.6px;
+  color:rgba(255,206,153,0.60); text-transform:uppercase;
+  margin-top:8px;
+}
+.srimandir-credit::before { content:"✦"; color:rgba(255,184,116,0.72); font-size:8px; }
+.srimandir-credit b { font-weight:800; color:rgba(255,220,178,0.82); letter-spacing:0.3px; text-transform:none; }
+.si-bell {
+  width:44px; height:44px; border-radius:50%; cursor:pointer;
+  background:rgba(255,255,255,0.15); backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.28);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; transition:all 200ms;
+}
+.si-bell:active { transform:scale(0.92); background:rgba(247,171,32,0.3); }
+
+/* ===== SYNC'D LYRICS ===== */
+.lyrics {
+  padding:20px; background:#0a0300;
+  border-top:1px solid rgba(255,200,120,0.15);
+}
+.ly-label { font-size:9px; font-weight:700; letter-spacing:2px; color:#ffc870; text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.ly-sync { font-size:8px; padding:2px 6px; background:rgba(30,204,176,0.2); color:#5be0c7; border-radius:6px; letter-spacing:0.5px; }
+.ly-line {
+  padding:8px 0; transition:all 400ms ease; opacity:0.28;
+  font-size:14px; line-height:1.5; color:#fff8e1; font-weight:500;
+}
+.ly-line.past { opacity:0.28; }
+.ly-line.now {
+  opacity:1; color:#fff; font-weight:700; font-size:16px;
+  text-shadow:0 0 12px rgba(255,200,100,0.5);
+  padding:10px 12px; margin:0 -12px;
+  background:linear-gradient(90deg, transparent 0%, rgba(247,171,32,0.1) 50%, transparent 100%);
+  border-left:3px solid #ffc870; border-radius:4px;
+}
+.ly-line.next { opacity:0.5; }
+.ly-trans {
+  font-size:11px; opacity:0.55; font-weight:400; font-style:italic; margin-top:3px;
+}
+.ly-line.now .ly-trans { opacity:0.75; color:#ffd69a; }
+
+/* Progress dots */
+.progress-dots { display:flex; gap:3px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.1); }
+.pdot { flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,0.15); transition:background 300ms; }
+.pdot.done { background:#f7ab20; }
+.pdot.active { background:#fff; box-shadow:0 0 8px #ffc870; }
+
+/* ===== INTERACTION ROW ===== */
+.actions { padding:16px 20px; display:flex; gap:8px; }
+.act {
+  flex:1; padding:14px 8px; border-radius:14px; text-align:center; cursor:pointer;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+  transition:transform 160ms, background 200ms;
+}
+.act:active { transform:scale(0.94); background:rgba(247,171,32,0.2); }
+.act-ic { font-size:22px; margin-bottom:4px; }
+.act-lbl { font-size:10px; font-weight:700; opacity:0.85; }
+.act-count { font-size:9px; opacity:0.55; margin-top:2px; }
+
+/* ===== BHAKT PRESENCE ===== */
+.presence {
+  margin:0 20px 16px; padding:14px; border-radius:14px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+}
+.pr-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.pr-left-label { font-size:9px; font-weight:700; letter-spacing:1.5px; color:#ffc870; text-transform:uppercase; }
+.pr-stack { display:flex; align-items:center; }
+.pr-avatar {
+  width:22px; height:22px; border-radius:50%; border:2px solid #0a0300;
+  margin-left:-6px; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff;
+}
+.pr-avatar:first-child { margin-left:0; }
+.pr-more { font-size:10px; margin-left:6px; opacity:0.7; }
+.pr-feed { max-height:90px; overflow:hidden; position:relative; }
+.pr-row {
+  display:flex; gap:8px; padding:5px 0; font-size:11px;
+  animation:feedIn 500ms ease;
+}
+@keyframes feedIn {
+  from { opacity:0; transform:translateX(-8px); }
+  to { opacity:1; transform:translateX(0); }
+}
+.pr-row-msg { color:#ffd69a; font-weight:600; }
+.pr-row-by { opacity:0.55; }
+
+/* ===== LIVE COMMENT DRAWER ===== */
+.comment-row {
+  margin:0 20px 20px; display:flex; gap:8px; align-items:center;
+  background:rgba(0,0,0,0.45); border-radius:999px; padding:4px 4px 4px 16px;
+  border:1px solid rgba(255,200,120,0.2);
+}
+.cm-input {
+  flex:1; background:transparent; border:0; outline:0;
+  color:#fff; font-family:'JioType',sans-serif; font-size:12px; font-weight:500;
+  padding:10px 0;
+}
+.cm-input::placeholder { color:rgba(255,255,255,0.4); }
+.cm-send {
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg, #ffc870 0%, #f7ab20 100%);
+  color:#2a1400; border:0; font-weight:900; font-size:14px; cursor:pointer;
+}
+
+/* ===== POST-AARTI CTA ===== */
+.post-cta {
+  margin:0 20px 24px; padding:14px; border-radius:16px;
+  background:linear-gradient(135deg, rgba(30,204,176,0.14) 0%, rgba(30,204,176,0.04) 100%);
+  border:1px solid rgba(30,204,176,0.3);
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.pc-ic {
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.pc-body { flex:1; }
+.pc-label { font-size:9px; font-weight:700; color:#5be0c7; letter-spacing:1.4px; text-transform:uppercase; }
+.pc-title { font-size:13px; font-weight:700; color:#fff8e1; margin-top:2px; }
+.pc-sub { font-size:10px; opacity:0.65; margin-top:1px; }
+
+/* Toast */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(0,0,0,0.95); color:#ffd69a; padding:10px 18px; border-radius:999px;
+  backdrop-filter:blur(12px); border:1px solid rgba(255,200,120,0.35);
+  font-size:12px; font-weight:600; z-index:50; opacity:0; transition:all 300ms ease;
+  pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Flower shower */
+.flower-layer { position:absolute; inset:0; pointer-events:none; z-index:45; overflow:hidden; }
+.flwr {
+  position:absolute; top:-20px; font-size:18px;
+  animation:flwrFall 4s linear forwards;
+}
+@keyframes flwrFall {
+  0% { transform:translateY(0) rotate(0deg); opacity:1; }
+  100% { transform:translateY(820px) rotate(720deg); opacity:0; }
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+  <div class="screen">
+    <!-- LIVE STAGE -->
+    <div class="stage">
+      <div class="live-bar">
+        <div class="live-back" onclick="goHome()" aria-label="Back">←</div>
+        <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+        <div class="live-viewers" id="viewers">👁 47,328 bhakt</div>
+      </div>
+
+      <svg class="arch" viewBox="0 0 320 360" preserveAspectRatio="xMidYMax meet">
+        <path d="M 160 0 L 190 40 L 175 50 L 202 85 L 185 95 L 212 135 L 108 135 L 135 95 L 118 85 L 145 50 L 130 40 Z" fill="#0a0300" opacity="0.92"/>
+        <path d="M 55 360 L 55 200 Q 55 140 160 140 Q 265 140 265 200 L 265 360 Z" fill="#0a0300" opacity="0.94"/>
+        <path d="M 95 360 L 95 230 Q 95 180 160 180 Q 225 180 225 230 L 225 360 Z" fill="#1a0600" opacity="0.96"/>
+        <rect x="52" y="200" width="8" height="160" fill="#2a0f00" opacity="0.92"/>
+        <rect x="260" y="200" width="8" height="160" fill="#2a0f00" opacity="0.92"/>
+      </svg>
+
+      <div class="halo"></div>
+      <div class="deity" id="deityHero">ॐ</div>
+
+      <!-- Rotating thali with 5 flames -->
+      <div class="thali-wrap">
+        <div class="thali-flame" style="top:0; left:50%; transform:translateX(-50%);"></div>
+        <div class="thali-flame" style="top:14%; right:14%;"></div>
+        <div class="thali-flame" style="bottom:14%; right:14%;"></div>
+        <div class="thali-flame" style="bottom:0; left:50%; transform:translateX(-50%);"></div>
+        <div class="thali-flame" style="bottom:14%; left:14%;"></div>
+        <div class="thali-flame" style="top:14%; left:14%;"></div>
+      </div>
+
+      <div class="embers" id="embers"></div>
+      <div class="floor"></div>
+
+      <div class="stage-info">
+        <div class="si-l">
+          <div class="si-aarti">Sandhya Aarti · Shiv Tandav</div>
+          <div class="si-temple">Kashi Vishwanath</div>
+          <div class="si-loc">Varanasi · Uttar Pradesh</div>
+          <div class="srimandir-credit" style="margin-top:6px;">Powered by <b>Srimandir</b></div>
+        </div>
+        <div class="si-bell" onclick="ringBell()">🔔</div>
+      </div>
+
+      <div class="flower-layer" id="flowerLayer"></div>
+    </div>
+
+    <!-- LYRICS -->
+    <div class="lyrics">
+      <div class="ly-label">
+        <span>🎵 Aarti Gaan</span>
+      </div>
+      <div id="lyricsBox">
+        <!-- lines injected by JS -->
+      </div>
+      <div class="progress-dots" id="dots"></div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <div class="act" onclick="offerFlower()">
+        <div class="act-ic">🌸</div>
+        <div class="act-lbl">Phool</div>
+        <div class="act-count" id="flwrCount">2,431</div>
+      </div>
+      <div class="act" onclick="ringBell()">
+        <div class="act-ic">🔔</div>
+        <div class="act-lbl">Ghanti</div>
+        <div class="act-count" id="bellCount">8,102</div>
+      </div>
+      <div class="act" onclick="lightDeep()">
+        <div class="act-ic">🪔</div>
+        <div class="act-lbl">Deep</div>
+        <div class="act-count" id="deepCount">1,887</div>
+      </div>
+      <div class="act" onclick="pranam()">
+        <div class="act-ic">🙏</div>
+        <div class="act-lbl">Pranam</div>
+        <div class="act-count" id="pranamCount">12.4K</div>
+      </div>
+    </div>
+
+    <!-- BHAKT PRESENCE -->
+    <div class="presence">
+      <div class="pr-top">
+        <div class="pr-left-label">Aapke saath shamil</div>
+        <div class="pr-stack">
+          <div class="pr-avatar" style="background:#f7ab20;">R</div>
+          <div class="pr-avatar" style="background:#1eccb0;">P</div>
+          <div class="pr-avatar" style="background:#fa2f40;">A</div>
+          <div class="pr-avatar" style="background:#8b8bff;">S</div>
+          <div class="pr-more">+47.3K</div>
+        </div>
+      </div>
+      <div class="pr-feed" id="prFeed">
+        <div class="pr-row"><span class="pr-row-msg">🔔 ghanti bajayi</span><span class="pr-row-by">· Rohit, Indore</span></div>
+        <div class="pr-row"><span class="pr-row-msg">🙏 Har Har Mahadev</span><span class="pr-row-by">· Priya, Lucknow</span></div>
+      </div>
+    </div>
+
+    <!-- COMMENT ROW -->
+    <div class="comment-row">
+      <input type="text" class="cm-input" placeholder="Live mein namaskar kahein..." id="cmInput">
+      <button class="cm-send" onclick="sendComment()">↑</button>
+    </div>
+
+    <!-- POST-AARTI CTA -->
+    <div class="post-cta" onclick="toast('Prasad booking kholi ja rahi hai...')">
+      <div class="pc-ic">🍬</div>
+      <div class="pc-body">
+        <div class="pc-label">Aarti ke baad</div>
+        <div class="pc-title">Ghar par prasad mangwayein</div>
+        <div class="pc-sub">Kashi ka asli laddu · ₹151 · 4 din mein delivery</div>
+      </div>
+      <div style="font-size:18px; opacity:0.7;">›</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+// Navigate back to home, preserving the deity query param if present.
+function goHome(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+/* ===== DEITY FROM URL PARAMS ===== */
+var _p = new URLSearchParams(location.search);
+var _deity = _p.get('deity') || 'shiva';
+var _img   = _p.get('img') || '';
+var _fb    = _p.get('fb')  || '';
+(function setHero() {
+  var hero = document.getElementById('deityHero');
+  if (!hero) return;
+  if (_img) {
+    var html = '<img src="' + _img + '" ';
+    if (_fb) html += 'onerror="this.onerror=null;this.src=\'' + _fb + '\';" ';
+    html += 'alt="' + _deity + '"/>';
+    hero.innerHTML = html;
+  }
+})();
+
+/* ===== REAL AARTI MP3 (deity-mapped) ===== */
+// Use the bundled devotional track for each deity. Falls back to Shiva aarti.
+var AARTI_MP3 = {
+  shiva:   'assets/audio/shiva-aarti.mp3',
+  ganesh:  'assets/audio/shiva-aarti.mp3',
+  krishna: 'assets/audio/shiva-aarti.mp3',
+  durga:   'assets/audio/shiva-aarti.mp3',
+  hanuman: 'assets/audio/shiva-aarti.mp3',
+  ram:     'assets/audio/shiva-aarti.mp3'
+};
+var aartiAudio = null;
+
+function playAartiAudio() {
+  try {
+    if (aartiAudio) { try { aartiAudio.pause(); } catch(e){} }
+    var src = AARTI_MP3[_deity] || AARTI_MP3.shiva;
+    aartiAudio = new Audio(src);
+    aartiAudio.loop = true;
+    aartiAudio.volume = 0.85;
+    aartiAudio.play().catch(function(e){ console.warn('autoplay blocked — will start on first tap', e); });
+  } catch(e) { console.warn('playAartiAudio error', e); }
+}
+
+/* ===== EMBERS ===== */
+(function() {
+  var c = document.getElementById('embers');
+  var html = '';
+  for (var i = 0; i < 18; i++) {
+    var l = 10 + Math.random() * 80;
+    var d = (5 + Math.random() * 5).toFixed(2) + 's';
+    var ex = (Math.random() * 40 - 20).toFixed(1) + 'px';
+    var delay = (Math.random() * 7).toFixed(2) + 's';
+    html += '<div class="ember" style="left:'+l+'%;--ed:'+d+';--ex:'+ex+';animation-delay:'+delay+'"></div>';
+  }
+  c.innerHTML = html;
+})();
+
+/* ===== AARTI LYRICS — synced to Jai Shiv Omkara MP3 ===== */
+// Highlighting begins after a ~42s intro (vocals enter later in the track).
+var LYRIC_START_DELAY = 0; // highlight from the very beginning
+var LYRICS = [
+  { dev:'जय शिव ओंकारा, ॐ जय शिव ओंकारा', trans:'Jai Shiv Omkara, Om Jai Shiv Omkara', dur:18 },
+  { dev:'ब्रह्मा विष्णु सदाशिव, अर्धांगी धारा', trans:'Brahma Vishnu Sadashiva · Ardhangi dhara', dur:12 },
+  { dev:'ॐ जय शिव ओंकारा ॥', trans:'Om Jai Shiv Omkara', dur:9 },
+  { dev:'एकानन चतुरानन पञ्चानन राजे', trans:'Ekanana Chaturanana Panchanana Raje', dur:9 },
+  { dev:'हंसासन गरुड़ासन वृषवाहन साजे', trans:'Hansasana Garudasana Vrishavahana Saje', dur:9 },
+  { dev:'ॐ हर हर महादेव ॥', trans:'Om Har Har Mahadev', dur:8 },
+  { dev:'दो भुज चार चतुर्भुज दसभुज अति सोहे', trans:'Do bhuja char chaturbhuja dasabhuja ati sohe', dur:10 },
+  { dev:'त्रिगुण रूप निरखते त्रिभुवन जन मोहे', trans:'Triguna roop nirakhate tribhuvana jana mohe', dur:10 }
+];
+
+var currentLine = -1; // -1 = intro silence, nothing highlighted yet
+var lyricsBox = document.getElementById('lyricsBox');
+var dotsWrap = document.getElementById('dots');
+
+function renderLyrics() {
+  var html = '';
+  for (var i = 0; i < LYRICS.length; i++) {
+    var cls = 'ly-line ';
+    if (i < currentLine) cls += 'past';
+    else if (i === currentLine) cls += 'now';
+    else cls += 'next';
+    html += '<div class="'+cls+'"><div>'+LYRICS[i].dev+'</div><div class="ly-trans">'+LYRICS[i].trans+'</div></div>';
+  }
+  lyricsBox.innerHTML = html;
+
+  var dh = '';
+  for (var j = 0; j < LYRICS.length; j++) {
+    var dc = 'pdot ';
+    if (j < currentLine) dc += 'done';
+    else if (j === currentLine) dc += 'active';
+    dh += '<div class="'+dc+'"></div>';
+  }
+  dotsWrap.innerHTML = dh;
+}
+renderLyrics();
+
+function advance() {
+  if (currentLine < LYRICS.length - 1) {
+    currentLine++;
+    renderLyrics();
+    setTimeout(advance, (LYRICS[currentLine].dur || 4) * 1000);
+  } else {
+    // Loop back
+    currentLine = 0;
+    renderLyrics();
+    setTimeout(advance, (LYRICS[currentLine].dur || 4) * 1000);
+  }
+}
+// Wait through the instrumental intro, then light up line 0 and start the ride.
+setTimeout(function() {
+  currentLine = 0;
+  renderLyrics();
+  setTimeout(advance, LYRICS[0].dur * 1000);
+}, LYRIC_START_DELAY);
+
+/* Start real aarti MP3 — loops in background. Lyrics sync animation keeps running on top. */
+(function startAarti() {
+  playAartiAudio();
+  // If autoplay is blocked by the browser, resume on first user tap
+  var resume = function(){
+    if (aartiAudio && aartiAudio.paused) aartiAudio.play().catch(function(){});
+    document.removeEventListener('click', resume);
+    document.removeEventListener('touchstart', resume);
+  };
+  document.addEventListener('click', resume, { once:true });
+  document.addEventListener('touchstart', resume, { once:true });
+})();
+
+/* ===== VIEWER COUNT FLUCTUATION ===== */
+var baseViewers = 47328;
+setInterval(function() {
+  baseViewers += Math.floor(Math.random() * 22) - 6;
+  document.getElementById('viewers').textContent = '👁 ' + baseViewers.toLocaleString('en-IN') + ' bhakt';
+}, 2400);
+
+/* ===== BHAKT FEED STREAM ===== */
+var FEED = [
+  { msg:'🙏 Har Har Mahadev', by:'Amit, Delhi' },
+  { msg:'🌸 phool arpan kiye', by:'Sneha, Mumbai' },
+  { msg:'🔔 ghanti bajayi', by:'Ravi, Jaipur' },
+  { msg:'🪔 deep jalaya', by:'Neha, Kanpur' },
+  { msg:'🙏 Om Namah Shivaya', by:'Vikram, Pune' },
+  { msg:'🌸 phool chadhaya', by:'Kavita, Bhopal' },
+  { msg:'🙌 Jai Baba Vishwanath', by:'Aarti, Lucknow' },
+  { msg:'🔔 aarti mein shamil', by:'Manoj, Patna' }
+];
+var feedEl = document.getElementById('prFeed');
+setInterval(function() {
+  var item = FEED[Math.floor(Math.random() * FEED.length)];
+  var row = document.createElement('div');
+  row.className = 'pr-row';
+  row.innerHTML = '<span class="pr-row-msg">'+item.msg+'</span><span class="pr-row-by">· '+item.by+'</span>';
+  feedEl.insertBefore(row, feedEl.firstChild);
+  while (feedEl.children.length > 4) feedEl.removeChild(feedEl.lastChild);
+}, 2200);
+
+/* ===== INTERACTIONS ===== */
+var counts = { flwr: 2431, bell: 8102, deep: 1887, pranam: 12400 };
+function formatCount(n) {
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toLocaleString('en-IN');
+}
+function bump(key, el) {
+  counts[key]++;
+  document.getElementById(el).textContent = formatCount(counts[key]);
+}
+
+function offerFlower() {
+  bump('flwr', 'flwrCount');
+  var layer = document.getElementById('flowerLayer');
+  var emojis = ['🌸','🌹','🌺','🏵️'];
+  for (var i = 0; i < 14; i++) {
+    var f = document.createElement('div');
+    f.className = 'flwr';
+    f.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    f.style.left = (Math.random() * 100) + '%';
+    f.style.animationDelay = (Math.random() * 0.8) + 's';
+    f.style.animationDuration = (2.8 + Math.random() * 1.6) + 's';
+    layer.appendChild(f);
+  }
+  setTimeout(function(){ layer.innerHTML = ''; }, 5000);
+  toast('🌸 Phool arpan kiye');
+}
+function ringBell() {
+  bump('bell', 'bellCount');
+  toast('🔔 Ghanti baji');
+}
+function lightDeep() {
+  bump('deep', 'deepCount');
+  toast('🪔 Deep jal gaya');
+}
+function pranam() {
+  bump('pranam', 'pranamCount');
+  toast('🙏 Pranam sweekar');
+}
+function sendComment() {
+  var inp = document.getElementById('cmInput');
+  if (!inp.value.trim()) { toast('Kuch likhein'); return; }
+  var row = document.createElement('div');
+  row.className = 'pr-row';
+  row.innerHTML = '<span class="pr-row-msg">💬 '+inp.value+'</span><span class="pr-row-by">· Aap</span>';
+  feedEl.insertBefore(row, feedEl.firstChild);
+  inp.value = '';
+  toast('Live mein post ho gaya');
+}
+
+var _tt;
+function toast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+document.getElementById('cmInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') sendComment();
+});
+</script>
+</body>
+</html>

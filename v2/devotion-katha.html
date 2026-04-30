@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katha & Gyaan · Daily Story</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0500; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; z-index:40; position:relative; }
+
+.screen { position:relative; background:#0a0500; color:#fff; min-height:820px; overflow:hidden; }
+
+/* ===== HEAD ===== */
+.head { padding:18px 20px 10px; }
+.h-label { font-size:10px; font-weight:700; letter-spacing:2px; color:#ffc870; text-transform:uppercase; }
+.h-title { font-size:22px; font-weight:900; color:#fff8e1; letter-spacing:-0.4px; margin-top:4px; }
+
+/* ===== DAILY STORY HERO ===== */
+.daily {
+  margin:10px 20px 0; border-radius:22px; overflow:hidden; position:relative;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(247,171,32,0.3), transparent 65%),
+    linear-gradient(160deg, #2a0f00 0%, #0a0500 90%);
+  border:1px solid rgba(255,200,120,0.3);
+}
+.d-illus {
+  position:relative; height:170px; overflow:hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255,120,40,0.4), transparent 68%),
+    linear-gradient(180deg, #4a1a00 0%, #2a0800 100%);
+}
+.d-rays {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  width:280px; height:280px; opacity:0.35; pointer-events:none;
+}
+.d-rays::before {
+  content:""; position:absolute; inset:0;
+  background:conic-gradient(from 0deg, transparent 0deg, rgba(255,236,180,0.55) 4deg, transparent 10deg, transparent 25deg, rgba(255,236,180,0.55) 29deg, transparent 35deg, transparent 52deg, rgba(255,236,180,0.5) 56deg, transparent 62deg, transparent 80deg, rgba(255,236,180,0.55) 84deg, transparent 90deg, transparent 110deg, rgba(255,236,180,0.5) 114deg, transparent 120deg, transparent 140deg, rgba(255,236,180,0.55) 144deg, transparent 150deg, transparent 170deg, rgba(255,236,180,0.55) 174deg, transparent 180deg, transparent 360deg);
+  border-radius:50%;
+  animation: raysRotate 60s linear infinite;
+}
+@keyframes raysRotate { to { transform:rotate(360deg); } }
+
+.d-deity {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  font-size:100px; color:#fff8e1; font-weight:900; line-height:1;
+  text-shadow:0 0 24px rgba(255,180,80,0.9);
+  z-index:3;
+}
+
+.d-body { padding:16px; position:relative; }
+.d-head-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.d-src {
+  font-size:9px; font-weight:700; letter-spacing:1.4px; color:#ffc870; text-transform:uppercase;
+  background:rgba(247,171,32,0.12); padding:3px 9px; border-radius:999px;
+  border:1px solid rgba(247,171,32,0.3);
+}
+.d-dur { font-size:10px; opacity:0.6; }
+.d-name { font-size:19px; font-weight:900; color:#fff8e1; letter-spacing:-0.3px; line-height:1.2; }
+.d-preview { font-size:12px; opacity:0.78; line-height:1.55; margin-top:8px; }
+
+.d-player {
+  margin-top:14px; display:flex; align-items:center; gap:12px;
+  background:rgba(0,0,0,0.35); padding:10px; border-radius:12px;
+  border:1px solid rgba(255,200,120,0.2);
+}
+.d-play-btn {
+  width:44px; height:44px; border-radius:50%;
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);
+  display:flex; align-items:center; justify-content:center;
+  color:#2a1400; font-size:16px; font-weight:900; cursor:pointer;
+  box-shadow:0 2px 12px rgba(247,171,32,0.45);
+}
+.d-play-body { flex:1; min-width:0; }
+.d-play-by { font-size:11px; font-weight:700; color:#fff8e1; }
+.d-play-meta { font-size:10px; opacity:0.58; margin-top:2px; }
+.d-play-track {
+  margin-top:6px; height:3px; border-radius:2px; background:rgba(255,255,255,0.1);
+  position:relative; overflow:hidden;
+}
+.d-play-track::before {
+  content:""; position:absolute; left:0; top:0; bottom:0; width:18%;
+  background:linear-gradient(90deg, #ffdc80 0%, #f7ab20 100%); border-radius:2px;
+}
+
+/* ===== CATEGORY CHIPS ===== */
+.cats { padding:16px 20px 0; display:flex; gap:8px; overflow-x:auto; }
+.cats::-webkit-scrollbar { display:none; }
+.cat-chip {
+  flex-shrink:0; padding:7px 13px; border-radius:999px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+  font-size:11px; font-weight:700; color:#fff; cursor:pointer;
+}
+.cat-chip.active {
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%); color:#2a1400; border-color:transparent;
+}
+
+.section { padding:18px 20px; }
+.sec-label { font-size:10px; font-weight:700; letter-spacing:1.8px; color:#ffc870; text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.sec-label span { font-size:10px; color:rgba(255,255,255,0.5); font-weight:500; letter-spacing:0.3px; text-transform:none; }
+
+/* ===== STORY GRID ===== */
+.story-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sg-card {
+  padding:14px 12px; border-radius:14px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer; transition:all 200ms;
+  position:relative; overflow:hidden;
+}
+.sg-card:active { transform:scale(0.97); }
+.sg-art {
+  width:44px; height:44px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:900; color:#fff; margin-bottom:10px;
+}
+.sg-title { font-size:12px; font-weight:700; color:#fff8e1; line-height:1.35; }
+.sg-meta { font-size:9px; opacity:0.55; margin-top:4px; }
+
+/* ===== SHLOKA OF THE DAY ===== */
+.shloka {
+  padding:18px; border-radius:18px;
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(103,103,255,0.2), transparent 65%),
+    linear-gradient(145deg, rgba(53,53,243,0.1) 0%, rgba(20,20,100,0.04) 100%);
+  border:1px solid rgba(103,103,255,0.3);
+}
+.sh-src { font-size:9px; font-weight:700; color:#a5a5ff; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+.sh-ref { font-size:11px; opacity:0.6; margin-bottom:12px; }
+.sh-dev {
+  font-size:14px; font-weight:700; line-height:1.7; color:#fff8e1;
+  padding:14px 14px 14px 18px;
+  border-left:3px solid #8b8bff;
+  background:rgba(0,0,0,0.25); border-radius:0 8px 8px 0;
+  letter-spacing:0.2px;
+}
+.sh-trans {
+  font-size:12px; opacity:0.75; line-height:1.55; margin-top:12px;
+}
+.sh-trans strong { color:#c7d2ff; font-weight:700; }
+.sh-foot {
+  margin-top:14px; padding-top:12px; border-top:1px solid rgba(139,139,255,0.2);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.sh-save {
+  font-size:10px; color:#c7d2ff; cursor:pointer;
+}
+
+/* ===== LISTEN LINEUP (narrators) ===== */
+.narr-strip { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.narr-strip::-webkit-scrollbar { display:none; }
+.narr-card {
+  flex-shrink:0; width:120px; padding:14px 10px; text-align:center;
+  border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+}
+.nr-av {
+  width:60px; height:60px; border-radius:50%; margin:0 auto 8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:900; color:#fff;
+}
+.nr-name { font-size:11px; font-weight:700; color:#fff8e1; }
+.nr-meta { font-size:9px; opacity:0.55; margin-top:2px; line-height:1.3; }
+.nr-play {
+  margin-top:8px; padding:5px; border-radius:999px;
+  background:rgba(247,171,32,0.18); color:#ffc870; font-size:10px; font-weight:700;
+}
+
+/* ===== MORAL CARD ===== */
+.moral {
+  padding:16px; border-radius:16px;
+  background:linear-gradient(135deg, rgba(30,204,176,0.1) 0%, rgba(30,204,176,0.03) 100%);
+  border:1px solid rgba(30,204,176,0.28);
+}
+.mr-label { font-size:9px; font-weight:700; color:#5be0c7; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:6px; }
+.mr-quote { font-size:14px; line-height:1.6; color:#fff8e1; font-weight:500; }
+.mr-by { display:block; margin-top:6px; font-size:10px; opacity:0.5; }
+
+/* ===== SERIES ===== */
+.series {
+  border-radius:16px; overflow:hidden;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+}
+.se-head {
+  padding:14px 16px;
+  background:linear-gradient(135deg, rgba(247,171,32,0.12) 0%, rgba(247,171,32,0.02) 100%);
+  border-bottom:1px solid rgba(255,200,120,0.15);
+}
+.se-title { font-size:14px; font-weight:900; color:#fff8e1; }
+.se-meta { font-size:10px; opacity:0.65; margin-top:3px; }
+.se-ep {
+  padding:11px 16px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06); cursor:pointer;
+}
+.se-ep:last-child { border-bottom:0; }
+.se-num {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:900; color:#ffc870;
+}
+.se-ep.done .se-num { background:#5be0c7; color:#0a2d26; }
+.se-ep-body { flex:1; }
+.se-ep-title { font-size:12px; font-weight:700; color:#fff8e1; }
+.se-ep-dur { font-size:9px; opacity:0.5; margin-top:1px; }
+.se-ep-play { font-size:14px; opacity:0.7; }
+
+/* Toast */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(0,0,0,0.95); color:#ffd69a; padding:10px 18px; border-radius:999px;
+  backdrop-filter:blur(12px); border:1px solid rgba(255,200,120,0.35);
+  font-size:12px; font-weight:600; z-index:50; opacity:0; transition:all 300ms ease;
+  pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+  <div class="screen">
+    <div class="head">
+      <div class="h-label">📖 Katha aur Gyaan</div>
+      <div class="h-title">Aaj ki Kahaani</div>
+    </div>
+
+    <!-- DAILY STORY -->
+    <div class="daily">
+      <div class="d-illus">
+        <div class="d-rays"></div>
+        <div class="d-deity">ॐ</div>
+      </div>
+      <div class="d-body">
+        <div class="d-head-row">
+          <div class="d-src">Bhagwad Gita · Adhyay 2</div>
+          <div class="d-dur">• 14 min</div>
+        </div>
+        <div class="d-name">Jab Arjun ne yudh se inkar kiya</div>
+        <div class="d-preview">
+          Kurukshetra ki ranbhoomi mein Arjun ne apne guru, bhaiyo, chacha-tau ko dekha. Gaandiv haath se chhooth gaya. "Main yeh yudh nahi kar sakta Krishna..." Aur tabhi Bhagwan ne woh gyaan diya jo aaj bhi hamari har samasya ka uttar hai.
+        </div>
+        <div class="d-player" onclick="toast('Jaya Kishori ki awaaz mein katha shuru...')">
+          <div class="d-play-btn">▶</div>
+          <div class="d-play-body">
+            <div class="d-play-by">Jaya Kishori</div>
+            <div class="d-play-meta">3:42 / 14:28 · Hindi</div>
+            <div class="d-play-track"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="cats">
+      <div class="cat-chip active">Sabhi</div>
+      <div class="cat-chip">Ramayan</div>
+      <div class="cat-chip">Mahabharat</div>
+      <div class="cat-chip">Puran</div>
+      <div class="cat-chip">Bhagwad Gita</div>
+      <div class="cat-chip">Sant Kathayein</div>
+    </div>
+
+    <!-- SHLOKA OF THE DAY -->
+    <div class="section">
+      <div class="sec-label">✦ Aaj ka Shlok <span>Bhagwad Gita 2.47</span></div>
+      <div class="shloka">
+        <div class="sh-src">Shreemad Bhagwad Gita</div>
+        <div class="sh-ref">Adhyay 2 · Shlok 47</div>
+        <div class="sh-dev">
+          कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।<br>
+          मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥
+        </div>
+        <div class="sh-trans">
+          <strong>Arth:</strong> Tumhara adhikar sirf karm karne par hai, kabhi phal par nahi. Karm ke phal ka karan mat bano, aur nishkarmata mein bhi mat lago.
+        </div>
+        <div class="sh-foot">
+          <div class="sh-save" onclick="toast('✓ Diyari mein rakh liya')">✦ Save</div>
+          <div style="font-size:10px; opacity:0.6; cursor:pointer;" onclick="toast('Share options khul rahi hain')">Bhejein →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORY GRID -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">📚 Aapke liye Kathayein <span>24 stories</span></div>
+      <div class="story-grid">
+        <div class="sg-card" onclick="toast('Hanuman ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #ff7050 0%, #c83020 100%);">H</div>
+          <div class="sg-title">Hanuman ne Sanjeevani uthayi</div>
+          <div class="sg-meta">Ramayan · 8 min</div>
+        </div>
+        <div class="sg-card" onclick="toast('Krishna ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #5b8bff 0%, #3535f3 100%);">K</div>
+          <div class="sg-title">Krishna ne Kaliya Nag ka mardan kiya</div>
+          <div class="sg-meta">Bhagwat · 10 min</div>
+        </div>
+        <div class="sg-card" onclick="toast('Ganesh ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%); color:#2a1400;">G</div>
+          <div class="sg-title">Ganesh ne Chandra ko shraap diya</div>
+          <div class="sg-meta">Ganesh Puran · 6 min</div>
+        </div>
+        <div class="sg-card" onclick="toast('Shiva ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #9090ff 0%, #3030aa 100%);">S</div>
+          <div class="sg-title">Shiv ne halahal visha piya</div>
+          <div class="sg-meta">Samudra Manthan · 7 min</div>
+        </div>
+        <div class="sg-card" onclick="toast('Durga ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #ff5080 0%, #c03060 100%);">D</div>
+          <div class="sg-title">Durga ne Mahishasur ka vadh kiya</div>
+          <div class="sg-meta">Devi Mahatmya · 12 min</div>
+        </div>
+        <div class="sg-card" onclick="toast('Nachiketa ki katha shuru...')">
+          <div class="sg-art" style="background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%); color:#0a2d26;">N</div>
+          <div class="sg-title">Nachiketa ne Yamraj se gyaan liya</div>
+          <div class="sg-meta">Kath Upanishad · 9 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NARRATORS -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">🎙 Aapke Priya Vachak</div>
+      <div class="narr-strip">
+        <div class="narr-card">
+          <div class="nr-av" style="background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%); color:#2a1400;">MB</div>
+          <div class="nr-name">Morari Bapu</div>
+          <div class="nr-meta">Ram Katha · 842 ghante</div>
+          <div class="nr-play">▶ Sunein</div>
+        </div>
+        <div class="narr-card">
+          <div class="nr-av" style="background:linear-gradient(135deg, #ff90a0 0%, #e04060 100%);">JK</div>
+          <div class="nr-name">Jaya Kishori</div>
+          <div class="nr-meta">Kathayein · 412 ghante</div>
+          <div class="nr-play">▶ Sunein</div>
+        </div>
+        <div class="narr-card">
+          <div class="nr-av" style="background:linear-gradient(135deg, #8be8d3 0%, #1eccb0 100%); color:#0a2d26;">SP</div>
+          <div class="nr-name">Sri Sri Ravi Shankar</div>
+          <div class="nr-meta">Gita Gyaan · 280 ghante</div>
+          <div class="nr-play">▶ Sunein</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERIES -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">📺 Chalti Shrinkhala</div>
+      <div class="series">
+        <div class="se-head">
+          <div class="se-title">Sampurn Sundar Kand</div>
+          <div class="se-meta">9 episodes · Jaya Kishori ki awaaz · Tulsidas ji ke dohon ka bhaav</div>
+        </div>
+        <div class="se-ep done">
+          <div class="se-num">1</div>
+          <div class="se-ep-body">
+            <div class="se-ep-title">Hanuman ka prasthan · Sagar ullanghan</div>
+            <div class="se-ep-dur">12 min · Suna</div>
+          </div>
+          <div class="se-ep-play">▶</div>
+        </div>
+        <div class="se-ep done">
+          <div class="se-num">2</div>
+          <div class="se-ep-body">
+            <div class="se-ep-title">Lanka pravesh · Sita ki khoj</div>
+            <div class="se-ep-dur">14 min · Suna</div>
+          </div>
+          <div class="se-ep-play">▶</div>
+        </div>
+        <div class="se-ep">
+          <div class="se-num">3</div>
+          <div class="se-ep-body">
+            <div class="se-ep-title">Ashok Vatika mein Sita darshan</div>
+            <div class="se-ep-dur">16 min · Abhi sunein</div>
+          </div>
+          <div class="se-ep-play">▶</div>
+        </div>
+        <div class="se-ep">
+          <div class="se-num">4</div>
+          <div class="se-ep-body">
+            <div class="se-ep-title">Akshay Kumar vadh · Lanka dahan</div>
+            <div class="se-ep-dur">18 min</div>
+          </div>
+          <div class="se-ep-play">▶</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MORAL -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">💡 Aaj ka Saar</div>
+      <div class="moral">
+        <div class="mr-label">Kahaani ka sandesh</div>
+        <div class="mr-quote">
+          "Karm karne ka adhikar hai, phal chahne ka nahi. Jab hum phal ki chinta chhor dete hain, tabhi shuddh karm hota hai."
+          <span class="mr-by">— Bhagwad Gita ka saar</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:24px;"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+var _tt;
+function toast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+document.querySelectorAll('.cat-chip').forEach(function(c) {
+  c.addEventListener('click', function() {
+    document.querySelectorAll('.cat-chip').forEach(function(x){ x.classList.remove('active'); });
+    c.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varuthini Ekadashi · Vrat Saathi</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType'; -webkit-font-smoothing:antialiased; }
+body { background:#f0f0f0; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #141414; box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden; position:relative; background:#ffffff; }
+.notch { background:#141414; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#141414; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#141414; background:#ffffff; }
+
+.screen { position:relative; background:#ffffff; color:#141414; height:760px; display:flex; flex-direction:column; }
+
+/* TOP BAR */
+.topbar {
+  background:#ffffff; padding:12px 16px; display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid rgba(36,38,43,0.12); position:relative; z-index:5;
+}
+.icon-btn { width:36px; height:36px; border-radius:50%; background:#e7e9ff; border:none; color:#170054; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.topbar-title { flex:1; }
+.topbar-title .t { font-size:16px; font-weight:700; color:#141414; line-height:1.25; }
+.topbar-title .s { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+.avatar-mini { width:36px; height:36px; border-radius:50%; background:#3535f3; color:#ffffff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.avatar-mini svg { width:18px; height:18px; }
+
+/* CHAT */
+.chat { flex:1; overflow-y:auto; padding:16px 16px 8px; scroll-behavior:smooth; background:#ffffff; }
+.chat::-webkit-scrollbar { display:none; }
+
+.msg { max-width:88%; margin-bottom:12px; animation:msgIn 320ms ease-out; }
+@keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+.msg.ai { display:flex; gap:8px; align-items:flex-start; }
+.msg.ai .av { width:28px; height:28px; border-radius:50%; background:#3535f3; color:#ffffff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.msg.ai .bubble { background:#f5f5f5; border-radius:4px 16px 16px 16px; padding:10px 14px; font-size:14px; font-weight:500; color:#141414; line-height:1.5; }
+.msg.ai .bubble b { font-weight:700; color:#141414; }
+
+.msg.user { margin-left:auto; }
+.msg.user .bubble { background:#3535f3; border-radius:16px 16px 4px 16px; padding:10px 14px; font-size:14px; font-weight:500; color:#ffffff; line-height:1.5; }
+
+/* HERO Card — JDS Card */
+.vrat-hero {
+  max-width:94%; margin:4px 0 14px 36px;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12); border-radius:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  overflow:hidden; animation:msgIn 380ms ease-out;
+}
+.vrat-hero-art {
+  height:120px; position:relative; background:#e7e9ff;
+  display:flex; align-items:center; justify-content:center;
+}
+.vrat-hero-art svg { width:64px; height:64px; color:#3535f3; }
+.vrat-tag-sm {
+  position:absolute; top:12px; right:12px;
+  font-size:10px; font-weight:700; letter-spacing:0.5px;
+  background:#3535f3; color:#ffffff;
+  padding:5px 10px; border-radius:999px;
+}
+.vrat-hero-body { padding:14px 16px; }
+.vrat-hero-title { font-size:18px; font-weight:700; color:#141414; line-height:1.25; }
+.vrat-hero-sub { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:4px; }
+
+/* Audio player bar */
+.audio-bar {
+  margin-top:14px; padding:10px; border-radius:14px;
+  background:#eeeeef;
+  display:flex; align-items:center; gap:10px;
+}
+.audio-play-btn {
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
+  background:#3535f3; border:none; color:#ffffff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.audio-play-btn svg { width:18px; height:18px; }
+.audio-play-btn .pause-shape { display:none; }
+.audio-play-btn.playing .play-shape { display:none; }
+.audio-play-btn.playing .pause-shape { display:flex; }
+.audio-meta { flex:1; min-width:0; }
+.audio-title { font-size:13px; font-weight:700; color:#141414; }
+.audio-sub { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:1px; }
+.audio-progress { margin-top:6px; height:3px; background:rgba(53,53,243,0.18); border-radius:2px; overflow:hidden; }
+.audio-progress .bar { height:100%; width:0; background:#3535f3; border-radius:2px; transition: width 180s linear; }
+.audio-bar.playing .audio-progress .bar { width:100%; }
+
+/* Info section cards */
+.info-card {
+  max-width:88%; margin:0 0 12px 36px;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+  border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  padding:14px; animation:msgIn 380ms ease-out;
+}
+.info-label { font-size:10px; font-weight:700; letter-spacing:0.5px; color:#7f4b10; text-transform:uppercase; }
+.info-title { font-size:15px; font-weight:700; color:#141414; margin-top:6px; line-height:1.25; }
+.info-body { font-size:13px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:6px; line-height:1.5; }
+.info-body b { color:#141414; font-weight:700; }
+
+/* Do's/Don'ts grid */
+.dd-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.dd-col { background:#f5f5f5; border-radius:12px; padding:10px; }
+.dd-col.yes { border-left:3px solid #25ab21; }
+.dd-col.no { border-left:3px solid #fa2f40; }
+.dd-head { font-size:11px; font-weight:700; margin-bottom:6px; }
+.dd-col.yes .dd-head { color:#25ab21; }
+.dd-col.no .dd-head { color:#fa2f40; }
+.dd-item { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); padding:3px 0; }
+
+/* CHIPS */
+.chips { margin-left:36px; margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap; animation:msgIn 380ms ease-out 100ms backwards; }
+.chip {
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+  color:#3535f3; font-family:inherit; font-size:13px; font-weight:700; padding:8px 14px;
+  height:36px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center;
+  transition: background 200ms ease, transform 120ms ease;
+}
+.chip:hover { background:#e7e9ff; }
+.chip:active { transform:scale(0.97); }
+
+.typing { display:flex; gap:4px; padding:10px 14px; align-items:center; }
+.typing span { width:6px; height:6px; border-radius:50%; background:#3535f3; opacity:0.5; animation: tdot 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay:0.15s; }
+.typing span:nth-child(3) { animation-delay:0.3s; }
+@keyframes tdot { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-3px); opacity:1; } }
+
+/* Parana countdown card */
+.parana-card {
+  max-width:88%; margin:0 0 12px 36px;
+  background:#e8faf7; border:1px solid rgba(30,204,176,0.3); border-radius:16px;
+  padding:14px; animation:msgIn 380ms ease-out;
+}
+.parana-label { font-size:10px; font-weight:700; letter-spacing:0.5px; color:#0e5c4f; text-transform:uppercase; }
+.parana-time { font-size:24px; font-weight:900; color:#141414; margin-top:6px; }
+.parana-sub { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:3px; }
+
+/* JDS ChatInput composer */
+.composer {
+  padding:10px 14px 14px; background:#ffffff;
+  border-top:1px solid rgba(36,38,43,0.12);
+  display:flex; gap:10px; align-items:center;
+}
+.composer .input-wrap {
+  flex:1; height:46px; background:#eeeeef; border-radius:23px;
+  display:flex; align-items:center; padding:0 8px 0 16px;
+}
+.composer input {
+  flex:1; background:transparent; border:none; color:#141414;
+  font-family:inherit; font-size:14px; font-weight:500; outline:none;
+}
+.composer input::placeholder { color:rgba(25,27,30,0.38); }
+.composer .mic-btn {
+  width:32px; height:32px; border-radius:50%; background:transparent; border:none;
+  color:#170054; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.composer .mic-btn svg { width:18px; height:18px; }
+.composer .send {
+  width:46px; height:46px; border-radius:50%; background:#3535f3; color:#ffffff; border:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.composer .send svg { width:20px; height:20px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>5G</span></div>
+
+  <div class="screen">
+    <div class="topbar">
+      <button class="icon-btn" onclick="goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M2.29 12.71l6 6a1.004 1.004 0 101.42-1.42L5.41 13H21a1 1 0 100-2H5.41l4.3-4.29a1 1 0 000-1.42 1 1 0 00-1.42 0l-6 6a1 1 0 000 1.42z" fill="currentColor"/></svg>
+      </button>
+      <div class="topbar-title">
+        <div class="t">Vrat Saathi</div>
+        <div class="s">Varuthini Ekadashi . Aaj</div>
+      </div>
+      <div class="avatar-mini">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="composer">
+      <div class="input-wrap">
+        <input id="composerInput" placeholder="Vrat ke baare mein poochhiye..."/>
+        <button class="mic-btn" aria-label="Voice">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3zm6-5a1 1 0 00-1 1v1a5 5 0 11-10 0v-1a1 1 0 10-2 0v1a7 7 0 1014 0v-1a1 1 0 00-1-1zm-3 10H9a1 1 0 000 2h6a1 1 0 000-2z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button class="send" onclick="sendCustom()" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function goHome(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+const chat = document.getElementById('chat');
+function scrollBottom() { chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' }); }
+
+function aiMsg(text, delay=320) {
+  return new Promise(res => {
+    const t = document.createElement('div');
+    t.className = 'msg ai';
+    t.innerHTML = `<div class="av">VS</div><div class="bubble typing"><span></span><span></span><span></span></div>`;
+    chat.appendChild(t); scrollBottom();
+    setTimeout(() => {
+      t.remove();
+      const m = document.createElement('div');
+      m.className = 'msg ai';
+      m.innerHTML = `<div class="av">VS</div><div class="bubble">${text}</div>`;
+      chat.appendChild(m); scrollBottom();
+      res();
+    }, delay);
+  });
+}
+
+function userMsg(text) {
+  const m = document.createElement('div');
+  m.className = 'msg user';
+  m.innerHTML = `<div class="bubble">${text}</div>`;
+  chat.appendChild(m); scrollBottom();
+}
+
+function addChips(items) {
+  const row = document.createElement('div');
+  row.className = 'chips';
+  items.forEach(it => {
+    const c = document.createElement('button');
+    c.className = 'chip';
+    c.textContent = it.label;
+    c.onclick = () => { [...row.children].forEach(x => x.style.opacity='0.38'); it.onClick(); };
+    row.appendChild(c);
+  });
+  chat.appendChild(row); scrollBottom();
+}
+
+function addVratHero() {
+  const el = document.createElement('div');
+  el.className = 'vrat-hero';
+  el.innerHTML = `
+    <div class="vrat-hero-art">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/></svg>
+      <div class="vrat-tag-sm">AAJ KA VRAT</div>
+    </div>
+    <div class="vrat-hero-body">
+      <div class="vrat-hero-title">Varuthini Ekadashi</div>
+      <div class="vrat-hero-sub">Vaishakh Krishna Paksha . Vishnu ji ki kripa</div>
+      <div class="audio-bar" id="audioBar">
+        <button class="audio-play-btn" id="playBtn" onclick="togglePlay()">
+          <svg class="play-shape" viewBox="0 0 24 24" fill="none"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z" fill="currentColor"/></svg>
+          <svg class="pause-shape" viewBox="0 0 24 24" fill="none"><path d="M8.5 4A1.5 1.5 0 007 5.5v13a1.5 1.5 0 003 0v-13A1.5 1.5 0 008.5 4zm7 0A1.5 1.5 0 0014 5.5v13a1.5 1.5 0 103 0v-13A1.5 1.5 0 0015.5 4z" fill="currentColor"/></svg>
+        </button>
+        <div class="audio-meta">
+          <div class="audio-title">Varuthini Ekadashi Katha</div>
+          <div class="audio-sub">Morari Bapu . 6:24 min</div>
+          <div class="audio-progress"><div class="bar"></div></div>
+        </div>
+      </div>
+    </div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function togglePlay() {
+  const btn = document.getElementById('playBtn');
+  const bar = document.getElementById('audioBar');
+  btn.classList.toggle('playing');
+  bar.classList.toggle('playing');
+}
+
+function addInfoCard(label, title, body) {
+  const el = document.createElement('div');
+  el.className = 'info-card';
+  el.innerHTML = `
+    <div class="info-label">${label}</div>
+    <div class="info-title">${title}</div>
+    <div class="info-body">${body}</div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function addDDGrid() {
+  const el = document.createElement('div');
+  el.className = 'info-card';
+  el.innerHTML = `
+    <div class="info-label">Kya Karein . Kya Na Karein</div>
+    <div class="dd-grid">
+      <div class="dd-col yes">
+        <div class="dd-head">KAREIN</div>
+        <div class="dd-item">Phalahar (fruits, nuts)</div>
+        <div class="dd-item">Doodh, dahi</div>
+        <div class="dd-item">Vishnu naam jaap</div>
+        <div class="dd-item">Daan punya</div>
+      </div>
+      <div class="dd-col no">
+        <div class="dd-head">NA KAREIN</div>
+        <div class="dd-item">Ann (grains), daal</div>
+        <div class="dd-item">Kanda, lasan</div>
+        <div class="dd-item">Kisi ki nindana</div>
+        <div class="dd-item">Krodh, jhooth</div>
+      </div>
+    </div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function addParana() {
+  const el = document.createElement('div');
+  el.className = 'parana-card';
+  el.innerHTML = `
+    <div class="parana-label">Parana (Vrat Tod)</div>
+    <div class="parana-time">Kal . 6:14 AM</div>
+    <div class="parana-sub">Dwadashi suryoday ke baad . ann grahan se vrat sampoorna</div>
+  `;
+  chat.appendChild(el); scrollBottom();
+}
+
+function askKatha() {
+  userMsg('Iski katha sunao');
+  setTimeout(async () => {
+    await aiMsg('Suniye. Ye katha Krishna ne Yudhishthir ko Mahabharat mein sunai thi.', 700);
+    addInfoCard('Katha . Varuthini Ekadashi',
+      'Narad ji batlaate hain',
+      'Ek raja Mandhata the, jo tapasya karte the. Ek din jungle mein ek reechh ne unka pair pakad liya. Raja ne Vishnu ji se prarthana ki — "He Prabhu, meri raksha karein!" Vishnu ji ke Sudarshan Chakra ne reechh ka vadh kiya aur raja ko naya jeevan mila. Ye din Vaishakh Krishna Ekadashi thi — isliye ise Varuthini Ekadashi kaha gaya. <b>"Varuth"</b> ka arth hai — raksha karne wala.');
+    setTimeout(() => {
+      addChips([
+        { label:'Audio suno', onClick: togglePlay },
+        { label:'Vidhi batao', onClick: askVidhi },
+        { label:'Kya khaun?', onClick: askFood }
+      ]);
+    }, 300);
+  }, 200);
+}
+
+function askSignificance() {
+  userMsg('Iska mahatva kya hai?');
+  setTimeout(async () => {
+    await aiMsg('Varuthini Ekadashi ka vrat bahut shubh hai. Ye paap ka naash karta hai aur Vaikunth ki praapti karata hai.', 700);
+    addInfoCard('Mahatva',
+      'Varuthini Ekadashi ka phal',
+      'Is vrat se <b>1000 varsh ki tapasya ka phal</b> milta hai. Jo is din Vishnu ji ki pooja karta hai, uske saare paap nasht hote hain aur wo Vaikunth dham ko jaata hai. Daan ka bhi bahut mahatva hai — anna daan sabse shreshta.');
+    setTimeout(() => {
+      addChips([
+        { label:'Katha sunao', onClick: askKatha },
+        { label:'Vidhi batao', onClick: askVidhi },
+        { label:'Parana kab?', onClick: askParana }
+      ]);
+    }, 300);
+  }, 200);
+}
+
+function askVidhi() {
+  userMsg('Vidhi kya hai?');
+  setTimeout(async () => {
+    await aiMsg('Aaj ka poora din is tarah kijiye:', 600);
+    addInfoCard('Vrat Vidhi',
+      '6 saral kadam',
+      `<b>1.</b> Brahma muhurat mein uthiye (4:22 AM)<br/>
+       <b>2.</b> Snaan kar ke peele vastra pahniye<br/>
+       <b>3.</b> Vishnu ji ki moorti ya chitra saamne rakh ke deepak jalaaiye<br/>
+       <b>4.</b> Tulsi aur phool arpit karein, "Om Namo Bhagavate Vasudevaya" 108 baar jaapiye<br/>
+       <b>5.</b> Din bhar phalahar karein, anna na khayein<br/>
+       <b>6.</b> Raat ko Vishnu katha sunein ya Gita padhein`);
+    addDDGrid();
+    setTimeout(() => {
+      addChips([
+        { label:'Katha sunao', onClick: askKatha },
+        { label:'Parana kab?', onClick: askParana },
+        { label:'Kya kha sakte?', onClick: askFood }
+      ]);
+    }, 400);
+  }, 200);
+}
+
+function askFood() {
+  userMsg('Kya kha sakti hun?');
+  setTimeout(async () => {
+    await aiMsg('Phalahar ka matlab ann nahi, sirf fruits + milk + nuts. Yeh allowed hai:', 700);
+    addInfoCard('Phalahari Bhojan',
+      'Ye saari cheezein chalengi',
+      '<b>Phal:</b> kela, anaar, seb, aam<br/><b>Dairy:</b> doodh, dahi, paneer<br/><b>Sookhe meve:</b> badam, kaaju, akhrot, kishmish<br/><b>Sabzi:</b> aalu, shakarkandi, saabudana<br/><b>Meetha:</b> gud, shahad, shakkar<br/><b>Aata:</b> singhaade ka aata, kuttu ka aata');
+    setTimeout(() => {
+      addChips([
+        { label:'Vidhi', onClick: askVidhi },
+        { label:'Parana kab?', onClick: askParana },
+        { label:'Mantra', onClick: askMantra }
+      ]);
+    }, 300);
+  }, 200);
+}
+
+function askParana() {
+  userMsg('Parana kab karun?');
+  setTimeout(async () => {
+    await aiMsg('Parana ka samay dhyan se kijiye — galat samay par vrat tod ne se punya nahi milta.', 700);
+    addParana();
+    addInfoCard('Parana Vidhi',
+      'Kaise karein vrat samaapt',
+      'Kal subah <b>6:14 AM</b> ke baad suryoday ho jaayega. Snaan kar ke Vishnu ji ko bhog lagaayein — <b>gud, tulsi, anna</b> arpit karein. Phir khud pehla grass <b>"Om Vishnave Namah"</b> bolkar khaayein. Yeh parana hai.');
+    setTimeout(() => {
+      addChips([
+        { label:'Mantra jaap', onClick: askMantra },
+        { label:'Katha dobara', onClick: askKatha }
+      ]);
+    }, 300);
+  }, 200);
+}
+
+function askMantra() {
+  userMsg('Mantra kaun sa japun?');
+  setTimeout(async () => {
+    await aiMsg('Aaj ke din ye 2 mantra sabse shakti-shali hain:', 600);
+    addInfoCard('Vishnu Mantra',
+      'Dwadashakshar Mantra',
+      '<b>Om Namo Bhagavate Vasudevaya</b><br/><br/>108 baar jaap karein. Tulsi mala se sabse shubh.');
+    addInfoCard('Sanrakshak Shlok',
+      'Varuthini ka mool mantra',
+      'वरूथिनीं नमस्यामि सर्वपापप्रणाशिनीम् . सर्वकामप्रदां देवीं विष्णुरूपां नमाम्यहम्');
+    setTimeout(() => {
+      addChips([
+        { label:'Audio katha', onClick: togglePlay },
+        { label:'Home pe jaun', onClick: goHome }
+      ]);
+    }, 300);
+  }, 200);
+}
+
+function sendCustom() {
+  const input = document.getElementById('composerInput');
+  const v = input.value.trim();
+  if (!v) return;
+  userMsg(v); input.value = '';
+  setTimeout(async () => {
+    await aiMsg(`Achhaa sawaal. Varuthini Ekadashi ke baare mein batati hun:`, 700);
+    addInfoCard('Jawab', v, 'Is vrat se jeevan mein shanti, dhan, aur Vishnu ji ki kripa milti hai. Niyam se rakhein to paap kshay hota hai.');
+    setTimeout(() => {
+      addChips([
+        { label:'Katha', onClick: askKatha },
+        { label:'Vidhi', onClick: askVidhi },
+        { label:'Food', onClick: askFood }
+      ]);
+    }, 300);
+  }, 200);
+}
+document.getElementById('composerInput').addEventListener('keydown', e => { if (e.key==='Enter') sendCustom(); });
+
+async function start() {
+  await aiMsg('Jai Shree Hari. Main aapki Vrat Saathi hun, Shivali.', 500);
+  addVratHero();
+  await aiMsg('Aaj <b>Varuthini Ekadashi</b> hai — Vaishakh Krishna Paksha ki pavitra ekadashi. Is vrat ka bahut mahatva hai. Kya jaanna chahengi?', 700);
+  addChips([
+    { label:'Mahatva', onClick: askSignificance },
+    { label:'Katha sunao', onClick: askKatha },
+    { label:'Vidhi', onClick: askVidhi },
+    { label:'Kya khaun?', onClick: askFood },
+    { label:'Parana kab?', onClick: askParana },
+    { label:'Mantra', onClick: askMantra }
+  ]);
+}
+start();
+</script>
+</body>
+</html>

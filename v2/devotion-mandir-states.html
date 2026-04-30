@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mera Mandir · Living Shrine</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#0a0500; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+/* ===== PHONE FRAME ===== */
+.phone {
+  width:360px; border-radius:40px; border:8px solid #1a1a1a;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+  overflow:hidden; position:relative; background:#0f0a00;
+}
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar {
+  padding:6px 20px; display:flex; justify-content:space-between;
+  font-size:11px; font-weight:600; color:#ffffff; z-index:40; position:relative;
+  background:transparent;
+}
+
+/* ===== SCENE CONTAINER ===== */
+.screen {
+  position:relative; width:100%; min-height:788px;
+  background:#0a0500; overflow:hidden;
+  transition: background 1400ms cubic-bezier(.22,.7,.25,1);
+}
+
+/* ===== SKY LAYERS (switch by state) ===== */
+.sky {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  opacity:0; transition: opacity 1400ms cubic-bezier(.22,.7,.25,1);
+}
+.sky.on { opacity:1; }
+
+/* Brahma Muhurta — pre-dawn indigo */
+.sky-brahma {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(89,61,140,0.55), transparent 70%),
+    radial-gradient(ellipse 70% 40% at 50% 80%, rgba(120,60,30,0.35), transparent 75%),
+    linear-gradient(180deg, #0b0728 0%, #14081f 40%, #1a0a0a 78%, #0a0500 100%);
+}
+/* Suprabhat — golden sunrise */
+.sky-suprabhat {
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 20%, rgba(255,193,89,0.7), transparent 72%),
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(255,120,40,0.5), transparent 70%),
+    linear-gradient(180deg, #ff8f3c 0%, #f7ab20 38%, #c85510 75%, #3b1500 100%);
+}
+/* Sandhya — twilight rose + saffron */
+.sky-sandhya {
+  background:
+    radial-gradient(ellipse 100% 55% at 50% 30%, rgba(255,130,89,0.8), transparent 72%),
+    radial-gradient(ellipse 80% 35% at 50% 85%, rgba(58,16,62,0.6), transparent 70%),
+    linear-gradient(180deg, #4a1a3e 0%, #8a2848 30%, #c74a2a 56%, #5a1207 88%, #1a0500 100%);
+}
+/* Ratri — midnight blue with stars */
+.sky-ratri {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 10%, rgba(36,28,78,0.8), transparent 70%),
+    radial-gradient(ellipse 70% 30% at 50% 80%, rgba(18,10,42,0.5), transparent 75%),
+    linear-gradient(180deg, #050418 0%, #0a0830 35%, #0c0822 70%, #050208 100%);
+}
+
+/* ===== STARS (only for brahma + ratri) ===== */
+.stars { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0; transition:opacity 1400ms ease; }
+.stars.on { opacity:1; }
+.star {
+  position:absolute; background:#ffffff; border-radius:50%;
+  box-shadow:0 0 6px rgba(255,255,255,0.85);
+  animation: twinkle var(--d) ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity:0.3; transform:scale(0.85); }
+  50% { opacity:1; transform:scale(1.15); }
+}
+
+/* ===== SUN RAYS (suprabhat only) ===== */
+.rays {
+  position:absolute; top:-40px; left:50%; transform:translateX(-50%);
+  width:420px; height:420px; z-index:2; pointer-events:none; opacity:0;
+  transition:opacity 1400ms ease;
+}
+.rays.on { opacity:0.55; }
+.rays::before {
+  content:""; position:absolute; inset:0;
+  background:conic-gradient(from 0deg, transparent 0deg, rgba(255,236,180,0.55) 4deg, transparent 10deg, transparent 22deg, rgba(255,236,180,0.55) 26deg, transparent 32deg, transparent 45deg, rgba(255,236,180,0.5) 49deg, transparent 55deg, transparent 68deg, rgba(255,236,180,0.55) 72deg, transparent 78deg, transparent 90deg, rgba(255,236,180,0.5) 94deg, transparent 100deg, transparent 115deg, rgba(255,236,180,0.55) 119deg, transparent 125deg, transparent 140deg, rgba(255,236,180,0.5) 144deg, transparent 150deg, transparent 165deg, rgba(255,236,180,0.55) 169deg, transparent 175deg, transparent 360deg);
+  border-radius:50%;
+  animation: raysRotate 80s linear infinite;
+}
+@keyframes raysRotate { to { transform:rotate(360deg); } }
+
+/* ===== TEMPLE ARCH + DEITY ===== */
+.mandir {
+  position:relative; z-index:5; height:460px;
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:0;
+}
+.arch {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:280px; height:380px;
+  filter: drop-shadow(0 -2px 0 rgba(0,0,0,0.2));
+}
+
+/* Halo */
+.halo {
+  position:absolute; bottom:120px; left:50%; transform:translateX(-50%);
+  width:200px; height:200px; border-radius:50%;
+  background: radial-gradient(circle, rgba(255,200,100,0.9) 0%, rgba(255,160,60,0.5) 30%, rgba(255,140,40,0.18) 55%, transparent 75%);
+  filter:blur(2px);
+  animation: haloBreath 4s ease-in-out infinite;
+  z-index:4;
+  transition: background 1400ms ease;
+}
+.halo.halo-brahma {
+  background: radial-gradient(circle, rgba(220,180,255,0.65) 0%, rgba(150,110,220,0.35) 35%, rgba(100,70,180,0.12) 60%, transparent 78%);
+}
+.halo.halo-sandhya {
+  background: radial-gradient(circle, rgba(255,180,120,0.95) 0%, rgba(255,100,60,0.55) 28%, rgba(200,60,40,0.18) 55%, transparent 75%);
+}
+.halo.halo-ratri {
+  background: radial-gradient(circle, rgba(200,220,255,0.6) 0%, rgba(130,140,220,0.3) 35%, rgba(80,90,160,0.1) 60%, transparent 78%);
+}
+@keyframes haloBreath {
+  0%, 100% { transform:translateX(-50%) scale(1); opacity:0.92; }
+  50% { transform:translateX(-50%) scale(1.08); opacity:1; }
+}
+
+/* Deity glyph */
+.deity {
+  position:absolute; bottom:150px; left:50%; transform:translateX(-50%);
+  font-size:124px; line-height:1; color:#fff8e1;
+  text-shadow:0 0 24px rgba(255,180,80,0.8), 0 0 60px rgba(255,140,40,0.45);
+  font-weight:900; z-index:5;
+  animation: deityBreath 6s ease-in-out infinite;
+}
+@keyframes deityBreath {
+  0%, 100% { transform:translateX(-50%) scale(1); }
+  50% { transform:translateX(-50%) scale(1.025); }
+}
+
+/* Diyas on arch base */
+.diya-row {
+  position:absolute; bottom:90px; left:50%; transform:translateX(-50%);
+  width:260px; display:flex; justify-content:space-between; z-index:6;
+  opacity:0; transition:opacity 1400ms ease;
+}
+.diya-row.on { opacity:1; }
+.diya {
+  position:relative; width:28px; height:24px;
+}
+.diya::before {
+  content:""; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:24px; height:10px; border-radius:0 0 12px 12px;
+  background:linear-gradient(180deg, #7f4b10 0%, #3b1d04 100%);
+}
+.diya::after {
+  content:""; position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  width:7px; height:13px; border-radius:50% 50% 35% 35%;
+  background:radial-gradient(ellipse at 50% 100%, #fff8b0 0%, #ffba40 35%, #ff6020 75%, transparent 100%);
+  box-shadow:0 0 10px #ffa040, 0 0 24px rgba(255,120,40,0.65);
+  animation: flicker var(--fd, 1.2s) ease-in-out infinite;
+}
+@keyframes flicker {
+  0%, 100% { transform:translateX(-50%) scaleY(1) rotate(-2deg); opacity:1; }
+  40% { transform:translateX(-50%) scaleY(0.88) rotate(2deg); opacity:0.85; }
+  60% { transform:translateX(-50%) scaleY(1.08) rotate(-1deg); opacity:1; }
+}
+
+/* Floor / foreground shadow */
+.floor {
+  position:absolute; bottom:0; left:0; right:0; height:100px; z-index:5;
+  background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.85) 100%);
+  pointer-events:none;
+}
+
+/* ===== GREETING OVERLAY ===== */
+.greet-wrap {
+  position:relative; z-index:10; padding:20px 24px 14px; color:#fff;
+  text-align:center;
+}
+.greet-label {
+  font-size:11px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase;
+  opacity:0.85; margin-bottom:6px;
+}
+.greet-main {
+  font-size:24px; font-weight:900; letter-spacing:-0.3px; color:#fff8e1;
+  text-shadow:0 2px 12px rgba(0,0,0,0.45);
+}
+.greet-sub {
+  font-size:13px; font-weight:400; opacity:0.82; margin-top:4px;
+  color:#ffe8c4;
+}
+
+/* ===== STATE PICKER (demo scrubber) ===== */
+.state-pills {
+  position:absolute; top:70px; left:0; right:0; z-index:30;
+  display:flex; justify-content:center; gap:6px; padding:0 16px;
+}
+.spill {
+  background:rgba(255,255,255,0.12); color:#fff; font-family:'JioType',sans-serif;
+  font-size:10px; font-weight:600; letter-spacing:0.3px;
+  padding:7px 11px; border:1px solid rgba(255,255,255,0.22);
+  border-radius:999px; cursor:pointer; backdrop-filter:blur(10px);
+  transition:all 240ms ease;
+}
+.spill.active {
+  background:#fff; color:#141414; border-color:#fff;
+  box-shadow:0 4px 16px rgba(255,200,100,0.4);
+}
+.spill:hover:not(.active) { background:rgba(255,255,255,0.2); }
+
+/* ===== TITHI STRIP ===== */
+.tithi {
+  position:relative; z-index:10; margin:4px 20px 0;
+  padding:10px 14px; border-radius:14px;
+  background:rgba(255,255,255,0.08); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.14);
+  display:flex; justify-content:space-between; align-items:center;
+  color:#fff;
+}
+.tithi-l { display:flex; flex-direction:column; gap:2px; }
+.tithi-label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; opacity:0.7; }
+.tithi-value { font-size:13px; font-weight:700; color:#fff8e1; }
+.tithi-r {
+  padding:5px 10px; border-radius:999px;
+  background:rgba(247,171,32,0.2); border:1px solid rgba(247,171,32,0.45);
+  font-size:10px; font-weight:700; color:#ffc870; letter-spacing:0.2px;
+}
+
+/* ===== PRIMARY CTA ===== */
+.cta {
+  position:relative; z-index:10; margin:16px 20px 0;
+  padding:16px 18px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(255,180,80,0.22) 0%, rgba(247,171,32,0.14) 100%);
+  border:1px solid rgba(255,200,120,0.35); backdrop-filter:blur(12px);
+  color:#fff; cursor:pointer; transition:all 300ms ease;
+  display:flex; align-items:center; gap:14px;
+}
+.cta:active { transform:scale(0.98); }
+.cta-icon {
+  width:44px; height:44px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle, #ffc870 0%, #f7ab20 60%, #7f4b10 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; color:#2a1400; font-weight:900;
+  box-shadow:0 0 20px rgba(247,171,32,0.55);
+  animation: ctaGlow 2.4s ease-in-out infinite;
+}
+@keyframes ctaGlow {
+  0%, 100% { box-shadow:0 0 18px rgba(247,171,32,0.5); }
+  50% { box-shadow:0 0 32px rgba(247,171,32,0.85); }
+}
+.cta-body { flex:1; }
+.cta-label { font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; opacity:0.82; color:#ffd69a; }
+.cta-title { font-size:15px; font-weight:700; color:#fff; margin-top:2px; }
+.cta-sub { font-size:11px; opacity:0.72; margin-top:2px; }
+.cta-arrow { font-size:18px; opacity:0.7; }
+
+/* ===== AMBIENT CARD ===== */
+.ambient {
+  position:relative; z-index:10; margin:14px 20px 0;
+  padding:14px; border-radius:18px;
+  background:rgba(255,255,255,0.07); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff;
+  display:flex; gap:12px; align-items:center;
+}
+.amb-art {
+  width:56px; height:56px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; font-weight:900;
+  background:linear-gradient(135deg, #7f4b10 0%, #f7ab20 100%);
+  color:#fff; position:relative; overflow:hidden;
+}
+.amb-art::after {
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 60%);
+}
+.amb-body { flex:1; min-width:0; }
+.amb-label { font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:#ffc870; }
+.amb-title { font-size:13px; font-weight:700; color:#fff; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.amb-meta { font-size:10px; opacity:0.65; margin-top:2px; }
+.amb-play {
+  width:40px; height:40px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#fff; cursor:pointer;
+}
+.amb-play:hover { background:rgba(255,255,255,0.22); }
+
+/* ===== MANTRA STRIP ===== */
+.mantra {
+  position:relative; z-index:10; margin:14px 20px 20px;
+  padding:14px 16px; border-radius:14px;
+  background:rgba(0,0,0,0.28);
+  border-left:3px solid #f7ab20;
+  color:#fff;
+}
+.mantra-dev {
+  font-size:14px; font-weight:700; letter-spacing:0.2px; color:#ffd69a; line-height:1.5;
+}
+.mantra-mean {
+  font-size:11px; opacity:0.72; margin-top:6px; line-height:1.45;
+}
+
+/* ===== NIGHT: DEITY RESTING ===== */
+.resting {
+  position:absolute; bottom:135px; left:50%; transform:translateX(-50%);
+  font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+  color:rgba(200,210,255,0.65); z-index:7;
+  opacity:0; transition:opacity 1400ms ease;
+}
+.resting.on { opacity:1; }
+
+/* ===== FLOATING EMBERS (sandhya) ===== */
+.embers { position:absolute; inset:0; z-index:3; pointer-events:none; overflow:hidden; opacity:0; transition:opacity 1400ms ease; }
+.embers.on { opacity:1; }
+.ember {
+  position:absolute; bottom:-20px; width:4px; height:4px; border-radius:50%;
+  background:radial-gradient(circle, #ffcc70 0%, #ff6020 60%, transparent 100%);
+  box-shadow:0 0 8px #ff9040;
+  animation: emberRise var(--ed, 7s) linear infinite;
+}
+@keyframes emberRise {
+  0% { transform:translateY(0) translateX(0); opacity:0; }
+  10% { opacity:0.85; }
+  85% { opacity:0.85; }
+  100% { transform:translateY(-520px) translateX(var(--ex, 10px)); opacity:0; }
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(10,5,0,0.92); color:#ffd69a;
+  padding:10px 18px; border-radius:999px; backdrop-filter:blur(12px);
+  border:1px solid rgba(255,200,120,0.35);
+  font-size:12px; font-weight:600; z-index:50;
+  opacity:0; pointer-events:none; transition:all 300ms ease;
+  white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar">
+    <span>9:41</span>
+    <span>●●● ▲ ▮</span>
+  </div>
+
+  <div class="screen" id="screen">
+    <!-- Sky layers (one active at a time) -->
+    <div class="sky sky-brahma" id="sky-brahma"></div>
+    <div class="sky sky-suprabhat" id="sky-suprabhat"></div>
+    <div class="sky sky-sandhya" id="sky-sandhya"></div>
+    <div class="sky sky-ratri" id="sky-ratri"></div>
+
+    <!-- Stars (brahma, ratri) -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Sun rays (suprabhat) -->
+    <div class="rays" id="rays"></div>
+
+    <!-- Embers (sandhya) -->
+    <div class="embers" id="embers"></div>
+
+    <!-- State picker (demo scrubber) -->
+    <div class="state-pills">
+      <div class="spill" data-state="brahma">Brahma Muhurta</div>
+      <div class="spill active" data-state="suprabhat">Suprabhat</div>
+      <div class="spill" data-state="sandhya">Sandhya</div>
+      <div class="spill" data-state="ratri">Ratri</div>
+    </div>
+
+    <!-- Mandir scene -->
+    <div class="mandir">
+      <!-- Arch SVG -->
+      <svg class="arch" viewBox="0 0 280 380" preserveAspectRatio="xMidYMax meet">
+        <!-- Shikhara -->
+        <path d="M 140 0 L 170 40 L 155 50 L 180 85 L 165 95 L 190 135 L 85 135 L 110 95 L 95 85 L 120 50 L 105 40 Z" fill="#1a0a00" opacity="0.85"/>
+        <!-- Main arch -->
+        <path d="M 50 380 L 50 200 Q 50 145 140 145 Q 230 145 230 200 L 230 380 Z" fill="#1a0a00" opacity="0.9"/>
+        <!-- Inner arch cutout -->
+        <path d="M 85 380 L 85 230 Q 85 180 140 180 Q 195 180 195 230 L 195 380 Z" fill="#2a1000" opacity="0.95"/>
+        <!-- Pillars -->
+        <rect x="48" y="200" width="8" height="180" fill="#3a1a00" opacity="0.9"/>
+        <rect x="224" y="200" width="8" height="180" fill="#3a1a00" opacity="0.9"/>
+        <!-- Bells -->
+        <circle cx="95" cy="195" r="4" fill="#c89020" opacity="0.9"/>
+        <line x1="95" y1="160" x2="95" y2="191" stroke="#7f4b10" stroke-width="1" opacity="0.7"/>
+        <circle cx="185" cy="195" r="4" fill="#c89020" opacity="0.9"/>
+        <line x1="185" y1="160" x2="185" y2="191" stroke="#7f4b10" stroke-width="1" opacity="0.7"/>
+      </svg>
+
+      <div class="halo" id="halo"></div>
+      <div class="deity">ॐ</div>
+      <div class="resting" id="resting">ॐ Vishram mein</div>
+
+      <div class="diya-row" id="diyas">
+        <div class="diya" style="--fd:1.1s"></div>
+        <div class="diya" style="--fd:1.3s"></div>
+        <div class="diya" style="--fd:0.9s"></div>
+        <div class="diya" style="--fd:1.5s"></div>
+        <div class="diya" style="--fd:1.0s"></div>
+        <div class="diya" style="--fd:1.4s"></div>
+      </div>
+
+      <div class="floor"></div>
+    </div>
+
+    <!-- Greeting -->
+    <div class="greet-wrap">
+      <div class="greet-label" id="greetLabel">SUPRABHAT</div>
+      <div class="greet-main" id="greetMain">Jai Shree Ganesh, Shivali</div>
+      <div class="greet-sub" id="greetSub">Aaj ka din shubh ho</div>
+    </div>
+
+    <!-- Tithi strip -->
+    <div class="tithi">
+      <div class="tithi-l">
+        <div class="tithi-label">Aaj ki Tithi</div>
+        <div class="tithi-value" id="tithiValue">Shukla Panchami · Vaishakh</div>
+      </div>
+      <div class="tithi-r" id="tithiTag">Shubh Samay</div>
+    </div>
+
+    <!-- Primary CTA -->
+    <div class="cta" onclick="ctaTap()">
+      <div class="cta-icon" id="ctaIcon">🪔</div>
+      <div class="cta-body">
+        <div class="cta-label" id="ctaLabel">ABHI KA SAMAY</div>
+        <div class="cta-title" id="ctaTitle">Aarti shuru karein</div>
+        <div class="cta-sub" id="ctaSub">Mangal Aarti · 7 min</div>
+      </div>
+      <div class="cta-arrow">›</div>
+    </div>
+
+    <!-- Ambient content -->
+    <div class="ambient" onclick="ambTap()">
+      <div class="amb-art" id="ambArt">♪</div>
+      <div class="amb-body">
+        <div class="amb-label" id="ambLabel">BHAJAN · SUPRABHAT</div>
+        <div class="amb-title" id="ambTitle">Sukhkarta Dukhharta</div>
+        <div class="amb-meta" id="ambMeta">Lata Mangeshkar · 4:12</div>
+      </div>
+      <div class="amb-play">▶</div>
+    </div>
+
+    <!-- Mantra of the time -->
+    <div class="mantra">
+      <div class="mantra-dev" id="mantraDev">ॐ गं गणपतये नमः</div>
+      <div class="mantra-mean" id="mantraMean">Ganesha ko namaskar. 108 baar japne se vighn dur hote hain.</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+/* ===== STAR FIELD ===== */
+(function seedStars() {
+  var c = document.getElementById('stars');
+  var html = '';
+  for (var i = 0; i < 50; i++) {
+    var t = Math.random() * 52;   // top %
+    var l = Math.random() * 100;  // left %
+    var s = 1 + Math.random() * 2.2;
+    var d = (1.8 + Math.random() * 2.6).toFixed(2) + 's';
+    html += '<div class="star" style="top:'+t+'%;left:'+l+'%;width:'+s+'px;height:'+s+'px;--d:'+d+'"></div>';
+  }
+  c.innerHTML = html;
+})();
+
+/* ===== EMBERS ===== */
+(function seedEmbers() {
+  var c = document.getElementById('embers');
+  var html = '';
+  for (var i = 0; i < 14; i++) {
+    var l = 10 + Math.random() * 80;
+    var d = (5 + Math.random() * 6).toFixed(2) + 's';
+    var ex = (Math.random() * 40 - 20).toFixed(1) + 'px';
+    var delay = (Math.random() * 6).toFixed(2) + 's';
+    html += '<div class="ember" style="left:'+l+'%;--ed:'+d+';--ex:'+ex+';animation-delay:'+delay+'"></div>';
+  }
+  c.innerHTML = html;
+})();
+
+/* ===== STATE DATA ===== */
+var STATES = {
+  brahma: {
+    sky: 'sky-brahma', halo: 'halo-brahma',
+    stars: true, rays: false, embers: false, diyas: false, resting: false,
+    label: 'BRAHMA MUHURTA',
+    main: 'Shubh Pratah, Shivali',
+    sub: 'Adhyatm ke liye sabse pavitra samay',
+    tithiTag: 'Pavitra',
+    ctaIcon: '🧘',
+    ctaLabel: 'ABHI KA SAMAY',
+    ctaTitle: 'Dhyan mein baithein',
+    ctaSub: 'Pranayama + Japa · 21 min',
+    ambLabel: 'MANTRA · BRAHMA MUHURTA',
+    ambTitle: 'Om Namah Shivaya',
+    ambMeta: 'Krishna Das · 108 repetitions',
+    ambArt: 'ॐ',
+    mantraDev: 'ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यम्',
+    mantraMean: 'Gayatri Mantra · Brahma Muhurta mein japne se mann aur buddhi shuddh hoti hai'
+  },
+  suprabhat: {
+    sky: 'sky-suprabhat', halo: '',
+    stars: false, rays: true, embers: false, diyas: true, resting: false,
+    label: 'SUPRABHAT',
+    main: 'Jai Shree Ganesh, Shivali',
+    sub: 'Aaj ka din shubh ho',
+    tithiTag: 'Shubh Samay',
+    ctaIcon: '🪔',
+    ctaLabel: 'ABHI KA SAMAY',
+    ctaTitle: 'Mangal Aarti shuru karein',
+    ctaSub: 'Sukhkarta Dukhharta · 7 min',
+    ambLabel: 'BHAJAN · SUPRABHAT',
+    ambTitle: 'Sukhkarta Dukhharta',
+    ambMeta: 'Lata Mangeshkar · 4:12',
+    ambArt: '♪',
+    mantraDev: 'ॐ गं गणपतये नमः',
+    mantraMean: 'Ganesha ko namaskar. 108 baar japne se vighn dur hote hain.'
+  },
+  sandhya: {
+    sky: 'sky-sandhya', halo: 'halo-sandhya',
+    stars: false, rays: false, embers: true, diyas: true, resting: false,
+    label: 'SANDHYA · GODHULI BELA',
+    main: 'Sandhya ka samay hai',
+    sub: 'Sabhi diye jalein · aaj ki aarti ka samay',
+    tithiTag: 'Sandhya Vandanam',
+    ctaIcon: '🔔',
+    ctaLabel: 'LIVE · 2.4K bhakt',
+    ctaTitle: 'Sandhya Aarti mein shamil hon',
+    ctaSub: 'Jai Ganesh Deva · Kashi Vishwanath se',
+    ambLabel: 'AARTI · SANDHYA',
+    ambTitle: 'Jai Ganesh Jai Ganesh Deva',
+    ambMeta: 'Anuradha Paudwal · 5:48',
+    ambArt: '🔔',
+    mantraDev: 'ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्',
+    mantraMean: 'Mahamrityunjaya Mantra · Sandhya aarti ke samay mann shant hota hai.'
+  },
+  ratri: {
+    sky: 'sky-ratri', halo: 'halo-ratri',
+    stars: true, rays: false, embers: false, diyas: false, resting: true,
+    label: 'SHAYAN · RATRI',
+    main: 'Shubh Ratri, Shivali',
+    sub: 'Prabhu vishram mein hain · aap bhi shant ho jayein',
+    tithiTag: 'Shayan Aarti',
+    ctaIcon: '🌙',
+    ctaLabel: 'AAJ KI AAKHRI PRARTHANA',
+    ctaTitle: 'Hanuman Chalisa padhein',
+    ctaSub: 'Sone se pehle · 12 min',
+    ambLabel: 'STOTRA · RATRI',
+    ambTitle: 'Hanuman Chalisa',
+    ambMeta: 'Hariharan · 11:32',
+    ambArt: 'ॐ',
+    mantraDev: 'कराग्रे वसते लक्ष्मीः करमध्ये सरस्वती',
+    mantraMean: 'Kar-darshanam · Subah uthne se pehle haath dekhne ka mantra.'
+  }
+};
+
+/* ===== STATE CONTROLLER ===== */
+function setState(key) {
+  var s = STATES[key];
+  if (!s) return;
+
+  // Sky
+  document.querySelectorAll('.sky').forEach(function(el) { el.classList.remove('on'); });
+  document.getElementById('sky-' + key).classList.add('on');
+
+  // Halo
+  var halo = document.getElementById('halo');
+  halo.classList.remove('halo-brahma', 'halo-sandhya', 'halo-ratri');
+  if (s.halo) halo.classList.add(s.halo);
+
+  // Ambient effects
+  document.getElementById('stars').classList.toggle('on', s.stars);
+  document.getElementById('rays').classList.toggle('on', s.rays);
+  document.getElementById('embers').classList.toggle('on', s.embers);
+  document.getElementById('diyas').classList.toggle('on', s.diyas);
+  document.getElementById('resting').classList.toggle('on', s.resting);
+
+  // Text content
+  document.getElementById('greetLabel').textContent = s.label;
+  document.getElementById('greetMain').textContent = s.main;
+  document.getElementById('greetSub').textContent = s.sub;
+  document.getElementById('tithiTag').textContent = s.tithiTag;
+  document.getElementById('ctaIcon').textContent = s.ctaIcon;
+  document.getElementById('ctaLabel').textContent = s.ctaLabel;
+  document.getElementById('ctaTitle').textContent = s.ctaTitle;
+  document.getElementById('ctaSub').textContent = s.ctaSub;
+  document.getElementById('ambLabel').textContent = s.ambLabel;
+  document.getElementById('ambTitle').textContent = s.ambTitle;
+  document.getElementById('ambMeta').textContent = s.ambMeta;
+  document.getElementById('ambArt').textContent = s.ambArt;
+  document.getElementById('mantraDev').textContent = s.mantraDev;
+  document.getElementById('mantraMean').textContent = s.mantraMean;
+
+  // Active pill
+  document.querySelectorAll('.spill').forEach(function(p) {
+    p.classList.toggle('active', p.getAttribute('data-state') === key);
+  });
+}
+
+/* ===== PILL CLICK ===== */
+document.querySelectorAll('.spill').forEach(function(p) {
+  p.addEventListener('click', function() {
+    setState(p.getAttribute('data-state'));
+  });
+});
+
+/* ===== AUTO-DETECT INITIAL STATE ===== */
+function autoState() {
+  var h = new Date().getHours();
+  if (h >= 4 && h < 6) return 'brahma';
+  if (h >= 6 && h < 16) return 'suprabhat';
+  if (h >= 16 && h < 20) return 'sandhya';
+  return 'ratri';
+}
+setState(autoState());
+
+/* ===== TAP HANDLERS ===== */
+function ctaTap() {
+  var cur = document.querySelector('.spill.active').getAttribute('data-state');
+  var msg = {
+    brahma: 'Dhyan shuru ho raha hai...',
+    suprabhat: 'Aarti thali taiyaar ho rahi hai...',
+    sandhya: 'Live aarti mein shamil ho rahe hain...',
+    ratri: 'Hanuman Chalisa shuru ho rahi hai...'
+  }[cur];
+  showToast(msg);
+}
+function ambTap() {
+  showToast('Bhajan chalu ho raha hai...');
+}
+function showToast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(window._tT);
+  window._tT = setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+/* ===== KEYBOARD DEBUG ===== */
+document.addEventListener('keydown', function(e) {
+  var map = { '1':'brahma', '2':'suprabhat', '3':'sandhya', '4':'ratri' };
+  if (map[e.key]) setState(map[e.key]);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devotion · Kahaniyan</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html,body { font-family:'JioType', -apple-system, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0500; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch>div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; position:relative; z-index:40; }
+.screen { position:relative; background:#0a0500; color:#fff; height:760px; overflow-y:auto; scroll-behavior:smooth; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* CHAPTER PROGRESS BAR */
+.chapters { position:absolute; top:0; left:0; right:0; z-index:30; display:flex; gap:4px; padding:10px 14px; }
+.chapter-bar { flex:1; height:3px; background:rgba(255,255,255,0.25); border-radius:2px; overflow:hidden; }
+.chapter-bar .fill { height:100%; width:0; background:#fff; transition: width 300ms linear; }
+.chapter-bar.done .fill { width:100%; }
+.chapter-bar.active .fill { animation: chapterFill var(--dur,8s) linear forwards; }
+@keyframes chapterFill { to { width:100%; } }
+
+/* TOP META */
+.meta-bar { position:absolute; top:24px; left:14px; right:14px; z-index:29; display:flex; justify-content:space-between; align-items:center; }
+.back-btn { width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; cursor:pointer; border:1px solid rgba(255,255,255,0.12); }
+.voice-pill { display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); color:#fff; font-size:11px; font-weight:600; padding:7px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.12); cursor:pointer; }
+
+/* STAGE — full-bleed visual */
+.stage { position:relative; height:470px; overflow:hidden; }
+.stage-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition: opacity 600ms ease, transform 800ms ease; }
+.stage-bg.fade-out { opacity:0; transform:scale(1.04); }
+.stage-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(10,5,0,0.7) 0%, transparent 30%, transparent 60%, rgba(10,5,0,0.95) 100%); }
+.stage-tint { position:absolute; inset:0; mix-blend-mode:multiply; background:var(--tint, rgba(255,140,40,0.2)); pointer-events:none; }
+
+/* AMBIENT sparkle */
+.ambient-spark { position:absolute; width:3px; height:3px; border-radius:50%; background:#ffd898; box-shadow:0 0 8px #ffbb50; animation: sparkFloat 5s ease-in-out infinite; pointer-events:none; }
+@keyframes sparkFloat { 0%,100%{opacity:0; transform:translateY(0);} 50%{opacity:0.9; transform:translateY(-30px);} }
+
+/* STAGE CAPTION (big Devanagari line) */
+.stage-caption { position:absolute; bottom:20px; left:18px; right:18px; z-index:3; color:#fff; }
+.chap-label { font-size:10px; font-weight:700; letter-spacing:3px; color:#ffce99; text-transform:uppercase; }
+.chap-title { font-size:22px; font-weight:700; margin-top:6px; line-height:1.25; }
+
+/* STORY BODY */
+.story-body { padding:20px 22px 140px; }
+.narration { font-size:15px; line-height:1.7; color:#e8d0a0; font-weight:500; }
+.narration .hindi { font-size:17px; color:#fff; font-weight:700; line-height:1.55; margin:12px 0; display:block; }
+.narration p { margin-top:12px; }
+.narration p:first-child { margin-top:0; }
+
+.quote-card {
+  margin:18px 0; padding:16px 18px; border-radius:14px;
+  background:linear-gradient(135deg, rgba(255,180,100,0.14), rgba(120,40,10,0.05));
+  border-left:3px solid #ffbb50;
+}
+.quote-sanskrit { font-size:15px; font-weight:700; color:#fff; line-height:1.5; }
+.quote-trans { font-size:12px; color:#d0a080; margin-top:6px; font-style:italic; }
+
+.chap-marker { display:flex; align-items:center; gap:8px; margin:28px 0 6px; }
+.chap-num { width:22px; height:22px; border-radius:50%; background:#ffbb50; color:#3a1800; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.chap-marker-title { font-size:12px; font-weight:700; letter-spacing:2px; color:#ffbb50; text-transform:uppercase; }
+
+/* MORAL CARD */
+.moral {
+  margin-top:22px; padding:16px; border-radius:14px;
+  background:linear-gradient(135deg, rgba(30,204,176,0.14), rgba(30,204,176,0.04));
+  border:1px solid rgba(30,204,176,0.3);
+}
+.moral-label { font-size:10px; font-weight:700; letter-spacing:2px; color:#5ef0cc; text-transform:uppercase; }
+.moral-text { font-size:14px; color:#fff; margin-top:6px; font-weight:600; line-height:1.5; }
+
+/* BOTTOM AUDIO PLAYER (sticky) */
+.audio-bar {
+  position:absolute; left:12px; right:12px; bottom:14px; z-index:40;
+  background:rgba(20,10,5,0.92); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,200,140,0.2); border-radius:18px;
+  padding:10px 12px; display:flex; align-items:center; gap:10px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.5);
+}
+.ab-play {
+  width:42px; height:42px; border-radius:50%;
+  background:linear-gradient(135deg, #ffd098, #ff9a40); color:#7a3000;
+  display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; flex:0 0 auto;
+  box-shadow:0 4px 14px rgba(255,150,60,0.45);
+}
+.ab-mid { flex:1; min-width:0; }
+.ab-title { font-size:12px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ab-sub { font-size:10px; color:#ffce99; margin-top:2px; }
+.ab-progress { height:3px; background:rgba(255,255,255,0.18); border-radius:2px; margin-top:6px; overflow:hidden; }
+.ab-progress .fill { height:100%; width:32%; background:linear-gradient(90deg, #ffbb50, #ff6a30); border-radius:2px; transition: width 200ms linear; }
+.ab-actions { display:flex; gap:6px; flex:0 0 auto; }
+.ab-btn { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.08); color:#fff; font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+/* CTA ROW */
+.cta-row { margin-top:22px; display:flex; gap:10px; }
+.cta-chip {
+  flex:1; background:rgba(255,200,140,0.08); border:1px solid rgba(255,200,140,0.22);
+  border-radius:14px; padding:12px 10px; color:#fff; font-size:12px; font-weight:600;
+  text-align:center; cursor:pointer;
+}
+.cta-chip .ic { font-size:18px; display:block; margin-bottom:4px; }
+
+/* VOICE SHEET */
+.sheet-back { position:absolute; inset:0; background:rgba(0,0,0,0.55); z-index:70; opacity:0; pointer-events:none; transition:opacity 300ms; }
+.sheet-back.open { opacity:1; pointer-events:auto; }
+.sheet { position:absolute; left:0; right:0; bottom:0; z-index:71; background:linear-gradient(180deg,#1a0a00,#2a1200); border-radius:22px 22px 0 0; padding:16px 18px 24px; transform:translateY(100%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); }
+.sheet.open { transform:translateY(0); }
+.sheet-handle { width:42px; height:4px; border-radius:2px; background:rgba(255,255,255,0.3); margin:0 auto 14px; }
+.sheet-title { font-size:18px; font-weight:700; color:#fff; }
+.sheet-sub { font-size:12px; color:#a89078; margin-top:2px; }
+.voice-list { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+.voice-item { display:flex; align-items:center; gap:12px; padding:12px; border-radius:12px; background:rgba(255,200,140,0.05); border:1.5px solid transparent; cursor:pointer; }
+.voice-item.active { border-color:#ffbb50; background:rgba(255,200,140,0.12); }
+.voice-av { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#ffd098,#ff9a40); color:#7a3000; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex:0 0 auto; }
+.voice-name { font-size:13px; font-weight:700; color:#fff; }
+.voice-desc { font-size:11px; color:#a89078; margin-top:1px; }
+.voice-play { margin-left:auto; color:#ffce99; font-size:16px; }
+
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+  <div class="screen" id="screen">
+
+    <!-- STAGE VISUAL -->
+    <div class="stage">
+      <div class="stage-bg" id="stageBg"></div>
+      <div class="stage-tint" id="stageTint"></div>
+      <div class="stage-overlay"></div>
+
+      <!-- Chapter progress bars -->
+      <div class="chapters" id="chapters"></div>
+
+      <!-- Top meta -->
+      <div class="meta-bar">
+        <div class="back-btn" onclick="goBack()">←</div>
+        <div class="voice-pill" onclick="openVoice()">
+          <span>🎙</span><span id="voiceName">Jaya Kishori</span><span>▾</span>
+        </div>
+      </div>
+
+      <!-- Ambient sparkles -->
+      <div id="amb"></div>
+
+      <!-- Caption -->
+      <div class="stage-caption">
+        <div class="chap-label" id="chapLabel">Adhyay 1</div>
+        <div class="chap-title" id="chapTitle">Ganesh Janm Katha</div>
+      </div>
+    </div>
+
+    <!-- STORY BODY -->
+    <div class="story-body" id="storyBody">
+      <!-- Content injected per story -->
+    </div>
+
+  </div>
+
+  <!-- Audio bar -->
+  <div class="audio-bar">
+    <div class="ab-play" id="abPlay" onclick="togglePlay()">▶</div>
+    <div class="ab-mid">
+      <div class="ab-title" id="abTitle">Ganesh Janm Katha · Adhyay 1</div>
+      <div class="ab-sub" id="abSub">Jaya Kishori · 2:14 / 6:48</div>
+      <div class="ab-progress"><div class="fill" id="abFill"></div></div>
+    </div>
+    <div class="ab-actions">
+      <div class="ab-btn" onclick="shareStory()">↗</div>
+    </div>
+  </div>
+
+  <!-- Voice sheet -->
+  <div class="sheet-back" id="sheetBack" onclick="closeVoice()"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Narration Voice</div>
+    <div class="sheet-sub">Kis awaaz mein sunni hai?</div>
+    <div class="voice-list" id="voiceList"></div>
+  </div>
+</div>
+
+<script>
+// Navigate back to home, preserving the deity query param if present.
+function goBack(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+const WIKI = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+// Story catalog
+const STORIES = {
+  'ekadashi-katha': {
+    title:'Varuthini Ekadashi ki Mahima',
+    bg: WIKI+'Krishna_spilling_the_milk_maids_pots._Chromolithograph._Wellcome_V0045085.jpg?width=720',
+    tint:'rgba(90,40,180,0.25)',
+    duration:'6:48',
+    chapters:[
+      { label:'Adhyay 1', title:'Raja Mandhata ki Katha',
+        html:`<p>Bahut samay pehle Raja Mandhata apne rajya mein dharma se praja ki seva karte the. Ek baar ve vann gaye aur wahan ek kathin tapasya mein leen ho gaye.</p>
+              <p>Tapasya ke dauran ek bhayanak bhalu ne unke paer pakad liye aur unhe ghaseetne laga. Raja ne ghabra kar Shree Vishnu ka smaran kiya.</p>
+              <div class="quote-card"><div class="quote-sanskrit">॥ ॐ नमो भगवते वासुदेवाय ॥</div><div class="quote-trans">Om Namo Bhagwate Vasudevaya — Shree Vishnu ka mool mantra</div></div>
+              <span class="hindi">"He Vishnu, abhi aaiye!"</span>`
+      },
+      { label:'Adhyay 2', title:'Sudarshan Chakra ka Aagaman',
+        html:`<p>Raja ki pukaar sun kar Shree Hari ne Sudarshan Chakra bheja. Bhalu maara gaya, parantu Raja ka ek pair katt gaya.</p>
+              <p>Dukhi Raja ne Vishnu ji se prashn kiya — "Hey Prabhu, kis karan se main itna dukh bhog raha hoon?"</p>
+              <p>Vishnu ji boley — "He Rajan, ye tumhare poorva janm ke papon ka phal hai. Iska prayaschit karne ke liye Varuthini Ekadashi ka vrat karo."</p>`
+      },
+      { label:'Adhyay 3', title:'Vrat ki Vidhi aur Phal',
+        html:`<p>Vaishakh Krishna Paksha ki Ekadashi ko Varuthini Ekadashi kehte hain. Is din nirjala ya phalahari vrat rakha jata hai.</p>
+              <span class="hindi">Vrat rakhne wale ko 10 hajaar varshon ki tapasya ka phal milta hai.</span>
+              <p>Raja Mandhata ne ye vrat kiya aur punah swasth ho gaye. Unka rajya phir se phoolne-phalne laga.</p>
+              <div class="quote-card"><div class="quote-sanskrit">वरूथिनी व्रतं कृत्वा मुच्यते सर्वकिल्बिषैः</div><div class="quote-trans">Varuthini vrat karne se sabhi paapon se mukti milti hai</div></div>`
+      }
+    ],
+    moral:'Sachhi bhakti aur vrat ke sath kiya gaya sankalp bhagwan tak zaroor pahunchta hai. Varuthini Ekadashi aapke karmon ka hisaab saaf karti hai.',
+  },
+  'deity-main': {
+    title:'Ganesh Janm Katha',
+    bg: WIKI+'Ganesha._Chromolithograph._Wellcome_V0044933.jpg?width=720',
+    tint:'rgba(200,80,20,0.22)',
+    duration:'8:10',
+    chapters:[
+      { label:'Adhyay 1', title:'Parvati ka Sankalp',
+        html:`<p>Kailash parvat par Maa Parvati ne ubtan se ek sunder baalak banaya aur use apne praan de diye.</p>
+              <p>Maa ne kaha — "Putra, darvaje par khade raho. Koi andar na aaye jab tak main snan mein hoon."</p>
+              <span class="hindi">"Jo aagya, Maa."</span>`
+      },
+      { label:'Adhyay 2', title:'Shiv aur Baalak ka Milan',
+        html:`<p>Tabhi Bhagwan Shankar wahan aa pahunche. Baalak ne unhe rokna chaha.</p>
+              <p>Shiv ji krodhit ho gaye aur trishul se baalak ka sir dhad se alag kar diya.</p>
+              <p>Parvati ji jab bahar aayin aur ye drishya dekha to unka maatr-hridaya phat gaya. Unhone Shankar ji se apne putra ko wapas maanga.</p>`
+      },
+      { label:'Adhyay 3', title:'Gaj-mukh ka Vardaan',
+        html:`<p>Shankar ji ne apne gan bheje — "Jo pehla praani milega, uska sir le aao."</p>
+              <p>Gan ek haathi ka sir le aaye. Shiv ji ne wahi sir baalak ke dhad par jod diya aur praan daal diye.</p>
+              <div class="quote-card"><div class="quote-sanskrit">॥ वक्रतुण्ड महाकाय सूर्यकोटिसमप्रभ ॥</div><div class="quote-trans">He tedhi soond wale, vishal sharir wale, crore suryon ke samaan tej wale</div></div>
+              <span class="hindi">Shiv ji ne vardaan diya — "Ye sabse pehle poojya honge. Har shubh kaam mein inka naam sabse pehle."</span>`
+      }
+    ],
+    moral:'Maa ki aagya ka palan karne wala putra swayam bhagwan ban gaya. Ganesh ji sikhate hain — aadesh nibhao, phal apne aap milega.',
+  },
+  'gita-today': {
+    title:'Gita Shlok 2.47',
+    bg: WIKI+'Krishna_spilling_the_milk_maids_pots._Chromolithograph._Wellcome_V0045085.jpg?width=720',
+    tint:'rgba(40,80,180,0.3)',
+    duration:'3:20',
+    chapters:[
+      { label:'Shlok', title:'Karmanyevadhikaraste',
+        html:`<div class="quote-card"><div class="quote-sanskrit">कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।<br/>मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥</div><div class="quote-trans">— Bhagavad Gita, 2.47</div></div>
+              <span class="hindi">"Karm karne mein hi tera adhikar hai, phal mein kabhi nahi."</span>`
+      },
+      { label:'Arth', title:'Kya kehte hain Shree Krishna',
+        html:`<p>Arjun vishaad mein tha. Bandhu-bandhav saamne the. Shree Krishna ne samjhaya — "Tu karm par dhyan de. Phal mere haath mein hai."</p>
+              <p>Ye do baatein na karo:<br/>1. Karm ko sirf phal ke liye mat karo<br/>2. Aur karm chhodo bhi nahi</p>`
+      },
+      { label:'Aaj ke liye', title:'Aapke jeevan mein',
+        html:`<p>Kal ka office ho, ya ghar ki koi zimmedari — apna 100% de do. Result ka hisaab mat lagao.</p>
+              <span class="hindi">"Jo bhi kaam aap karein, use Shree Krishna ko samarpit kar do."</span>`
+      }
+    ],
+    moral:'Karm aapka hissa, phal Prabhu ka. Isi bhav se kiya gaya kaam hi puja ban jata hai.',
+  }
+};
+
+const VOICES = [
+  { id:'jaya', name:'Jaya Kishori', desc:'Madhur, bhaav-bhara sur', av:'ज' },
+  { id:'morari', name:'Morari Bapu', desc:'Gambhir, shastriya', av:'म' },
+  { id:'devi', name:'Devi Chitralekha', desc:'Kanhaiya ke rang', av:'दे' },
+  { id:'aniruddha', name:'Aniruddha Acharya', desc:'Sashakt vyakhyan', av:'अ' },
+  { id:'sadhna', name:'Sadhna Devi', desc:'Shaant, meditative', av:'सा' }
+];
+
+let currentVoice = 'jaya';
+let currentStoryId = null;
+let currentChapter = 0;
+let playing = false;
+
+function getParam(k) { return new URLSearchParams(location.search).get(k); }
+
+function initAmbient() {
+  const amb = document.getElementById('amb');
+  for (let i=0; i<14; i++) {
+    const s = document.createElement('div');
+    s.className = 'ambient-spark';
+    s.style.left = (Math.random()*100) + '%';
+    s.style.top = (30 + Math.random()*60) + '%';
+    s.style.animationDelay = (Math.random()*5) + 's';
+    amb.appendChild(s);
+  }
+}
+
+function loadStory(id) {
+  const s = STORIES[id] || STORIES['deity-main'];
+  currentStoryId = id;
+
+  document.getElementById('stageBg').style.backgroundImage = `url('${s.bg}')`;
+  document.getElementById('stageTint').style.setProperty('--tint', s.tint);
+  document.getElementById('stageTint').style.background = s.tint;
+  document.getElementById('chapTitle').textContent = s.title;
+
+  // Chapters progress
+  const chaps = document.getElementById('chapters');
+  chaps.innerHTML = '';
+  s.chapters.forEach((c, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'chapter-bar';
+    bar.innerHTML = '<div class="fill"></div>';
+    chaps.appendChild(bar);
+  });
+
+  // Story body
+  const body = document.getElementById('storyBody');
+  body.innerHTML = '';
+  s.chapters.forEach((c, i) => {
+    const sec = document.createElement('div');
+    sec.innerHTML = `
+      <div class="chap-marker">
+        <div class="chap-num">${i+1}</div>
+        <div class="chap-marker-title">${c.label} · ${c.title}</div>
+      </div>
+      <div class="narration">${c.html}</div>
+    `;
+    body.appendChild(sec);
+  });
+
+  // Moral
+  const moral = document.createElement('div');
+  moral.className = 'moral';
+  moral.innerHTML = `<div class="moral-label">🌟 Saar · Moral</div><div class="moral-text">${s.moral}</div>`;
+  body.appendChild(moral);
+
+  // CTAs
+  const ctas = document.createElement('div');
+  ctas.className = 'cta-row';
+  ctas.innerHTML = `
+    <div class="cta-chip" onclick="chatAI()"><span class="ic">💬</span>AI se poocho</div>
+    <div class="cta-chip" onclick="shareStory()"><span class="ic">↗</span>Share karo</div>
+    <div class="cta-chip" onclick="saveStory()"><span class="ic">⭐</span>Sangrah</div>
+  `;
+  body.appendChild(ctas);
+
+  document.getElementById('abTitle').textContent = s.title + ' · Adhyay 1';
+  document.getElementById('abSub').textContent = VOICES.find(v=>v.id===currentVoice).name + ' · 0:00 / ' + s.duration;
+
+  setChapter(0);
+}
+
+function setChapter(i) {
+  const s = STORIES[currentStoryId];
+  const bars = document.querySelectorAll('.chapter-bar');
+  bars.forEach((b, idx) => {
+    b.classList.remove('active','done');
+    if (idx < i) b.classList.add('done');
+    if (idx === i) b.classList.add('active');
+  });
+  currentChapter = i;
+  document.getElementById('chapLabel').textContent = s.chapters[i].label;
+  document.getElementById('chapTitle').textContent = s.chapters[i].title;
+  document.getElementById('abTitle').textContent = s.title + ' · ' + s.chapters[i].label;
+
+  // Briefly fade bg for chapter transition
+  const bg = document.getElementById('stageBg');
+  bg.classList.add('fade-out');
+  setTimeout(()=>bg.classList.remove('fade-out'), 400);
+}
+
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('abPlay').textContent = playing ? '⏸' : '▶';
+  if (playing) simulateProgress();
+}
+
+let progressTimer = null;
+function simulateProgress() {
+  let pct = parseFloat(document.getElementById('abFill').style.width || '32%');
+  if (progressTimer) clearInterval(progressTimer);
+  progressTimer = setInterval(() => {
+    if (!playing) { clearInterval(progressTimer); return; }
+    pct += 0.6;
+    if (pct > 100) {
+      pct = 0;
+      // advance chapter
+      const s = STORIES[currentStoryId];
+      const next = (currentChapter + 1) % s.chapters.length;
+      setChapter(next);
+    }
+    document.getElementById('abFill').style.width = pct + '%';
+  }, 300);
+}
+
+// VOICE SHEET
+function renderVoices() {
+  const list = document.getElementById('voiceList');
+  list.innerHTML = '';
+  VOICES.forEach(v => {
+    const el = document.createElement('div');
+    el.className = 'voice-item' + (v.id === currentVoice ? ' active' : '');
+    el.onclick = () => { currentVoice = v.id; document.getElementById('voiceName').textContent = v.name; document.getElementById('abSub').textContent = v.name + ' · 0:00 / ' + STORIES[currentStoryId].duration; renderVoices(); };
+    el.innerHTML = `<div class="voice-av">${v.av}</div><div><div class="voice-name">${v.name}</div><div class="voice-desc">${v.desc}</div></div><div class="voice-play">▶</div>`;
+    list.appendChild(el);
+  });
+}
+function openVoice() { renderVoices(); document.getElementById('sheetBack').classList.add('open'); document.getElementById('sheet').classList.add('open'); }
+function closeVoice() { document.getElementById('sheetBack').classList.remove('open'); document.getElementById('sheet').classList.remove('open'); }
+
+function shareStory() { alert('Share via WhatsApp / Instagram'); }
+function saveStory() { alert('Sangrah mein save ho gaya'); }
+function chatAI() { window.location.href = 'devotion-katha-chat.html?story=' + currentStoryId; }
+
+// Tap stage left/right to change chapter
+document.querySelector('.stage').addEventListener('click', (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const s = STORIES[currentStoryId];
+  if (!s) return;
+  if (x < rect.width * 0.35) {
+    setChapter(Math.max(0, currentChapter - 1));
+  } else if (x > rect.width * 0.65) {
+    setChapter(Math.min(s.chapters.length - 1, currentChapter + 1));
+  }
+});
+
+// INIT
+initAmbient();
+const id = getParam('id') || 'deity-main';
+loadStory(id);
+</script>
+</body>
+</html>

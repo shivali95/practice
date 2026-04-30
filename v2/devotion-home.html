@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bhakti Saathi — Home</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+:root {
+  --surface:#ffffff; --surface-ghost:#eeeeef; --surface-ghost-icon:#e7e9ff;
+  --surface-bold:#3900ad; --surface-minimal:#f5f5f6;
+  --text-high:#0c0d10; --text-medium:#191b1e; --text-low:rgba(25,27,30,0.65);
+  --text-on-bold:#ffffff;
+  --primary-20:#e8e8fc; --primary-50:#3535f3; --primary-60:#000093; --primary-70:#00004c;
+  --secondary-20:#fef7e9; --secondary-30:#ffe3ae; --secondary-50:#f7ab20; --secondary-60:#ac660c;
+  --sparkle-50:#1eccb0; --sparkle-60:#1e7b74;
+  --success:#25ab21; --error:#fa2f40;
+  --stroke-subtle:rgba(36,38,43,0.12); --stroke-minimal:rgba(36,38,43,0.13);
+  --grey-40:#e0e0e0; --grey-20:#f5f5f5;
+  --shape-pill:999px; --shape-4xl:23px; --shape-large:16px; --shape-medium:12px; --shape-small:8px; --shape-xsmall:4px;
+  --spring:350ms linear(0,0.3667,0.8271,1.0379,1.0652,1.0332,1.006,0.9961,0.996,0.9984,0.9999,1);
+  --ease-standard:cubic-bezier(0.4,0.0,0.2,1); --ease-decelerate:cubic-bezier(0.0,0.0,0.2,1);
+  /* Faith dynamic tokens — set by JS */
+  --faith-color:#ff6b35; --faith-bg:#fff3ed; --faith-gradient:linear-gradient(135deg,#ff6b35,#ff9a5c);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior:none;touch-action:manipulation;}
+body{font-family:'JioType',-apple-system,sans-serif;background:#faf9f6;min-height:100vh;display:flex;justify-content:center;padding:0;}
+
+.phone-frame{width:390px;max-width:100vw;height:100vh;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+@media(max-width:480px){.phone-frame{width:100%!important;height:100vh!important;height:100dvh!important;border-radius:0!important;}}
+
+/* ── Scroll Feed ── */
+.scroll-feed{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.scroll-feed::-webkit-scrollbar{display:none;}
+
+/* ── Hero ── */
+.hero{padding:48px 20px 22px;position:relative;overflow:hidden;}
+.hero-deco{position:absolute;top:12px;right:16px;font-size:48px;opacity:0.12;}
+.hero-greeting{font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;}
+.hero-title{font-size:24px;font-weight:900;color:#fff;margin-top:4px;line-height:1.2;letter-spacing:-0.02em;}
+.hero-tithi{font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px;font-weight:500;}
+
+/* ── Section Header ── */
+.section{padding:0 16px;margin-top:20px;opacity:0;transform:translateY(16px);transition:opacity 500ms ease-out, transform 500ms ease-out;}
+.section.visible{opacity:1;transform:translateY(0);}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.section-title{font-size:16px;font-weight:800;color:var(--text-high);letter-spacing:-0.01em;}
+.section-link{font-size:12px;font-weight:700;color:var(--faith-color);cursor:pointer;}
+
+/* ── Horizontal Scroll Row ── */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 0 4px;}
+.h-scroll::-webkit-scrollbar{display:none;}
+
+/* ── Darshan Cards ── */
+.darshan-card{flex-shrink:0;width:200px;border-radius:var(--shape-large);overflow:hidden;cursor:pointer;border:1px solid var(--stroke-subtle);transition:transform 150ms;}
+.darshan-card:active{transform:scale(0.97);}
+.darshan-img{height:120px;display:flex;align-items:center;justify-content:center;position:relative;}
+.darshan-img svg{width:40px;height:40px;fill:rgba(255,255,255,0.5);z-index:1;position:relative;}
+.darshan-live-badge{position:absolute;top:8px;left:8px;background:var(--error);border-radius:var(--shape-xsmall);padding:3px 7px;display:flex;align-items:center;gap:4px;}
+.darshan-live-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:livePulse 1.2s infinite;}
+.darshan-live-text{font-size:9px;font-weight:800;color:#fff;letter-spacing:0.04em;}
+.darshan-viewers{position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:3px;}
+.darshan-body{padding:10px 12px;}
+.darshan-name{font-size:14px;font-weight:700;color:var(--text-high);}
+.darshan-timing{font-size:11px;color:var(--text-low);margin-top:2px;}
+
+/* ── Panchang Strip ── */
+.panchang-strip{background:var(--surface-ghost);border-radius:var(--shape-medium);padding:12px 14px;display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;}
+.panchang-strip::-webkit-scrollbar{display:none;}
+.panchang-item{flex-shrink:0;}
+.panchang-key{font-size:9px;font-weight:700;color:var(--text-low);text-transform:uppercase;letter-spacing:0.05em;}
+.panchang-val{font-size:12px;font-weight:700;color:var(--text-high);margin-top:2px;}
+.panchang-val.highlight{color:var(--success);}
+
+/* ── Namaaz Card (Muslim) ── */
+.namaaz-card{border:1px solid var(--stroke-subtle);border-radius:var(--shape-large);overflow:hidden;}
+.namaaz-header{padding:10px 14px;background:#2d8a4e;display:flex;align-items:center;gap:8px;}
+.namaaz-header-title{font-size:13px;font-weight:700;color:#fff;}
+.namaaz-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--grey-40);}
+.namaaz-row:last-child{border-bottom:none;}
+.namaaz-row.current{background:#e8f5ec;}
+.namaaz-name{font-size:13px;font-weight:600;color:var(--text-high);}
+.namaaz-time{font-size:13px;font-weight:700;color:var(--primary-60);}
+
+/* ── Forward Cards ── */
+.fwd-stack{display:flex;flex-direction:column;gap:10px;}
+.fwd-card{border-radius:var(--shape-large);overflow:hidden;cursor:pointer;position:relative;height:100px;display:flex;align-items:flex-end;transition:transform 150ms;}
+.fwd-card:active{transform:scale(0.97);}
+.fwd-card-text{padding:12px 14px;z-index:2;position:relative;flex:1;}
+.fwd-card-title{font-size:15px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5);}
+.fwd-card-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;font-weight:500;}
+.fwd-share-btn{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;z-index:3;cursor:pointer;border:none;backdrop-filter:blur(4px);}
+.fwd-share-btn svg{width:14px;height:14px;fill:#fff;}
+
+/* ── Festival Cards ── */
+.festival-card{flex-shrink:0;width:150px;border-radius:var(--shape-large);overflow:hidden;cursor:pointer;border:1px solid var(--stroke-subtle);transition:transform 150ms;}
+.festival-card:active{transform:scale(0.97);}
+.festival-card-img{height:90px;display:flex;align-items:center;justify-content:center;position:relative;}
+.festival-card-img span{font-size:36px;z-index:1;position:relative;}
+.festival-countdown{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.45);border-radius:var(--shape-xsmall);padding:2px 7px;font-size:9px;font-weight:700;color:#fff;}
+.festival-body{padding:8px 10px 10px;background:var(--surface);}
+.festival-name{font-size:12px;font-weight:700;color:var(--text-high);}
+.festival-date{font-size:10px;color:var(--text-low);margin-top:2px;}
+
+/* ── Ritual Card ── */
+.ritual-card{background:var(--primary-70);border-radius:var(--shape-large);padding:18px 18px;position:relative;overflow:hidden;}
+.ritual-card::before{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.ritual-label{font-size:9px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;}
+.ritual-title{font-size:20px;font-weight:900;color:#fff;margin-top:4px;letter-spacing:-0.02em;line-height:1.15;}
+.ritual-meta{font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;}
+.ritual-tracks{margin-top:12px;display:flex;flex-direction:column;gap:5px;}
+.ritual-track{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.08);border-radius:var(--shape-small);}
+.ritual-track-num{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);width:14px;}
+.ritual-track-info{flex:1;}
+.ritual-track-name{font-size:12px;font-weight:600;color:#fff;}
+.ritual-track-artist{font-size:10px;color:rgba(255,255,255,0.4);}
+.ritual-track-dur{font-size:10px;color:rgba(255,255,255,0.35);}
+.ritual-begin-btn{width:100%;margin-top:12px;padding:12px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:var(--shape-medium);font-family:'JioType',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 150ms;}
+.ritual-begin-btn:active{background:rgba(255,255,255,0.2);}
+
+/* ── Vrat Card ── */
+.vrat-card{background:var(--surface);border:1px solid var(--stroke-subtle);border-left:4px solid var(--faith-color);border-radius:var(--shape-large);padding:16px;cursor:pointer;transition:transform 150ms;}
+.vrat-card:active{transform:scale(0.98);}
+.vrat-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:var(--faith-color);background:var(--faith-bg);padding:3px 8px;border-radius:var(--shape-pill);text-transform:uppercase;letter-spacing:0.04em;}
+.vrat-name{font-size:16px;font-weight:800;color:var(--text-high);margin-top:8px;}
+.vrat-date{font-size:12px;color:var(--text-low);margin-top:3px;}
+.vrat-desc{font-size:12px;color:var(--text-medium);margin-top:6px;line-height:1.5;}
+.vrat-cta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--faith-color);margin-top:10px;cursor:pointer;}
+
+/* ── Overlay ── */
+.overlay{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;}
+.overlay.active{display:flex;}
+.overlay-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:20px;animation:slideUp 320ms var(--ease-decelerate);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.overlay-close{display:flex;justify-content:center;margin-bottom:12px;}
+.overlay-handle{width:36px;height:4px;border-radius:2px;background:var(--grey-40);}
+.overlay-title{font-size:18px;font-weight:800;color:var(--text-high);margin-bottom:4px;}
+.overlay-subtitle{font-size:12px;color:var(--text-low);margin-bottom:16px;}
+
+/* ── Darshan Action Grid ── */
+.darshan-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.darshan-action{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border:1px solid var(--stroke-subtle);border-radius:var(--shape-large);background:var(--surface);cursor:pointer;transition:all 150ms;}
+.darshan-action:active{transform:scale(0.96);background:var(--faith-bg);}
+.darshan-action-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.darshan-action-label{font-size:12px;font-weight:700;color:var(--text-high);text-align:center;}
+.darshan-action-sub{font-size:10px;color:var(--text-low);text-align:center;margin-top:-4px;}
+
+/* ── Keyframes ── */
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+@keyframes breatheRing{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.4}50%{transform:translate(-50%,-50%) scale(1.08);opacity:.7}}
+@keyframes floatDiya{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(-6px);opacity:1}}
+</style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+  <div class="scroll-feed" id="feed"></div>
+  <div class="overlay" id="overlay" onclick="closeOverlay(event)">
+    <div class="overlay-sheet" id="overlay-sheet" onclick="event.stopPropagation()"></div>
+  </div>
+</div>
+
+<script>
+// ── Config from URL Params ──
+var params = new URLSearchParams(window.location.search);
+var IS_UNIFIED = params.has('unified');
+var USER_FAITH = params.get('faith') || 'hindu';
+var USER_DEITY = params.get('deity') || 'ganesh';
+var USER_NAME = params.get('name') || 'Shivali';
+
+// ── Unified mode ──
+if (IS_UNIFIED) {
+  var s = document.createElement('style');
+  s.textContent = 'body{padding:0!important;background:#fff!important;display:block!important;}.phone-frame{width:100%!important;height:100vh!important;border:none!important;border-radius:0!important;box-shadow:none!important;}';
+  document.head.appendChild(s);
+}
+
+// ── Set faith tokens ──
+var root = document.documentElement;
+if (USER_FAITH === 'muslim') {
+  root.style.setProperty('--faith-color', '#2d8a4e');
+  root.style.setProperty('--faith-bg', '#e8f5ec');
+  root.style.setProperty('--faith-gradient', 'linear-gradient(135deg,#2d8a4e,#66bb6a)');
+}
+
+// ═══ DATA MODELS ═══
+
+var DEITY_DATA = {
+  ganesh: { name:'Ganesh', emoji:'🕉', darshanEmoji:'🕉', blessing:'Jai Shree Ganesh', color:'#f7ab20', gradient:'radial-gradient(circle at 50% 40%, #fff3e0 0%, #ffe0b2 25%, #ffb74d 50%, #f57c00 80%, #e65100 100%)', mantra:'Om Gan Ganapataye Namah' },
+  shiva: { name:'Shiva', emoji:'🔱', darshanEmoji:'🔱', blessing:'Om Namah Shivaya', color:'#6b7db3', gradient:'radial-gradient(circle at 50% 40%, #e8eaf6 0%, #c5cae9 25%, #9fa8da 50%, #5c6bc0 80%, #283593 100%)', mantra:'Om Namah Shivaya' },
+  krishna: { name:'Krishna', emoji:'🦚', darshanEmoji:'🪈', blessing:'Jai Shree Krishna', color:'#3535f3', gradient:'radial-gradient(circle at 50% 40%, #e3f2fd 0%, #bbdefb 25%, #64b5f6 50%, #1976d2 80%, #0d47a1 100%)', mantra:'Hare Krishna Hare Rama' },
+  durga: { name:'Durga', emoji:'🦁', darshanEmoji:'🪷', blessing:'Jai Mata Di', color:'#e63946', gradient:'radial-gradient(circle at 50% 40%, #fce4ec 0%, #f8bbd0 25%, #f06292 50%, #e91e63 80%, #880e4f 100%)', mantra:'Om Dum Durgaye Namah' },
+  hanuman: { name:'Hanuman', emoji:'🏔', darshanEmoji:'🙏', blessing:'Jai Bajrang Bali', color:'#ff6b35', gradient:'radial-gradient(circle at 50% 40%, #fff3e0 0%, #ffcc80 25%, #ffa726 50%, #ef6c00 80%, #bf360c 100%)', mantra:'Om Hanumate Namah' },
+  ram: { name:'Ram', emoji:'🏹', darshanEmoji:'🏹', blessing:'Jai Shree Ram', color:'#ff8c42', gradient:'radial-gradient(circle at 50% 40%, #fff8e1 0%, #ffe082 25%, #ffd54f 50%, #ff8f00 80%, #e65100 100%)', mantra:'Shree Ram Jai Ram Jai Jai Ram' },
+  quran: { name:'Quran', emoji:'📖', darshanEmoji:'📖', blessing:'Bismillah', color:'#2d8a4e', gradient:'radial-gradient(circle at 50% 40%, #e8f5e9 0%, #a5d6a7 50%, #2e7d32 100%)' },
+  salah: { name:'Salah', emoji:'🕌', darshanEmoji:'🕌', blessing:'Allahu Akbar', color:'#2d8a4e', gradient:'radial-gradient(circle at 50% 40%, #e8f5e9 0%, #a5d6a7 50%, #2e7d32 100%)' },
+  dua: { name:'Dua', emoji:'🤲', darshanEmoji:'🤲', blessing:'SubhanAllah', color:'#2d8a4e', gradient:'radial-gradient(circle at 50% 40%, #e8f5e9 0%, #a5d6a7 50%, #2e7d32 100%)' },
+  dhikr: { name:'Dhikr', emoji:'📿', darshanEmoji:'📿', blessing:'SubhanAllah', color:'#2d8a4e', gradient:'radial-gradient(circle at 50% 40%, #e8f5e9 0%, #a5d6a7 50%, #2e7d32 100%)' },
+};
+
+var TEMPLES = {
+  ganesh: [
+    { name:'Siddhivinayak, Mumbai', live:true, viewers:'2.3K', gradient:'linear-gradient(135deg,#ff6b35,#ff9a5c)', timing:'Aarti in 30 min', desc:'One of the most visited temples in Mumbai, dedicated to Lord Ganesh.' },
+    { name:'Dagdusheth, Pune', live:true, viewers:'1.8K', gradient:'linear-gradient(135deg,#e65100,#ff8f00)', timing:'Live Aarti', desc:'Famous Ganpati temple in the heart of Pune.' },
+    { name:'Moti Dungri, Jaipur', live:false, viewers:'950', gradient:'linear-gradient(135deg,#f57c00,#ffb74d)', timing:'Next at 6 PM', desc:'A hilltop temple shaped like a Scottish castle.' },
+  ],
+  shiva: [
+    { name:'Kashi Vishwanath, Varanasi', live:true, viewers:'5.1K', gradient:'linear-gradient(135deg,#5c6bc0,#9fa8da)', timing:'Live Rudrabhishek', desc:'One of the most famous Hindu temples dedicated to Lord Shiva.' },
+    { name:'Somnath, Gujarat', live:true, viewers:'3.2K', gradient:'linear-gradient(135deg,#455a64,#90a4ae)', timing:'Aarti in 15 min', desc:'First among the twelve Jyotirlinga shrines of Shiva.' },
+    { name:'Mahakaleshwar, Ujjain', live:false, viewers:'1.1K', gradient:'linear-gradient(135deg,#37474f,#78909c)', timing:'Next at 4 AM', desc:'Famous for the Bhasma Aarti at dawn.' },
+  ],
+  krishna: [
+    { name:'Banke Bihari, Vrindavan', live:true, viewers:'4.5K', gradient:'linear-gradient(135deg,#1565c0,#64b5f6)', timing:'Live Darshan', desc:'The most revered temple in Vrindavan.' },
+    { name:'Dwarkadhish, Dwarka', live:true, viewers:'2.7K', gradient:'linear-gradient(135deg,#0d47a1,#42a5f5)', timing:'Aarti in 45 min', desc:'Ancient temple at the legendary city of Lord Krishna.' },
+    { name:'ISKCON, Delhi', live:false, viewers:'1.5K', gradient:'linear-gradient(135deg,#283593,#7986cb)', timing:'Next at 7 PM', desc:'Beautiful ISKCON temple with daily kirtans.' },
+  ],
+  durga: [
+    { name:'Vaishno Devi, Katra', live:true, viewers:'6.2K', gradient:'linear-gradient(135deg,#c62828,#ef5350)', timing:'Live Darshan', desc:'One of the most visited pilgrimage centres in India.' },
+    { name:'Chamunda Devi, Kangra', live:true, viewers:'1.2K', gradient:'linear-gradient(135deg,#b71c1c,#e57373)', timing:'Aarti in 20 min', desc:'An ancient temple dedicated to Goddess Chamunda.' },
+    { name:'Kalighat, Kolkata', live:false, viewers:'890', gradient:'linear-gradient(135deg,#880e4f,#f06292)', timing:'Next at 5 PM', desc:'One of the 51 Shakti Peethas.' },
+  ],
+  hanuman: [
+    { name:'Sankat Mochan, Varanasi', live:true, viewers:'1.9K', gradient:'linear-gradient(135deg,#ff6b35,#ffab91)', timing:'Live Aarti', desc:'Founded by the great saint Tulsidas.' },
+    { name:'Mehandipur Balaji, Rajasthan', live:true, viewers:'2.1K', gradient:'linear-gradient(135deg,#e65100,#ffcc80)', timing:'Darshan Open', desc:'Famous for spiritual healing rituals.' },
+    { name:'Hanuman Garhi, Ayodhya', live:false, viewers:'1.4K', gradient:'linear-gradient(135deg,#bf360c,#ff8a65)', timing:'Next at 6 AM', desc:'A 10th century temple atop a hillock.' },
+  ],
+  ram: [
+    { name:'Ram Mandir, Ayodhya', live:true, viewers:'8.5K', gradient:'linear-gradient(135deg,#ff8c42,#ffcc80)', timing:'Live Darshan', desc:'The magnificent Ram Mandir at Ram Janmabhoomi.' },
+    { name:'Ramaswamy, Kumbakonam', live:true, viewers:'1.1K', gradient:'linear-gradient(135deg,#e65100,#ffab40)', timing:'Aarti in 1 hr', desc:'Beautiful South Indian style Ram temple.' },
+    { name:'Kodandarama, Hampi', live:false, viewers:'650', gradient:'linear-gradient(135deg,#bf360c,#ff7043)', timing:'Next at 7 AM', desc:'Ancient temple on the banks of Tungabhadra.' },
+  ],
+  muslim: [
+    { name:'Mecca Masjid, Hyderabad', live:true, viewers:'3.8K', gradient:'linear-gradient(135deg,#2d8a4e,#66bb6a)', timing:'Zuhr in 45 min', desc:'One of the oldest and largest masjids in India.' },
+    { name:'Jama Masjid, Delhi', live:true, viewers:'4.2K', gradient:'linear-gradient(135deg,#1b5e20,#4caf50)', timing:'Live', desc:'Built by Mughal Emperor Shah Jahan in 1656.' },
+    { name:'Haji Ali Dargah, Mumbai', live:false, viewers:'1.5K', gradient:'linear-gradient(135deg,#388e3c,#81c784)', timing:'Next at Asr', desc:'Iconic dargah situated on an islet in the Arabian Sea.' },
+  ]
+};
+
+var FESTIVALS_HINDU = [
+  { name:'Hanuman Jayanti', date:'6 May 2026', daysTo:16, gradient:'linear-gradient(135deg,#ff6b35,#ffab91)', emoji:'🏔' },
+  { name:'Akshaya Tritiya', date:'10 May 2026', daysTo:20, gradient:'linear-gradient(135deg,#f7ab20,#ffd54f)', emoji:'🪙' },
+  { name:'Buddha Purnima', date:'12 May 2026', daysTo:22, gradient:'linear-gradient(135deg,#3535f3,#9999ff)', emoji:'🪷' },
+  { name:'Ganga Dussehra', date:'27 May 2026', daysTo:37, gradient:'linear-gradient(135deg,#00bcd4,#80deea)', emoji:'🌊' },
+  { name:'Jagannath Rath Yatra', date:'23 Jun 2026', daysTo:64, gradient:'linear-gradient(135deg,#e65100,#ffcc80)', emoji:'🛕' },
+];
+
+var FESTIVALS_MUSLIM = [
+  { name:'Shab-e-Meraj', date:'28 Jan 2027', daysTo:283, gradient:'linear-gradient(135deg,#2d8a4e,#a5d6a7)', emoji:'🌙' },
+  { name:'Shab-e-Barat', date:'14 Feb 2027', daysTo:300, gradient:'linear-gradient(135deg,#1b5e20,#81c784)', emoji:'🕌' },
+  { name:'Ramzan Begins', date:'1 Mar 2027', daysTo:315, gradient:'linear-gradient(135deg,#388e3c,#66bb6a)', emoji:'☪' },
+  { name:'Eid ul-Fitr', date:'31 Mar 2027', daysTo:345, gradient:'linear-gradient(135deg,#4caf50,#a5d6a7)', emoji:'🎉' },
+  { name:'Eid ul-Adha', date:'7 Jun 2027', daysTo:413, gradient:'linear-gradient(135deg,#2e7d32,#81c784)', emoji:'🐑' },
+];
+
+var RITUALS = {
+  ganesh: { name:'Ganesh Vandana', tracks:[
+    {name:'Ganesh Aarti',artist:'Anuradha Paudwal',dur:'5:32'},{name:'Vakratunda Mahakaya',artist:'Shankar Mahadevan',dur:'4:18'},{name:'Ganpati Bappa Morya',artist:'Lata Mangeshkar',dur:'6:45'},{name:'Jai Ganesh Deva',artist:'Gulshan Kumar',dur:'3:55'}
+  ]},
+  shiva: { name:'Shiva Stuti', tracks:[
+    {name:'Shiv Tandav Stotram',artist:'Shankar Mahadevan',dur:'7:12'},{name:'Om Namah Shivaya',artist:'Anuradha Paudwal',dur:'5:40'},{name:'Bam Bam Bhole',artist:'Suresh Wadkar',dur:'4:30'},{name:'Shiv Chalisa',artist:'Gulshan Kumar',dur:'8:15'}
+  ]},
+  krishna: { name:'Krishna Bhajan Mala', tracks:[
+    {name:'Achyutam Keshavam',artist:'Anup Jalota',dur:'6:20'},{name:'Govind Bolo',artist:'Jagjit Singh',dur:'4:55'},{name:'Hare Krishna Mahamantra',artist:'ISKCON',dur:'8:10'},{name:'Radhe Radhe',artist:'Devi Chitralekhaji',dur:'5:30'}
+  ]},
+  durga: { name:'Durga Stuti', tracks:[
+    {name:'Durga Chalisa',artist:'Anuradha Paudwal',dur:'6:45'},{name:'Jai Ambe Gauri',artist:'Narendra Chanchal',dur:'5:20'},{name:'Aigiri Nandini',artist:'Bombay Sisters',dur:'7:30'},{name:'Ya Devi Sarvabhuteshu',artist:'Suresh Wadkar',dur:'4:40'}
+  ]},
+  hanuman: { name:'Hanuman Vandana', tracks:[
+    {name:'Hanuman Chalisa',artist:'Gulshan Kumar',dur:'9:30'},{name:'Bajrang Baan',artist:'Hariharan',dur:'7:15'},{name:'Sankat Mochan',artist:'Hari Om Sharan',dur:'5:40'},{name:'Ram Lakhan Sita',artist:'Anup Jalota',dur:'4:20'}
+  ]},
+  ram: { name:'Ram Bhajan Mala', tracks:[
+    {name:'Ram Dhun',artist:'Anup Jalota',dur:'8:10'},{name:'Ramcharitmanas',artist:'Morari Bapu',dur:'6:30'},{name:'Hey Ram Hey Ram',artist:'Jagjit Singh',dur:'5:15'},{name:'Shri Ram Stuti',artist:'Ravindra Jain',dur:'4:50'}
+  ]},
+};
+
+var VRATS = {
+  hindu: [
+    { name:'Pradosh Vrat', date:'24 Apr 2026', daysTo:4, type:'upcoming',
+      desc:'Fast observed on the 13th day of each lunar fortnight for Lord Shiva.',
+      katha:'Pradosh Vrat is dedicated to Lord Shiva and Goddess Parvati. Observing this fast removes sins and fulfills wishes.',
+      dos:['Fast from sunrise to moonrise','Worship Lord Shiva during Pradosh Kaal','Offer Bilva leaves and milk','Chant Om Namah Shivaya 108 times'],
+      donts:['Do not consume rice','Avoid tamasic food','Do not cut nails or hair'],
+      foods:['Fruits','Sabudana Khichdi','Kuttu Atta Roti','Milk & Dry Fruits','Makhana'] },
+    { name:'Ekadashi Vrat', date:'29 Apr 2026', daysTo:9, type:'upcoming',
+      desc:'Observed twice a month on the 11th day of each lunar fortnight. Dedicated to Lord Vishnu.',
+      katha:'Ekadashi is considered the most sacred of all fasting days. Vishnu Bhagwan is pleased by Ekadashi observers.',
+      dos:['Complete fast or eat only fruits','Visit Vishnu temple','Read Vishnu Sahasranama','Stay awake on Ekadashi night'],
+      donts:['Avoid rice completely','Do not eat grains or beans','Avoid sleeping during the day'],
+      foods:['Fruits','Sabudana','Potato','Milk','Makhana','Coconut Water'] },
+  ],
+  muslim: [
+    { name:'Nafl Roza', date:'24 Apr 2026', daysTo:4, type:'upcoming',
+      desc:'Voluntary fast for extra sawab. Recommended on Mondays and Thursdays.',
+      katha:'The Prophet (PBUH) used to fast on Mondays and Thursdays. These fasts bring special blessings.',
+      dos:['Make niyyah before Fajr','Break fast at Maghrib with dates','Offer extra prayers'],
+      donts:['Do not waste food at Iftar','Avoid excessive eating at Suhoor'],
+      foods:['Dates','Water','Fruits','Light meals'] },
+  ]
+};
+
+var FORWARDS_HINDU = [
+  { title:'Shubh Prabhat', sub:'Aaj ka din mangalmay ho', gradient:'linear-gradient(135deg,#ff9800,#ff5722)' },
+  { title:'Jai Shree Ram', sub:'Aaj Ram Navami ki hardik shubhkamnaye', gradient:'linear-gradient(135deg,#ff6b35,#e65100)' },
+  { title:'Suvichar', sub:'Satya ka marg kathin hai, par safal hai', gradient:'linear-gradient(135deg,#7b1fa2,#e040fb)' },
+];
+
+var FORWARDS_MUSLIM = [
+  { title:'Jumma Mubarak', sub:'May this blessed day bring peace', gradient:'linear-gradient(135deg,#2d8a4e,#1b5e20)' },
+  { title:'Dua of the Day', sub:'Rabbi zidni ilma — O Lord, increase my knowledge', gradient:'linear-gradient(135deg,#00695c,#26a69a)' },
+  { title:'Islamic Quote', sub:'Patience is the key to relief — Prophet Muhammad (PBUH)', gradient:'linear-gradient(135deg,#1565c0,#42a5f5)' },
+];
+
+// ═══ RENDER FUNCTIONS ═══
+
+function getGreeting() {
+  var h = new Date().getHours();
+  if (USER_FAITH === 'muslim') return 'Assalamu Alaikum, ' + USER_NAME;
+  var d = DEITY_DATA[USER_DEITY] || DEITY_DATA.ganesh;
+  return d.blessing + ', ' + USER_NAME;
+}
+
+function getTimeGreeting() {
+  var h = new Date().getHours();
+  if (h < 12) return 'Shubh Prabhat';
+  if (h < 17) return 'Namaste';
+  if (h < 21) return 'Shubh Sandhya';
+  return 'Shubh Ratri';
+}
+
+function renderHero() {
+  var d = DEITY_DATA[USER_DEITY] || DEITY_DATA.ganesh;
+  var bg = USER_FAITH === 'muslim'
+    ? 'linear-gradient(135deg,#1b5e20,#2d8a4e)'
+    : 'linear-gradient(135deg,#d84315,#ff6b35)';
+  var deco = USER_FAITH === 'muslim' ? '☪' : d.emoji;
+  var tithi = USER_FAITH === 'muslim'
+    ? 'Shawwal 2, 1447 AH . Monday'
+    : 'Shukla Panchami . Vaishakh . Rohini Nakshatra';
+  return '<div class="hero" style="background:' + bg + ';">'
+    + '<div class="hero-deco">' + deco + '</div>'
+    + '<div class="hero-greeting">' + getTimeGreeting() + '</div>'
+    + '<div class="hero-title">' + getGreeting() + '</div>'
+    + '<div class="hero-tithi">' + tithi + '</div>'
+    + '</div>';
+}
+
+function renderDarshan() {
+  var temples = USER_FAITH === 'muslim' ? TEMPLES.muslim : (TEMPLES[USER_DEITY] || TEMPLES.ganesh);
+  var html = '<div class="section" data-section>'
+    + '<div class="section-head"><div class="section-title">' + (USER_FAITH === 'muslim' ? 'Live from Masjids' : 'Live Darshan') + '</div><div class="section-link">See All ></div></div>'
+    + '<div class="h-scroll">';
+  temples.forEach(function(t, i) {
+    html += '<div class="darshan-card" onclick="openDarshan(' + i + ')">'
+      + '<div class="darshan-img" style="background:' + t.gradient + ';">'
+      + '<svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>';
+    if (t.live) {
+      html += '<div class="darshan-live-badge"><div class="darshan-live-dot"></div><div class="darshan-live-text">LIVE</div></div>';
+    }
+    html += '<div class="darshan-viewers">' + t.viewers + ' watching</div>'
+      + '</div>'
+      + '<div class="darshan-body"><div class="darshan-name">' + t.name + '</div><div class="darshan-timing">' + t.timing + '</div></div>'
+      + '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function renderPanchang() {
+  if (USER_FAITH === 'muslim') {
+    return '<div class="section" data-section>'
+      + '<div class="section-head"><div class="section-title">Salah Times</div></div>'
+      + '<div class="namaaz-card">'
+      + '<div class="namaaz-header"><div class="namaaz-header-title">🕌 Today\'s Prayer Times</div></div>'
+      + '<div class="namaaz-row"><div class="namaaz-name">Fajr</div><div class="namaaz-time">5:12 AM</div></div>'
+      + '<div class="namaaz-row current"><div class="namaaz-name">Zuhr ●</div><div class="namaaz-time">12:30 PM</div></div>'
+      + '<div class="namaaz-row"><div class="namaaz-name">Asr</div><div class="namaaz-time">4:15 PM</div></div>'
+      + '<div class="namaaz-row"><div class="namaaz-name">Maghrib</div><div class="namaaz-time">6:48 PM</div></div>'
+      + '<div class="namaaz-row"><div class="namaaz-name">Isha</div><div class="namaaz-time">8:05 PM</div></div>'
+      + '</div></div>';
+  }
+  return '<div class="section" data-section>'
+    + '<div class="section-head"><div class="section-title">Aaj Ka Panchang</div></div>'
+    + '<div class="panchang-strip">'
+    + '<div class="panchang-item"><div class="panchang-key">Tithi</div><div class="panchang-val">Shukla Panchami</div></div>'
+    + '<div class="panchang-item"><div class="panchang-key">Nakshatra</div><div class="panchang-val">Rohini</div></div>'
+    + '<div class="panchang-item"><div class="panchang-key">Rahu Kaal</div><div class="panchang-val">10:30 — 12:00</div></div>'
+    + '<div class="panchang-item"><div class="panchang-key">Shubh Muhurat</div><div class="panchang-val highlight">6:48 — 8:15 AM</div></div>'
+    + '<div class="panchang-item"><div class="panchang-key">Sunrise</div><div class="panchang-val">6:12 AM</div></div>'
+    + '<div class="panchang-item"><div class="panchang-key">Sunset</div><div class="panchang-val">6:48 PM</div></div>'
+    + '</div></div>';
+}
+
+function renderForwards() {
+  var fwds = USER_FAITH === 'muslim' ? FORWARDS_MUSLIM : FORWARDS_HINDU;
+  var html = '<div class="section" data-section>'
+    + '<div class="section-head"><div class="section-title">' + (USER_FAITH === 'muslim' ? 'Daily Reminders' : 'Aaj Ke Sandesh') + '</div></div>'
+    + '<div class="fwd-stack">';
+  fwds.forEach(function(f) {
+    html += '<div class="fwd-card" style="background:' + f.gradient + ';">'
+      + '<button class="fwd-share-btn" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>'
+      + '<div class="fwd-card-text"><div class="fwd-card-title">' + f.title + '</div><div class="fwd-card-sub">' + f.sub + '</div></div>'
+      + '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function renderFestivals() {
+  var fests = USER_FAITH === 'muslim' ? FESTIVALS_MUSLIM : FESTIVALS_HINDU;
+  var html = '<div class="section" data-section>'
+    + '<div class="section-head"><div class="section-title">' + (USER_FAITH === 'muslim' ? 'Upcoming Occasions' : 'Aane Wale Tyohar') + '</div><div class="section-link">See All ></div></div>'
+    + '<div class="h-scroll">';
+  fests.forEach(function(f, i) {
+    html += '<div class="festival-card" onclick="openFestival(' + i + ')">'
+      + '<div class="festival-card-img" style="background:' + f.gradient + ';"><span>' + f.emoji + '</span>'
+      + '<div class="festival-countdown">' + f.daysTo + ' days</div>'
+      + '</div>'
+      + '<div class="festival-body"><div class="festival-name">' + f.name + '</div><div class="festival-date">' + f.date + '</div></div>'
+      + '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function renderRitual() {
+  if (USER_FAITH === 'muslim') {
+    return '<div class="section" data-section>'
+      + '<div class="ritual-card" style="background:linear-gradient(135deg,#1b5e20,#2d8a4e);">'
+      + '<div class="ritual-label">DAILY IBAADAT</div>'
+      + '<div class="ritual-title">Morning Dhikr & Dua</div>'
+      + '<div class="ritual-meta">10 min . 4 recitations</div>'
+      + '<div class="ritual-tracks">'
+      + '<div class="ritual-track"><div class="ritual-track-num">1</div><div class="ritual-track-info"><div class="ritual-track-name">Ayatul Kursi</div><div class="ritual-track-artist">Mishary Rashid</div></div><div class="ritual-track-dur">3:20</div></div>'
+      + '<div class="ritual-track"><div class="ritual-track-num">2</div><div class="ritual-track-info"><div class="ritual-track-name">SubhanAllah (33x)</div><div class="ritual-track-artist">Tasbih Dhikr</div></div><div class="ritual-track-dur">2:15</div></div>'
+      + '<div class="ritual-track"><div class="ritual-track-num">3</div><div class="ritual-track-info"><div class="ritual-track-name">Alhamdulillah (33x)</div><div class="ritual-track-artist">Tasbih Dhikr</div></div><div class="ritual-track-dur">2:10</div></div>'
+      + '<div class="ritual-track"><div class="ritual-track-num">4</div><div class="ritual-track-info"><div class="ritual-track-name">Morning Dua</div><div class="ritual-track-artist">Mufti Menk</div></div><div class="ritual-track-dur">2:40</div></div>'
+      + '</div>'
+      + '<button class="ritual-begin-btn">▶ Begin Ibaadat</button>'
+      + '</div></div>';
+  }
+
+  var r = RITUALS[USER_DEITY] || RITUALS.ganesh;
+  var totalDur = 0;
+  r.tracks.forEach(function(t) {
+    var parts = t.dur.split(':');
+    totalDur += parseInt(parts[0]) + (parseInt(parts[1]) / 60);
+  });
+
+  var html = '<div class="section" data-section>'
+    + '<div class="ritual-card">'
+    + '<div class="ritual-label">AAJ KA RITUAL</div>'
+    + '<div class="ritual-title">' + r.name + '</div>'
+    + '<div class="ritual-meta">' + Math.round(totalDur) + ' min . ' + r.tracks.length + ' tracks</div>'
+    + '<div class="ritual-tracks">';
+  r.tracks.forEach(function(t, i) {
+    html += '<div class="ritual-track"><div class="ritual-track-num">' + (i+1) + '</div>'
+      + '<div class="ritual-track-info"><div class="ritual-track-name">' + t.name + '</div><div class="ritual-track-artist">' + t.artist + '</div></div>'
+      + '<div class="ritual-track-dur">' + t.dur + '</div></div>';
+  });
+  html += '</div><button class="ritual-begin-btn">▶ Begin Ritual</button>'
+    + '</div></div>';
+  return html;
+}
+
+function renderVrat() {
+  var vrats = USER_FAITH === 'muslim' ? VRATS.muslim : VRATS.hindu;
+  var v = vrats[0];
+  if (!v) return '';
+
+  var html = '<div class="section" data-section>'
+    + '<div class="section-head"><div class="section-title">' + (USER_FAITH === 'muslim' ? 'Vrat & Roza' : 'Vrat Saathi') + '</div></div>'
+    + '<div class="vrat-card" onclick="openVrat(0)">'
+    + '<div class="vrat-badge">' + (v.daysTo <= 1 ? 'TODAY' : v.daysTo + ' days to go') + '</div>'
+    + '<div class="vrat-name">' + v.name + '</div>'
+    + '<div class="vrat-date">' + v.date + '</div>'
+    + '<div class="vrat-desc">' + v.desc + '</div>'
+    + '<div class="vrat-cta">Read Full Guide →</div>'
+    + '</div></div>';
+  return html;
+}
+
+// ═══ BUILD THE FEED ═══
+function buildFeed() {
+  var feed = document.getElementById('feed');
+  feed.innerHTML = [
+    renderHero(),
+    renderDarshan(),
+    renderPanchang(),
+    renderForwards(),
+    renderFestivals(),
+    renderRitual(),
+    renderVrat(),
+    '<div style="height:40px"></div>'
+  ].join('');
+
+  // Intersection Observer for scroll animations
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.section').forEach(function(s) { observer.observe(s); });
+}
+
+// ═══ OVERLAY FUNCTIONS ═══
+function openOverlay(html) {
+  document.getElementById('overlay-sheet').innerHTML =
+    '<div class="overlay-close"><div class="overlay-handle"></div></div>' + html;
+  document.getElementById('overlay').classList.add('active');
+}
+
+function closeOverlay(e) {
+  if (e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function openDarshan(idx) {
+  var temples = USER_FAITH === 'muslim' ? TEMPLES.muslim : (TEMPLES[USER_DEITY] || TEMPLES.ganesh);
+  var t = temples[idx];
+  if (!t) return;
+
+  var faithColor = USER_FAITH === 'muslim' ? '#2d8a4e' : (DEITY_DATA[USER_DEITY] || DEITY_DATA.ganesh).color;
+
+  var deityInfo = DEITY_DATA[USER_DEITY] || DEITY_DATA.ganesh;
+
+  openOverlay(
+    // ── Deity Darshan Visual ──
+    '<div style="position:relative;margin:-20px -20px 16px -20px;border-radius:16px 16px 0 0;overflow:hidden;height:240px;background:' + deityInfo.gradient + ';">'
+    // Mandala ring
+    + '<div style="position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);animation:breatheRing 3s ease infinite;"></div>'
+    + '<div style="position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);animation:breatheRing 3s ease 0.5s infinite;"></div>'
+    // Deity icon + name
+    + '<div style="position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);text-align:center;">'
+    + '<div style="font-size:72px;filter:drop-shadow(0 4px 20px rgba(0,0,0,0.3));animation:breathe 3s ease 0.2s infinite;">' + deityInfo.darshanEmoji + '</div>'
+    + '<div style="margin-top:4px;font-size:14px;font-weight:700;color:rgba(255,255,255,0.9);text-shadow:0 1px 8px rgba(0,0,0,0.4);letter-spacing:1px;">' + deityInfo.mantra + '</div>'
+    + '</div>'
+    // Floating diyas
+    + '<div style="position:absolute;bottom:16px;left:24px;font-size:22px;animation:floatDiya 2.5s ease infinite;">🪔</div>'
+    + '<div style="position:absolute;bottom:20px;right:24px;font-size:22px;animation:floatDiya 2.5s ease 0.8s infinite;">🪔</div>'
+    + '<div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:18px;animation:floatDiya 2.5s ease 1.5s infinite;">🌺</div>'
+    // LIVE badge
+    + (t.live ? '<div style="position:absolute;top:12px;left:12px;background:#fa2f40;border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(4px);"><div style="width:6px;height:6px;border-radius:50%;background:#fff;animation:livePulse 1.2s infinite;"></div><span style="font-size:10px;font-weight:800;color:#fff;letter-spacing:0.5px;">LIVE</span></div>' : '')
+    // Viewer count
+    + '<div style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.4);border-radius:6px;padding:4px 10px;backdrop-filter:blur(4px);"><span style="font-size:10px;font-weight:600;color:#fff;">' + t.viewers + ' watching</span></div>'
+    // Bottom gradient + temple name
+    + '<div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);">'
+    + '<div style="font-size:16px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5);">' + t.name + '</div>'
+    + '<div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">' + t.timing + '</div>'
+    + '</div></div>'
+    // ── Blessing text ──
+    + '<div style="text-align:center;padding:10px 0 6px;font-size:16px;font-weight:700;color:' + deityInfo.color + ';letter-spacing:0.3px;">' + deityInfo.blessing + '</div>'
+    + '<div class="overlay-subtitle" style="text-align:center;">' + t.desc + '</div>'
+    // ── Action Grid ──
+    + '<div class="darshan-actions">'
+    + '<div class="darshan-action" onclick="showDarshanAction(\'flowers\')"><div class="darshan-action-icon" style="background:' + (USER_FAITH === 'muslim' ? '#e8f5ec' : '#fff3ed') + ';">🌸</div><div class="darshan-action-label">' + (USER_FAITH === 'muslim' ? 'Sadqa' : 'Offer Flowers') + '</div></div>'
+    + '<div class="darshan-action" onclick="showDarshanAction(\'aarti\')"><div class="darshan-action-icon" style="background:' + (USER_FAITH === 'muslim' ? '#e8f5ec' : '#fef7e9') + ';">🪔</div><div class="darshan-action-label">' + (USER_FAITH === 'muslim' ? 'Dua Request' : 'Virtual Aarti') + '</div></div>'
+    + '<div class="darshan-action" onclick="showDarshanAction(\'prasad\')"><div class="darshan-action-icon" style="background:' + (USER_FAITH === 'muslim' ? '#e8f5ec' : '#e8f5ec') + ';">🍲</div><div class="darshan-action-label">' + (USER_FAITH === 'muslim' ? 'Langar Donation' : 'Online Prasad') + '</div></div>'
+    + '<div class="darshan-action" onclick="showDarshanAction(\'gift\')"><div class="darshan-action-icon" style="background:' + (USER_FAITH === 'muslim' ? '#e8f5ec' : '#e8e8fc') + ';">🎁</div><div class="darshan-action-label">' + (USER_FAITH === 'muslim' ? 'Zakat' : 'Aashirwaad Box') + '</div></div>'
+    + '</div>'
+    // ── CTA ──
+    + '<button style="width:100%;margin-top:16px;padding:14px;background:' + faithColor + ';border:none;border-radius:12px;font-family:JioType,sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">' + (t.live ? (USER_FAITH === 'muslim' ? 'Watch Live' : 'Watch Live Darshan') : 'Set Reminder') + '</button>'
+  );
+}
+
+function showDarshanAction(action) {
+  var deityInfo = DEITY_DATA[USER_DEITY] || DEITY_DATA.ganesh;
+  var msgs = {
+    flowers: { emoji:'🌸🌺🌼', text: deityInfo.name + ' ko phool arpan kiye gaye', sub:'Aapki puja sweekar hui' },
+    aarti: { emoji:'🪔🪔🪔', text: deityInfo.name + ' ki aarti shuru ho rahi hai', sub:'Om Jai Jagdish Hare...' },
+    prasad: { emoji:'🍲🙏', text: 'Prasad ka order diya gaya', sub:'Delivery: 2-3 din mein' },
+    gift: { emoji:'🎁✨', text: 'Aashirwaad Box bheja gaya', sub: deityInfo.blessing },
+  };
+  var m = msgs[action] || msgs.flowers;
+
+  // Show a brief confirmation toast over the overlay
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);z-index:200;background:rgba(0,0,0,0.88);border-radius:20px;padding:28px 32px;text-align:center;opacity:0;transition:all 400ms cubic-bezier(0.2,0,0,1);pointer-events:none;';
+  toast.innerHTML = '<div style="font-size:40px;margin-bottom:10px;animation:breathe 1.5s ease infinite;">' + m.emoji + '</div>'
+    + '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;">' + m.text + '</div>'
+    + '<div style="font-size:12px;color:rgba(255,255,255,0.65);">' + m.sub + '</div>';
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(function() {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translate(-50%,-50%) scale(1)';
+  });
+
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%,-50%) scale(0.8)';
+    setTimeout(function() { toast.remove(); }, 400);
+  }, 2200);
+}
+
+function openFestival(idx) {
+  var fests = USER_FAITH === 'muslim' ? FESTIVALS_MUSLIM : FESTIVALS_HINDU;
+  var f = fests[idx];
+  if (!f) return;
+
+  openOverlay(
+    '<div style="text-align:center;margin-bottom:16px;"><span style="font-size:48px;">' + f.emoji + '</span></div>'
+    + '<div class="overlay-title" style="text-align:center;">' + f.name + '</div>'
+    + '<div class="overlay-subtitle" style="text-align:center;">' + f.date + ' . ' + f.daysTo + ' days to go</div>'
+    + '<div style="background:var(--surface-ghost);border-radius:12px;padding:14px;margin-bottom:12px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:6px;">About</div>'
+    + '<div style="font-size:12px;color:var(--text-medium);line-height:1.6;">This is one of the most significant occasions in the calendar. Devotees celebrate with prayers, rituals, and community gatherings.</div>'
+    + '</div>'
+    + '<div style="background:var(--surface-ghost);border-radius:12px;padding:14px;margin-bottom:16px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:6px;">Key Rituals</div>'
+    + '<div style="font-size:12px;color:var(--text-medium);line-height:1.8;">1. Early morning bath & prayers<br>2. Visit temple / masjid<br>3. Special offerings<br>4. Community celebration<br>5. Evening aarti / prayers</div>'
+    + '</div>'
+    + '<button style="width:100%;padding:14px;background:var(--faith-color);border:none;border-radius:12px;font-family:JioType,sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">🔔 Set Reminder</button>'
+  );
+}
+
+function openVrat(idx) {
+  var vrats = USER_FAITH === 'muslim' ? VRATS.muslim : VRATS.hindu;
+  var v = vrats[idx];
+  if (!v) return;
+
+  var dosHtml = '';
+  v.dos.forEach(function(d) { dosHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;"><span style="color:var(--success);font-weight:800;">✓</span><span style="font-size:12px;color:var(--text-medium);line-height:1.5;">' + d + '</span></div>'; });
+  var dontsHtml = '';
+  v.donts.forEach(function(d) { dontsHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;"><span style="color:var(--error);font-weight:800;">✗</span><span style="font-size:12px;color:var(--text-medium);line-height:1.5;">' + d + '</span></div>'; });
+  var foodsHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">';
+  v.foods.forEach(function(f) { foodsHtml += '<span style="padding:4px 10px;background:var(--surface-ghost);border-radius:var(--shape-pill);font-size:11px;font-weight:600;color:var(--text-high);">' + f + '</span>'; });
+  foodsHtml += '</div>';
+
+  openOverlay(
+    '<div class="overlay-title">' + v.name + '</div>'
+    + '<div class="overlay-subtitle">' + v.date + ' . ' + v.daysTo + ' days to go</div>'
+    + '<div style="background:var(--faith-bg);border-radius:12px;padding:14px;margin-bottom:12px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:6px;">📖 Katha</div>'
+    + '<div style="font-size:12px;color:var(--text-medium);line-height:1.6;">' + v.katha + '</div>'
+    + '</div>'
+    + '<div style="background:var(--surface-ghost);border-radius:12px;padding:14px;margin-bottom:12px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:8px;">✅ What to Do</div>'
+    + dosHtml
+    + '</div>'
+    + '<div style="background:var(--surface-ghost);border-radius:12px;padding:14px;margin-bottom:12px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:8px;">❌ What to Avoid</div>'
+    + dontsHtml
+    + '</div>'
+    + '<div style="background:var(--surface-ghost);border-radius:12px;padding:14px;margin-bottom:16px;">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text-high);margin-bottom:4px;">🍽 Allowed Foods</div>'
+    + foodsHtml
+    + '</div>'
+    + '<button style="width:100%;padding:14px;background:var(--faith-color);border:none;border-radius:12px;font-family:JioType,sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">🔔 Set Vrat Reminder</button>'
+  );
+}
+
+// ── Build on load ──
+buildFeed();
+</script>
+</body>
+</html>

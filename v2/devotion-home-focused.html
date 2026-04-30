@@ -1,0 +1,3131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devotion · Darshan</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone {
+  width:360px; border-radius:40px; border:8px solid #1a1a1a;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  overflow:hidden; position:relative; background:#0a0500;
+}
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { position:absolute; top:32px; left:0; right:0; padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; z-index:40; }
+
+.screen { position:relative; background:#0a0500; color:#fff; height:760px; overflow-y:auto; scroll-behavior:smooth; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* ============ DEITY PICKER ============ */
+.picker {
+  position:absolute; inset:0; z-index:60; background:#0a0500;
+  padding:80px 24px 32px; display:flex; flex-direction:column;
+  transition: opacity 520ms ease, transform 520ms ease;
+}
+.picker.hide { opacity:0; transform:scale(0.96); pointer-events:none; }
+.picker-label { font-size:11px; font-weight:700; letter-spacing:3px; color:#ffb874; text-transform:uppercase; text-align:center; }
+.picker-title { font-size:22px; font-weight:700; color:#fff; text-align:center; margin-top:10px; line-height:1.3; }
+.picker-sub { font-size:13px; color:#8a7968; text-align:center; margin-top:8px; }
+.deity-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:24px; }
+.deity-card {
+  position:relative; aspect-ratio:1;
+  background:rgba(255,200,140,0.04);
+  border:1px solid rgba(255,180,100,0.14); border-radius:18px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; transition: transform 220ms ease, border-color 220ms ease;
+  overflow:hidden;
+}
+.deity-card:active { transform:scale(0.97); }
+.deity-pic {
+  width:84px; height:84px; border-radius:50%; object-fit:cover; object-position:center top;
+  border:2px solid rgba(255,200,140,0.5);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  z-index:2; position:relative; background:#1a0a00;
+}
+.deity-card .name { font-size:13px; font-weight:700; color:#fff; margin-top:8px; z-index:2; position:relative; }
+.deity-card .epithet { font-size:10px; color:#ffce99; margin-top:2px; z-index:2; position:relative; }
+
+/* ============ FOLD 1 — PURE DARSHAN ============ */
+/* Full-bleed. Deity owns the screen. No container. No chrome. */
+.darshan {
+  position:relative; height:760px; overflow:hidden;
+  background:#0a0500;
+}
+
+/* Deity image — FULL BLEED, edge-to-edge */
+.deity-img-wrap {
+  position:absolute; inset:0; z-index:1;
+  transition: opacity 500ms ease, transform 600ms cubic-bezier(.2,.8,.2,1);
+}
+.deity-img {
+  width:100%; height:100%; object-fit:contain; object-position:center center;
+  display:block;
+  background:#0a0500;
+  /* Soft vignette: fades edges into the app's dark bg so any image (even white-bg ones) merges */
+  -webkit-mask-image: radial-gradient(ellipse 85% 88% at center 48%, #000 45%, rgba(0,0,0,0.85) 65%, transparent 100%);
+          mask-image: radial-gradient(ellipse 85% 88% at center 48%, #000 45%, rgba(0,0,0,0.85) 65%, transparent 100%);
+  filter: saturate(1.05) contrast(1.04);
+}
+/* Dark halo behind the image to cement the blend */
+.deity-img-wrap::before {
+  content:""; position:absolute; inset:-40px; z-index:-1;
+  background: radial-gradient(ellipse 70% 70% at center, rgba(10,5,0,0) 45%, #0a0500 85%);
+  pointer-events:none;
+}
+/* Gentle breathing motion, not visible unless you look */
+.deity-img { animation:deityBreath 8s ease-in-out infinite; }
+@keyframes deityBreath { 0%,100% { transform:scale(1); } 50% { transform:scale(1.02); } }
+
+/* Transition when swiping */
+.deity-img-wrap.swiping-out { opacity:0; transform:translateY(-60px); }
+.deity-img-wrap.swiping-in { opacity:0; transform:translateY(60px); }
+
+/* Soft top gradient so status bar + pill are legible */
+.top-shade {
+  position:absolute; top:0; left:0; right:0; height:180px; z-index:4;
+  background:linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 100%);
+  pointer-events:none;
+}
+/* Soft bottom gradient for CTA legibility */
+.bot-shade {
+  position:absolute; bottom:0; left:0; right:0; height:260px; z-index:4;
+  background:linear-gradient(180deg, transparent 0%, rgba(10,5,0,0.55) 55%, rgba(10,5,0,0.95) 100%);
+  pointer-events:none;
+}
+
+/* TOP: TEMPLE ENTRANCE — mantra greeting + deity switcher */
+.top-bar {
+  position:absolute; top:56px; left:0; right:0; z-index:14;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:8px 16px;
+  pointer-events:none;
+}
+.mantra-line {
+  font-size:14px; font-weight:700; letter-spacing:0.8px;
+  color:#ffd9a8; text-shadow:0 2px 12px rgba(0,0,0,0.7), 0 0 24px rgba(255,180,100,0.25);
+  text-align:center;
+  animation:mantraFade 900ms ease both;
+}
+.greet-line {
+  font-size:11px; font-weight:500; letter-spacing:0.4px;
+  color:rgba(255,230,200,0.78); text-shadow:0 1px 6px rgba(0,0,0,0.6);
+  text-align:center;
+  animation:mantraFade 900ms 200ms ease both;
+}
+@keyframes mantraFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+/* Deity switcher — 6 small circular icons */
+.deity-switcher {
+  position:absolute; top:110px; left:0; right:0; z-index:14;
+  display:flex; justify-content:center; gap:8px;
+  padding:0 16px;
+  pointer-events:auto;
+}
+.ds-btn {
+  width:38px; height:38px; border-radius:50%; overflow:hidden;
+  border:1.5px solid rgba(255,255,255,0.22);
+  background:rgba(0,0,0,0.35); backdrop-filter:blur(10px);
+  cursor:pointer; padding:0;
+  transition:transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.ds-btn img { width:100%; height:100%; object-fit:cover; display:block; }
+.ds-btn.active {
+  border-color:#ffd9a8;
+  box-shadow:0 0 0 2px rgba(255,180,100,0.35), 0 0 18px rgba(255,180,100,0.45);
+  transform:scale(1.06);
+}
+.ds-btn:active { transform:scale(0.92); }
+.avatar-btn {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.15); backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:#fff;
+}
+.deity-pill {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  background:rgba(255,255,255,0.12); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.18); border-radius:999px;
+  padding:8px 16px; color:#fff; font-size:14px; font-weight:700;
+  cursor:pointer;
+}
+.deity-pill .arrow { font-size:10px; opacity:0.7; }
+
+/* TITHI — hidden, no text above deity */
+.tithi-chip { display:none !important; }
+
+/* AMBIENT — just two diyas in bottom corners. That's it. */
+.ambient-diya {
+  position:absolute; bottom:190px; z-index:5; width:26px;
+  pointer-events:none;
+  filter:drop-shadow(0 0 14px rgba(255,160,60,0.6));
+}
+.ambient-diya.left { left:28px; }
+.ambient-diya.right { right:28px; }
+.flame {
+  width:12px; height:18px; margin:0 auto 1px;
+  background:radial-gradient(ellipse 60% 100% at 50% 90%, #ffeb80, #ff9020 60%, transparent 95%);
+  border-radius:50% 50% 30% 30%;
+  filter:blur(0.4px);
+  animation:flicker 1.1s ease-in-out infinite alternate;
+}
+@keyframes flicker { 0% { transform:scale(0.92) rotate(-3deg); opacity:0.88; } 100% { transform:scale(1.08) rotate(4deg); opacity:1; } }
+.diya-base {
+  width:26px; height:8px;
+  background:linear-gradient(180deg, #c55a1a, #5a1a00);
+  border-radius:0 0 50% 50% / 0 0 100% 100%;
+}
+
+/* AARTI THALI — revolving plate with diya around deity */
+.aarti-thali-wrap {
+  position:absolute; inset:0; z-index:50;  /* above lyrics panel so orbit stays visible */
+  display:none; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.aarti-thali-wrap.active { display:flex; }
+.aarti-thali {
+  position:relative;
+  width:260px; height:260px;
+  animation:thaliOrbit 3.6s linear infinite;
+}
+.thali-img {
+  position:absolute; top:50%; left:50%;
+  width:140px; height:140px;
+  transform:translate(-50%,-50%);
+  filter: drop-shadow(0 6px 18px rgba(255,160,40,0.6)) drop-shadow(0 0 28px rgba(255,200,80,0.45));
+  /* No self-rotation — the thali stays upright the entire orbit */
+}
+/* Orbit trick: rotate outer → move out → counter-rotate inner = child stays upright */
+@keyframes thaliOrbit {
+  0%   { transform: rotate(0deg)   translateX(90px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+}
+.aarti-petals {
+  position:absolute; inset:0;
+  background:radial-gradient(circle at center, rgba(255,180,60,0.18), transparent 55%);
+  animation:aartiGlow 3.6s ease-in-out infinite;
+}
+@keyframes aartiGlow { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+/* AARTI KARAOKE LYRICS PANEL — appears at bottom while aarti plays */
+.aarti-lyrics-panel {
+  position:absolute; left:0; right:0; bottom:0;
+  background:linear-gradient(180deg, rgba(10,5,0,0) 0%, rgba(20,8,0,0.92) 22%, rgba(10,5,0,0.98) 100%);
+  padding:26px 22px 28px; z-index:40;
+  transform:translateY(110%); transition: transform 420ms cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.aarti-lyrics-panel.active { transform:translateY(0); pointer-events:auto; }
+.al-head {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:12px;
+  font-size:11px; color:#ffce99; letter-spacing:1.2px; text-transform:uppercase;
+}
+.al-head .al-pulse {
+  display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:#ff9040; margin-right:6px; vertical-align:middle;
+  animation:alPulse 1.3s ease-in-out infinite;
+}
+@keyframes alPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+.al-close {
+  background:rgba(255,255,255,0.08); border:none; color:#ffd9a8;
+  width:28px; height:28px; border-radius:50%; font-size:14px;
+  cursor:pointer;
+}
+.al-inner { display:flex; flex-direction:column; gap:6px; min-height:86px; }
+.al-line {
+  font-size:15px; line-height:1.45; letter-spacing:0.2px;
+  color:rgba(255,220,170,0.35); transition:all 420ms cubic-bezier(.4,0,.2,1);
+  transform:translateY(0);
+}
+.al-line .al-trans {
+  display:block; font-size:11px; color:rgba(255,210,160,0.4); margin-top:2px;
+}
+.al-line.past { color:rgba(255,220,170,0.25); font-size:13px; }
+.al-line.now {
+  color:#fff2c8; font-weight:700; font-size:17px;
+  text-shadow:0 0 18px rgba(255,160,60,0.6);
+}
+.al-line.now .al-trans { color:#ffc88a; }
+.al-line.next { color:rgba(255,220,170,0.28); }
+
+/* FORM DOTS — when deity has multiple forms */
+.form-dots {
+  position:absolute; top:150px; left:50%; transform:translateX(-50%); z-index:12;
+  display:flex; gap:6px;
+}
+.form-dots .dot {
+  width:22px; height:3px; border-radius:2px;
+  background:rgba(255,255,255,0.35);
+  transition: background 220ms ease, width 220ms ease;
+}
+.form-dots .dot.active { background:#fff; width:30px; }
+.form-dots:empty { display:none; }
+
+/* AGLA DARSHAN — subtle upward arrow hint (tappable, not drag) */
+.swipe-hint {
+  position:absolute; bottom:148px; left:50%; transform:translateX(-50%); z-index:15;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  opacity:0.85;
+  cursor:pointer;
+  background:transparent; border:none;
+  padding:6px 12px;
+  font-family:inherit;
+  transition:transform 180ms ease, opacity 180ms ease;
+}
+.swipe-hint:active { transform:translateX(-50%) scale(0.94); opacity:1; }
+.swipe-arrow {
+  width:22px; height:22px; border-right:2px solid rgba(255,230,200,0.85); border-top:2px solid rgba(255,230,200,0.85);
+  transform:rotate(-45deg);
+  animation:swipeFloat 1.8s ease-in-out infinite;
+}
+.swipe-label { font-size:10px; font-weight:600; color:rgba(255,230,200,0.85); letter-spacing:0.3px; }
+@keyframes swipeFloat { 0%,100%{transform:rotate(-45deg) translate(0,0); opacity:0.4;} 50%{transform:rotate(-45deg) translate(6px,-6px); opacity:1;} }
+
+/* QUICK SEVA ICONS — subtle actions (aarti / shankh / pushp) */
+.qseva-row {
+  position:absolute; bottom:54px; left:0; right:0; z-index:100;
+  display:flex; justify-content:center; align-items:center; gap:22px;
+}
+.qseva-btn {
+  background:none !important; border:none !important; padding:0 !important;
+  width:auto !important; height:auto !important; border-radius:0 !important;
+  box-shadow:none !important;
+  cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-family:inherit; color:#fff;
+  transition:transform 180ms ease, opacity 180ms ease;
+  opacity:0.9;
+}
+.qseva-btn:hover  { opacity:1; }
+.qseva-btn:active { transform:scale(0.92); opacity:1; }
+.qseva-disc {
+  width:36px; height:36px; border-radius:50%;
+  background:#120700;             /* FULLY OPAQUE — nothing can bleed through */
+  border:1px solid rgba(255,210,160,0.28);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.qseva-lbl {
+  font-size:9px; font-weight:500; letter-spacing:0.3px;
+  color:rgba(255,220,180,0.8);
+  text-shadow:0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* MINIMAL SCROLL HINT at very bottom */
+.scroll-chev {
+  position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:14;
+  font-size:18px; color:rgba(255,230,200,0.4);
+  animation:bounce 1.8s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0); opacity:0.35;} 50%{transform:translateX(-50%) translateY(4px); opacity:0.7;} }
+
+/* ============ FOLD 2 — FESTIVAL INTEGRATION (not an ad) ============ */
+.fold2 { padding:12px 20px 18px; background:linear-gradient(180deg, #0a0500 0%, #120800 100%); }
+.fold2 > .section-label:first-child { margin-top:6px; }
+
+/* Festival woven into the content — not a banner */
+.festival-slim {
+  display:flex; align-items:center; gap:12px; padding:14px;
+  background:linear-gradient(135deg, rgba(255,180,80,0.14), rgba(120,40,10,0.04));
+  border:1px solid rgba(255,200,140,0.22);
+  border-radius:14px; cursor:pointer;
+}
+.fs-icon {
+  width:40px; height:40px; border-radius:10px; flex:0 0 auto;
+  background:linear-gradient(135deg, #ffd098, #ff9030);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.fs-text { flex:1; min-width:0; }
+.fs-title { font-size:13px; font-weight:700; color:#fff; }
+.fs-sub { font-size:11px; color:#ffce99; margin-top:2px; }
+.fs-cta { font-size:11px; font-weight:700; color:#ffa350; white-space:nowrap; }
+
+/* Section label */
+.section-label { font-size:10px; font-weight:700; letter-spacing:2.5px; color:#ffb874; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; margin-top:26px; }
+.section-label .see-all { color:#a89078; font-weight:500; letter-spacing:0.5px; text-transform:none; cursor:pointer; }
+
+/* LIVE DARSHAN — horizontal row */
+.live-row { margin-top:12px; display:flex; gap:10px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+.live-row::-webkit-scrollbar { display:none; }
+.live-card {
+  flex:0 0 auto; width:240px; height:170px; border-radius:18px; overflow:hidden; position:relative;
+  cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  background:#1a0a00;
+}
+.live-card img { width:100%; height:100%; object-fit:cover; display:block; }
+.live-card::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 45%, rgba(10,5,0,0.92) 100%);
+}
+.live-badge {
+  position:absolute; top:10px; left:10px; z-index:3;
+  background:rgba(250,47,64,0.95); color:#fff; font-size:9px; font-weight:700;
+  padding:4px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;
+  letter-spacing:1px;
+}
+.live-dot { width:5px; height:5px; border-radius:50%; background:#fff; animation:livePulse 1.2s infinite; }
+@keyframes livePulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+.live-viewers {
+  position:absolute; top:10px; right:10px; z-index:3;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(6px); color:#fff; font-size:10px;
+  padding:4px 8px; border-radius:999px; font-weight:600;
+}
+.live-foot {
+  position:absolute; bottom:10px; left:12px; right:12px; z-index:3; color:#fff;
+}
+.live-temple { font-size:13px; font-weight:700; line-height:1.2; }
+.live-aarti { font-size:10px; color:#ffce99; margin-top:2px; }
+
+.live-map {
+  position:relative; flex:0 0 auto; width:140px; height:170px; border-radius:18px;
+  background:linear-gradient(160deg, #2a1200 0%, #140700 100%);
+  border:1px solid rgba(255,200,140,0.22);
+  overflow:hidden; cursor:pointer;
+}
+.live-map .india-bg {
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  width:110px; height:110px; opacity:0.95;
+}
+.live-map .india-bg svg { width:100%; height:100%; display:block; }
+.live-map .india-bg .dot {
+  fill:#ff6b35; stroke:#fff; stroke-width:18;
+  filter: drop-shadow(0 0 6px rgba(255,107,53,0.7));
+}
+.live-map .map-foot {
+  position:absolute; left:0; right:0; bottom:0;
+  padding:10px 10px 12px;
+  background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.65) 45%);
+  text-align:center;
+}
+.live-map .map-label { font-size:11px; font-weight:800; color:#fff; line-height:1.15; }
+.live-map .map-sub {
+  display:inline-flex; align-items:center; gap:4px;
+  margin-top:4px; padding:2px 7px; border-radius:8px;
+  background:rgba(217,74,26,0.88); color:#fff;
+  font-size:9px; font-weight:700; letter-spacing:0.3px;
+}
+.live-map .map-sub::before {
+  content:""; width:4px; height:4px; border-radius:50%; background:#fff;
+  animation: livePulseDot 1.4s ease-in-out infinite;
+}
+@keyframes livePulseDot { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+/* PANCHANG STRIP */
+.panchang {
+  margin-top:12px; display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
+  scrollbar-width:none;
+}
+.panchang::-webkit-scrollbar { display:none; }
+.panchang-item {
+  flex:0 0 auto; min-width:90px;
+  background:rgba(255,200,140,0.06); border:1px solid rgba(255,200,140,0.14);
+  border-radius:12px; padding:10px 12px;
+}
+.panchang-item.highlight { background:linear-gradient(135deg, rgba(30,204,176,0.18), rgba(30,204,176,0.05)); border-color:rgba(30,204,176,0.35); }
+.pi-label { font-size:9px; font-weight:700; letter-spacing:1.5px; color:#ffb874; text-transform:uppercase; }
+.panchang-item.highlight .pi-label { color:#5ef0cc; }
+.pi-value { font-size:13px; font-weight:700; color:#fff; margin-top:4px; }
+.pi-sub { font-size:10px; color:#a89078; margin-top:1px; }
+
+/* ========= MAAS KA PANCHANG (traditional panchang sticker) ========= */
+.maas-card {
+  margin-top:12px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(201,58,14,0.10) 0%, transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(201,58,14,0.08) 0%, transparent 40%),
+    linear-gradient(180deg, #fbf0d3 0%, #f3e0af 100%);
+  border:2px solid #8b2e0e;
+  border-radius:14px;
+  padding:0;
+  overflow:hidden;
+  box-shadow:0 6px 22px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,224,150,0.35);
+  position:relative;
+}
+/* subtle paper grain */
+.maas-card::after {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(139,46,14,0.012) 3px, rgba(139,46,14,0.012) 4px);
+  mix-blend-mode:multiply;
+}
+
+/* Decorative red banner header (panchang style) */
+.cal-head {
+  background:linear-gradient(180deg, #d94a1a 0%, #a8340f 100%);
+  padding:10px 12px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  color:#fff;
+  border-bottom:2px solid #ffd669;
+  position:relative;
+}
+.cal-head::before {
+  content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px;
+  background:repeating-linear-gradient(90deg, #ffd669 0, #ffd669 4px, #d94a1a 4px, #d94a1a 8px);
+}
+.cal-nav {
+  width:28px; height:28px; border-radius:50%; border:none; cursor:pointer;
+  background:rgba(255,255,255,0.18); color:#fff;
+  font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+  font-family:inherit; font-weight:900;
+  padding:0 0 2px;
+}
+.cal-nav:active { transform:scale(0.92); }
+.cal-title { text-align:center; position:relative; }
+.cal-hi {
+  font-size:16px; font-weight:900; color:#fff;
+  letter-spacing:0.5px; text-shadow:0 1px 2px rgba(0,0,0,0.3);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.cal-hi::before { content:"🕉"; font-size:13px; opacity:0.95; }
+.cal-hi::after  { content:"🪔"; font-size:13px; opacity:0.95; }
+.cal-en { font-size:10px; color:#ffd669; font-weight:700; margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+
+/* Legend strip on cream */
+.cal-legend {
+  display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  padding:7px 8px;
+  background:linear-gradient(180deg, #f3e0af 0%, #fbf0d3 100%);
+  border-bottom:1px solid rgba(139,46,14,0.22);
+  position:relative; z-index:1;
+}
+.lg {
+  font-size:9px; font-weight:800; color:#6b2c0e; letter-spacing:0.6px;
+  display:inline-flex; align-items:center; gap:5px; text-transform:uppercase;
+}
+.lg i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.lg-fest i { background:#c93a0e; box-shadow:0 0 5px rgba(201,58,14,0.5); }
+.lg-purn i { background:#e89b00; box-shadow:0 0 6px rgba(232,155,0,0.7); }
+.lg-ek   i { background:#1e5dff; box-shadow:0 0 6px rgba(30,93,255,0.55); }
+.lg-vr   i { background:#2d8a4e; }
+
+/* Day-of-week strip — red band like panchang */
+.cal-wk {
+  display:grid; grid-template-columns:repeat(7, 1fr); gap:0;
+  background:#8b2e0e;
+  position:relative; z-index:1;
+}
+.cal-wk > div {
+  text-align:center; font-size:9.5px; font-weight:900;
+  color:#ffd669; letter-spacing:0.8px; padding:7px 0; text-transform:uppercase;
+}
+
+/* Grid with thin saffron gridlines */
+.cal-grid {
+  display:grid; grid-template-columns:repeat(7, 1fr); gap:1px;
+  background:rgba(139,46,14,0.28);
+  padding:1px;
+  position:relative; z-index:1;
+}
+.cd {
+  aspect-ratio:1/1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:#fbf0d3;
+  border:none;
+  cursor:pointer;
+  position:relative;
+  transition: background 220ms ease, transform 140ms ease;
+}
+.cd:active { transform:scale(0.94); }
+.cd-num {
+  font-size:14px; font-weight:800; color:#3a1a0a;
+  line-height:1; letter-spacing:-0.3px;
+  font-family:'JioType', serif;
+}
+.cd-mark {
+  position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+  width:7px; height:7px; border-radius:50%;
+}
+
+.cd-empty { background:rgba(251,240,211,0.55); cursor:default; }
+.cd-empty .cd-num { color:#b89878; font-weight:500; opacity:0.5; }
+
+/* Vrat — deep green dot */
+.cd-vrat .cd-mark { background:#2d8a4e; box-shadow:0 0 5px rgba(45,138,78,0.55); }
+
+/* Ekadashi — BIG saturated blue dot */
+.cd-ekadashi .cd-mark {
+  width:8px; height:8px;
+  background:#1e5dff;
+  box-shadow:0 0 7px rgba(30,93,255,0.85), 0 0 2px rgba(30,93,255,1);
+}
+
+/* Purnima — BIG gold dot + halo */
+.cd-purnima {
+  background:radial-gradient(circle, #fff4c2 0%, #fbf0d3 72%);
+}
+.cd-purnima .cd-mark {
+  width:8px; height:8px;
+  background:#e89b00;
+  box-shadow:0 0 9px rgba(232,155,0,0.95), 0 0 2px rgba(232,155,0,1);
+}
+
+/* Amavasya — indigo halo + dark marker */
+.cd-amavasya {
+  background:radial-gradient(circle, #ded0f5 0%, #fbf0d3 72%);
+}
+.cd-amavasya .cd-num { color:#3d1a6b; }
+.cd-amavasya .cd-mark {
+  width:8px; height:8px;
+  background:#5a2e9f;
+  box-shadow:0 0 6px rgba(90,46,159,0.6);
+}
+
+/* Festival — saffron-red fill, cream number (priority 1) */
+.cd-festival {
+  background:linear-gradient(135deg, #e04d1a 0%, #c93a0e 100%);
+}
+.cd-festival .cd-num { color:#fff; font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,0.35); }
+.cd-festival .cd-mark {
+  background:#ffd669; width:6px; height:6px;
+  box-shadow:0 0 5px rgba(255,214,105,0.9);
+}
+
+/* Today — pulsing red ring (panchang "today" mark) */
+.cd-today::before {
+  content:""; position:absolute; inset:-1px;
+  border:2px solid #c93a0e;
+  animation: todayPulse 2.2s ease-in-out infinite;
+  pointer-events:none; z-index:2;
+}
+@keyframes todayPulse {
+  0%,100% { opacity:0.55; transform:scale(1); }
+  50%     { opacity:1;    transform:scale(1.04); }
+}
+
+/* Selected — saffron gradient stamp */
+.cd-selected {
+  background:linear-gradient(180deg, #ff8a2e 0%, #d94a1a 100%);
+  z-index:3;
+  box-shadow:inset 0 0 0 2px #ffd669;
+}
+.cd-selected .cd-num { color:#fff; font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,0.35); }
+.cd-selected .cd-mark { display:none; }
+.cd-selected.cd-festival {
+  background:linear-gradient(180deg, #6b1f08 0%, #3a1005 100%);
+  box-shadow:inset 0 0 0 2px #ffd669;
+}
+
+/* Event detail — COMPACT tile below calendar (one row, tappable) */
+.ed-card {
+  margin-top:10px;
+  background:linear-gradient(180deg, rgba(255,200,140,0.06), rgba(255,200,140,0.02));
+  border:1px solid rgba(255,200,140,0.18);
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex; align-items:center; gap:10px;
+  cursor:pointer;
+  transition:transform 140ms ease, border-color 200ms ease, background 200ms ease;
+}
+.ed-card:active { transform:scale(0.99); }
+.ed-card:hover  { border-color:rgba(255,200,140,0.35); background:rgba(255,200,140,0.08); }
+
+/* Left colored rail indicating event type */
+.ed-rail {
+  width:3px; align-self:stretch; border-radius:3px;
+  background:#ffb874; flex-shrink:0;
+}
+.ed-card.ev-festival  .ed-rail { background:#ff6bd6; box-shadow:0 0 6px rgba(255,107,214,0.7); }
+.ed-card.ev-purnima   .ed-rail { background:#e89b00; box-shadow:0 0 6px rgba(232,155,0,0.8); }
+.ed-card.ev-amavasya  .ed-rail { background:#9c7cff; }
+.ed-card.ev-ekadashi  .ed-rail { background:#1e5dff; box-shadow:0 0 6px rgba(30,93,255,0.7); }
+.ed-card.ev-vrat      .ed-rail { background:#5ec77f; }
+.ed-card.ev-none      .ed-rail { background:#6b5540; opacity:0.4; }
+
+.ed-body { flex:1; min-width:0; }
+.ed-row1 { display:flex; align-items:center; gap:6px; }
+.ed-badge {
+  display:inline-block; padding:2px 7px; border-radius:5px;
+  font-size:9px; font-weight:900; letter-spacing:1px;
+  flex-shrink:0;
+}
+.ed-card.ev-festival .ed-badge  { background:rgba(255,107,214,0.22); color:#ffb3e5; }
+.ed-card.ev-purnima  .ed-badge  { background:rgba(232,155,0,0.22);   color:#ffe39b; }
+.ed-card.ev-amavasya .ed-badge  { background:rgba(156,124,255,0.22); color:#d9c2ff; }
+.ed-card.ev-ekadashi .ed-badge  { background:rgba(30,93,255,0.22);   color:#b3d5ff; }
+.ed-card.ev-vrat     .ed-badge  { background:rgba(94,199,127,0.22);  color:#b8eec8; }
+.ed-card.ev-none     .ed-badge  { background:rgba(168,144,120,0.18); color:#a89078; }
+
+.ed-today-pill {
+  padding:1px 6px; border-radius:999px; font-size:8px; font-weight:900;
+  background:#ffb874; color:#3d1a00; letter-spacing:0.6px; flex-shrink:0;
+}
+.ed-title {
+  font-size:13.5px; font-weight:800; color:#fff; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  min-width:0; flex:1;
+}
+.ed-row2 {
+  font-size:10.5px; color:#a89078; margin-top:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ed-row2 b { color:#ffb874; font-weight:700; }
+
+.ed-arrow {
+  width:30px; height:30px; border-radius:50%;
+  background:linear-gradient(180deg, #ff8a2e, #d94a1a); color:#fff;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  font-size:14px; font-weight:900;
+  box-shadow:0 4px 10px rgba(217,74,26,0.4);
+}
+.ed-card.ev-none .ed-arrow {
+  background:rgba(255,200,140,0.12); color:#ffb874;
+  border:1px solid rgba(255,200,140,0.3); box-shadow:none;
+}
+
+/* Stories */
+.fold3 { padding:8px 20px 8px; }
+.stories {
+  margin-top:12px; display:flex; gap:10px; overflow-x:auto; padding:4px 0 8px;
+  scrollbar-width:none;
+}
+.stories::-webkit-scrollbar { display:none; }
+.story-tile {
+  flex:0 0 auto; width:120px; height:160px; border-radius:14px; overflow:hidden;
+  position:relative; cursor:pointer; background:#1a0a00;
+  box-shadow:0 6px 18px rgba(0,0,0,0.4);
+}
+.story-tile img { width:100%; height:100%; object-fit:cover; display:block; }
+.story-tile::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 35%, rgba(10,5,0,0.92) 100%);
+}
+.story-ribbon {
+  position:absolute; top:8px; left:8px; z-index:3;
+  background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); color:#ffce99;
+  font-size:9px; font-weight:700; letter-spacing:1px; padding:3px 7px; border-radius:4px; text-transform:uppercase;
+}
+.story-title { position:absolute; bottom:10px; left:10px; right:10px; z-index:3; color:#fff; font-size:12px; font-weight:700; line-height:1.25; }
+.story-dur { position:absolute; top:8px; right:8px; z-index:3; font-size:10px; color:#fff; background:rgba(0,0,0,0.5); padding:3px 6px; border-radius:4px; font-weight:600; }
+
+/* ============ AAJ KA DARSHAN — audio-visual daily ritual ============ */
+.aaj-darshan { padding:4px 20px 8px; }
+.darshan-head { display:flex; align-items:baseline; justify-content:space-between; margin-top:18px; margin-bottom:12px; }
+.dh-title { font-size:19px; font-weight:800; color:#fff; letter-spacing:-0.2px; }
+.dh-sub   { font-size:10px; color:#ffb874; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+
+/* (Sandesh hero removed — Bhagwan ka Sandesh is now the first card in the katha scroll) */
+
+/* Katha row (horizontal scroll) */
+.katha-scroll {
+  display:flex; gap:12px; overflow-x:auto; padding:4px 2px 10px;
+  scrollbar-width:none; scroll-snap-type:x mandatory;
+}
+.katha-scroll::-webkit-scrollbar { display:none; }
+.katha-card {
+  flex:0 0 auto; width:168px; height:228px; border-radius:16px; overflow:hidden;
+  position:relative; cursor:pointer; background:#1a0a00;
+  box-shadow:0 6px 18px rgba(0,0,0,0.45);
+  scroll-snap-align:start;
+}
+.katha-card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease; }
+.katha-card:active img { transform:scale(1.06); }
+.katha-card::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 35%, rgba(8,3,0,0.95) 92%);
+}
+.kc-ribbon {
+  position:absolute; top:10px; left:10px; z-index:3;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(6px); color:#ffce99;
+  font-size:9px; font-weight:800; letter-spacing:1.2px; padding:4px 8px; border-radius:5px; text-transform:uppercase;
+}
+.kc-dur {
+  position:absolute; top:10px; right:10px; z-index:3; display:flex; align-items:center; gap:5px;
+  font-size:10px; color:#fff; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px);
+  padding:4px 8px; border-radius:5px; font-weight:700;
+}
+.kc-dur-ic { width:6px; height:6px; border-radius:50%; background:#ff8a2e; box-shadow:0 0 6px rgba(255,138,46,0.8); animation:kcPulse 1.4s ease-in-out infinite; }
+@keyframes kcPulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+.kc-title {
+  position:absolute; bottom:42px; left:12px; right:12px; z-index:3;
+  color:#fff; font-size:13px; font-weight:800; line-height:1.25;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.kc-sub {
+  position:absolute; bottom:12px; left:12px; right:12px; z-index:3;
+  color:#ffb874; font-size:10px; font-weight:600; line-height:1.25;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; max-height:26px;
+}
+
+/* Sandesh card variant — the "Bhagwan ka Message" story, styled slightly richer than the rest */
+.katha-card.is-sandesh {
+  box-shadow:0 8px 22px rgba(217,74,26,0.40);
+  border:1px solid rgba(255,160,70,0.35);
+}
+.katha-card.is-sandesh::before {
+  content:"✦"; position:absolute; top:10px; right:10px; z-index:4;
+  color:#ffd89a; font-size:13px; opacity:0.9;
+  animation:sandeshTwinkle 2.4s ease-in-out infinite;
+}
+@keyframes sandeshTwinkle { 0%,100% { opacity:0.5; transform:scale(0.92);} 50% { opacity:1; transform:scale(1.1);} }
+.katha-card.is-sandesh .kc-ribbon {
+  background:linear-gradient(135deg, rgba(255,138,46,0.92), rgba(217,74,26,0.92));
+  color:#fff; letter-spacing:0.8px;
+}
+
+/* Chadhava discovery — discovery card below kahaniyaan, full-width CTA-style */
+.chadhava-discover {
+  display:flex; align-items:center; gap:14px;
+  margin-top:16px; padding:14px 16px;
+  background:linear-gradient(135deg, rgba(255,138,46,0.16) 0%, rgba(217,74,26,0.08) 60%, rgba(22,8,0,0.6) 100%);
+  border:1px solid rgba(255,160,70,0.28);
+  border-radius:18px; cursor:pointer; position:relative; overflow:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,0.28);
+}
+.chadhava-discover:active { transform:scale(0.985); }
+.chadhava-discover::before {
+  content:""; position:absolute; inset:-40% -20% auto auto;
+  width:140px; height:140px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,200,140,0.22), transparent 60%);
+  pointer-events:none;
+}
+.cd-ico-wrap {
+  position:relative; width:52px; height:52px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.cd-ico-ring {
+  position:absolute; inset:0; border-radius:50%;
+  background:linear-gradient(145deg, #ff8a2e, #d94a1a);
+  box-shadow:0 4px 14px rgba(217,74,26,0.55);
+}
+.cd-ico {
+  position:relative; z-index:2; font-size:24px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+}
+.cd-body { flex:1; min-width:0; }
+.cd-ribbon { font-size:9px; font-weight:800; letter-spacing:1.4px; color:#ffc870; text-transform:uppercase; margin-bottom:3px; }
+.cd-title { font-size:15px; font-weight:800; color:#fff8e1; letter-spacing:-0.2px; margin-bottom:2px; }
+.cd-sub { font-size:11px; color:#ffbf8a; line-height:1.4; font-weight:500; }
+.cd-arrow {
+  flex-shrink:0; font-size:22px; color:#ff8a2e; font-weight:300;
+  opacity:0.8; margin-left:2px;
+}
+
+/* ============ DARSHAN PLAYER (fullscreen overlay) ============ */
+.darshan-back {
+  position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px);
+  z-index:80; opacity:0; pointer-events:none; transition:opacity .35s ease;
+}
+.darshan-back.active { opacity:1; pointer-events:auto; }
+.darshan-player {
+  position:fixed; left:50%; bottom:0; transform:translate(-50%,100%);
+  width:100%; max-width:390px; height:90vh; max-height:760px;
+  background:linear-gradient(180deg, #2d1000 0%, #140600 55%, #080200 100%);
+  border-top-left-radius:26px; border-top-right-radius:26px;
+  z-index:90; transition:transform .45s cubic-bezier(0.2,0.8,0.2,1);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.darshan-player.active { transform:translate(-50%,0); }
+.dp-handle { width:46px; height:4px; border-radius:2px; background:rgba(255,210,150,0.32); margin:10px auto 2px; flex-shrink:0; }
+.dp-close {
+  position:absolute; top:14px; right:14px; z-index:5;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px); color:#fff;
+  border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+}
+.dp-hero {
+  position:relative; height:260px; margin:10px 14px 0;
+  border-radius:18px; overflow:hidden; flex-shrink:0;
+  box-shadow:0 10px 30px rgba(0,0,0,0.55);
+}
+.dp-hero img { width:100%; height:100%; object-fit:cover; }
+.dp-hero-grad { position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.72) 100%); }
+.dp-hero-ribbon {
+  position:absolute; top:12px; left:12px; z-index:2;
+  background:rgba(0,0,0,0.58); backdrop-filter:blur(6px); color:#ffce99;
+  font-size:10px; font-weight:800; letter-spacing:1.3px; padding:5px 10px; border-radius:6px; text-transform:uppercase;
+}
+.dp-hero-ambient {
+  position:absolute; inset:auto 0 0 0; height:70%;
+  background:radial-gradient(ellipse at center bottom, rgba(255,138,46,0.25), transparent 70%);
+  pointer-events:none;
+}
+.dp-meta { padding:14px 20px 4px; flex-shrink:0; }
+.dp-title { font-size:19px; font-weight:800; color:#fff; line-height:1.3; }
+.dp-subtitle { font-size:12px; color:#ffb874; margin-top:4px; font-weight:700; letter-spacing:0.2px; }
+
+/* Waveform */
+.dp-wave {
+  display:flex; align-items:flex-end; justify-content:center; gap:3px;
+  height:44px; margin:10px 24px 4px; flex-shrink:0;
+}
+.dp-wave span {
+  width:3px; height:20%; background:linear-gradient(180deg,#ffb874,#ff6b35);
+  border-radius:2px; animation:wavePulse 1.1s ease-in-out infinite;
+  display:inline-block;
+}
+.dp-wave span:nth-child(odd)  { animation-duration:0.85s; }
+.dp-wave span:nth-child(3n)   { animation-duration:1.35s; }
+.dp-wave span:nth-child(5n)   { animation-duration:1.0s;  }
+.dp-wave span:nth-child(7n)   { animation-duration:1.5s;  }
+@keyframes wavePulse { 0%,100% { height:14%; opacity:0.55; } 50% { height:100%; opacity:1; } }
+.darshan-player.paused .dp-wave span { animation-play-state:paused; opacity:0.4; }
+
+/* Controls */
+.dp-controls {
+  display:flex; align-items:center; justify-content:center; gap:22px;
+  padding:4px 20px 10px; flex-shrink:0;
+}
+.dp-ctrl {
+  width:38px; height:38px; border-radius:50%;
+  background:rgba(255,210,150,0.1); border:1px solid rgba(255,210,150,0.22);
+  display:flex; align-items:center; justify-content:center; color:#ffce99;
+  cursor:pointer; font-size:13px;
+}
+.dp-play {
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(145deg,#ff8a2e,#d94a1a); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 22px rgba(217,74,26,0.62);
+  border:none; cursor:pointer; font-size:20px;
+  transition:opacity 0.2s;
+}
+.dp-loading {
+  display:none; align-items:center; justify-content:center; gap:8px;
+  color:#ffb874; font-size:11px; font-weight:600; letter-spacing:0.3px;
+  margin-top:10px; opacity:0.92;
+}
+.dp-loading-dot {
+  width:6px; height:6px; border-radius:50%; background:#ff8a2e;
+  animation:dp-pulse-dot 1s ease-in-out infinite;
+}
+@keyframes dp-pulse-dot {
+  0%,100% { opacity:0.4; transform:scale(0.85); }
+  50%     { opacity:1;   transform:scale(1.2);  }
+}
+
+/* Transcript body */
+.dp-body { flex:1; overflow-y:auto; padding:4px 22px 30px; }
+.dp-quote {
+  border-left:3px solid #ff8a2e; padding:10px 14px; margin:4px 0 14px;
+  background:rgba(255,138,46,0.09); border-radius:0 12px 12px 0;
+  font-style:italic; color:#fff; font-size:14px; line-height:1.6; font-weight:500;
+}
+.dp-para { font-size:14px; line-height:1.75; color:#ffe8cf; margin-bottom:14px; font-weight:400; }
+.dp-para b { color:#ffd89a; font-weight:700; }
+.dp-para i { color:#ffce99; }
+.dp-learn {
+  background:linear-gradient(135deg, rgba(255,138,46,0.14), rgba(217,74,26,0.06));
+  border:1px solid rgba(255,180,100,0.3);
+  border-radius:14px; padding:14px 16px; margin-top:6px;
+}
+.dp-learn-lbl { font-size:10px; color:#ffb874; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; margin-bottom:6px; }
+.dp-learn-txt { font-size:14px; color:#fff; line-height:1.55; font-weight:500; }
+.dp-credit {
+  display:none; margin-top:18px; padding-top:14px;
+  border-top:1px solid rgba(255,184,116,0.12);
+  font-size:9.5px; letter-spacing:0.5px;
+  color:rgba(255,220,178,0.55); font-weight:500;
+  align-items:center; gap:5px;
+}
+.dp-credit.show { display:inline-flex; }
+.dp-credit::before { content:"✦"; color:rgba(255,184,116,0.62); font-size:8px; }
+.dp-credit b { font-weight:900; color:rgba(255,236,210,0.95); letter-spacing:0.6px; text-transform:uppercase; font-size:10.5px; }
+
+/* Bottom nav */
+.nav {
+  margin-top:16px;
+  background:rgba(10,5,0,0.96); border-top:1px solid rgba(255,180,100,0.2);
+  display:flex; padding:10px 8px 16px; justify-content:space-around;
+}
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; color:#6a5848; cursor:pointer; padding:4px 8px; font-weight:600; }
+.nav-item.active { color:#ffce99; }
+.nav-icon { font-size:20px; }
+
+/* ============ FESTIVAL CHAT — full-screen mobile chat (JDS pattern) ============ */
+.fest-back {
+  position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:180;
+  opacity:0; pointer-events:none; transition:opacity 320ms ease;
+}
+.fest-back.open { opacity:1; pointer-events:auto; }
+.fest-chat {
+  position:absolute; inset:0; z-index:181;
+  background:#120700;
+  transform:translateX(100%); transition:transform 360ms cubic-bezier(.2,.9,.2,1);
+  display:flex; flex-direction:column;
+  font-family:'JioType','Outfit',sans-serif;
+  overflow:hidden;
+}
+.fest-chat.open { transform:translateX(0); }
+
+/* App bar (header) — JDS nav pattern */
+.fc-appbar {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 14px 12px;
+  background:#1a0a00;
+  border-bottom:1px solid rgba(255,200,140,0.14);
+  flex:0 0 auto;
+}
+.fc-iconbtn {
+  width:40px; height:40px; border-radius:50%; border:none;
+  background:transparent; color:#f6e4cc; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex:0 0 auto;
+}
+.fc-iconbtn:hover { background:rgba(255,200,140,0.08); }
+.fc-iconbtn:active { background:rgba(255,200,140,0.14); }
+.fc-avatar {
+  width:40px; height:40px; border-radius:50%; flex:0 0 auto;
+  background:radial-gradient(circle at 30% 30%, #ffd098, #ff8a3a 60%, #6a2200);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+  box-shadow:0 2px 10px rgba(255,130,40,0.35);
+}
+.fc-meta { flex:1 1 auto; min-width:0; }
+.fc-meta .fc-name { font-size:16px; font-weight:700; color:#fff; line-height:1.2; }
+.fc-meta .fc-sub  {
+  font-size:11px; color:#1eccb0; margin-top:2px; display:flex; align-items:center; gap:5px;
+}
+.fc-meta .fc-sub::before {
+  content:""; width:6px; height:6px; border-radius:50%; background:#1eccb0;
+  box-shadow:0 0 6px #1eccb0;
+}
+
+/* Messages area */
+.fc-body {
+  flex:1 1 auto; overflow-y:auto;
+  padding:18px 14px 14px;
+  display:flex; flex-direction:column; gap:10px;
+  background:#120700;
+}
+.fc-row { display:flex; gap:8px; align-items:flex-end; }
+.fc-row.bot  { justify-content:flex-start; }
+.fc-row.user { justify-content:flex-end; }
+.fc-row .fc-bubble-av {
+  width:28px; height:28px; border-radius:50%; flex:0 0 auto;
+  background:radial-gradient(circle at 30% 30%, #ffd098, #ff8a3a 60%, #6a2200);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+
+.fc-bubble {
+  max-width:78%; padding:10px 14px; border-radius:18px;
+  font-size:14px; line-height:1.5;
+  animation:fcMsgIn 280ms cubic-bezier(.2,.9,.2,1) both;
+}
+.fc-row.bot .fc-bubble {
+  background:#241006; border:1px solid rgba(255,200,140,0.12);
+  color:#f6e4cc;
+  border-bottom-left-radius:4px;
+}
+.fc-row.user .fc-bubble {
+  background:#f7ab20; /* JDS secondary-50 */
+  color:#1a0600; font-weight:600;
+  border-bottom-right-radius:4px;
+}
+.fc-bubble h4 {
+  font-size:12px; font-weight:700; color:#f7ab20;
+  margin-bottom:6px; text-transform:uppercase; letter-spacing:0.8px;
+}
+.fc-bubble ul, .fc-bubble ol { padding-left:18px; margin-top:4px; }
+.fc-bubble li { margin:3px 0; }
+.fc-bubble .kv { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed rgba(255,200,140,0.15); font-size:13px; }
+.fc-bubble .kv:last-child { border-bottom:none; }
+.fc-bubble .kv-k { color:#f7ab20; }
+.fc-bubble .kv-v { color:#fff; font-weight:600; }
+@keyframes fcMsgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* Typing indicator (3 dots) */
+.fc-typing {
+  display:inline-flex; gap:4px; align-items:center; padding:6px 4px;
+}
+.fc-typing span {
+  width:7px; height:7px; border-radius:50%; background:#f7ab20;
+  animation:fcDot 1.1s ease-in-out infinite;
+}
+.fc-typing span:nth-child(2) { animation-delay:0.15s; }
+.fc-typing span:nth-child(3) { animation-delay:0.3s; }
+@keyframes fcDot { 0%,60%,100%{opacity:0.3; transform:translateY(0);} 30%{opacity:1; transform:translateY(-3px);} }
+
+/* Quick reply chips — horizontal scroll strip above input */
+.fc-chips-scroll {
+  flex:0 0 auto; padding:10px 12px;
+  display:flex; gap:8px; overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  border-top:1px solid rgba(255,200,140,0.1);
+  background:#120700;
+}
+.fc-chips-scroll::-webkit-scrollbar { display:none; }
+.fc-chip {
+  padding:8px 16px; border-radius:999px;
+  background:#241006; border:1px solid rgba(255,200,140,0.25);
+  color:#ffd9a8; font-size:13px; font-weight:500;
+  cursor:pointer; font-family:inherit; white-space:nowrap; flex:0 0 auto;
+  transition: background 180ms ease, transform 120ms ease;
+}
+.fc-chip:hover  { background:#331908; }
+.fc-chip:active { transform:scale(0.95); }
+
+/* JDS ChatInput — pill shape, ghost bg, mic + send */
+.fc-input-bar {
+  flex:0 0 auto; padding:10px 12px 16px;
+  background:#120700;
+  display:flex; align-items:center; gap:8px;
+}
+.fc-input-pill {
+  flex:1 1 auto; display:flex; align-items:center; gap:8px;
+  background:#eeeeef; border-radius:999px; padding:8px 12px;
+  min-height:44px;
+}
+.fc-input-field {
+  flex:1 1 auto; border:none; outline:none; background:transparent;
+  color:#141414; font-size:14px; font-family:inherit;
+}
+.fc-input-field::placeholder { color:#888; }
+.fc-mic {
+  width:28px; height:28px; border-radius:50%; border:none;
+  background:transparent; color:#141414; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.fc-send {
+  width:44px; height:44px; border-radius:50%; border:none;
+  background:#3535f3; /* JDS primary-50 */
+  color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  transition: transform 120ms ease, opacity 180ms ease;
+}
+.fc-send:disabled { opacity:0.38; cursor:not-allowed; }
+.fc-send:active   { transform:scale(0.94); }
+
+/* ============ SEVA BOTTOM SHEET ============ */
+.sheet-back { position:absolute; inset:0; background:rgba(0,0,0,0.6); z-index:70; opacity:0; pointer-events:none; transition: opacity 300ms ease; }
+.sheet-back.open { opacity:1; pointer-events:auto; }
+.sheet {
+  position:absolute; left:0; right:0; bottom:0; z-index:71;
+  background:linear-gradient(180deg, #1a0a00 0%, #2a1200 100%);
+  border-radius:22px 22px 0 0; border-top:1px solid rgba(255,200,140,0.2);
+  max-height:82%; overflow-y:auto; padding:16px 18px 24px;
+  transform:translateY(100%); transition: transform 360ms cubic-bezier(.2,.9,.2,1);
+}
+.sheet.open { transform:translateY(0); }
+.sheet-handle { width:42px; height:4px; border-radius:2px; background:rgba(255,255,255,0.3); margin:0 auto 14px; }
+.sheet-title { font-size:18px; font-weight:700; color:#fff; }
+.sheet-sub { font-size:12px; color:#a89078; margin-top:4px; }
+
+.seva-grid { margin-top:18px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.seva-opt {
+  aspect-ratio:1; border-radius:14px; cursor:pointer;
+  background:rgba(255,200,140,0.06); border:1px solid rgba(255,200,140,0.15);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+  padding:10px;
+}
+.seva-opt:hover { background:rgba(255,200,140,0.12); }
+.seva-opt:active { transform:scale(0.96); }
+.seva-ic { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, #ffd098, #ff9030); color:#4a1800; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.seva-name { font-size:11px; font-weight:700; color:#fff; text-align:center; }
+.seva-sub { font-size:9px; color:#ffce99; text-align:center; }
+
+/* Petal/flower shower */
+.petal, .flower-s {
+  position:absolute; top:-30px; z-index:20;
+  pointer-events:none;
+  animation:petalFall var(--pd, 3s) linear forwards;
+}
+.petal { width:10px; height:14px; background:linear-gradient(135deg, #ffb4d4, #ff6090); border-radius:50% 10% 50% 10%; }
+.flower-s { width:16px; height:16px; background:radial-gradient(circle, #ffe0a0 30%, #ff8a40 80%); border-radius:50%; box-shadow:0 0 8px rgba(255,150,60,0.4); }
+@keyframes petalFall { to { transform:translateY(820px) rotate(720deg); opacity:0; } }
+
+.fade-in { opacity:0; transform:translateY(14px); transition: opacity 600ms ease, transform 600ms ease; }
+.fade-in.in { opacity:1; transform:none; }
+
+/* Live viewer flash when action is performed */
+.action-toast {
+  position:absolute; top:180px; left:50%; transform:translate(-50%, -10px); z-index:30;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(10px);
+  color:#fff; font-size:12px; font-weight:600;
+  padding:8px 16px; border-radius:999px;
+  opacity:0; pointer-events:none;
+  transition:opacity 300ms ease, transform 300ms ease;
+}
+.action-toast.show { opacity:1; transform:translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+
+  <div class="screen" id="screen">
+    <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+    <!-- STEP 1 — DEITY PICKER -->
+    <div class="picker" id="picker">
+      <div class="picker-label">Mera Mandir</div>
+      <div class="picker-title">Aap kisko maante ho?</div>
+      <div class="picker-sub">Apna ishta chuniye</div>
+
+      <div class="deity-grid">
+        <div class="deity-card" onclick="pickDeity('ganesh')">
+          <img class="deity-pic" src="assets/deities/ganesh.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.ganesh;" alt="Ganesh"/>
+          <div class="name">Ganesh Ji</div>
+          <div class="epithet">Vighnaharta</div>
+        </div>
+        <div class="deity-card" onclick="pickDeity('shiva')">
+          <img class="deity-pic" src="assets/deities/shiva.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.shiva;" alt="Shiv"/>
+          <div class="name">Shiv Ji</div>
+          <div class="epithet">Mahadev</div>
+        </div>
+        <div class="deity-card" onclick="pickDeity('krishna')">
+          <img class="deity-pic" src="assets/deities/krishna.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.krishna;" alt="Krishna"/>
+          <div class="name">Krishna Ji</div>
+          <div class="epithet">Murlidhar</div>
+        </div>
+        <div class="deity-card" onclick="pickDeity('durga')">
+          <img class="deity-pic" src="assets/deities/durga.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.durga;" alt="Durga"/>
+          <div class="name">Maa Durga</div>
+          <div class="epithet">Shakti</div>
+        </div>
+        <div class="deity-card" onclick="pickDeity('hanuman')">
+          <img class="deity-pic" src="assets/deities/hanuman.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.hanuman;" alt="Hanuman"/>
+          <div class="name">Hanuman Ji</div>
+          <div class="epithet">Bajrangbali</div>
+        </div>
+        <div class="deity-card" onclick="pickDeity('ram')">
+          <img class="deity-pic" src="assets/deities/ram.jpg" onerror="this.onerror=null;this.src=DEITIES_SRC.ram;" alt="Ram"/>
+          <div class="name">Ram Ji</div>
+          <div class="epithet">Maryada</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 — HOME -->
+    <div id="home">
+
+      <!-- =========== FOLD 1 — PURE DARSHAN =========== -->
+      <div class="darshan" id="darshan">
+
+        <!-- Full-bleed deity image -->
+        <div class="deity-img-wrap" id="deityWrap">
+          <img class="deity-img" id="deityImg" src="" alt="deity"/>
+        </div>
+
+        <!-- Gradient shades for legibility -->
+        <div class="top-shade"></div>
+        <div class="bot-shade"></div>
+
+        <!-- Top bar: mantra + greeting -->
+        <div class="top-bar">
+          <div class="mantra-line" id="mantraLine">ॐ गं गणपतये नमः</div>
+          <div class="greet-line" id="greetLine">नमस्कार Shivali</div>
+        </div>
+
+        <!-- Deity switcher row -->
+        <div class="deity-switcher" id="deitySwitcher"></div>
+
+        <!-- Aarti thali — revolves around deity when diya is offered -->
+        <div class="aarti-thali-wrap" id="aartiThaliWrap">
+          <div class="aarti-petals"></div>
+          <div class="aarti-thali">
+            <!-- Realistic brass aarti thali (SVG) — oil lamp + marigolds + jasmine + haldi + kumkum -->
+            <svg class="thali-img" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <radialGradient id="plateGrad" cx="35%" cy="30%" r="85%">
+                  <stop offset="0%" stop-color="#ffe9a8"/>
+                  <stop offset="35%" stop-color="#e4a94a"/>
+                  <stop offset="72%" stop-color="#9c5e1a"/>
+                  <stop offset="100%" stop-color="#5b320a"/>
+                </radialGradient>
+                <radialGradient id="plateRim" cx="50%" cy="50%" r="55%">
+                  <stop offset="85%" stop-color="transparent"/>
+                  <stop offset="92%" stop-color="#ffcf6b"/>
+                  <stop offset="100%" stop-color="#7a4612"/>
+                </radialGradient>
+                <radialGradient id="flameGrad" cx="50%" cy="70%" r="70%">
+                  <stop offset="0%" stop-color="#fffbe0"/>
+                  <stop offset="35%" stop-color="#ffd247"/>
+                  <stop offset="75%" stop-color="#ff7a1a"/>
+                  <stop offset="100%" stop-color="transparent"/>
+                </radialGradient>
+                <radialGradient id="marigoldGrad" cx="50%" cy="45%" r="55%">
+                  <stop offset="0%" stop-color="#ffe27a"/>
+                  <stop offset="60%" stop-color="#ff8a1f"/>
+                  <stop offset="100%" stop-color="#b84a00"/>
+                </radialGradient>
+                <radialGradient id="lampGrad" cx="40%" cy="30%" r="80%">
+                  <stop offset="0%" stop-color="#ffd98a"/>
+                  <stop offset="55%" stop-color="#c48324"/>
+                  <stop offset="100%" stop-color="#5d3208"/>
+                </radialGradient>
+                <radialGradient id="haldiGrad" cx="50%" cy="45%" r="55%">
+                  <stop offset="0%" stop-color="#ffe27a"/>
+                  <stop offset="100%" stop-color="#c58f14"/>
+                </radialGradient>
+                <radialGradient id="kumkumGrad" cx="50%" cy="45%" r="55%">
+                  <stop offset="0%" stop-color="#ff6b50"/>
+                  <stop offset="100%" stop-color="#8a0e10"/>
+                </radialGradient>
+              </defs>
+
+              <!-- Thali plate with perspective ellipse -->
+              <ellipse cx="100" cy="118" rx="92" ry="34" fill="url(#plateGrad)"/>
+              <ellipse cx="100" cy="116" rx="92" ry="34" fill="url(#plateRim)" opacity="0.85"/>
+              <ellipse cx="100" cy="115" rx="72" ry="22" fill="#9e5c19" opacity="0.45"/>
+              <ellipse cx="100" cy="114" rx="66" ry="18" fill="#e0a54a" opacity="0.35"/>
+
+              <!-- Marigold clusters around plate rim -->
+              <g>
+                <circle cx="28"  cy="118" r="13" fill="url(#marigoldGrad)"/>
+                <circle cx="172" cy="118" r="13" fill="url(#marigoldGrad)"/>
+                <circle cx="48"  cy="136" r="11" fill="url(#marigoldGrad)"/>
+                <circle cx="152" cy="136" r="11" fill="url(#marigoldGrad)"/>
+                <circle cx="82"  cy="142" r="10" fill="url(#marigoldGrad)"/>
+                <circle cx="118" cy="142" r="10" fill="url(#marigoldGrad)"/>
+              </g>
+              <!-- Jasmine (small white blossoms) -->
+              <g fill="#fff8e8" opacity="0.95">
+                <circle cx="38" cy="128" r="4"/>
+                <circle cx="162" cy="128" r="4"/>
+                <circle cx="66" cy="140" r="4"/>
+                <circle cx="134" cy="140" r="4"/>
+                <circle cx="100" cy="146" r="4"/>
+              </g>
+              <!-- Kumkum bowl (red) -->
+              <g>
+                <ellipse cx="70" cy="120" rx="14" ry="6" fill="#7b3a06"/>
+                <ellipse cx="70" cy="118" rx="12" ry="5" fill="url(#kumkumGrad)"/>
+              </g>
+              <!-- Haldi bowl (yellow) -->
+              <g>
+                <ellipse cx="130" cy="120" rx="14" ry="6" fill="#7b3a06"/>
+                <ellipse cx="130" cy="118" rx="12" ry="5" fill="url(#haldiGrad)"/>
+              </g>
+
+              <!-- Central oil lamp (standing diya) -->
+              <g>
+                <!-- Base -->
+                <ellipse cx="100" cy="112" rx="16" ry="5" fill="#6b3a0a"/>
+                <rect x="92" y="98" width="16" height="14" fill="url(#lampGrad)"/>
+                <!-- Stem -->
+                <rect x="97" y="72" width="6" height="28" fill="url(#lampGrad)"/>
+                <!-- Cup -->
+                <path d="M 82 70 Q 100 84 118 70 Q 118 58 100 56 Q 82 58 82 70 Z" fill="url(#lampGrad)"/>
+                <ellipse cx="100" cy="60" rx="14" ry="4" fill="#2a1403"/>
+              </g>
+
+              <!-- Flame -->
+              <g>
+                <ellipse cx="100" cy="44" rx="11" ry="18" fill="url(#flameGrad)">
+                  <animate attributeName="ry" values="18;22;17;19;18" dur="0.9s" repeatCount="indefinite"/>
+                  <animate attributeName="rx" values="11;9;12;10;11" dur="0.9s" repeatCount="indefinite"/>
+                </ellipse>
+                <ellipse cx="100" cy="48" rx="5" ry="9" fill="#fff7c2" opacity="0.9"/>
+              </g>
+
+              <!-- Subtle brass highlight on plate front -->
+              <ellipse cx="100" cy="132" rx="50" ry="4" fill="#fff1c6" opacity="0.35"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Hidden pill (for picker fn compatibility) -->
+        <span id="pillName" style="display:none">श्री गणेश</span>
+
+        <!-- Ambient diyas (only decor) -->
+        <div class="ambient-diya left"><div class="flame"></div><div class="diya-base"></div></div>
+        <div class="ambient-diya right"><div class="flame"></div><div class="diya-base"></div></div>
+
+        <!-- Action toast -->
+        <div class="action-toast" id="actionToast">🌼 Pushp arpan ho gaya</div>
+
+        <!-- Aarti karaoke lyrics panel (bottom) -->
+        <div class="aarti-lyrics-panel" id="aartiLyricsPanel">
+          <div class="al-head">
+            <span><span class="al-pulse"></span>🪔 Aarti Gaan</span>
+            <button class="al-close" onclick="stopAarti()" aria-label="Close aarti">✕</button>
+          </div>
+          <div class="al-inner" id="alInner"></div>
+        </div>
+
+        <!-- Form dots (if deity has multiple forms) -->
+        <div class="form-dots" id="formDots"></div>
+
+        <!-- Agla Darshan — subtle tap icon, cycles forms within current deity -->
+        <button class="swipe-hint" onclick="nextDeity()" aria-label="Agla Darshan">
+          <div class="swipe-arrow"></div>
+          <div class="swipe-label">Agla darshan</div>
+        </button>
+
+        <!-- Seva quick icons — aarti, shankh, pushp -->
+        <div class="qseva-row">
+          <button class="qseva-btn" onclick="doSeva('aarti','🎵 Aarti shuru')" aria-label="Aarti">
+            <div class="qseva-disc">🪔</div>
+            <div class="qseva-lbl">Aarti</div>
+          </button>
+          <button class="qseva-btn" onclick="doSeva('shankh','🐚 Shankhnaad ho gaya')" aria-label="Shankh">
+            <div class="qseva-disc">🐚</div>
+            <div class="qseva-lbl">Shankh</div>
+          </button>
+          <button class="qseva-btn" onclick="doSeva('pushp','🌼 Pushp arpan ho gaya')" aria-label="Pushp">
+            <div class="qseva-disc">🌼</div>
+            <div class="qseva-lbl">Pushp</div>
+          </button>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="scroll-chev">⌄</div>
+
+      </div>
+
+      <!-- =========== FOLD 2 — BELOW FOLD (festival + live + panchang) =========== -->
+      <div class="fold2 fade-in">
+
+        <div class="section-label"><span>Abhi Live Darshan</span><span class="see-all" style="cursor:pointer" onclick="goMap()">Naksha →</span></div>
+        <div class="live-row" id="liveRow">
+          <div class="live-card" onclick="goDarshan(1)">
+            <img id="liveImg" src="" alt="live darshan"/>
+            <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+            <div class="live-viewers" id="liveViewers">👥 2.4K</div>
+            <div class="live-foot">
+              <div class="live-temple" id="liveTemple">Kashi Vishwanath · Varanasi</div>
+              <div class="live-aarti" id="liveAarti">🪔 Mangala Aarti</div>
+            </div>
+          </div>
+          <div class="live-card" onclick="goDarshan(2)">
+            <img id="liveImg2" src="" alt="live darshan"/>
+            <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+            <div class="live-viewers" id="liveViewers2">👥 1.8K</div>
+            <div class="live-foot">
+              <div class="live-temple" id="liveTemple2">Somnath · Gujarat</div>
+              <div class="live-aarti" id="liveAarti2">🪔 Sandhya Aarti</div>
+            </div>
+          </div>
+          <div class="live-map" onclick="goMap()">
+            <div class="india-bg">
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="indiaMiniGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%"  stop-color="#ffd89a"/>
+                    <stop offset="55%" stop-color="#ffb86b"/>
+                    <stop offset="100%" stop-color="#e89240"/>
+                  </linearGradient>
+                </defs>
+                <g transform="translate(0,1024) scale(0.1,-0.1)">
+                  <path fill="url(#indiaMiniGrad)" stroke="#ffce99" stroke-width="18" stroke-linejoin="round"
+                        d="M4040 10225 c-14 -8 -40 -14 -58 -15 -64 0 -119 -22 -173 -66 -57 -47 -124 -77 -199 -89 -25 -4 -89 -29 -142 -56 l-97 -49 -17 -56 c-9 -33 -30 -71 -49 -92 -31 -34 -35 -36 -121 -42 -71 -5 -104 -13 -158 -38 -83 -39 -130 -40 -211 -7 -33 14 -91 30 -130 36 -38 6 -86 19 -106 29 -46 24 -69 26 -152 16 -65 -8 -68 -10 -82 -43 -21 -50 -19 -76 10 -103 16 -15 25 -35 25 -54 0 -17 7 -40 15 -50 22 -30 18 -58 -12 -82 -27 -21 -27 -24 -16 -65 10 -38 9 -50 -8 -88 -10 -24 -19 -51 -19 -60 0 -9 28 -44 63 -77 101 -97 102 -98 156 -95 54 2 47 11 67 -89 5 -26 12 -32 57 -44 29 -8 69 -17 90 -21 43 -7 49 -28 18 -66 -15 -19 -30 -24 -84 -27 -62 -4 -67 -6 -95 -42 -17 -20 -45 -43 -63 -50 l-32 -13 5 -123 c5 -137 -1 -162 -49 -196 -17 -13 -61 -60 -97 -106 -50 -63 -66 -90 -66 -115 0 -57 -9 -71 -56 -91 -58 -24 -107 -86 -205 -257 -77 -134 -85 -141 -164 -154 -64 -11 -92 -30 -110 -78 -10 -27 -34 -58 -60 -80 -54 -45 -101 -127 -110 -190 -4 -26 -12 -50 -17 -53 -5 -3 -30 2 -54 11 -31 12 -58 15 -87 11 -23 -4 -83 -9 -134 -12 l-92 -6 -3 49 c-3 47 -4 48 -38 51 -54 4 -102 -41 -136 -128 -25 -64 -34 -75 -96 -121 -37 -28 -68 -57 -68 -63 0 -7 -9 -21 -21 -32 -12 -10 -30 -31 -40 -46 -25 -35 -12 -72 33 -91 18 -8 44 -26 58 -41 21 -23 30 -26 61 -21 31 5 39 3 52 -16 17 -24 14 -65 -9 -111 -24 -47 -17 -87 27 -160 l41 -68 54 0 c53 0 54 0 54 -30 0 -16 11 -64 25 -107 14 -43 25 -94 25 -114 0 -28 6 -39 25 -49 22 -12 24 -18 19 -49 -3 -20 -15 -44 -26 -54 -17 -14 -19 -22 -11 -39 7 -16 5 -30 -6 -50 -14 -24 -23 -28 -58 -28 -36 0 -44 4 -48 23 -6 22 -7 22 -100 13 -78 -8 -96 -13 -101 -28 -9 -28 -70 -24 -118 10 -41 28 -41 28 -281 35 l-50 2 -3 -46 c-3 -43 -5 -47 -34 -53 -17 -3 -49 -6 -73 -6 -46 0 -82 -27 -72 -55 8 -20 122 -20 157 0 32 18 40 18 40 1 0 -8 -17 -20 -37 -27 -21 -6 -44 -16 -50 -22 -24 -18 -14 -76 27 -157 35 -69 44 -80 66 -80 15 0 48 -16 73 -35 56 -40 109 -54 211 -53 69 1 78 3 107 31 28 26 37 29 77 25 25 -3 49 -1 55 5 7 7 12 5 17 -7 10 -27 -46 -107 -104 -147 -38 -27 -65 -38 -106 -42 -31 -3 -66 -13 -78 -21 -35 -25 -95 -20 -130 9 -16 14 -35 25 -42 25 -18 0 -36 -21 -36 -42 0 -25 74 -143 125 -198 22 -25 57 -70 78 -100 20 -30 95 -123 166 -206 116 -135 134 -152 168 -157 26 -5 45 -2 62 9 17 12 37 15 73 11 41 -5 61 -1 126 27 42 19 87 37 99 40 12 4 31 18 42 32 13 16 29 24 51 24 38 0 69 32 70 73 0 19 12 38 40 63 47 43 51 76 20 147 l-21 46 27 63 c24 59 38 77 57 78 4 0 7 -6 7 -12 0 -28 17 -40 37 -30 11 6 25 7 33 2 11 -7 7 -15 -19 -39 -28 -26 -32 -36 -26 -59 3 -15 7 -43 9 -62 1 -19 8 -46 15 -59 11 -20 19 -23 49 -18 21 3 45 8 56 13 14 5 17 3 14 -7 -5 -14 -26 -23 -80 -34 -21 -4 -34 -18 -53 -55 -31 -62 -32 -87 -1 -101 21 -10 25 -20 31 -83 3 -39 13 -82 22 -94 18 -29 11 -62 -22 -114 -14 -20 -29 -56 -35 -80 -21 -93 -3 -256 34 -296 18 -20 17 -22 -9 -57 -27 -34 -27 -36 -10 -55 10 -11 31 -20 47 -20 25 0 28 -4 28 -31 0 -16 -9 -47 -19 -67 -39 -76 -41 -97 -15 -136 20 -29 23 -40 14 -56 -9 -17 -7 -28 9 -54 15 -24 21 -50 21 -95 0 -54 4 -68 35 -113 35 -50 40 -76 15 -70 -7 1 -9 -4 -6 -15 19 -62 27 -127 36 -272 l10 -164 75 -115 c59 -90 75 -122 75 -151 0 -28 9 -48 40 -85 22 -26 40 -59 40 -71 0 -15 11 -32 30 -45 38 -27 86 -128 95 -200 4 -30 18 -74 31 -97 18 -31 24 -57 24 -100 0 -32 5 -76 10 -98 6 -22 15 -74 20 -115 7 -49 22 -99 44 -145 19 -38 41 -95 50 -125 11 -37 48 -101 116 -199 55 -79 100 -148 100 -154 0 -5 15 -44 34 -87 19 -42 37 -99 41 -126 10 -74 25 -114 62 -169 20 -30 33 -62 33 -81 0 -25 12 -42 59 -87 70 -67 104 -142 56 -124 -8 4 -15 18 -15 32 0 20 -5 25 -25 25 -25 0 -33 -14 -15 -25 6 -3 10 -35 10 -71 0 -57 4 -71 31 -110 17 -25 42 -73 56 -107 31 -77 123 -175 207 -220 33 -18 68 -45 80 -64 27 -42 49 -41 97 2 22 19 49 35 61 35 13 0 43 23 80 61 53 56 58 65 58 107 0 34 8 60 32 99 36 59 58 71 161 83 41 5 76 15 87 25 21 19 72 15 122 -11 43 -22 68 -18 68 11 0 21 -8 27 -66 45 -36 11 -72 20 -80 20 -16 0 -34 31 -34 58 0 10 15 39 33 63 44 57 107 171 107 192 0 13 10 16 53 16 28 -1 59 0 67 0 8 1 27 -1 42 -5 24 -5 29 -2 44 30 15 31 16 44 6 98 -9 44 -9 89 -3 147 8 77 7 88 -13 125 -27 52 -29 193 -4 241 9 17 19 48 23 69 5 26 15 41 32 49 26 12 61 73 99 174 19 50 24 83 24 153 0 88 0 89 -34 117 -18 15 -39 38 -45 51 -15 28 -7 114 16 187 19 58 18 121 -2 170 -18 41 -19 137 -4 203 6 26 27 83 46 128 39 87 60 106 136 119 l39 6 -7 75 c-5 50 -4 74 3 74 20 0 42 -44 42 -85 0 -46 14 -65 45 -65 28 0 46 21 84 96 44 86 46 88 146 79 l85 -7 64 52 c64 50 116 104 116 120 0 4 -13 13 -30 20 -20 8 -30 19 -30 34 0 34 56 104 90 111 16 3 39 14 52 24 13 10 57 35 98 55 113 56 136 75 189 151 53 76 137 153 189 174 22 9 50 39 87 92 31 43 74 92 98 111 53 41 54 42 62 96 4 27 20 61 42 90 31 41 43 49 92 60 62 14 95 37 73 51 -7 4 -24 6 -38 3 -19 -3 -24 0 -24 15 0 48 80 74 118 40 24 -22 54 -21 100 2 20 10 53 22 72 26 77 16 119 49 194 148 25 34 36 59 36 83 0 28 6 38 30 52 37 21 38 45 4 77 l-27 25 13 92 c10 79 17 100 46 139 35 48 59 59 131 59 47 0 148 62 169 103 10 17 20 74 24 132 8 89 13 108 39 150 16 26 39 54 49 61 18 12 20 11 24 -10 6 -27 -5 -50 -38 -86 -30 -32 -45 -156 -24 -195 8 -16 11 -43 7 -79 -6 -62 8 -83 31 -48 8 12 25 22 38 22 18 0 23 6 26 31 4 39 29 59 52 40 11 -9 16 -30 16 -62 0 -52 19 -67 39 -31 7 12 22 17 53 17 36 0 43 3 46 21 2 16 -5 23 -30 30 -27 8 -34 15 -36 42 -3 28 0 32 21 32 23 0 24 3 20 53 -2 28 -9 74 -14 101 -5 27 -7 76 -3 108 l7 58 -32 0 c-34 0 -35 2 -32 71 2 40 0 46 -23 57 -15 6 -26 20 -26 31 0 10 -12 45 -27 77 -24 52 -25 62 -15 101 7 24 12 72 12 106 l0 63 -55 27 c-31 15 -68 27 -84 27 -48 0 -81 71 -46 100 8 7 15 23 15 36 0 20 5 24 29 24 34 0 48 15 53 55 l3 30 66 -3 c50 -2 69 1 79 13 11 13 9 20 -14 44 -15 15 -30 41 -35 57 -6 25 -13 29 -49 32 -29 2 -43 8 -47 21 -11 36 -53 71 -84 71 -40 0 -45 12 -21 52 11 18 20 41 20 50 0 9 18 29 40 45 42 30 51 63 29 105 -6 11 -8 22 -5 25 10 10 92 -27 116 -52 28 -30 70 -34 70 -6 0 35 46 14 66 -31 21 -46 67 -88 97 -88 11 0 31 10 44 22 14 13 27 18 33 12 5 -5 21 -65 35 -134 24 -118 28 -127 62 -156 30 -27 49 -33 122 -44 87 -12 420 -9 513 5 43 6 51 4 108 -35 l61 -41 -29 -34 c-22 -24 -31 -48 -36 -88 -7 -51 -11 -59 -74 -119 -37 -35 -85 -72 -107 -82 -46 -21 -92 -72 -105 -115 -6 -23 -3 -36 16 -65 20 -29 24 -47 24 -106 0 -86 12 -115 40 -100 11 6 20 20 20 30 0 31 18 24 25 -10 7 -32 30 -39 66 -20 16 9 19 22 19 77 0 64 1 67 40 104 26 25 40 47 40 64 0 23 3 25 50 25 61 0 65 -5 86 -142 9 -57 31 -143 49 -193 18 -49 40 -116 49 -148 10 -35 24 -60 34 -64 9 -4 34 -17 56 -31 44 -27 62 -19 47 20 -8 21 -5 32 14 58 22 30 23 34 9 72 -8 24 -14 78 -14 130 0 78 3 92 20 106 11 10 24 38 29 65 5 26 17 57 27 68 21 23 26 120 10 173 -8 27 -7 29 14 23 13 -3 36 1 53 9 28 15 30 14 56 -10 23 -22 31 -24 56 -17 68 20 67 19 60 80 -6 52 -3 61 35 136 23 44 58 97 77 119 33 36 35 42 30 89 -5 35 -14 59 -32 77 -40 41 -33 69 27 110 29 19 60 49 69 65 26 44 40 148 33 245 -6 106 6 137 53 132 26 -3 36 3 58 32 15 20 36 36 47 36 13 0 24 11 31 29 6 17 21 32 33 35 12 3 46 32 75 63 53 57 55 58 91 49 31 -8 41 -6 58 9 19 17 25 18 53 6 46 -19 94 -25 101 -12 4 6 -13 33 -38 59 -26 27 -46 56 -46 64 0 9 21 33 48 54 75 60 81 71 79 141 -1 59 -3 63 -27 68 -15 3 -42 5 -61 4 -19 -1 -52 7 -76 19 -53 27 -85 28 -108 2 -10 -11 -26 -20 -37 -20 -15 0 -18 8 -18 57 0 50 4 61 31 89 l30 31 -38 32 c-25 21 -46 31 -60 28 -13 -2 -29 3 -40 15 -18 20 -11 34 21 40 37 6 26 23 -29 46 -76 31 -104 28 -158 -13 -29 -22 -57 -35 -76 -35 -23 0 -31 -5 -31 -18 0 -11 -8 -26 -17 -35 -25 -21 -118 -5 -153 28 -45 42 -76 41 -98 -2 -7 -12 -32 -29 -56 -38 -34 -13 -45 -23 -50 -45 -4 -22 -12 -29 -32 -32 -20 -2 -30 -11 -38 -33 -23 -62 -35 -75 -72 -75 -70 0 -154 -52 -154 -96 0 -45 -20 -69 -70 -87 -27 -10 -60 -30 -73 -45 -14 -15 -38 -42 -53 -59 -25 -28 -39 -34 -104 -44 -49 -7 -82 -18 -96 -31 -19 -17 -29 -18 -65 -11 -38 7 -44 12 -47 36 -3 21 -11 29 -41 37 -21 6 -44 17 -51 25 -15 18 -36 19 -47 2 -4 -7 -20 -20 -35 -29 -23 -15 -28 -15 -38 -3 -16 19 -60 19 -96 0 -27 -14 -29 -13 -33 3 -4 22 -31 52 -46 52 -7 0 -20 9 -29 19 -30 33 -79 35 -132 7 -26 -14 -69 -30 -96 -37 -44 -12 -52 -19 -78 -65 -19 -33 -30 -66 -30 -90 0 -36 -5 -43 -67 -91 -86 -66 -96 -61 -92 51 2 58 -1 87 -11 104 -17 26 -55 29 -86 8 -11 -8 -43 -16 -69 -18 l-49 -3 -13 -65 c-7 -36 -20 -102 -29 -148 l-15 -83 25 -30 c31 -36 33 -75 6 -109 -12 -16 -20 -41 -20 -67 0 -42 0 -42 -26 -31 -20 9 -27 9 -34 -2 -5 -8 -30 -13 -68 -14 -33 -1 -67 -7 -75 -15 -20 -16 -57 -6 -75 20 -16 23 -58 25 -66 4 -7 -20 -23 -19 -92 9 -71 28 -217 51 -273 41 -39 -6 -40 -6 -49 27 -10 40 -40 48 -88 22 -33 -18 -34 -18 -58 5 -18 17 -32 22 -49 17 -18 -4 -31 2 -53 25 -86 91 -237 189 -291 189 -7 0 -27 -10 -44 -22 -26 -19 -33 -21 -62 -10 -45 16 -56 15 -101 -9 l-38 -20 -54 25 c-30 14 -70 26 -89 26 -26 0 -38 7 -55 31 -21 28 -26 30 -77 28 -53 -3 -57 -1 -110 45 -49 44 -57 47 -79 37 -42 -19 -60 -13 -120 37 -45 38 -60 58 -68 91 -10 39 -15 44 -71 66 -33 14 -73 34 -89 46 -23 17 -37 20 -76 16 -40 -5 -50 -2 -67 16 -10 12 -35 34 -54 49 l-34 28 28 21 c28 21 28 23 21 98 -6 73 -5 78 20 108 14 17 26 40 26 52 0 14 12 26 37 38 24 12 44 31 54 53 10 19 29 46 43 59 54 51 28 84 -123 156 l-62 29 2 41 c3 51 -5 65 -38 65 -15 0 -37 10 -50 22 -16 15 -42 24 -86 29 -53 6 -66 12 -91 41 -15 18 -35 49 -43 68 -31 71 -65 88 -104 49 -27 -27 -33 -20 -20 29 9 30 8 47 -3 73 -8 19 -17 53 -21 77 -5 28 -13 46 -25 50 -25 10 -68 74 -75 115 -5 23 -1 45 9 65 30 57 66 59 95 5 6 -13 30 -32 53 -44 l41 -21 71 50 c72 51 89 79 70 120 -4 10 -12 35 -18 56 -10 37 -15 41 -59 52 -56 14 -87 38 -87 67 0 12 -10 32 -22 45 -19 19 -23 34 -22 79 2 49 5 57 35 83 25 20 49 29 87 33 30 3 56 8 58 10 3 2 11 37 18 76 16 81 36 111 76 111 30 0 80 34 80 55 0 7 16 44 35 81 19 37 35 81 35 98 0 17 9 45 20 61 26 39 26 75 1 75 -10 0 -38 -7 -61 -15 -23 -8 -44 -15 -45 -15 -1 0 -8 13 -15 29 -8 21 -21 32 -43 37 -43 9 -67 32 -67 64 0 15 -6 33 -14 39 -23 19 -79 23 -106 6z"/>
+                  <!-- live dots scattered -->
+                  <circle class="dot" cx="2590" cy="7580" r="80"/>
+                  <circle class="dot" cx="3800" cy="7050" r="80"/>
+                  <circle class="dot" cx="4980" cy="5740" r="80"/>
+                  <circle class="dot" cx="5350" cy="6240" r="80"/>
+                  <circle class="dot" cx="7290" cy="4540" r="80"/>
+                  <circle class="dot" cx="4080" cy="3040" r="80"/>
+                </g>
+              </svg>
+            </div>
+            <div class="map-foot">
+              <div class="map-label">Aur Live Darshan Dekhein</div>
+              <div class="map-sub">24 LIVE abhi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Aaj Ka Panchang</div>
+        <div class="panchang">
+          <div class="panchang-item highlight">
+            <div class="pi-label">Shubh Muhurat</div>
+            <div class="pi-value">11:42 – 12:36</div>
+            <div class="pi-sub">Abhijit</div>
+          </div>
+          <div class="panchang-item">
+            <div class="pi-label">Tithi</div>
+            <div class="pi-value">Panchami</div>
+            <div class="pi-sub">Shukla Paksha</div>
+          </div>
+          <div class="panchang-item">
+            <div class="pi-label">Nakshatra</div>
+            <div class="pi-value">Rohini</div>
+            <div class="pi-sub">3:42 PM tak</div>
+          </div>
+          <div class="panchang-item">
+            <div class="pi-label">Rahu Kaal</div>
+            <div class="pi-value">4:30 – 6:00</div>
+            <div class="pi-sub">Shaam</div>
+          </div>
+          <div class="panchang-item">
+            <div class="pi-label">Suryoday</div>
+            <div class="pi-value">4:22 AM</div>
+            <div class="pi-sub">Suryast 7:08 PM</div>
+          </div>
+        </div>
+
+        <!-- ============ MAAS KA PANCHANG ============ -->
+        <div class="section-label" style="margin-top:26px;">
+          <span>Maas Ka Panchang</span>
+          <span class="see-all" onclick="goPanchang()">Poora dekho →</span>
+        </div>
+
+        <div class="maas-card">
+          <div class="cal-head">
+            <button class="cal-nav" onclick="changeMonth(-1)" aria-label="Pichla maas">‹</button>
+            <div class="cal-title">
+              <div class="cal-hi" id="calHi">Vaishakh</div>
+              <div class="cal-en" id="calEn">April 2026</div>
+            </div>
+            <button class="cal-nav" onclick="changeMonth(1)" aria-label="Agla maas">›</button>
+          </div>
+
+          <div class="cal-legend">
+            <span class="lg lg-fest"><i></i>Parv</span>
+            <span class="lg lg-purn"><i></i>Purnima</span>
+            <span class="lg lg-ek"><i></i>Ekadashi</span>
+            <span class="lg lg-vr"><i></i>Vrat</span>
+          </div>
+
+          <div class="cal-wk">
+            <div>Ra</div><div>So</div><div>Ma</div><div>Bu</div><div>Gu</div><div>Sh</div><div>Shn</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <div class="ed-card" id="eventDetail">
+          <!-- populated by renderEventDetail() -->
+        </div>
+      </div>
+
+      <!-- =========== FOLD 3 — AAJ KA DARSHAN (audio-visual daily ritual) =========== -->
+      <div class="aaj-darshan fade-in">
+        <div class="darshan-head">
+          <div class="dh-title">Aaj ki Kahaniyaan</div>
+          <div class="dh-sub" id="dhSub">24 APR · SHUKLA PANCHAMI</div>
+        </div>
+
+        <!-- 6 audio-visual katha cards (Sandesh is now the 1st card, not a separate hero) -->
+        <div class="katha-scroll" id="kathaScroll"></div>
+
+        <!-- Chadhava discovery card -->
+        <div class="chadhava-discover" onclick="goChadhava()">
+          <div class="cd-ico-wrap">
+            <div class="cd-ico-ring"></div>
+            <div class="cd-ico">🪔</div>
+          </div>
+          <div class="cd-body">
+            <div class="cd-ribbon">✦ Seva Arpan</div>
+            <div class="cd-title">Aaj kuch arpit karein</div>
+            <div class="cd-sub">Online puja · Prasad · Daan · Phool — seedha mandir tak</div>
+          </div>
+          <div class="cd-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="nav">
+        <div class="nav-item active"><div class="nav-icon">🛕</div><div>Mandir</div></div>
+        <div class="nav-item" onclick="goLive()"><div class="nav-icon">🪔</div><div>Pooja</div></div>
+        <div class="nav-item" onclick="window.location.href=withDeity('devotion-katha-chat.html')"><div class="nav-icon">📖</div><div>Katha</div></div>
+        <div class="nav-item" onclick="window.location.href=withDeity('panchang.html')"><div class="nav-icon">🌙</div><div>Panchang</div></div>
+        <div class="nav-item" onclick="window.location.href=withDeity('devotion-seva.html')"><div class="nav-icon">🎁</div><div>Chadhava</div></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- DARSHAN PLAYER — audio-visual katha overlay -->
+  <div class="darshan-back" id="darshanBack" onclick="closeKatha()"></div>
+  <div class="darshan-player" id="darshanPlayer" role="dialog" aria-label="Aaj ka Darshan">
+    <div class="dp-handle"></div>
+    <button class="dp-close" onclick="closeKatha()" aria-label="Band karein">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+    <div class="dp-hero">
+      <img id="dpImg" src="" alt=""/>
+      <div class="dp-hero-grad"></div>
+      <div class="dp-hero-ribbon" id="dpRibbon">Katha</div>
+      <div class="dp-hero-ambient"></div>
+    </div>
+    <div class="dp-meta">
+      <div class="dp-title" id="dpTitle">—</div>
+      <div class="dp-subtitle" id="dpSubtitle">—</div>
+    </div>
+    <div class="dp-wave" id="dpWave">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="dp-controls">
+      <button class="dp-ctrl" onclick="seekKatha(-15)" aria-label="15 second pichhe">⏪</button>
+      <button class="dp-play" id="dpPlayBtn" onclick="togglePlayKatha()" aria-label="Play/pause">
+        <span id="dpPlayIc">❚❚</span>
+      </button>
+      <button class="dp-ctrl" onclick="seekKatha(15)" aria-label="15 second aage">⏩</button>
+    </div>
+    <div class="dp-loading" id="dpLoading"><span class="dp-loading-dot"></span>Taiyaar ho raha hai...</div>
+    <div class="dp-body">
+      <div class="dp-quote" id="dpQuote">—</div>
+      <div class="dp-para" id="dpPara">—</div>
+      <div class="dp-learn">
+        <div class="dp-learn-lbl">✦ Aaj ki seekh</div>
+        <div class="dp-learn-txt" id="dpLearnTxt">—</div>
+      </div>
+      <div class="dp-credit" id="dpCredit">Powered by <b>Srimandir</b></div>
+    </div>
+  </div>
+
+  <!-- FESTIVAL CHAT (Shivratri) — conversational guide, JDS pattern -->
+  <div class="fest-back" id="festBack" onclick="closeFestChat()"></div>
+  <div class="fest-chat" id="festChat" role="dialog" aria-label="Shivratri chat">
+    <!-- App bar -->
+    <div class="fc-appbar">
+      <button class="fc-iconbtn" onclick="closeFestChat()" aria-label="Wapas">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+      <div class="fc-avatar" aria-hidden="true">🪔</div>
+      <div class="fc-meta">
+        <div class="fc-name">Bhakti Saathi</div>
+        <div class="fc-sub">Shivratri · 3 din baad</div>
+      </div>
+      <button class="fc-iconbtn" onclick="closeFestChat()" aria-label="Band karein">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="fc-body" id="fcBody">
+      <!-- messages injected by JS -->
+    </div>
+
+    <!-- Quick reply chips -->
+    <div class="fc-chips-scroll" id="fcChips">
+      <!-- topic chips injected by JS -->
+    </div>
+
+    <!-- JDS ChatInput bar -->
+    <div class="fc-input-bar">
+      <div class="fc-input-pill">
+        <input class="fc-input-field" id="fcInput" type="text"
+               placeholder="Shivratri ke baare mein poochein…"
+               onkeydown="if(event.key==='Enter'){fcSendInput();}" />
+        <button class="fc-mic" aria-label="Bol kar poochein">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 006 6.92V21h2v-3.08A7 7 0 0019 11h-2z"/>
+          </svg>
+        </button>
+      </div>
+      <button class="fc-send" id="fcSend" onclick="fcSendInput()" aria-label="Bhejein">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEVA BOTTOM SHEET — one place for all actions -->
+  <div class="sheet-back" id="sheetBack" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Seva karein</div>
+    <div class="sheet-sub">Kya arpan karna chahenge aaj?</div>
+    <div class="seva-grid">
+      <div class="seva-opt" onclick="doSeva('pushp','🌼 Pushp arpan ho gaya')">
+        <div class="seva-ic">🌼</div>
+        <div class="seva-name">Pushp</div>
+        <div class="seva-sub">Phool arpan</div>
+      </div>
+      <div class="seva-opt" onclick="doSeva('diya','🪔 Diya jal uthi')">
+        <div class="seva-ic">🪔</div>
+        <div class="seva-name">Diya</div>
+        <div class="seva-sub">Deepak jalayein</div>
+      </div>
+      <div class="seva-opt" onclick="doSeva('shankh','🐚 Shankhnaad ho gaya')">
+        <div class="seva-ic">🐚</div>
+        <div class="seva-name">Shankh</div>
+        <div class="seva-sub">Shankhnaad</div>
+      </div>
+      <div class="seva-opt" onclick="doSeva('aarti','🎵 Aarti shuru')">
+        <div class="seva-ic">🎵</div>
+        <div class="seva-name">Aarti</div>
+        <div class="seva-sub">Live aarti suniye</div>
+      </div>
+      <div class="seva-opt" onclick="doSeva('shringaar','💎 Shringaar badla gaya')">
+        <div class="seva-ic">💎</div>
+        <div class="seva-name">Shringaar</div>
+        <div class="seva-sub">Vastra, mukut</div>
+      </div>
+      <div class="seva-opt" onclick="goChadhava()">
+        <div class="seva-ic">🎁</div>
+        <div class="seva-name">Chadhava</div>
+        <div class="seva-sub">Donate seva</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// -------- DEITY GREETINGS (Devanagari for correct Hindi pronunciation) --------
+const USER_NAME = 'Shivali';
+const USER_NAME_HI = 'शिवाली';
+const GREETINGS = {
+  ganesh:  { mantra:'ॐ गं गणपतये नमः',
+             spoken:'ओम गं गणपतये नमः ।' },
+  shiva:   { mantra:'ॐ नमः शिवाय',
+             spoken:'ओम नमः शिवाय । हर हर महादेव ।' },
+  krishna: { mantra:'हरे कृष्ण हरे कृष्ण',
+             spoken:'हरे कृष्ण हरे कृष्ण । राधे राधे ।' },
+  durga:   { mantra:'ॐ दुं दुर्गायै नमः',
+             spoken:'ओम दुं दुर्गायै नमः । जय माता दी ।' },
+  hanuman: { mantra:'जय श्री राम',
+             spoken:'जय बजरंगबली । जय श्री राम ।' },
+  ram:     { mantra:'जय श्री राम',
+             spoken:'जय श्री राम । सीता राम ।' }
+};
+
+// -------- SARVAM TTS --------
+const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
+const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
+const SARVAM_MODEL = 'bulbul:v3';
+// Greeting voice — ashutosh (a name of Shiva, deep divine male) on v3.
+// "Jai Shree Shiv" should feel like a temple priest's invocation, not a news anchor.
+const SARVAM_GREETING_VOICE = 'ashutosh';
+let currentGreetingAudio = null;
+
+// Decode Sarvam's base64-encoded WAV into a Blob URL.
+function _sarvamB64ToBlobUrl(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const blob = new Blob([bytes], { type: 'audio/wav' });
+  return URL.createObjectURL(blob);
+}
+
+// Sarvam input limit per item is ~500 chars. Split a longer string at the
+// nearest sentence/clause boundary so each chunk fits cleanly.
+function _chunkForSarvam(text, max = 480) {
+  const out = [];
+  let s = (text || '').trim();
+  while (s.length > max) {
+    let cut = -1;
+    // Prefer breaking at Devanagari danda, period, question or comma.
+    for (const sep of ['।', '. ', '? ', '! ', ', ', ' ']) {
+      const i = s.lastIndexOf(sep, max);
+      if (i > max * 0.5) { cut = i + sep.length; break; }
+    }
+    if (cut < 0) cut = max;
+    out.push(s.slice(0, cut).trim());
+    s = s.slice(cut).trim();
+  }
+  if (s) out.push(s);
+  return out;
+}
+
+// One TTS call → returns a single object URL (concatenated WAV chunks).
+// opts.model: 'bulbul:v2' (supports pitch/loudness) or 'bulbul:v3' (more voices, pace only).
+async function sarvamSpeak(text, opts) {
+  opts = opts || {};
+  const speaker = opts.speaker || 'abhilash';
+  const model   = opts.model || SARVAM_MODEL;
+  const pace    = (opts.pace != null) ? opts.pace : 1.0;
+  const inputs  = _chunkForSarvam(text);
+  if (!inputs.length) return null;
+  const body = {
+    inputs,
+    target_language_code: 'hi-IN',
+    speaker,
+    pace,
+    speech_sample_rate: 22050,
+    enable_preprocessing: true,
+    model
+  };
+  // Bulbul v3 doesn't accept pitch/loudness; v2 does.
+  if (model === 'bulbul:v2') {
+    body.pitch = (opts.pitch != null) ? opts.pitch : 0;
+    body.loudness = (opts.loudness != null) ? opts.loudness : 1.2;
+  }
+  const res = await fetch(SARVAM_TTS_URL, {
+    method: 'POST',
+    headers: {
+      'api-subscription-key': SARVAM_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { console.warn('[sarvam] tts failed', res.status, await res.text().catch(()=>'')); return null; }
+  const data = await res.json();
+  const audios = data.audios || [];
+  if (!audios.length) return null;
+  // Single chunk — just decode and return.
+  if (audios.length === 1) return _sarvamB64ToBlobUrl(audios[0]);
+  // Multiple chunks — strip the 44-byte WAV header off chunks 2..N and
+  // concatenate the PCM bodies onto the first chunk's header.
+  const chunks = audios.map(b64 => {
+    const bin = atob(b64);
+    const a = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return a;
+  });
+  const merged = [chunks[0]];
+  let totalBody = chunks[0].length - 44;
+  for (let i = 1; i < chunks.length; i++) {
+    merged.push(chunks[i].slice(44));
+    totalBody += chunks[i].length - 44;
+  }
+  // Patch RIFF chunk size (bytes 4-7) and data subchunk size (bytes 40-43).
+  const head = merged[0];
+  const totalLen = totalBody + 36;
+  head[4] = totalLen & 0xff;
+  head[5] = (totalLen >> 8) & 0xff;
+  head[6] = (totalLen >> 16) & 0xff;
+  head[7] = (totalLen >> 24) & 0xff;
+  head[40] = totalBody & 0xff;
+  head[41] = (totalBody >> 8) & 0xff;
+  head[42] = (totalBody >> 16) & 0xff;
+  head[43] = (totalBody >> 24) & 0xff;
+  return URL.createObjectURL(new Blob(merged, { type: 'audio/wav' }));
+}
+
+async function playGreeting(deity) {
+  try {
+    if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
+    const g = GREETINGS[deity] || GREETINGS.ganesh;
+    // Divine invocation — ashutosh on bulbul:v3, slower pace.
+    const url = await sarvamSpeak(g.spoken, {
+      speaker: SARVAM_GREETING_VOICE,
+      model: 'bulbul:v3',
+      pace: 0.88
+    });
+    if (!url) return;
+    const audio = new Audio(url);
+    currentGreetingAudio = audio;
+    audio.volume = 0.95;
+    audio.play().catch(e => console.warn('greeting play failed', e));
+  } catch (e) { console.warn('playGreeting error', e); }
+}
+
+// -------- SHIV MANTRA (10-sec clip when Shiv Ji photo appears) --------
+const SHIV_MANTRA_MP3 = 'assets/audio/om-namah-shivay.mp3';
+let shivMantraAudio = null;
+let shivMantraTimer = null;
+function playShivMantra() {
+  try {
+    // Kill anything currently running
+    if (shivMantraTimer) { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
+    if (shivMantraAudio) {
+      try { shivMantraAudio.loop = false; shivMantraAudio.pause(); shivMantraAudio.currentTime = 0; shivMantraAudio.src = ''; } catch(e){}
+      shivMantraAudio = null;
+    }
+
+    const audio = new Audio(SHIV_MANTRA_MP3);
+    shivMantraAudio = audio;
+    audio.volume = 0.85;
+    audio.loop = false;   // PLAY ONCE, no loop
+    audio.addEventListener('ended', () => {
+      try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+      if (shivMantraAudio === audio) shivMantraAudio = null;
+    });
+    audio.play().catch(e => console.warn('shiv mantra play failed', e));
+  } catch (e) { console.warn('playShivMantra error', e); }
+}
+function stopShivMantra() {
+  try {
+    if (shivMantraTimer) { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
+    if (shivMantraFadeInterval) { clearInterval(shivMantraFadeInterval); shivMantraFadeInterval = null; }
+    if (shivMantraAudio) {
+      try { shivMantraAudio.loop = false; shivMantraAudio.pause(); shivMantraAudio.currentTime = 0; shivMantraAudio.src = ''; } catch(e){}
+      shivMantraAudio = null;
+    }
+  } catch(e){}
+}
+
+// -------- SHANKH SOUND (real MP3) --------
+// Plays the full clip once. No loop, no premature cap.
+const SHANKH_MP3 = 'assets/audio/shankh.mp3';
+let shankhAudio = null;
+function stopShankh() {
+  if (shankhAudio) {
+    try { shankhAudio.loop = false; shankhAudio.pause(); shankhAudio.currentTime = 0; shankhAudio.src = ''; } catch(e){}
+    shankhAudio = null;
+  }
+}
+function playShankh() {
+  try {
+    stopShankh();
+    const audio = new Audio(SHANKH_MP3);
+    shankhAudio = audio;
+    audio.loop = false;          // PLAY ONCE, no loop
+    audio.volume = 0.9;
+    audio.addEventListener('ended', () => {
+      try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+      if (shankhAudio === audio) shankhAudio = null;
+    });
+    audio.play().catch(e => console.warn('shankh play failed', e));
+  } catch(e) { console.warn('shankh failed', e); }
+}
+
+// -------- AARTI THALI ANIMATION --------
+function startAartiThali(opts) {
+  const el = document.getElementById('aartiThaliWrap');
+  el.classList.add('active');
+  // Play soft bell chime via web audio (ambience)
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 1.5);
+  } catch(e){}
+  // For plain diya-arpan: auto-stop after ~9s. For full aarti flow: caller controls.
+  if (!opts || !opts.persistent) {
+    setTimeout(()=> el.classList.remove('active'), 9500);
+  }
+}
+
+// -------- FULL AARTI FLOW: MP3 + karaoke lyrics + persistent thali orbit --------
+const AARTI_MP3_SRC = 'assets/audio/shiva-aarti.mp3';
+const AARTI_LYRICS = [
+  { dev:'जय शिव ओंकारा, ॐ जय शिव ओंकारा', trans:'Jai Shiv Omkara, Om Jai Shiv Omkara', dur:18 },
+  { dev:'ब्रह्मा विष्णु सदाशिव, अर्धांगी धारा', trans:'Brahma Vishnu Sadashiva · Ardhangi dhara', dur:12 },
+  { dev:'ॐ जय शिव ओंकारा ॥', trans:'Om Jai Shiv Omkara', dur:9 },
+  { dev:'एकानन चतुरानन पञ्चानन राजे', trans:'Ekanana Chaturanana Panchanana Raje', dur:9 },
+  { dev:'हंसासन गरुड़ासन वृषवाहन साजे', trans:'Hansasana Garudasana Vrishavahana Saje', dur:9 },
+  { dev:'ॐ हर हर महादेव ॥', trans:'Om Har Har Mahadev', dur:8 },
+  { dev:'दो भुज चार चतुर्भुज दसभुज अति सोहे', trans:'Do bhuja char chaturbhuja dasabhuja ati sohe', dur:10 },
+  { dev:'त्रिगुण रूप निरखते त्रिभुवन जन मोहे', trans:'Triguna roop nirakhate tribhuvana jana mohe', dur:10 }
+];
+const AARTI_LYRIC_START_DELAY = 0; // highlight from the very beginning
+let aartiAudioEl = null;
+let aartiLyricIdx = -1;
+let aartiTimers = [];
+
+function renderAartiLyrics() {
+  const box = document.getElementById('alInner');
+  let html = '';
+  for (let i = 0; i < AARTI_LYRICS.length; i++) {
+    let cls = 'al-line ';
+    if (i < aartiLyricIdx) cls += 'past';
+    else if (i === aartiLyricIdx) cls += 'now';
+    else cls += 'next';
+    // Show current + prev + next lines (window) for readability
+    if (Math.abs(i - aartiLyricIdx) > 2 && aartiLyricIdx !== -1) continue;
+    if (aartiLyricIdx === -1 && i > 2) continue;
+    html += '<div class="'+cls+'">'+AARTI_LYRICS[i].dev+
+            '<span class="al-trans">'+AARTI_LYRICS[i].trans+'</span></div>';
+  }
+  box.innerHTML = html;
+}
+
+function advanceAartiLyric() {
+  if (aartiLyricIdx < AARTI_LYRICS.length - 1) {
+    aartiLyricIdx++;
+  } else {
+    aartiLyricIdx = 0; // loop with audio
+  }
+  renderAartiLyrics();
+  const t = setTimeout(advanceAartiLyric, (AARTI_LYRICS[aartiLyricIdx].dur || 6) * 1000);
+  aartiTimers.push(t);
+}
+
+function startAarti() {
+  // Thali orbit — persistent (lasts until user closes aarti)
+  startAartiThali({ persistent: true });
+
+  // Show lyrics panel
+  const panel = document.getElementById('aartiLyricsPanel');
+  panel.classList.add('active');
+  aartiLyricIdx = -1;
+  renderAartiLyrics();
+
+  // Play aarti MP3 loop
+  try {
+    if (aartiAudioEl) { try { aartiAudioEl.pause(); } catch(e){} }
+    aartiAudioEl = new Audio(AARTI_MP3_SRC);
+    aartiAudioEl.loop = true;
+    aartiAudioEl.volume = 0.85;
+    aartiAudioEl.play().catch(e => console.warn('aarti play failed', e));
+  } catch(e) { console.warn('aarti audio failed', e); }
+
+  // First line lights up after the instrumental intro (~30s)
+  const t0 = setTimeout(() => {
+    aartiLyricIdx = 0;
+    renderAartiLyrics();
+    const t1 = setTimeout(advanceAartiLyric, AARTI_LYRICS[0].dur * 1000);
+    aartiTimers.push(t1);
+  }, AARTI_LYRIC_START_DELAY);
+  aartiTimers.push(t0);
+}
+
+function stopAarti() {
+  // Stop audio
+  if (aartiAudioEl) {
+    try { aartiAudioEl.pause(); aartiAudioEl.currentTime = 0; } catch(e){}
+    aartiAudioEl = null;
+  }
+  // Clear all timers
+  aartiTimers.forEach(t => clearTimeout(t));
+  aartiTimers = [];
+  aartiLyricIdx = -1;
+  // Hide panel
+  document.getElementById('aartiLyricsPanel').classList.remove('active');
+  // Stop thali orbit
+  document.getElementById('aartiThaliWrap').classList.remove('active');
+}
+
+// -------- LOCKED DEITY ASSET LIBRARY --------
+// Single curated source per deity. No random selection.
+// Local assets/deities/*.jpg → Wikimedia Commons fallback (known, stable URLs)
+const WIKI = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+const DEITIES_SRC = {
+  ganesh:  WIKI+'Ganesha._Chromolithograph._Wellcome_V0044933.jpg?width=720',
+  shiva:   WIKI+'An_Oleograph_of_Shiva,_Parvati_and_Nandi_by_Raja_Ravi_Varma.jpg?width=720',
+  krishna: WIKI+'Krishna_spilling_the_milk_maids_pots._Chromolithograph._Wellcome_V0045085.jpg?width=720',
+  durga:   WIKI+'Durga_slaying_the_Buffalo_Demon._Chromolithograph,_1883._Wellcome_V0045083.jpg?width=720',
+  hanuman: WIKI+'Bhaktha_Hanuman.jpg?width=720',
+  ram:     WIKI+'Ramapanchayan,_Ravi_Varma_Press.jpg?width=720'
+};
+
+// Each deity can have MULTIPLE forms. Swipe cycles through forms
+// within a deity, then advances to next deity at the end.
+const DEITIES = {
+  ganesh: { pillName:'श्री गणेश',
+    forms:[
+      { img:'assets/deities/ganesh/1.jpg', fallback: DEITIES_SRC.ganesh, label:'Siddhivinayak' },
+    ],
+    live:{ img: DEITIES_SRC.ganesh, temple:'Siddhivinayak · Mumbai', aarti:'🪔 Madhyahna Aarti', viewers:'3.1K' },
+    live2:{ img: 'assets/temples/puri.jpg', temple:'Jagannath Puri · Odisha', aarti:'🪔 Sandhya Dhupa', viewers:'3.9K' },
+    story2:{ img: DEITIES_SRC.ganesh, title:'Ganesh Janm Katha' } },
+  shiva: { pillName:'श्री महादेव',
+    forms:[
+      { img:'assets/deities/shiva/3.png', fallback: WIKI+'Shivalinga_at_Bull_Temple_Bangalore.jpg?width=720', label:'Mahadev' },
+      { img:'assets/deities/shiva/1.png', fallback: WIKI+'Shiva_Bangalore.jpg?width=720', label:'Shivling darshan' },
+      { img:'assets/deities/shiva/2.png', fallback: WIKI+'An_Oleograph_of_Shiva,_Parvati_and_Nandi_by_Raja_Ravi_Varma.jpg?width=720', label:'Dhyanmagna' }
+    ],
+    live:{ img: 'assets/temples/kashi.jpg',    temple:'Kashi Vishwanath · Varanasi', aarti:'🪔 Mangala Aarti', viewers:'8.2K' },
+    live2:{ img: 'assets/temples/kedarnath.jpg', temple:'Kedarnath · Uttarakhand',    aarti:'🪔 Sandhya Aarti', viewers:'2.1K' },
+    story2:{ img: DEITIES_SRC.shiva, title:'Samudra Manthan Katha' } },
+  krishna: { pillName:'श्री कृष्ण',
+    forms:[
+      { img:'assets/deities/krishna/1.jpg', fallback: DEITIES_SRC.krishna, label:'Banke Bihari' },
+    ],
+    live:{ img: DEITIES_SRC.krishna, temple:'Banke Bihari · Vrindavan', aarti:'🪔 Shringar Aarti', viewers:'5.6K' },
+    live2:{ img: 'assets/temples/puri.jpg', temple:'Jagannath Puri · Odisha', aarti:'🪔 Sandhya Dhupa', viewers:'3.9K' },
+    story2:{ img: DEITIES_SRC.krishna, title:'Makhan Chor Leela' } },
+  durga: { pillName:'माँ दुर्गा',
+    forms:[
+      { img:'assets/deities/durga/1.jpg', fallback: DEITIES_SRC.durga, label:'Maa Durga' },
+    ],
+    live:{ img: DEITIES_SRC.durga, temple:'Vaishno Devi · Katra', aarti:'🪔 Aarti Darshan', viewers:'3.8K' },
+    live2:{ img: 'assets/temples/ujjain.jpg', temple:'Mahakaleshwar · Ujjain', aarti:'🪔 Sandhya Aarti', viewers:'4.1K' },
+    story2:{ img: DEITIES_SRC.durga, title:'Mahishasura Vadh' } },
+  hanuman: { pillName:'श्री हनुमान',
+    forms:[
+      { img:'assets/deities/hanuman/1.jpg', fallback: DEITIES_SRC.hanuman, label:'Bajrangbali' },
+    ],
+    live:{ img: DEITIES_SRC.hanuman, temple:'Salasar Balaji · Rajasthan', aarti:'🪔 Sunder Kand Paath', viewers:'2.9K' },
+    live2:{ img: 'assets/temples/rameshwar.jpg', temple:'Rameshwaram · Tamil Nadu', aarti:'🪔 Ardhajama Pooja', viewers:'2.0K' },
+    story2:{ img: DEITIES_SRC.hanuman, title:'Lanka Dahan' } },
+  ram: { pillName:'श्री राम',
+    forms:[
+      { img:'assets/deities/ram/1.jpg', fallback: DEITIES_SRC.ram, label:'Ram Darbar' },
+    ],
+    live:{ img: DEITIES_SRC.ram, temple:'Ram Mandir · Ayodhya', aarti:'🪔 Madhyahna Aarti', viewers:'9.3K' },
+    live2:{ img: 'assets/temples/rameshwar.jpg', temple:'Rameshwaram · Tamil Nadu', aarti:'🪔 Ardhajama Pooja', viewers:'2.0K' },
+    story2:{ img: DEITIES_SRC.ram, title:'Ram Vanwas Katha' } }
+};
+
+const DEITY_ORDER = ['ganesh','shiva','krishna','durga','hanuman','ram'];
+// Restore the user's previously selected deity from the URL (?deity=shiva) so
+// pressing "back" on any sub-page lands them on the home they left, not default.
+function initialDeityFromUrl() {
+  try {
+    const u = new URLSearchParams(location.search).get('deity');
+    if (u && DEITY_ORDER.indexOf(u) !== -1) return u;
+  } catch(e){}
+  return null;
+}
+// Was the deity passed in via the URL? Used to skip the deity picker on return.
+const DEITY_FROM_URL = initialDeityFromUrl();
+let currentDeity = DEITY_FROM_URL || 'ganesh';
+let currentForm  = 0;  // index into current deity's forms array
+
+// Build a URL to the home page preserving the current deity selection.
+function homeUrl() {
+  return 'devotion-home-focused.html?deity=' + encodeURIComponent(currentDeity);
+}
+// Append ?deity=X (or &deity=X if URL already has ?) to any outbound sub-page URL.
+function withDeity(href) {
+  const sep = href.indexOf('?') === -1 ? '?' : '&';
+  if (/[?&]deity=/.test(href)) return href;
+  return href + sep + 'deity=' + encodeURIComponent(currentDeity);
+}
+
+// -------- PICK / APPLY --------
+function pickDeity(id) {
+  currentDeity = id;
+  currentForm = 0;
+  applyDeity(id);
+  if (id === 'shiva') {
+    // Stop any currently playing TTS greeting — Shiv Ji gets the mantra only
+    if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
+    playShivMantra();
+  } else {
+    stopShivMantra();
+    playGreeting(id);
+  }
+  document.getElementById('picker').classList.add('hide');
+  setTimeout(()=>{
+    document.querySelectorAll('.fade-in').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('in'), i*120);
+    });
+  }, 300);
+}
+
+// Quick-switch from deity-switcher row
+function switchDeity(id) {
+  if (id === currentDeity) return;
+  currentDeity = id;
+  currentForm = 0;
+  applyDeity(id);
+  if (id === 'shiva') {
+    if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
+    playShivMantra();
+  } else {
+    stopShivMantra();
+    playGreeting(id);
+  }
+}
+
+function renderDeitySwitcher() {
+  const row = document.getElementById('deitySwitcher');
+  if (!row) return;
+  row.innerHTML = DEITY_ORDER.map(id => {
+    const d = DEITIES[id];
+    const imgSrc = (d.forms && d.forms[0]) ? d.forms[0].img : DEITIES_SRC[id];
+    const fallback = DEITIES_SRC[id];
+    const active = id === currentDeity ? ' active' : '';
+    return '<button class="ds-btn' + active + '" onclick="switchDeity(\'' + id + '\')">' +
+           '<img src="' + imgSrc + '" onerror="this.onerror=null;this.src=\'' + fallback + '\';" alt="' + id + '"/>' +
+           '</button>';
+  }).join('');
+}
+
+function openPicker() {
+  document.getElementById('picker').classList.remove('hide');
+  document.querySelectorAll('.fade-in').forEach(el=>el.classList.remove('in'));
+  document.getElementById('screen').scrollTo({ top:0, behavior:'smooth' });
+}
+
+function applyDeity(id) {
+  const d = DEITIES[id];
+  const form = d.forms[currentForm] || d.forms[0];
+  // Hero image — local first, fallback to curated
+  const img = document.getElementById('deityImg');
+  img.onerror = function(){ this.onerror=null; this.src = form.fallback; };
+  img.src = form.img;
+
+  // Pill (hidden, kept for compat)
+  document.getElementById('pillName').textContent = d.pillName;
+
+  // Mantra + greeting in the top bar
+  const g = GREETINGS[id] || GREETINGS.ganesh;
+  const mantraEl = document.getElementById('mantraLine');
+  const greetEl  = document.getElementById('greetLine');
+  if (mantraEl) {
+    // retrigger fade animation by reinserting
+    mantraEl.style.animation = 'none'; void mantraEl.offsetWidth; mantraEl.style.animation = '';
+    mantraEl.textContent = g.mantra;
+  }
+  if (greetEl) {
+    greetEl.style.animation = 'none'; void greetEl.offsetWidth; greetEl.style.animation = '';
+    greetEl.textContent = 'नमस्कार ' + USER_NAME;
+  }
+
+  // Form dots
+  renderFormDots();
+
+  // Deity switcher highlight
+  renderDeitySwitcher();
+
+  // Live cards — card 1
+  document.getElementById('liveImg').src = d.live.img;
+  document.getElementById('liveTemple').textContent = d.live.temple;
+  document.getElementById('liveAarti').innerHTML = d.live.aarti;
+  document.getElementById('liveViewers').textContent = '👥 ' + d.live.viewers;
+
+  // Live cards — card 2 (real temple photo where available)
+  const l2 = d.live2 || d.live;
+  document.getElementById('liveImg2').src = l2.img;
+  document.getElementById('liveTemple2').textContent = l2.temple;
+  document.getElementById('liveAarti2').innerHTML = l2.aarti;
+  document.getElementById('liveViewers2').textContent = '👥 ' + l2.viewers;
+
+  // Re-render Aaj ka Darshan (Sandesh + katha cards personalized to this deity)
+  renderDarshan();
+}
+
+/* ============ AAJ KA DARSHAN — data model ============ */
+
+// Personalized 2-line Sandesh for each deity
+const DAILY_SANDESH = {
+  ganesh: {
+    from:'Ganesh ji kehte hain',
+    msg:'"Shivali, har shuruaat mein mujhe yaad rakhna.<br>Jo kaam mere naam se shuru ho, vighnon se mukt ho jaata hai."',
+    img:'assets/deities/ganesh/1.jpg', fallback:DEITIES_SRC.ganesh, dur:'0:40',
+    narration:'आज के लिए आपका दिव्य संदेश। जब भी कोई नया काम शुरू करो, मुझे याद ज़रूर करना। जो कार्य मेरे नाम से आरंभ होता है, उस पर कोई विघ्न टिक नहीं सकता। आज का दिन तुम्हारे लिए शुभ है। निडर होकर आगे बढ़ो — मैं तुम्हारे साथ हूँ।'
+  },
+  shiva: {
+    from:'Shiv ji kehte hain',
+    msg:'"Sabr rakho, Shivali.<br>Jo chhoota hai woh zyada acha milne ke liye chhoota hai."',
+    img:'assets/deities/shiva/2.png', fallback:DEITIES_SRC.shiva, dur:'0:45',
+    narration:'आज के लिए आपका दिव्य संदेश। संसार में जो कुछ छूटता है, वह इसलिए छूटता है ताकि तुम्हें उससे भी बेहतर मिल सके। धैर्य रखो, बेटा। जो होना है वो होकर रहेगा — और जो मेरी कृपा से होगा, वही तुम्हारे लिए सर्वश्रेष्ठ है। मन शांत रखो, ॐ नमः शिवाय का स्मरण करती रहो।'
+  },
+  krishna: {
+    from:'Krishna ji kehte hain',
+    msg:'"Karm karo, Shivali — phal ki chinta chhodo.<br>Jo bhi hoga, mere sankalp se hoga."',
+    img:'assets/deities/krishna/1.jpg', fallback:DEITIES_SRC.krishna, dur:'0:42',
+    narration:'आज के लिए आपका दिव्य संदेश। अपना कर्म पूरी निष्ठा से करो, फल की चिंता छोड़ दो। जो होना है वो मेरे संकल्प से होगा। तुम बस अपना धर्म निभाओ — बाकी सब मुझ पर छोड़ दो। मैं सदा तुम्हारे साथ हूँ, तुम्हारे हर कर्म का साक्षी।'
+  },
+  durga: {
+    from:'Maa Durga kehti hain',
+    msg:'"Darna mat, Shivali.<br>Teri har saans mein meri shakti hai — uthh, aage badh."',
+    img:'assets/deities/durga/1.jpg', fallback:DEITIES_SRC.durga, dur:'0:38',
+    narration:'आज के लिए आपका दिव्य संदेश। मेरी बेटी, डरना मत। तेरी हर साँस में मेरी शक्ति है। जब भी कठिनाई आए, मुझे याद कर लेना — मैं तेरे भीतर ही हूँ। उठ, खड़ी हो, और अपने भीतर की शक्ति को पहचान। तू मेरी अंश है — तुझे कोई हरा नहीं सकता।'
+  },
+  hanuman: {
+    from:'Hanuman ji kehte hain',
+    msg:'"Nirbhay raho, Shivali.<br>Jahan Ram ka naam hai, wahan bhay tik nahi sakta."',
+    img:'assets/deities/hanuman/1.jpg', fallback:DEITIES_SRC.hanuman, dur:'0:40',
+    narration:'आज के लिए आपका दिव्य संदेश। निर्भय रहो, बेटी। जहाँ राम का नाम होता है, वहाँ कोई भय टिक नहीं सकता। संकट जितना भी बड़ा हो, श्री राम का स्मरण करती रहना — मैं स्वयं दौड़ा आऊँगा। तेरी रक्षा मेरा कर्तव्य है, मेरा वचन है।'
+  },
+  ram: {
+    from:'Ram ji kehte hain',
+    msg:'"Maryada mein hi aanand hai, Shivali.<br>Dharm ka palan karo — phal apne aap milega."',
+    img:'assets/deities/ram/1.jpg', fallback:DEITIES_SRC.ram, dur:'0:45',
+    narration:'आज के लिए आपका दिव्य संदेश। जीवन में मर्यादा का पालन करो — यही सच्चा आनंद है। धर्म के मार्ग पर चलती रहो, फल अपने आप मिल जाएगा। कठिन समय में भी सत्य का साथ मत छोड़ना। जो धर्म की राह पर चलता है, उसके साथ मैं सदा खड़ा रहता हूँ।'
+  }
+};
+
+// 5 audio-visual katha cards (some deity-personalized, others shared)
+const DAILY_KATHAS = {
+  puranic: {
+    ribbon:'Puranic Katha', dur:'1:20',
+    byDeity: {
+      shiva: {
+        title:'Samudra Manthan', sub:'Halahal vish aur Shiv ji ki karuna',
+        img:WIKI+'Samudra_manthan.jpg?width=720',
+        imgFallback:DEITIES_SRC.shiva,
+        quote:'"Jab srishti vish se jal rahi thi, tab Mahadev ne swayam vish piya."',
+        para:'Devtaon aur asuron ne amrit ke liye samudra manthan kiya. Manthan se sabse pehle <b>Halahal vish</b> nikla — itna viklaant ki srishti vinash ki or badh chali. Devta, manushya, asur — koi na le saka. Tab <b>Shiv ji ne swayam woh vish pee liya</b>. Parvati ji ne Shiv ke kanth mein woh vish rok liya — aur tab se Mahadev ko <b>Neelkanth</b> kaha jaata hai.',
+        learn:'Dusron ke kalyan ke liye swayam ka dukh sahna — yahi sacha tyag hai.',
+        narration:'आज की कथा है समुद्र मंथन की। देवताओं और असुरों ने मिलकर अमृत प्राप्त करने के लिए समुद्र मंथन किया। मंथन से सबसे पहले निकला हलाहल विष — इतना विषैला कि पूरी सृष्टि जलने लगी। न देवता उसे ले सके, न असुर, न कोई और। तब भगवान शिव ने स्वयं आगे बढ़कर वह विष पी लिया। माता पार्वती ने उनके कंठ में वह विष रोक लिया — और तभी से महादेव नीलकंठ कहलाए। यह कथा हमें सिखाती है कि दूसरों के कल्याण के लिए स्वयं कष्ट सहना ही सच्चा त्याग है।'
+      },
+      ganesh: {
+        title:'Ganesh Janm', sub:'Parvati ne banaya mitti se putra',
+        img:DEITIES_SRC.ganesh, imgFallback:DEITIES_SRC.ganesh,
+        quote:'"Parvati ji ne ubtan se ek baalak banaya, aur unme praan daal diye."',
+        para:'Maa Parvati snaan kar rahi thin. Rakshak koi na tha. Unhone <b>ubtan aur haldi se ek baalak ki murti banai</b> aur praan daal diye. Jab Shiv ji laute, baalak ne unhe andar jaane se roka. Kroodh hokar Shiv ne uska sir kaat diya. Parvati ji vilap kar uthin. Shiv ji ne <b>haathi ke bachche ka sir</b> lagakar Ganesh ko punarjeevan diya — aur vardaan diya: <i>"Tum sabse pehle pooje jaaoge."</i>',
+        learn:'Kartavya ka palan karna dharm hai. Aur prem aur kshama se har dukh mit jaata hai.',
+        narration:'आज की कथा है भगवान गणेश के जन्म की। माँ पार्वती एक बार स्नान करने जा रही थीं। द्वार पर कोई रक्षक नहीं था। तब उन्होंने अपने शरीर के उबटन और हल्दी से एक सुंदर बालक की मूर्ति बनाई, और उसमें प्राण डाल दिए। जब भगवान शिव लौटे, तो उस बालक ने उन्हें भीतर जाने से रोक दिया। क्रोध में आकर शिव जी ने उसका सिर काट दिया। माँ पार्वती विलाप करने लगीं। तब शिव जी ने एक हाथी के बच्चे का सिर लगाकर गणेश को पुनर्जीवन दिया — और यह वरदान दिया कि हर शुभ कार्य में सबसे पहले तुम्हारी ही पूजा होगी।'
+      },
+      krishna: {
+        title:'Makhan Chori', sub:'Bal-leela ki madhurta',
+        img:DEITIES_SRC.krishna, imgFallback:DEITIES_SRC.krishna,
+        quote:'"Kanha ki makhan chori — bhakton ka maan chori karne ki shuruaat."',
+        para:'Gokul mein Krishna ji bachpan mein gopiyon ke ghar jaa kar <b>makhan chura liya karte</b>. Gopiyan roz Yashoda maiya ke paas shikayat lekar aatin. Maa unhe bandhti — par rassi hamesha chhoti pad jaati. Is leela mein Krishna sikha rahe the — <b>Bhagwan ko bandha nahi jaa sakta</b>, par bhakti ka ek dhaga unhe kheench laata hai.',
+        learn:'Bhakti mein madhurta hai — Bhagwan ko dene mein nahi, unke saath khelne mein anand hai.',
+        narration:'आज की कथा है कान्हा की माखन चोरी की। गोकुल में बाल कृष्ण गोपियों के घर जाकर माखन चुरा लिया करते थे। गोपियाँ रोज़ यशोदा मैया के पास शिकायत लेकर आतीं। माँ उन्हें बाँधने की कोशिश करतीं — पर रस्सी हमेशा छोटी पड़ जाती। इस लीला में भगवान कृष्ण सिखा रहे थे कि ईश्वर को किसी बंधन में नहीं बाँधा जा सकता — पर भक्ति का एक कच्चा धागा उन्हें खींच लाता है। यह कथा हमें बताती है कि भक्ति में जो मधुरता है, वही ईश्वर को तुम्हारा बना देती है।'
+      },
+      durga: {
+        title:'Mahishasur Vadh', sub:'Shakti ka roop',
+        img:DEITIES_SRC.durga, imgFallback:DEITIES_SRC.durga,
+        quote:'"Nau raaton tak yuddh chala — dashmi ko vijay milii."',
+        para:'Mahishasur nam ka asur amar varadaan ke gharoond mein aatank macha raha tha — koi purush use mar nahi sakta tha. Sabhi devtaon ne apni shakti ek saath rakh di — us tej se <b>Maa Durga</b> prakat huin. Nau raaton tak mahayuddh chala. Dashmi ke din Maa ne Mahishasur ka vadh kiya. Tabhi se <b>Navratri</b> aur <b>Vijayadashami</b> manai jaati hai.',
+        learn:'Jab adharm badhne lagta hai, swayam shakti prakat hokar uska vinash karti hai.',
+        narration:'आज की कथा है महिषासुर वध की। महिषासुर नाम का असुर अमर होने के वरदान के घमंड में लोकों पर आतंक मचा रहा था — उसे कोई पुरुष नहीं मार सकता था। तब सभी देवताओं ने अपनी-अपनी शक्ति एक साथ रखी — उस तेज से माँ दुर्गा प्रकट हुईं। नौ रातों तक महायुद्ध चला। दशमी के दिन माँ ने महिषासुर का वध कर दिया। तभी से नवरात्रि और विजयादशमी मनाई जाती है। यह कथा हमें सिखाती है कि जब अधर्म बढ़ने लगता है, तब स्वयं शक्ति प्रकट होकर उसका विनाश करती है।'
+      },
+      hanuman: {
+        title:'Soorya ko Nigalna', sub:'Bal Hanuman ki shrarat',
+        img:DEITIES_SRC.hanuman, imgFallback:DEITIES_SRC.hanuman,
+        quote:'"Bal Hanuman ne soorya ko phal samajh kar nigalna chaha."',
+        para:'Bachpan mein Hanuman ji ne udte hue <b>soorya ko pakka phal samjha</b> aur use nigalne chale. Indra ne vajra se unhe maara — chot se Hanuman ji murcchit ho gaye. Vayu dev narz ho gaye aur vaayu rok di. Sabhi devtaon ne milkar Hanuman ji ko asheem balshaali banaya — har devta ne apna ek shakti-ansh diya.',
+        learn:'Jo bhagwan ka priya hota hai, use sabhi devtaon ka aashirwad milta hai.',
+        narration:'आज की कथा है बाल हनुमान की। बचपन में हनुमान जी ने आकाश में उगते हुए सूर्य को एक पका हुआ फल समझ लिया — और उसे निगलने के लिए छलांग लगा दी। इन्द्र देव ने वज्र से उन पर प्रहार किया — चोट से हनुमान जी मूर्छित होकर गिर पड़े। यह देखकर पवन देव नाराज़ हो गए और उन्होंने सारी वायु रोक दी। तब सभी देवताओं ने मिलकर हनुमान जी को अमित बलशाली बनाया — हर देवता ने अपनी शक्ति का एक अंश उन्हें प्रदान किया। इसीलिए हनुमान जी को सब देवताओं का आशीर्वाद प्राप्त है।'
+      },
+      ram: {
+        title:'Ahalya Uddhar', sub:'Ek sparsh — mukti',
+        img:DEITIES_SRC.ram, imgFallback:DEITIES_SRC.ram,
+        quote:'"Ram ke charan ka sparsh — patthar bhi maanav ban gaya."',
+        para:'Gautam rishi ki patni Ahalya ko shraap mila tha ki woh <b>shila ban jaaye</b>. Hazaron varsh wahi rahi. Jab <b>Ram ji ne us shila par charan rakhe</b>, to Ahalya ka shraap kat gaya — woh phir se manushya roop mein prakat huin. Ram ji ne kahaa — <i>"Jo bhi shraddha se mera naam lega, uska sab kasht door hoga."</i>',
+        learn:'Bhagwan ki kripa bin shart hai — shraddha rakhiye, mukti swayam aati hai.',
+        narration:'आज की कथा है अहल्या उद्धार की। गौतम ऋषि की पत्नी अहल्या को श्राप मिला था कि वह शिला बन जाए। हज़ारों वर्षों तक वह पत्थर बनी वहीं पड़ी रहीं। जब श्री राम उस मार्ग से गुज़रे और उन्होंने अपने चरण उस शिला पर रखे — तो अहल्या का श्राप कट गया। वह पुनः मनुष्य रूप में प्रकट हो गईं। राम जी ने कहा — जो भी श्रद्धा से मेरा नाम लेगा, उसका सब कष्ट दूर हो जाएगा। यह कथा हमें बताती है कि भगवान की कृपा बिन शर्त है — श्रद्धा रखिए, मुक्ति स्वयं आती है।'
+      }
+    }
+  },
+  gita: {
+    ribbon:'Gita Updesh', dur:'1:10',
+    title:'Gita 2.47', sub:'Karmanye vadhikaraste',
+    img:WIKI+'Krishna_and_Arjuna_on_the_chariot,_Mahabharata,_18th-19th_century,_India.jpg?width=720',
+    imgFallback:DEITIES_SRC.krishna,
+    quote:'"कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।<br>मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥"',
+    para:'Kurukshetra ke yuddh mein Arjun vyakul the. Shri Krishna ne unhe yeh amrit-vachan diya — <b>"Tumhara adhikar sirf karm karne mein hai, phal mein kabhi nahi."</b> Tum phal ke kaaran na bano, aur <i>akarm</i> (kaam na karne) mein bhi aasakti mat rakho.',
+    learn:'Poora mann lagakar karm karo — phal ki chinta chhod do. Yehi nishkam karm aur sacha yog hai.',
+    narration:'आज का गीता उपदेश है भगवद् गीता के दूसरे अध्याय का सैंतालीसवाँ श्लोक। कर्मण्येवाधिकारस्ते, मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि। कुरुक्षेत्र के युद्ध में अर्जुन व्याकुल थे। तब श्री कृष्ण ने उन्हें यह अमृत वचन दिया — तुम्हारा अधिकार केवल कर्म करने में है, फल में कभी नहीं। तुम फल के कारण मत बनो, और अकर्म में भी आसक्ति मत रखो। यह उपदेश हमें सिखाता है कि पूरा मन लगाकर कर्म करो, फल की चिंता छोड़ दो। यही निष्काम कर्म है, और यही सच्चा योग है।'
+  },
+  ramayan: {
+    ribbon:'Ramayan Prasang', dur:'1:20',
+    title:'Lanka Dahan', sub:'Hanuman ji ki nirbhayta',
+    img:DEITIES_SRC.hanuman, imgFallback:DEITIES_SRC.hanuman,
+    quote:'"Ravan ne jo agni lagai, wohi Lanka ko jalakar raakh kar gayi."',
+    para:'Ravan ne Hanuman ji ki <b>poonchh mein aag lagwa di</b> — socha tha ki ab yeh dhuaan banega. Par Hanuman ji ne us jalti poonchh se <b>Lanka ko hi bhasm kar diya</b> — raajmahal se durg tak. Phir samudra mein poonchh bujhai aur Ram ji ke paas laute.',
+    learn:'Jab Prabhu ke naam ki shakti saath ho, to sabse badi vipatti bhi aapka hathiyar ban jaati hai.',
+    narration:'आज का रामायण प्रसंग है लंका दहन का। जब हनुमान जी माता सीता की खोज में लंका पहुँचे, तो रावण ने उन्हें पकड़ लिया और उनकी पूँछ में आग लगवा दी — उसने सोचा था कि अब हनुमान धुआँ बनकर रह जाएँगे। पर हनुमान जी ने उस जलती पूँछ से पूरी सोने की लंका को ही भस्म कर दिया — राजमहल से दुर्ग तक, सब जला दिया। फिर समुद्र में अपनी पूँछ बुझाकर श्री राम के पास लौटे। यह प्रसंग हमें सिखाता है कि जब प्रभु के नाम की शक्ति साथ हो, तो सबसे बड़ी विपत्ति भी आपका हथियार बन जाती है।'
+  },
+  tithi: {
+    ribbon:'Aaj ki Tithi', dur:'1:00',
+    title:'Vaishakh Purnima', sub:'Buddha Purnima — gyaan ka prakash',
+    img:WIKI+'Buddha_Purnima.jpg?width=720',
+    imgFallback:WIKI+'Bodh_Gaya_-_Maha_Bodhi_Tree.jpg?width=720',
+    quote:'"Aaj ki raat chandra apni poorn kala mein hai — aur Bhagwan Buddha ka gyaan bhi."',
+    para:'Aaj <b>Vaishakh Purnima</b> hai — jise <b>Buddha Purnima</b> bhi kaha jaata hai. Teen anoothi ghatnaayein isi din huin: <b>Bhagwan Buddha ka janm</b>, unka <b>gyaan praapti ka din</b> (Bodh Gaya mein), aur unka <b>maha-parinirvan</b>. Hindu parampara mein Purnima <b>Vishnu ji aur Chandra dev</b> ko samarpit hai. Aaj <b>Satyanarayan vrat</b>, <b>Ganga snaan</b>, aur <b>daan-punya</b> ka sahasra guna phal milta hai.',
+    learn:'Purnima — jab chandra poorn hota hai, mann bhi apni poorn kala mein aa sakta hai. Aaj maun rakho, dhyan karo, daan karo.',
+    narration:'आज की तिथि है वैशाख पूर्णिमा — जिसे बुद्ध पूर्णिमा भी कहते हैं। यह दिन आध्यात्मिक दृष्टि से अत्यंत महत्वपूर्ण है। इसी दिन तीन अद्भुत घटनाएँ हुई थीं — भगवान बुद्ध का जन्म हुआ था, इसी दिन बोधगया में उन्हें ज्ञान की प्राप्ति हुई, और इसी दिन उनका महापरिनिर्वाण भी हुआ। हिंदू परंपरा में पूर्णिमा विष्णु जी और चंद्र देव को समर्पित है। आज के दिन सत्यनारायण व्रत, गंगा स्नान, और दान-पुण्य का फल हज़ार गुना बढ़ जाता है। जब चंद्रमा अपनी पूर्ण कला में होता है, तो हमारा मन भी शांति और ज्ञान की पूर्णता की ओर बढ़ सकता है। आज मौन रखें, ध्यान करें, और ज़रूरतमंद को कुछ दान अवश्य करें।'
+  },
+  bharat: {
+    ribbon:'Bharat Gatha', dur:'1:05',
+    title:'Kashi ki Ganga Aarti', sub:'3000 saal purani parampara',
+    img:'assets/temples/kashi.jpg', imgFallback:WIKI+'Ganga_aarti_at_Varanasi.jpg?width=720',
+    quote:'"Kashi mein Ganga ki aarti hazaron saal se nahi ruki — na mahamari mein, na akaal mein."',
+    para:'Varanasi ke <b>Dashashwamedh Ghat</b> par har sandhya <b>7 pujari</b> saath mein, ek hi laya mein, Maa Ganga ki aarti karte hain. <b>3000 saal</b> se yeh parampara ek din bhi nahi tooti — na yuddh mein, na mahamari mein, na akaal mein. Puri Kashi us samay ek hi dhun mein doobti hai.',
+    learn:'Parampara wohi jeevit rehti hai jiska palan kisi ek par nirbhar na ho. Yehi hamari sanatan sanskriti ka marm hai.',
+    narration:'आज की भारत गाथा है काशी की गंगा आरती की। वाराणसी के दशाश्वमेध घाट पर हर संध्या सात पुजारी एक साथ, एक ही लय में, माँ गंगा की आरती करते हैं। तीन हज़ार साल से यह परंपरा एक दिन भी नहीं टूटी — न युद्ध में, न महामारी में, न अकाल में। जब शंख बजते हैं, दीप जलते हैं, और मंत्र गूँजते हैं — तो पूरी काशी एक ही धुन में डूब जाती है। यह गाथा हमें सिखाती है कि परंपरा वही जीवित रहती है जिसका पालन किसी एक व्यक्ति पर निर्भर न हो। यही हमारी सनातन संस्कृति का मर्म है।'
+  }
+};
+
+let currentKathaId = null;
+let bgMantraAudio = null;  // deprecated — kept for safety/backwards compat
+let storyAudio = null;
+let storyGen = 0;  // generation counter — invalidates stale async TTS fetches
+// Cache of already-fetched TTS blob URLs so tapping a story plays instantly on 2nd+ open.
+// Key = cacheKey (see cacheKeyFor). Value = objectURL string.
+const storyAudioCache = {};
+// In-flight warm-up promises so we don't refetch while already fetching.
+const storyAudioInFlight = {};
+
+// Sarvam voice + delivery tuning per story so each card feels distinct.
+//
+// bulbul:v3 has many more voices — using its male roster for variety:
+//   ashutosh (Shiva-like — divine), aditya (mature storyteller),
+//   anand (sage philosophical), vijay (confident heroic),
+//   gokul (peaceful divine), kabir (warm narrator), aayan (clear).
+// bulbul:v2 only has 2 male voices but supports pitch/loudness control.
+//
+// Sandesh = Bhagwan speaking DIRECTLY to the user (Shiv ji, Ram ji etc.)
+// → ashutosh on v3 — name literally evokes Lord Shiva.
+function sarvamVoiceFor(id) {
+  if (id === 'sandesh')   return { speaker: 'ashutosh', model: 'bulbul:v3', pace: 0.85 }; // Bhagwan ki awaaz — divine male
+  if (id === 'gita')      return { speaker: 'anand',    model: 'bulbul:v3', pace: 0.88 }; // sage, philosophical
+  if (id === 'tithi')     return { speaker: 'aditya',   model: 'bulbul:v3', pace: 0.95 }; // mature, calm narrator
+  if (id === 'ramayan')   return { speaker: 'kabir',    model: 'bulbul:v3', pace: 0.92 }; // warm storyteller
+  if (id === 'bharat')    return { speaker: 'vijay',    model: 'bulbul:v3', pace: 0.95 }; // heroic, confident
+  /* puranic / default */ return { speaker: 'gokul',    model: 'bulbul:v3', pace: 0.9  }; // peaceful, divine
+}
+
+// Cache key — sandesh & puranic vary by deity; rest are shared.
+function cacheKeyFor(id) {
+  if (id === 'sandesh' || id === 'puranic') return id + ':' + currentDeity;
+  return id;
+}
+
+// Fetch the WAV blob via Sarvam and cache its object URL. Idempotent.
+function warmStoryAudio(text, id) {
+  if (!text) return Promise.resolve(null);
+  const key = cacheKeyFor(id);
+  if (storyAudioCache[key]) return Promise.resolve(storyAudioCache[key]);
+  if (storyAudioInFlight[key]) return storyAudioInFlight[key];
+  const p = sarvamSpeak(text, sarvamVoiceFor(id))
+    .then(url => {
+      if (url) storyAudioCache[key] = url;
+      return url;
+    })
+    .catch(e => { console.warn('warmStoryAudio error', e); return null; })
+    .finally(() => { delete storyAudioInFlight[key]; });
+  storyAudioInFlight[key] = p;
+  return p;
+}
+
+// Kick off background prefetches for all 5 katha cards + sandesh.
+// Called on page load and whenever the deity changes.
+function warmAllStoriesForDeity() {
+  try {
+    const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
+    warmStoryAudio(s.narration, 'sandesh');
+    ['puranic','gita','ramayan','tithi','bharat'].forEach(id => {
+      const k = getKatha(id);
+      if (k && k.narration) warmStoryAudio(k.narration, id);
+    });
+  } catch(e) { console.warn('warmAllStoriesForDeity error', e); }
+}
+
+// Show/hide "Taiyaar ho raha hai..." loading state in the player.
+function setKathaLoading(on) {
+  const el = document.getElementById('dpLoading');
+  if (el) el.style.display = on ? 'flex' : 'none';
+  const btn = document.getElementById('dpPlayBtn');
+  if (btn) btn.style.opacity = on ? '0.5' : '1';
+}
+
+async function playStoryTTS(text, id) {
+  try {
+    // Supersede any in-flight playback
+    storyGen++;
+    const myGen = storyGen;
+    if (storyAudio) {
+      try { storyAudio.pause(); storyAudio.currentTime = 0; storyAudio.src = ''; } catch(e){}
+      storyAudio = null;
+    }
+    if (bgMantraAudio) {
+      try { bgMantraAudio.loop = false; bgMantraAudio.pause(); bgMantraAudio.currentTime = 0; bgMantraAudio.src = ''; } catch(e){}
+      bgMantraAudio = null;
+    }
+
+    const key = cacheKeyFor(id);
+    let url = storyAudioCache[key];
+
+    if (!url) {
+      // Cache miss — show loading state while we fetch.
+      setKathaLoading(true);
+      url = await warmStoryAudio(text, id);
+      if (myGen !== storyGen) { setKathaLoading(false); return; }
+      setKathaLoading(false);
+      if (!url) {
+        // ElevenLabs unavailable (e.g., expired API key). Fall back to the
+        // browser's built-in SpeechSynthesis so the user still hears narration.
+        playStoryFallbackTTS(text);
+        return;
+      }
+    }
+
+    const audio = new Audio(url);
+    storyAudio = audio;
+    audio.volume = 0.95;
+    audio.addEventListener('ended', () => {
+      try {
+        const p = document.getElementById('darshanPlayer');
+        if (p) p.classList.add('paused');
+        const ic = document.getElementById('dpPlayIc');
+        if (ic) ic.textContent = '▶';
+      } catch(e){}
+    });
+    audio.play().catch(e => console.warn('story audio play failed', e));
+  } catch (e) { console.warn('playStoryTTS error', e); setKathaLoading(false); }
+}
+
+// ---- Browser speechSynthesis fallback (used only when ElevenLabs fails) ----
+let fallbackUtterance = null;
+function pickHindiVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  return voices.find(v => v.lang === 'hi-IN')
+      || voices.find(v => (v.lang || '').toLowerCase().startsWith('hi'))
+      || voices.find(v => /hindi/i.test(v.name))
+      || null;
+}
+function playStoryFallbackTTS(text) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'hi-IN';
+    utt.rate = 0.92;
+    utt.pitch = 1.0;
+    utt.volume = 1.0;
+    const v = pickHindiVoice();
+    if (v) utt.voice = v;
+    utt.onend = () => {
+      try {
+        const p = document.getElementById('darshanPlayer');
+        if (p) p.classList.add('paused');
+        const ic = document.getElementById('dpPlayIc');
+        if (ic) ic.textContent = '▶';
+      } catch(e){}
+      fallbackUtterance = null;
+    };
+    fallbackUtterance = utt;
+    window.speechSynthesis.speak(utt);
+  } catch(e) { console.warn('speechSynthesis fallback failed', e); }
+}
+// Some browsers load voices asynchronously — re-pick voice once they're ready.
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { /* triggers a re-fetch on next play */ };
+}
+
+function stopStoryTTS() {
+  storyGen++;   // invalidate any in-flight playback start
+  setKathaLoading(false);
+  if (storyAudio) {
+    try { storyAudio.pause(); storyAudio.currentTime = 0; storyAudio.src = ''; } catch(e){}
+    storyAudio = null;
+  }
+  if (bgMantraAudio) {
+    try { bgMantraAudio.loop = false; bgMantraAudio.pause(); bgMantraAudio.currentTime = 0; bgMantraAudio.src = ''; } catch(e){}
+    bgMantraAudio = null;
+  }
+  // Cancel any speechSynthesis fallback narration in progress
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.cancel(); } catch(e){}
+  }
+  fallbackUtterance = null;
+}
+
+function getKatha(id) {
+  if (id === 'puranic') {
+    const k = DAILY_KATHAS.puranic.byDeity[currentDeity] || DAILY_KATHAS.puranic.byDeity.shiva;
+    return Object.assign({}, DAILY_KATHAS.puranic, k);
+  }
+  return DAILY_KATHAS[id];
+}
+
+function renderDarshan() {
+  // Sandesh is now the FIRST story card (not a separate hero).
+  // All 6 cards render into the same horizontal scroll.
+  const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
+  const sandeshFbAttr = s.fallback ? ' onerror="this.onerror=null;this.src=\'' + s.fallback + '\'"' : '';
+  const sandeshCard =
+    '<div class="katha-card is-sandesh" onclick="openKatha(\'sandesh\')">' +
+      '<img src="'+s.img+'"'+sandeshFbAttr+' alt=""/>' +
+      '<div class="kc-ribbon">Bhagwan ka Sandesh</div>' +
+      '<div class="kc-dur"><span class="kc-dur-ic"></span>'+(s.dur||'0:45')+'</div>' +
+      '<div class="kc-title">'+s.from+'</div>' +
+      '<div class="kc-sub">Aaj ke din aapke liye ek sandesh</div>' +
+    '</div>';
+
+  // The 5 katha stories (card tap itself opens + auto-plays narration)
+  const ids = ['puranic','gita','ramayan','tithi','bharat'];
+  const scroll = document.getElementById('kathaScroll');
+  if (!scroll) return;
+  const storyCards = ids.map(id => {
+    const k = getKatha(id);
+    const fbAttr = k.imgFallback ? ' onerror="this.onerror=null;this.src=\'' + k.imgFallback + '\'"' : '';
+    return '<div class="katha-card" onclick="openKatha(\''+id+'\')">' +
+      '<img src="'+k.img+'"'+fbAttr+' alt=""/>' +
+      '<div class="kc-ribbon">'+k.ribbon+'</div>' +
+      '<div class="kc-dur"><span class="kc-dur-ic"></span>'+k.dur+'</div>' +
+      '<div class="kc-title">'+k.title+'</div>' +
+      '<div class="kc-sub">'+k.sub+'</div>' +
+    '</div>';
+  }).join('');
+  scroll.innerHTML = sandeshCard + storyCards;
+
+  // Pre-warm TTS for all cards (sandesh + 5 stories) in the background
+  // so tapping a card plays instantly from cache instead of waiting 2-4s.
+  // Runs after a tiny delay so the initial page paint isn't blocked.
+  setTimeout(warmAllStoriesForDeity, 400);
+}
+
+function openKatha(id) {
+  currentKathaId = id;
+  let k;
+  let narrationText;
+  if (id === 'sandesh') {
+    const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
+    k = {
+      ribbon:'Aaj ka Sandesh',
+      title: s.from,
+      sub: 'Aapke liye aaj ka aashirwad',
+      dur: s.dur || '0:45',
+      img: s.img,
+      imgFallback: s.fallback,
+      quote: s.msg,
+      para: 'Bhagwan seedha tumhare saamne hain, Shivali. Unki awaaz mein sunn lo — aaj ke din woh tumse kya kehna chahte hain. Aankhein band karo, saans gehri lo, aur dhyan se suniye.',
+      learn: 'Har din ek sandesh — Bhagwan se seedha tumhare liye. Dhyan se suno, mann shaant hoga.'
+    };
+    narrationText = s.narration;
+  } else {
+    k = getKatha(id);
+    narrationText = k && k.narration ? k.narration : null;
+  }
+  const imgEl = document.getElementById('dpImg');
+  imgEl.onerror = () => { imgEl.onerror = null; if (k.imgFallback) imgEl.src = k.imgFallback; };
+  imgEl.src = k.img;
+  document.getElementById('dpRibbon').textContent  = k.ribbon;
+  document.getElementById('dpTitle').textContent   = k.title;
+  document.getElementById('dpSubtitle').textContent= k.sub + ' · ' + k.dur;
+  document.getElementById('dpQuote').innerHTML     = k.quote;
+  document.getElementById('dpPara').innerHTML      = k.para;
+  document.getElementById('dpLearnTxt').textContent= k.learn;
+
+  // Show subtle Srimandir credit for sourced kathas (puranic / ramayan / gita / bharat).
+  // Sandesh is our own brand AI greeting — no external credit.
+  const dpCredit = document.getElementById('dpCredit');
+  if (dpCredit) {
+    if (id === 'sandesh') dpCredit.classList.remove('show');
+    else dpCredit.classList.add('show');
+  }
+
+  const player = document.getElementById('darshanPlayer');
+  player.classList.remove('paused');
+  player.classList.add('active');
+  document.getElementById('darshanBack').classList.add('active');
+  document.getElementById('dpPlayIc').textContent = '❚❚';
+
+  // Kill any other audio that might be playing (mantra on home, previous story)
+  try { stopShivMantra(); } catch(e){}
+
+  // Per-story unique Hindi TTS narration — auto-plays as soon as the card opens.
+  if (narrationText) {
+    playStoryTTS(narrationText, id);
+  }
+}
+
+function closeKatha() {
+  document.getElementById('darshanPlayer').classList.remove('active');
+  document.getElementById('darshanBack').classList.remove('active');
+  stopStoryTTS();
+  currentKathaId = null;
+}
+
+function togglePlayKatha() {
+  const p = document.getElementById('darshanPlayer');
+  const isPaused = p.classList.toggle('paused');
+  document.getElementById('dpPlayIc').textContent = isPaused ? '▶' : '❚❚';
+  if (storyAudio) {
+    try {
+      if (isPaused) storyAudio.pause();
+      else storyAudio.play().catch(e=>{});
+    } catch(e){}
+  } else if (fallbackUtterance && 'speechSynthesis' in window) {
+    // SpeechSynthesis fallback path — pause/resume the utterance.
+    try {
+      if (isPaused) window.speechSynthesis.pause();
+      else window.speechSynthesis.resume();
+    } catch(e){}
+  }
+}
+
+function seekKatha(secs) {
+  // Placeholder for scrub — visual feedback only (no real audio timeline for transcript)
+  const wave = document.getElementById('dpWave');
+  wave.style.transform = 'scale(1.04)';
+  setTimeout(() => { wave.style.transform = ''; }, 220);
+}
+
+// -------- SEVA SHEET --------
+function openSeva() {
+  document.getElementById('sheetBack').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+function closeSheet() {
+  document.getElementById('sheetBack').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+
+function doSeva(kind, toastText) {
+  // Audio playback MUST happen in the same task as the user gesture,
+  // otherwise browsers (Safari/Chrome) block it via autoplay policy.
+  // Visual effects + sheet close can defer.
+  if (kind === 'shankh') playShankh();
+  else if (kind === 'aarti')  startAarti();
+
+  closeSheet();
+  setTimeout(()=>{
+    showToast(toastText);
+    if (kind === 'pushp' || kind === 'shringaar') flowerShower();
+    else if (kind === 'diya')   { brightenFlash(); startAartiThali(); }
+    else if (kind === 'shankh') { pulseDeity(); }
+    else if (kind === 'aarti')  { brightenFlash(); }
+  }, 300);
+}
+
+function showToast(text) {
+  const t = document.getElementById('actionToast');
+  t.textContent = text;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function flowerShower() {
+  const darshan = document.getElementById('darshan');
+  for (let i=0; i<14; i++) {
+    const p = document.createElement('div');
+    p.className = 'flower-s';
+    p.style.left = (Math.random()*340 + 10) + 'px';
+    p.style.setProperty('--pd', (2.8 + Math.random()*1.4) + 's');
+    p.style.animationDelay = (Math.random()*0.6) + 's';
+    darshan.appendChild(p);
+    setTimeout(()=>p.remove(), 4800);
+  }
+}
+function brightenFlash() {
+  const d = document.getElementById('darshan');
+  d.style.transition = 'filter 400ms ease';
+  d.style.filter = 'brightness(1.22) saturate(1.15)';
+  setTimeout(()=>d.style.filter='', 1200);
+}
+function pulseDeity() {
+  const w = document.getElementById('deityWrap');
+  w.animate([{transform:'scale(1)'},{transform:'scale(1.04)'},{transform:'scale(1)'}], {duration:700, easing:'ease-in-out'});
+}
+
+// -------- SWIPE DISABLED — using "Agla Darshan" button instead --------
+// No touch/mouse/wheel handlers. User taps the button to advance.
+
+function renderFormDots() {
+  const el = document.getElementById('formDots');
+  const d = DEITIES[currentDeity];
+  if (!d || d.forms.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = d.forms.map((_, i) =>
+    `<div class="dot${i === currentForm ? ' active' : ''}"></div>`
+  ).join('');
+}
+
+// AGLA DARSHAN: cycle ONLY through the current deity's forms (loop back to 0 at end)
+function nextDeity() {
+  const d = DEITIES[currentDeity];
+  currentForm = (currentForm + 1) % d.forms.length;
+  transitionImage('up');
+}
+// Reverse cycle — kept for arrow-key debug
+function prevDeity() {
+  const d = DEITIES[currentDeity];
+  currentForm = (currentForm - 1 + d.forms.length) % d.forms.length;
+  transitionImage('down');
+}
+
+function transitionImage(dir) {
+  const wrap = document.getElementById('deityWrap');
+  // Step 1: slide current image OUT in swipe direction
+  wrap.classList.remove('swiping-in','swiping-out');
+  wrap.classList.add(dir === 'up' ? 'swiping-out' : 'swiping-in');
+  setTimeout(() => {
+    // Step 2: swap image while off-screen
+    applyDeity(currentDeity);
+    // Step 3: position it opposite side (off-screen), force reflow, then release
+    wrap.classList.remove('swiping-out','swiping-in');
+    wrap.classList.add(dir === 'up' ? 'swiping-in' : 'swiping-out');
+    void wrap.offsetHeight;  // force reflow so browser commits the off-screen state
+    // Step 4: remove the class — transition animates it back to center/opacity:1
+    requestAnimationFrame(() => {
+      wrap.classList.remove('swiping-in','swiping-out');
+    });
+  }, 400);
+}
+
+function transitionToDeity(id, dir, formIdx) {
+  const wrap = document.getElementById('deityWrap');
+  wrap.classList.remove('swiping-in','swiping-out');
+  wrap.classList.add(dir === 'up' ? 'swiping-out' : 'swiping-in');
+  setTimeout(() => {
+    currentDeity = id;
+    currentForm = formIdx || 0;
+    applyDeity(id);
+    wrap.classList.remove('swiping-out','swiping-in');
+    wrap.classList.add(dir === 'up' ? 'swiping-in' : 'swiping-out');
+    void wrap.offsetHeight;
+    requestAnimationFrame(() => {
+      wrap.classList.remove('swiping-in','swiping-out');
+    });
+  }, 400);
+}
+
+// -------- NAV --------
+function goVrat()     { window.location.href = withDeity('devotion-vrat-chat.html'); }
+function goStory(id)  { window.location.href = 'devotion-story.html?id=' + id + '&deity=' + currentDeity; }
+function goFestival() { window.location.href = withDeity('devotion-festival.html'); }
+
+/* ================ SHIVRATRI FESTIVAL CHAT ================ */
+const FEST_TOPICS = {
+  root: {
+    intro: '<h4>Har Har Mahadev 🙏</h4>Shivratri parso nahi, <b>3 din baad</b> hai — Maha Shivratri. Main aapki madad karta hoon taiyari mein. Kya poochhna chahenge?',
+    chips: ['vidhi','muhurat','vrat','samagri','katha','mandir']
+  },
+  vidhi: {
+    user: 'Pooja Vidhi batayein',
+    reply: '<h4>Shivratri Pooja Vidhi</h4><ol>'+
+      '<li><b>Snaan</b> karke safed ya peele vastra pehnein.</li>'+
+      '<li>Shivling ko <b>panchamrit</b> (dudh, dahi, ghee, shahad, shakkar) se abhishek karein.</li>'+
+      '<li>Phir <b>Gangajal</b> se snaan karayein.</li>'+
+      '<li><b>Bel patra</b> (3 patte ek saath), dhatura, aak ke phool arpan karein.</li>'+
+      '<li><b>Chandan</b> ka tripund lagayein.</li>'+
+      '<li>"ॐ नमः शिवाय" ka 108 baar jaap karein.</li>'+
+      '<li>Shiv Chalisa aur Mahamrityunjaya Mantra padhein.</li>'+
+      '<li>Aarti karke bhog arpan karein (phal, mithai).</li>'+
+      '</ol>',
+    chips: ['muhurat','samagri','katha','mandir']
+  },
+  muhurat: {
+    user: 'Shubh muhurat kya hai?',
+    reply: '<h4>Shubh Muhurat · Maha Shivratri</h4>'+
+      '<div class="kv"><span class="kv-k">Chaturdashi Tithi shuru</span><span class="kv-v">26 Apr · 18:02</span></div>'+
+      '<div class="kv"><span class="kv-k">Chaturdashi Tithi samapt</span><span class="kv-v">27 Apr · 16:18</span></div>'+
+      '<div class="kv"><span class="kv-k">Nishita Kaal Pooja</span><span class="kv-v">23:58 – 00:42</span></div>'+
+      '<div class="kv"><span class="kv-k">Prathama Prahar</span><span class="kv-v">18:45 – 21:49</span></div>'+
+      '<div class="kv"><span class="kv-k">Dwitiya Prahar</span><span class="kv-v">21:49 – 00:52</span></div>'+
+      '<div class="kv"><span class="kv-k">Tritiya Prahar</span><span class="kv-v">00:52 – 03:55</span></div>'+
+      '<div class="kv"><span class="kv-k">Chaturtha Prahar</span><span class="kv-v">03:55 – 06:58</span></div>'+
+      '<p style="margin-top:8px; font-size:12px; color:#ffb874;">Char pehar ki pooja sabse uttam hoti hai — ratri bhar jaagran karein.</p>',
+    chips: ['vidhi','vrat','samagri','mandir']
+  },
+  vrat: {
+    user: 'Vrat ke niyam batayein',
+    reply: '<h4>Vrat Niyam</h4>'+
+      '<b>Kya kar sakte hain:</b>'+
+      '<ul>'+
+        '<li>Phal, dudh, chai, kuttu/singhada ka atta</li>'+
+        '<li>Aloo, shakarkand, kela, sendha namak</li>'+
+        '<li>Makhana, sabudana, moongfali</li>'+
+      '</ul>'+
+      '<b>Kya nahi:</b>'+
+      '<ul>'+
+        '<li>Anaaj (gehu, chawal, dal)</li>'+
+        '<li>Pyaaz, lehsun, saadha namak</li>'+
+        '<li>Tamasic aahar — maas, madira</li>'+
+      '</ul>'+
+      '<p style="margin-top:6px; font-size:12px; color:#ffb874;">Vrat subah snaan ke baad shuru hoga, agle din paaran (parana) ke samay tak rakha jayega.</p>',
+    chips: ['vidhi','samagri','katha']
+  },
+  samagri: {
+    user: 'Pooja samagri list',
+    reply: '<h4>Shivratri Samagri List</h4>'+
+      '<ul>'+
+        '<li><b>Bel patra</b> — 108 (3-patte wale)</li>'+
+        '<li><b>Dhatura</b> aur <b>aak ke phool</b></li>'+
+        '<li><b>Gangajal</b> · <b>Panchamrit</b> (dudh, dahi, ghee, shahad, shakkar)</li>'+
+        '<li><b>Chandan</b> · <b>Bhasm</b> · <b>Roli</b></li>'+
+        '<li><b>Dhoop</b>, <b>Deep</b>, <b>Kapoor</b></li>'+
+        '<li><b>Mithai</b> · <b>Phal</b> · <b>Sookhe meve</b></li>'+
+        '<li><b>Safed vastra</b> Shivling ke liye</li>'+
+        '<li><b>Janaeu</b> · <b>Supari</b> · <b>Paan</b></li>'+
+      '</ul>'+
+      '<p style="margin-top:8px; font-size:12px; color:#ffb874;">Agar ghar pe samagri nahi hai, JioMart se aap "Shivratri Pooja Kit" order kar sakte hain.</p>',
+    chips: ['vidhi','vrat','mandir']
+  },
+  katha: {
+    user: 'Shivratri ki katha sunayein',
+    reply: '<h4>Shivratri Katha</h4>'+
+      'Jab <b>Samudra Manthan</b> hua tab usse <b>halahal vish</b> nikla — itna bhayanak tha ki srishti jal rahi thi. Sabhi devtaon ne Mahadev se prarthana ki. Bholenath ne sampurn vish apne kanth mein rok liya — isliye unka naam pada <b>Neelkanth</b>.'+
+      '<br><br>Maa Parvati ne ratri bhar jagraan kiya taaki vish upar ya niche na jaye. Isi <b>Phalgun Krishna Chaturdashi</b> ki raat ko sampurn srishti ne Mahadev ka dhyan kiya — aur tab se yeh raat <b>Maha Shivratri</b> kahalati hai.'+
+      '<br><br>Kaha jata hai is raat jo bhakt Shiv ka dhyan karta hai, usey <b>moksh</b> ki prapti hoti hai.',
+    chips: ['vidhi','muhurat','mandir']
+  },
+  mandir: {
+    user: 'Paas ke Shiv mandir dhoondein',
+    reply: '<h4>Aapke Paas Ke Shiv Mandir</h4>'+
+      '<div class="kv"><span class="kv-k">🪔 Somnath Mandir</span><span class="kv-v">Gujarat · 480 km</span></div>'+
+      '<div class="kv"><span class="kv-k">🪔 Kashi Vishwanath</span><span class="kv-v">Varanasi · 1150 km</span></div>'+
+      '<div class="kv"><span class="kv-k">🪔 Mahakaleshwar</span><span class="kv-v">Ujjain · 680 km</span></div>'+
+      '<div class="kv"><span class="kv-k">🪔 Trimbakeshwar</span><span class="kv-v">Nashik · 165 km</span></div>'+
+      '<div class="kv"><span class="kv-k">🪔 Bhimashankar</span><span class="kv-v">Pune · 115 km</span></div>'+
+      '<p style="margin-top:8px; font-size:12px; color:#ffb874;">Sabhi 5 Jyotirlinga aapke paas hain. Darshan ke liye booking karein?</p>',
+    chips: ['vidhi','muhurat','samagri']
+  }
+};
+const FEST_CHIP_LABELS = {
+  vidhi:'🪔 Pooja Vidhi',
+  muhurat:'⏰ Shubh Muhurat',
+  vrat:'🍎 Vrat Niyam',
+  samagri:'🛒 Samagri List',
+  katha:'📖 Shivratri Katha',
+  mandir:'🛕 Paas ke Mandir'
+};
+
+function openFestChat() {
+  document.getElementById('festBack').classList.add('open');
+  document.getElementById('festChat').classList.add('open');
+  const body = document.getElementById('fcBody');
+  body.innerHTML = '';
+  _fcAddMsg('bot', FEST_TOPICS.root.intro);
+  _fcRenderChips(FEST_TOPICS.root.chips);
+}
+function closeFestChat() {
+  document.getElementById('festBack').classList.remove('open');
+  document.getElementById('festChat').classList.remove('open');
+}
+function _fcAddMsg(who, html) {
+  const body = document.getElementById('fcBody');
+  const row = document.createElement('div');
+  row.className = 'fc-row ' + who;
+  if (who === 'bot') {
+    const av = document.createElement('div');
+    av.className = 'fc-bubble-av';
+    av.textContent = '🪔';
+    row.appendChild(av);
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'fc-bubble';
+  bubble.innerHTML = html;
+  row.appendChild(bubble);
+  body.appendChild(row);
+  setTimeout(() => body.scrollTo({top:body.scrollHeight, behavior:'smooth'}), 30);
+  return row;
+}
+function _fcShowTyping() {
+  const body = document.getElementById('fcBody');
+  const row = document.createElement('div');
+  row.className = 'fc-row bot';
+  row.id = 'fcTyping';
+  row.innerHTML = '<div class="fc-bubble-av">🪔</div>' +
+                  '<div class="fc-bubble"><div class="fc-typing"><span></span><span></span><span></span></div></div>';
+  body.appendChild(row);
+  setTimeout(() => body.scrollTo({top:body.scrollHeight, behavior:'smooth'}), 30);
+}
+function _fcHideTyping() {
+  const t = document.getElementById('fcTyping');
+  if (t) t.remove();
+}
+function _fcRenderChips(keys) {
+  const wrap = document.getElementById('fcChips');
+  wrap.innerHTML = '';
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'fc-chip';
+    btn.textContent = FEST_CHIP_LABELS[k] || k;
+    btn.onclick = () => fcAsk(k);
+    wrap.appendChild(btn);
+  });
+}
+function fcAsk(key) {
+  const t = FEST_TOPICS[key]; if (!t) return;
+  _fcAddMsg('user', t.user);
+  document.getElementById('fcChips').innerHTML = '';
+  _fcShowTyping();
+  setTimeout(() => {
+    _fcHideTyping();
+    _fcAddMsg('bot', t.reply);
+    _fcRenderChips(t.chips);
+  }, 700);
+}
+function fcSendInput() {
+  const inp = document.getElementById('fcInput');
+  const v = (inp.value || '').trim();
+  if (!v) return;
+  _fcAddMsg('user', v);
+  inp.value = '';
+  _fcShowTyping();
+  setTimeout(() => {
+    _fcHideTyping();
+    _fcAddMsg('bot', 'Neeche diye gaye vishayon mein se chunein — main aapki madad karunga 🙏');
+    _fcRenderChips(FEST_TOPICS.root.chips);
+  }, 700);
+}
+function goLive() {
+  // Retained for bottom-nav "Pooja" tile — goes to aarti flow
+  const d = DEITIES[currentDeity];
+  const form = d && d.forms ? d.forms[currentForm] : null;
+  const img = form ? form.img : '';
+  const fb  = form ? form.fallback : '';
+  const qs  = '?deity=' + encodeURIComponent(currentDeity)
+            + '&img='   + encodeURIComponent(img)
+            + '&fb='    + encodeURIComponent(fb);
+  window.location.href = 'devotion-live-aarti.html' + qs;
+}
+
+// Live-darshan cards in the carousel route to the actual darshan page (not aarti)
+function goDarshan(which) {
+  const d = DEITIES[currentDeity];
+  const live = (which === 2 && d.live2) ? d.live2 : d.live;
+  const qs  = '?deity='  + encodeURIComponent(currentDeity)
+            + '&img='    + encodeURIComponent(live.img)
+            + '&temple=' + encodeURIComponent(live.temple)
+            + '&aarti='  + encodeURIComponent((live.aarti || '').replace(/^🪔\s*/,''))
+            + '&viewers='+ encodeURIComponent(live.viewers || '');
+  window.location.href = 'devotion-live-darshan.html' + qs;
+}
+function goMap()      { window.location.href = 'devotion-map.html?deity=' + encodeURIComponent(currentDeity); }
+function goChadhava() { window.location.href = withDeity('devotion-seva.html'); }
+function openNotif()  { /* stub */ }
+
+// ============ MAAS KA PANCHANG ============
+const MAAS_EVENTS = {
+  3:  { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh ji ka chaturthi vrat · chandra darshan ke baad paran karein' },
+  6:  { type:'ekadashi', title:'Varuthini Ekadashi',  desc:'Paap-naashak vrat · Vishnu ji ki kripa · sab ekadashiyon me shreshth' },
+  8:  { type:'amavasya', title:'Chaitra Amavasya',    desc:'Pitru tarpan, snaan aur daan ka mukhya din' },
+  10: { type:'festival', title:'Akshaya Tritiya',     desc:'Swarn khareed, daan aur naye karya arambh ka shubh din',
+        secondary:{ type:'vrat', title:'Parshuram Jayanti', desc:'Bhagwan Parshuram ka prakatotsav' } },
+  14: { type:'festival', title:'Vaishakhi',           desc:'Baisakhi · nayi fasal ka anand utsav' },
+  16: { type:'vrat',     title:'Ganga Saptami',       desc:'Maa Ganga ke prakat hone ka pavitra divas' },
+  20: { type:'ekadashi', title:'Mohini Ekadashi',     desc:'Bhagwan Vishnu ke Mohini roop ka mangal vrat' },
+  22: { type:'festival', title:'Narasimha Jayanti',   desc:'Bhakt Prahlad ki raksha · Narasimha Bhagwan ka prakatotsav' },
+  24: { type:'festival', title:'Buddha Purnima',      desc:'Bhagwan Buddha ka prakat-nirvan diwas · Vaishakh Purnima snaan · Satyanarayan vrat' },
+  28: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh chaturthi vrat — dukh-haran ke liye' }
+};
+
+const TODAY_DAY       = 24;         // Apr 24, 2026
+const MONTH_DAYS      = 30;         // April
+const FIRST_WEEKDAY   = 3;          // Apr 1, 2026 = Wed (0=Ravivar)
+const WEEKDAY_HI      = ['Ravivar','Somvar','Mangalvar','Budhvar','Guruvar','Shukravar','Shanivar'];
+const TYPE_LABEL      = { festival:'PARV', purnima:'PURNIMA', amavasya:'AMAVASYA', ekadashi:'EKADASHI', vrat:'VRAT' };
+
+let selectedDay = TODAY_DAY;
+
+function renderMonthCal() {
+  const grid = document.getElementById('calGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // Leading empty cells
+  for (let i = 0; i < FIRST_WEEKDAY; i++) {
+    const c = document.createElement('div');
+    c.className = 'cd cd-empty';
+    c.innerHTML = '<div class="cd-num"></div>';
+    grid.appendChild(c);
+  }
+  // Day cells
+  for (let d = 1; d <= MONTH_DAYS; d++) {
+    const c  = document.createElement('div');
+    const ev = MAAS_EVENTS[d];
+    let cls  = 'cd';
+    if (ev)                 cls += ' cd-' + ev.type;
+    if (d === TODAY_DAY)    cls += ' cd-today';
+    if (d === selectedDay)  cls += ' cd-selected';
+    c.className = cls;
+    c.innerHTML = '<div class="cd-num">' + d + '</div>' + (ev ? '<div class="cd-mark"></div>' : '');
+    c.onclick   = () => selectDay(d);
+    grid.appendChild(c);
+  }
+  // Trailing empty cells so row grid is clean
+  const total = FIRST_WEEKDAY + MONTH_DAYS;
+  const trail = (7 - (total % 7)) % 7;
+  for (let i = 0; i < trail; i++) {
+    const c = document.createElement('div');
+    c.className = 'cd cd-empty';
+    c.innerHTML = '<div class="cd-num"></div>';
+    grid.appendChild(c);
+  }
+}
+
+function selectDay(d) {
+  selectedDay = d;
+  renderMonthCal();
+  renderEventDetail();
+}
+
+function findNextEvent(fromDay) {
+  for (let d = fromDay + 1; d <= MONTH_DAYS; d++) {
+    if (MAAS_EVENTS[d]) return { day:d, ev:MAAS_EVENTS[d] };
+  }
+  return null;
+}
+
+function renderEventDetail() {
+  const box = document.getElementById('eventDetail');
+  if (!box) return;
+  const ev       = MAAS_EVENTS[selectedDay];
+  const isToday  = selectedDay === TODAY_DAY;
+  const wkIdx    = (FIRST_WEEKDAY + selectedDay - 1) % 7;
+  const dayLabel = WEEKDAY_HI[wkIdx];
+  const dateStr  = dayLabel + ', ' + selectedDay + ' Vaishakh';
+
+  // Clear classes
+  box.className = 'ed-card';
+
+  if (ev) {
+    box.classList.add('ev-' + ev.type);
+    box.onclick = () => openEventDetail(ev.type, ev.title);
+    box.innerHTML =
+      '<div class="ed-rail"></div>' +
+      '<div class="ed-body">' +
+        '<div class="ed-row1">' +
+          '<span class="ed-badge">' + TYPE_LABEL[ev.type] + '</span>' +
+          (isToday ? '<span class="ed-today-pill">AAJ</span>' : '') +
+          '<div class="ed-title">' + ev.title + '</div>' +
+        '</div>' +
+        '<div class="ed-row2">' + dateStr + ' · Shukla ' + tithiFor(selectedDay) + '</div>' +
+      '</div>' +
+      '<div class="ed-arrow">›</div>';
+  } else {
+    const next = findNextEvent(selectedDay);
+    box.classList.add('ev-none');
+    box.onclick = next ? (() => selectDay(next.day)) : null;
+    const nextLine = next
+      ? 'Agla: <b>' + next.ev.title + '</b> · ' + (next.day - selectedDay) + ' din mein'
+      : 'Is maas koi aur parv nahi';
+    box.innerHTML =
+      '<div class="ed-rail"></div>' +
+      '<div class="ed-body">' +
+        '<div class="ed-row1">' +
+          '<span class="ed-badge">SAMANYA</span>' +
+          (isToday ? '<span class="ed-today-pill">AAJ</span>' : '') +
+          '<div class="ed-title">Koi mukhya parv nahi</div>' +
+        '</div>' +
+        '<div class="ed-row2">' + dateStr + ' · ' + nextLine + '</div>' +
+      '</div>' +
+      '<div class="ed-arrow">›</div>';
+  }
+}
+
+function tithiFor(d) {
+  const tithis = ['Pratipada','Dwitiya','Tritiya','Chaturthi','Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami','Ekadashi','Dwadashi','Trayodashi','Chaturdashi','Purnima'];
+  return tithis[(d - 1) % 15];
+}
+
+function changeMonth(delta) {
+  // Prototype: visual acknowledgement only — stays on April 2026
+  const title = document.getElementById('calHi');
+  if (!title) return;
+  title.style.transition = 'opacity 200ms ease';
+  title.style.opacity = '0.3';
+  setTimeout(() => { title.style.opacity = '1'; }, 280);
+}
+
+function openEventDetail(type, title) {
+  window.location.href = 'devotion-day-detail.html?event=' + encodeURIComponent(title) +
+                          '&type=' + encodeURIComponent(type) +
+                          '&day='  + encodeURIComponent(selectedDay) +
+                          '&deity=' + encodeURIComponent(currentDeity);
+}
+
+function goPanchang() {
+  window.location.href = withDeity('panchang.html');
+}
+
+// Initial render
+renderMonthCal();
+renderEventDetail();
+renderDarshan();
+
+// If deity was passed via ?deity=... URL param (user returning from a sub-page),
+// auto-dismiss the deity-picker onboarding and drop them into the personalized
+// home. Without this, pressing "back" from any sub-page lands the user on the
+// deity-selection screen even though we already know which deity they picked.
+if (DEITY_FROM_URL) {
+  const picker = document.getElementById('picker');
+  if (picker) picker.classList.add('hide');
+  // Apply deity state (image, greeting, sections) silently — no TTS greeting, no mantra,
+  // since the user isn't newly picking; they're returning.
+  try { applyDeity(DEITY_FROM_URL); } catch(e) { console.warn('applyDeity on return failed', e); }
+  // Reveal the fade-in sections staggered (same effect as a normal pick).
+  setTimeout(()=>{
+    document.querySelectorAll('.fade-in').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('in'), i*80);
+    });
+  }, 40);
+}
+
+// Stop any playing audio if the tab/page is closed or navigated away
+window.addEventListener('beforeunload', () => {
+  try { stopStoryTTS(); } catch(e){}
+  try { stopShivMantra(); } catch(e){}
+});
+
+// Keyboard debug
+document.addEventListener('keydown', (e) => {
+  const map = {'1':'ganesh','2':'shiva','3':'krishna','4':'durga','5':'hanuman','6':'ram'};
+  if (map[e.key]) pickDeity(map[e.key]);
+  if (e.key === 'ArrowUp')   nextDeity();
+  if (e.key === 'ArrowDown') prevDeity();
+  if (e.key.toLowerCase() === 's') openSeva();
+});
+</script>
+</body>
+</html>

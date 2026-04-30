@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seva · Temple Offerings</title>
+<style>
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Light.woff2') format('woff2'); font-weight:300; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Medium.woff2') format('woff2'); font-weight:500; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Bold.woff2') format('woff2'); font-weight:700; }
+@font-face { font-family:'JioType'; src:url('https://raw.githubusercontent.com/JioIn/jio-design-assets/main/fonts/JioType-Black.woff2') format('woff2'); font-weight:900; }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050200; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0500; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:600; color:#fff; z-index:40; position:relative; }
+
+.screen { position:relative; background:#0a0500; color:#fff; min-height:820px; overflow:hidden; }
+
+/* ===== HEAD ===== */
+.head { padding:18px 20px 12px; position:relative; }
+.h-back {
+  position:absolute; top:10px; left:12px;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,0.08); color:#ffc870;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; border:1px solid rgba(255,200,112,0.18);
+  z-index:5;
+}
+.h-back:active { transform:scale(0.92); background:rgba(255,200,112,0.18); }
+.h-label { font-size:10px; font-weight:700; letter-spacing:2px; color:#ffc870; text-transform:uppercase; margin-top:28px; }
+.h-title { font-size:22px; font-weight:900; color:#fff8e1; letter-spacing:-0.4px; margin-top:4px; }
+.h-sub { font-size:11px; opacity:0.7; margin-top:3px; line-height:1.5; max-width:280px; }
+.srimandir-credit {
+  font-size:9.5px; letter-spacing:0.5px; margin-top:10px;
+  color:rgba(255,220,178,0.55); font-weight:500;
+  display:inline-flex; align-items:center; gap:4px;
+}
+.srimandir-credit::before { content:"✦"; color:rgba(255,184,116,0.62); font-size:8px; }
+.srimandir-credit b { font-weight:900; color:rgba(255,236,210,0.95); letter-spacing:0.6px; text-transform:uppercase; font-size:10.5px; }
+
+/* ===== CATEGORY TABS ===== */
+.cat-tabs {
+  padding:14px 20px 0; display:flex; gap:6px; overflow-x:auto;
+}
+.cat-tabs::-webkit-scrollbar { display:none; }
+.ct {
+  flex-shrink:0; padding:8px 13px; border-radius:999px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+  font-size:11px; font-weight:700; color:#fff; cursor:pointer;
+}
+.ct.active {
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%); color:#2a1400; border-color:transparent;
+}
+
+/* ===== FEATURED (ONLINE PUJA AT TEMPLE) ===== */
+.featured {
+  margin:16px 20px 0; border-radius:20px; overflow:hidden; position:relative;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(247,171,32,0.3), transparent 65%),
+    linear-gradient(160deg, #3a1505 0%, #0a0500 95%);
+  border:1px solid rgba(255,200,120,0.3);
+}
+.ft-hero { position:relative; height:140px; overflow:hidden; }
+.ft-hero::before {
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 80%, rgba(255,120,40,0.45), transparent 70%);
+}
+.ft-arch { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:180px; height:130px; }
+.ft-halo {
+  position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+  width:110px; height:110px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,210,120,0.9) 0%, rgba(255,160,60,0.5) 30%, transparent 70%);
+  filter:blur(2px); z-index:3;
+  animation:haloBreath 3.6s ease-in-out infinite;
+}
+@keyframes haloBreath {
+  0%,100% { transform:translateX(-50%) scale(1); opacity:0.95; }
+  50% { transform:translateX(-50%) scale(1.08); opacity:1; }
+}
+.ft-deity {
+  position:absolute; bottom:45px; left:50%; transform:translateX(-50%);
+  font-size:58px; color:#fff8e1; font-weight:900; z-index:4;
+  text-shadow:0 0 18px rgba(255,180,80,0.85);
+}
+.ft-badge {
+  position:absolute; top:12px; left:12px; z-index:5;
+  background:rgba(250,47,64,0.9); padding:4px 10px; border-radius:999px;
+  font-size:9px; font-weight:900; letter-spacing:1px; color:#fff;
+}
+
+.ft-body { padding:16px; }
+.ft-title { font-size:16px; font-weight:900; color:#fff8e1; }
+.ft-temple { font-size:11px; opacity:0.7; margin-top:3px; }
+.ft-desc { font-size:11px; opacity:0.82; line-height:1.55; margin-top:8px; }
+.ft-row { display:flex; justify-content:space-between; align-items:center; margin-top:14px; }
+.ft-price { font-size:19px; font-weight:900; color:#ffd69a; }
+.ft-price-s { font-size:10px; font-weight:500; opacity:0.6; }
+.ft-cta {
+  padding:10px 16px; border-radius:999px;
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);
+  color:#2a1400; font-size:11px; font-weight:900; cursor:pointer;
+  box-shadow:0 4px 14px rgba(247,171,32,0.4);
+}
+
+/* ===== SECTION ===== */
+.section { padding:18px 20px; }
+.sec-label { font-size:10px; font-weight:700; letter-spacing:1.8px; color:#ffc870; text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.sec-label-r { font-size:10px; color:#ffc870; font-weight:500; letter-spacing:0.3px; text-transform:none; cursor:pointer; }
+
+/* ===== SEVA GRID ===== */
+.seva-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sv-card {
+  padding:14px; border-radius:14px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer; position:relative; overflow:hidden; transition:all 200ms;
+}
+.sv-card:active { transform:scale(0.97); }
+.sv-ic {
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; margin-bottom:10px;
+}
+.sv-title { font-size:12px; font-weight:700; color:#fff8e1; line-height:1.35; }
+.sv-meta { font-size:9px; opacity:0.55; margin-top:3px; }
+.sv-price { font-size:13px; font-weight:900; color:#ffd69a; margin-top:8px; }
+.sv-badge {
+  position:absolute; top:10px; right:10px; font-size:8px;
+  padding:2px 6px; border-radius:6px; font-weight:700; letter-spacing:0.3px;
+}
+.sv-badge.new { background:rgba(30,204,176,0.2); color:#5be0c7; }
+.sv-badge.hot { background:rgba(250,47,64,0.2); color:#ff9080; }
+
+/* ===== PRASAD ===== */
+.prasad-strip { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.prasad-strip::-webkit-scrollbar { display:none; }
+.pr-card {
+  flex-shrink:0; width:150px; border-radius:14px; overflow:hidden;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+}
+.pr-art {
+  height:100px; display:flex; align-items:center; justify-content:center;
+  font-size:42px; position:relative;
+}
+.pr-from {
+  position:absolute; bottom:6px; left:6px; right:6px;
+  background:rgba(0,0,0,0.45); backdrop-filter:blur(8px);
+  font-size:8px; font-weight:700; letter-spacing:0.8px; color:#fff;
+  padding:3px 7px; border-radius:999px; text-align:center;
+  text-transform:uppercase;
+}
+.pr-body { padding:10px; }
+.pr-title { font-size:11px; font-weight:700; color:#fff8e1; line-height:1.3; }
+.pr-price-row { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+.pr-price { font-size:13px; font-weight:900; color:#ffd69a; }
+.pr-delivery { font-size:8px; opacity:0.55; }
+
+/* ===== DAAN ===== */
+.daan {
+  padding:16px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(30,204,176,0.12) 0%, rgba(30,204,176,0.03) 100%);
+  border:1px solid rgba(30,204,176,0.3);
+}
+.dn-top { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+.dn-ic {
+  width:44px; height:44px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.dn-tl { flex:1; }
+.dn-title { font-size:13px; font-weight:700; color:#fff8e1; }
+.dn-sub { font-size:10px; opacity:0.65; margin-top:2px; }
+.dn-desc { font-size:11px; line-height:1.55; opacity:0.85; }
+.dn-picker { display:flex; gap:6px; margin-top:14px; }
+.dn-amt {
+  flex:1; padding:8px; text-align:center; border-radius:10px;
+  background:rgba(0,0,0,0.3); border:1px solid rgba(30,204,176,0.3);
+  font-size:12px; font-weight:700; cursor:pointer; color:#8be8d3;
+  transition:all 200ms;
+}
+.dn-amt.active { background:rgba(30,204,176,0.25); color:#fff; border-color:#5be0c7; }
+.dn-cta {
+  margin-top:12px; padding:12px; text-align:center; border-radius:999px;
+  background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%);
+  color:#0a2d26; font-size:12px; font-weight:900; cursor:pointer;
+}
+
+/* ===== SUBSCRIPTION ===== */
+.sub-card {
+  padding:16px; border-radius:18px;
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(103,103,255,0.22), transparent 65%),
+    linear-gradient(145deg, rgba(53,53,243,0.1) 0%, rgba(20,20,80,0.04) 100%);
+  border:1px solid rgba(103,103,255,0.3);
+}
+.sb-top { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+.sb-ic {
+  width:44px; height:44px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg, #8b8bff 0%, #3535f3 100%);
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+}
+.sb-tl { flex:1; }
+.sb-title { font-size:13px; font-weight:700; color:#fff8e1; }
+.sb-sub { font-size:10px; opacity:0.7; margin-top:2px; }
+.sb-items { margin-top:10px; }
+.sb-it { display:flex; gap:8px; font-size:11px; padding:4px 0; opacity:0.9; }
+.sb-it::before { content:"✓"; color:#a5a5ff; font-weight:900; flex-shrink:0; }
+.sb-pricing { display:flex; justify-content:space-between; align-items:flex-end; margin-top:14px; padding-top:12px; border-top:1px solid rgba(139,139,255,0.2); }
+.sb-pr-n { font-size:20px; font-weight:900; color:#c7c7ff; line-height:1; }
+.sb-pr-s { font-size:10px; opacity:0.55; }
+.sb-cta {
+  padding:9px 16px; border-radius:999px;
+  background:linear-gradient(135deg, #a5a5ff 0%, #3535f3 100%);
+  color:#fff; font-size:11px; font-weight:900; cursor:pointer;
+}
+
+/* ===== RECENT ORDER STATUS ===== */
+.order {
+  padding:14px; border-radius:14px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.or-ic {
+  width:40px; height:40px; border-radius:10px;
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+.or-body { flex:1; min-width:0; }
+.or-title { font-size:12px; font-weight:700; color:#fff8e1; }
+.or-status { font-size:10px; color:#5be0c7; margin-top:2px; display:flex; align-items:center; gap:5px; }
+.or-status::before { content:""; width:5px; height:5px; border-radius:50%; background:#5be0c7; box-shadow:0 0 6px #5be0c7; }
+
+/* Toast */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(0,0,0,0.95); color:#ffd69a; padding:10px 18px; border-radius:999px;
+  backdrop-filter:blur(12px); border:1px solid rgba(255,200,120,0.35);
+  font-size:12px; font-weight:600; z-index:50; opacity:0; transition:all 300ms ease;
+  pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
+
+  <div class="screen">
+    <div class="head">
+      <div class="h-back" onclick="goHome()" aria-label="Back">←</div>
+      <div class="h-label">✦ Seva Arpan</div>
+      <div class="h-title">Mandir ke liye kuch karein</div>
+      <div class="h-sub">Aap jahan bhi hon, Prabhu ki seva seedha mandir tak pahuncha sakte hain</div>
+      <div class="srimandir-credit">Powered by <b>Srimandir</b></div>
+    </div>
+
+    <div class="cat-tabs">
+      <div class="ct active">Sabhi</div>
+      <div class="ct">Online Puja</div>
+      <div class="ct">Prasad</div>
+      <div class="ct">Daan</div>
+      <div class="ct">Subscription</div>
+    </div>
+
+    <!-- FEATURED -->
+    <div class="featured">
+      <div class="ft-hero">
+        <div class="ft-badge">★ SABSE LOKPRIYA</div>
+        <svg class="ft-arch" viewBox="0 0 180 130" preserveAspectRatio="xMidYMax meet">
+          <path d="M 90 0 L 110 20 L 100 27 L 117 48 L 107 55 L 125 78 L 55 78 L 73 55 L 63 48 L 80 27 L 70 20 Z" fill="#0a0500" opacity="0.85"/>
+          <path d="M 30 130 L 30 80 Q 30 50 90 50 Q 150 50 150 80 L 150 130 Z" fill="#0a0500" opacity="0.92"/>
+          <path d="M 55 130 L 55 98 Q 55 75 90 75 Q 125 75 125 98 L 125 130 Z" fill="#1a0600" opacity="0.95"/>
+        </svg>
+        <div class="ft-halo"></div>
+        <div class="ft-deity">ॐ</div>
+      </div>
+      <div class="ft-body">
+        <div class="ft-title">Shringar Aarti · Aapke naam par</div>
+        <div class="ft-temple">Kashi Vishwanath Mandir · Varanasi</div>
+        <div class="ft-desc">
+          Aapke sankalp ke saath mandir mein Shringar Aarti hogi. Pujari aapke naam se sankalp lekar Shivji ko vastra, chandan, aur phool arpit karenge. Video recording aur prasad ghar bhej diya jayega.
+        </div>
+        <div class="ft-row">
+          <div>
+            <div class="ft-price">₹1,100 <span class="ft-price-s">se shuru</span></div>
+          </div>
+          <div class="ft-cta" onclick="toast('Shringar Aarti booking kholi ja rahi hai')">Book karein →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONLINE PUJA GRID -->
+    <div class="section">
+      <div class="sec-label"><span>🛕 Online Pujas</span><span class="sec-label-r">Sabhi dekhein →</span></div>
+      <div class="seva-grid">
+        <div class="sv-card" onclick="toast('Rudrabhishek details khul rahi hain')">
+          <div class="sv-ic" style="background:linear-gradient(135deg, #9090ff 0%, #3030aa 100%);">🕉</div>
+          <div class="sv-title">Rudrabhishek</div>
+          <div class="sv-meta">Mahakal Mandir · Ujjain</div>
+          <div class="sv-price">₹2,100</div>
+          <div class="sv-badge hot">Pradosh</div>
+        </div>
+        <div class="sv-card" onclick="toast('Sundar Kand paath details')">
+          <div class="sv-ic" style="background:linear-gradient(135deg, #ff7050 0%, #c83020 100%);">🙏</div>
+          <div class="sv-title">Sundar Kand Paath</div>
+          <div class="sv-meta">Hanuman Mandir · Salasar</div>
+          <div class="sv-price">₹501</div>
+          <div class="sv-badge new">Naya</div>
+        </div>
+        <div class="sv-card" onclick="toast('Lakshmi puja details')">
+          <div class="sv-ic" style="background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);">💰</div>
+          <div class="sv-title">Lakshmi Puja</div>
+          <div class="sv-meta">Tirupati Balaji</div>
+          <div class="sv-price">₹1,500</div>
+        </div>
+        <div class="sv-card" onclick="toast('Navagraha puja details')">
+          <div class="sv-ic" style="background:linear-gradient(135deg, #5be0c7 0%, #1eccb0 100%);">🌞</div>
+          <div class="sv-title">Navagraha Shanti</div>
+          <div class="sv-meta">Surya Mandir · Konark</div>
+          <div class="sv-price">₹2,500</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRASAD -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label"><span>🍬 Asli Prasad · Ghar Tak</span><span class="sec-label-r">Sabhi →</span></div>
+      <div class="prasad-strip">
+        <div class="pr-card">
+          <div class="pr-art" style="background:linear-gradient(135deg, #ffdc80 0%, #c8800a 100%);">
+            🍯
+            <div class="pr-from">Kashi Vishwanath</div>
+          </div>
+          <div class="pr-body">
+            <div class="pr-title">Panchamrit + Laddu</div>
+            <div class="pr-price-row">
+              <div class="pr-price">₹251</div>
+              <div class="pr-delivery">4 din</div>
+            </div>
+          </div>
+        </div>
+        <div class="pr-card">
+          <div class="pr-art" style="background:linear-gradient(135deg, #ff9560 0%, #c04010 100%);">
+            🥣
+            <div class="pr-from">Tirupati</div>
+          </div>
+          <div class="pr-body">
+            <div class="pr-title">Tirupati Laddu (12 pc)</div>
+            <div class="pr-price-row">
+              <div class="pr-price">₹601</div>
+              <div class="pr-delivery">3 din</div>
+            </div>
+          </div>
+        </div>
+        <div class="pr-card">
+          <div class="pr-art" style="background:linear-gradient(135deg, #ffb090 0%, #a04020 100%);">
+            🌸
+            <div class="pr-from">Siddhivinayak</div>
+          </div>
+          <div class="pr-body">
+            <div class="pr-title">Modak + Saree Prasad</div>
+            <div class="pr-price-row">
+              <div class="pr-price">₹451</div>
+              <div class="pr-delivery">5 din</div>
+            </div>
+          </div>
+        </div>
+        <div class="pr-card">
+          <div class="pr-art" style="background:linear-gradient(135deg, #c0a0ff 0%, #5040a0 100%);">
+            ✨
+            <div class="pr-from">Vaishno Devi</div>
+          </div>
+          <div class="pr-body">
+            <div class="pr-title">Mata ka Chola + Chunri</div>
+            <div class="pr-price-row">
+              <div class="pr-price">₹801</div>
+              <div class="pr-delivery">6 din</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAAN -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label"><span>🤲 Daan Prabhu ke Naam</span></div>
+      <div class="daan">
+        <div class="dn-top">
+          <div class="dn-ic">🍚</div>
+          <div class="dn-tl">
+            <div class="dn-title">Annadaan · Bhandara seva</div>
+            <div class="dn-sub">Kashi ke asahay logon ke liye bhojan</div>
+          </div>
+        </div>
+        <div class="dn-desc">
+          Aapke daan se ek din mein 500 logon ko pura bhojan milega · Daal, chawal, sabzi aur laddu. Seedha temple trust ke through.
+        </div>
+        <div class="dn-picker">
+          <div class="dn-amt">₹251</div>
+          <div class="dn-amt active">₹501</div>
+          <div class="dn-amt">₹1,100</div>
+          <div class="dn-amt">₹2,100</div>
+        </div>
+        <div class="dn-cta" onclick="toast('Daan prakriya shuru · 80G receipt milega')">Daan karein · ₹501</div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label"><span>📦 Maasik Prasad Seva</span></div>
+      <div class="sub-card">
+        <div class="sb-top">
+          <div class="sb-ic">🎁</div>
+          <div class="sb-tl">
+            <div class="sb-title">Maasik Prasad Box · Premium</div>
+            <div class="sb-sub">Har mahine alag mandir se prasad</div>
+          </div>
+        </div>
+        <div class="sb-items">
+          <div class="sb-it">Ek naye prasidh mandir ka asli prasad</div>
+          <div class="sb-it">Mandir ka chit aur aashirwaad card</div>
+          <div class="sb-it">Live darshan ki priority access</div>
+          <div class="sb-it">Festival par vishesh prasad bonus</div>
+        </div>
+        <div class="sb-pricing">
+          <div>
+            <div class="sb-pr-n">₹899<span style="font-size:11px; opacity:0.65;">/maah</span></div>
+            <div class="sb-pr-s">Pehla mahina 50% off</div>
+          </div>
+          <div class="sb-cta" onclick="toast('Subscription start ho rahi hai')">Shuru karein</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT ORDER -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label"><span>📦 Aapki Chalti Seva</span></div>
+      <div class="order" onclick="toast('Aapki puja ki live video aa rahi hai')">
+        <div class="or-ic">🪔</div>
+        <div class="or-body">
+          <div class="or-title">Mangalwar Hanuman Puja · Salasar</div>
+          <div class="or-status">Pujari aapke naam se sankalp le rahe hain · 11:42 AM</div>
+        </div>
+        <div style="font-size:18px; opacity:0.6;">›</div>
+      </div>
+    </div>
+
+    <div style="height:24px;"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+// Navigate back to home, preserving the deity query param if present.
+function goHome(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+var _tt;
+function toast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+document.querySelectorAll('.ct').forEach(function(c) {
+  c.addEventListener('click', function() {
+    document.querySelectorAll('.ct').forEach(function(x){ x.classList.remove('active'); });
+    c.classList.add('active');
+  });
+});
+document.querySelectorAll('.dn-amt').forEach(function(a) {
+  a.addEventListener('click', function() {
+    document.querySelectorAll('.dn-amt').forEach(function(x){ x.classList.remove('active'); });
+    a.classList.add('active');
+    var cta = document.querySelector('.dn-cta');
+    cta.textContent = 'Daan karein · ' + a.textContent;
+  });
+});
+</script>
+</body>
+</html>

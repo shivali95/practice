@@ -1694,10 +1694,10 @@ const GREETINGS = {
 // -------- SARVAM TTS --------
 const SARVAM_KEY = 'sk_afh7owtd_prjoh7ZH0nIN1HqF8wqRDuzU';
 const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
-const SARVAM_MODEL = 'bulbul:v2';
-// Greeting voice — deep, divine male narrator (karun) with low pitch + slow pace.
+const SARVAM_MODEL = 'bulbul:v3';
+// Greeting voice — ashutosh (a name of Shiva, deep divine male) on v3.
 // "Jai Shree Shiv" should feel like a temple priest's invocation, not a news anchor.
-const SARVAM_GREETING_VOICE = 'karun';
+const SARVAM_GREETING_VOICE = 'ashutosh';
 let currentGreetingAudio = null;
 
 // Decode Sarvam's base64-encoded WAV into a Blob URL.
@@ -1730,29 +1730,35 @@ function _chunkForSarvam(text, max = 480) {
 }
 
 // One TTS call → returns a single object URL (concatenated WAV chunks).
+// opts.model: 'bulbul:v2' (supports pitch/loudness) or 'bulbul:v3' (more voices, pace only).
 async function sarvamSpeak(text, opts) {
   opts = opts || {};
-  const speaker = opts.speaker || 'hitesh';
-  const pitch   = (opts.pitch != null) ? opts.pitch : 0;
-  const pace    = (opts.pace  != null) ? opts.pace  : 1.0;
-  const loud    = (opts.loudness != null) ? opts.loudness : 1.2;
+  const speaker = opts.speaker || 'abhilash';
+  const model   = opts.model || SARVAM_MODEL;
+  const pace    = (opts.pace != null) ? opts.pace : 1.0;
   const inputs  = _chunkForSarvam(text);
   if (!inputs.length) return null;
+  const body = {
+    inputs,
+    target_language_code: 'hi-IN',
+    speaker,
+    pace,
+    speech_sample_rate: 22050,
+    enable_preprocessing: true,
+    model
+  };
+  // Bulbul v3 doesn't accept pitch/loudness; v2 does.
+  if (model === 'bulbul:v2') {
+    body.pitch = (opts.pitch != null) ? opts.pitch : 0;
+    body.loudness = (opts.loudness != null) ? opts.loudness : 1.2;
+  }
   const res = await fetch(SARVAM_TTS_URL, {
     method: 'POST',
     headers: {
       'api-subscription-key': SARVAM_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      inputs,
-      target_language_code: 'hi-IN',
-      speaker,
-      pitch, pace, loudness: loud,
-      speech_sample_rate: 22050,
-      enable_preprocessing: true,
-      model: SARVAM_MODEL
-    })
+    body: JSON.stringify(body)
   });
   if (!res.ok) { console.warn('[sarvam] tts failed', res.status, await res.text().catch(()=>'')); return null; }
   const data = await res.json();
@@ -1792,12 +1798,11 @@ async function playGreeting(deity) {
   try {
     if (currentGreetingAudio) { try { currentGreetingAudio.pause(); } catch(e){} }
     const g = GREETINGS[deity] || GREETINGS.ganesh;
-    // Divine invocation — deeper pitch, slower pace, fuller loudness
+    // Divine invocation — ashutosh on bulbul:v3, slower pace.
     const url = await sarvamSpeak(g.spoken, {
       speaker: SARVAM_GREETING_VOICE,
-      pitch: -0.25,
-      pace: 0.85,
-      loudness: 1.35
+      model: 'bulbul:v3',
+      pace: 0.88
     });
     if (!url) return;
     const audio = new Audio(url);
@@ -2178,37 +2183,37 @@ const DAILY_SANDESH = {
     from:'Ganesh ji kehte hain',
     msg:'"Shivali, har shuruaat mein mujhe yaad rakhna.<br>Jo kaam mere naam se shuru ho, vighnon se mukt ho jaata hai."',
     img:'assets/deities/ganesh/1.jpg', fallback:DEITIES_SRC.ganesh, dur:'0:40',
-    narration:'हे शिवाली, मैं गणेश हूँ। सुनो मेरी बात। जब भी कोई नया काम शुरू करो, मुझे याद ज़रूर करना। जो कार्य मेरे नाम से आरंभ होता है, उस पर कोई विघ्न टिक नहीं सकता। आज का दिन तुम्हारे लिए शुभ है। निडर होकर आगे बढ़ो — मैं तुम्हारे साथ हूँ।'
+    narration:'आज के लिए आपका दिव्य संदेश। जब भी कोई नया काम शुरू करो, मुझे याद ज़रूर करना। जो कार्य मेरे नाम से आरंभ होता है, उस पर कोई विघ्न टिक नहीं सकता। आज का दिन तुम्हारे लिए शुभ है। निडर होकर आगे बढ़ो — मैं तुम्हारे साथ हूँ।'
   },
   shiva: {
     from:'Shiv ji kehte hain',
     msg:'"Sabr rakho, Shivali.<br>Jo chhoota hai woh zyada acha milne ke liye chhoota hai."',
     img:'assets/deities/shiva/2.png', fallback:DEITIES_SRC.shiva, dur:'0:45',
-    narration:'हे शिवाली, मैं महादेव हूँ। मेरी बात ध्यान से सुनो। संसार में जो कुछ छूटता है, वह इसलिए छूटता है ताकि तुम्हें उससे भी बेहतर मिल सके। धैर्य रखो, बेटा। जो होना है वो होकर रहेगा — और जो मेरी कृपा से होगा, वही तुम्हारे लिए सर्वश्रेष्ठ है। मन शांत रखो, ॐ नमः शिवाय का स्मरण करती रहो।'
+    narration:'आज के लिए आपका दिव्य संदेश। संसार में जो कुछ छूटता है, वह इसलिए छूटता है ताकि तुम्हें उससे भी बेहतर मिल सके। धैर्य रखो, बेटा। जो होना है वो होकर रहेगा — और जो मेरी कृपा से होगा, वही तुम्हारे लिए सर्वश्रेष्ठ है। मन शांत रखो, ॐ नमः शिवाय का स्मरण करती रहो।'
   },
   krishna: {
     from:'Krishna ji kehte hain',
     msg:'"Karm karo, Shivali — phal ki chinta chhodo.<br>Jo bhi hoga, mere sankalp se hoga."',
     img:'assets/deities/krishna/1.jpg', fallback:DEITIES_SRC.krishna, dur:'0:42',
-    narration:'हे शिवाली, मैं कृष्ण हूँ। सुनो अपने सखा की बात। अपना कर्म पूरी निष्ठा से करो, फल की चिंता छोड़ दो। जो होना है वो मेरे संकल्प से होगा। तुम बस अपना धर्म निभाओ — बाकी सब मुझ पर छोड़ दो। मैं सदा तुम्हारे साथ हूँ, तुम्हारे हर कर्म का साक्षी।'
+    narration:'आज के लिए आपका दिव्य संदेश। अपना कर्म पूरी निष्ठा से करो, फल की चिंता छोड़ दो। जो होना है वो मेरे संकल्प से होगा। तुम बस अपना धर्म निभाओ — बाकी सब मुझ पर छोड़ दो। मैं सदा तुम्हारे साथ हूँ, तुम्हारे हर कर्म का साक्षी।'
   },
   durga: {
     from:'Maa Durga kehti hain',
     msg:'"Darna mat, Shivali.<br>Teri har saans mein meri shakti hai — uthh, aage badh."',
     img:'assets/deities/durga/1.jpg', fallback:DEITIES_SRC.durga, dur:'0:38',
-    narration:'हे शिवाली, मैं तुम्हारी माँ दुर्गा हूँ। मेरी बेटी, डरना मत। तेरी हर साँस में मेरी शक्ति है। जब भी कठिनाई आए, मुझे याद कर लेना — मैं तेरे भीतर ही हूँ। उठ, खड़ी हो, और अपने भीतर की शक्ति को पहचान। तू मेरी अंश है — तुझे कोई हरा नहीं सकता।'
+    narration:'आज के लिए आपका दिव्य संदेश। मेरी बेटी, डरना मत। तेरी हर साँस में मेरी शक्ति है। जब भी कठिनाई आए, मुझे याद कर लेना — मैं तेरे भीतर ही हूँ। उठ, खड़ी हो, और अपने भीतर की शक्ति को पहचान। तू मेरी अंश है — तुझे कोई हरा नहीं सकता।'
   },
   hanuman: {
     from:'Hanuman ji kehte hain',
     msg:'"Nirbhay raho, Shivali.<br>Jahan Ram ka naam hai, wahan bhay tik nahi sakta."',
     img:'assets/deities/hanuman/1.jpg', fallback:DEITIES_SRC.hanuman, dur:'0:40',
-    narration:'हे शिवाली, मैं हनुमान हूँ। निर्भय रहो, बेटी। जहाँ राम का नाम होता है, वहाँ कोई भय टिक नहीं सकता। संकट जितना भी बड़ा हो, श्री राम का स्मरण करती रहना — मैं स्वयं दौड़ा आऊँगा। तेरी रक्षा मेरा कर्तव्य है, मेरा वचन है।'
+    narration:'आज के लिए आपका दिव्य संदेश। निर्भय रहो, बेटी। जहाँ राम का नाम होता है, वहाँ कोई भय टिक नहीं सकता। संकट जितना भी बड़ा हो, श्री राम का स्मरण करती रहना — मैं स्वयं दौड़ा आऊँगा। तेरी रक्षा मेरा कर्तव्य है, मेरा वचन है।'
   },
   ram: {
     from:'Ram ji kehte hain',
     msg:'"Maryada mein hi aanand hai, Shivali.<br>Dharm ka palan karo — phal apne aap milega."',
     img:'assets/deities/ram/1.jpg', fallback:DEITIES_SRC.ram, dur:'0:45',
-    narration:'हे शिवाली, मैं राम हूँ। सुनो मेरी बात। जीवन में मर्यादा का पालन करो — यही सच्चा आनंद है। धर्म के मार्ग पर चलती रहो, फल अपने आप मिल जाएगा। कठिन समय में भी सत्य का साथ मत छोड़ना। जो धर्म की राह पर चलता है, उसके साथ मैं सदा खड़ा रहता हूँ।'
+    narration:'आज के लिए आपका दिव्य संदेश। जीवन में मर्यादा का पालन करो — यही सच्चा आनंद है। धर्म के मार्ग पर चलती रहो, फल अपने आप मिल जाएगा। कठिन समय में भी सत्य का साथ मत छोड़ना। जो धर्म की राह पर चलता है, उसके साथ मैं सदा खड़ा रहता हूँ।'
   }
 };
 
@@ -2319,18 +2324,22 @@ const storyAudioCache = {};
 const storyAudioInFlight = {};
 
 // Sarvam voice + delivery tuning per story so each card feels distinct.
-// bulbul:v2 voices: anushka, abhilash, manisha, vidya, arya, karun, hitesh.
 //
-// Sandesh = Bhagwan speaking DIRECTLY to the user (Shiv ji etc.) — must
-// feel divine: deepest voice (karun), low pitch, slow deliberate pace,
-// commanding loudness. Other stories vary voice/tempo for distinctness.
+// bulbul:v3 has many more voices — using its male roster for variety:
+//   ashutosh (Shiva-like — divine), aditya (mature storyteller),
+//   anand (sage philosophical), vijay (confident heroic),
+//   gokul (peaceful divine), kabir (warm narrator), aayan (clear).
+// bulbul:v2 only has 2 male voices but supports pitch/loudness control.
+//
+// Sandesh = Bhagwan speaking DIRECTLY to the user (Shiv ji, Ram ji etc.)
+// → ashutosh on v3 — name literally evokes Lord Shiva.
 function sarvamVoiceFor(id) {
-  if (id === 'sandesh')   return { speaker: 'karun',    pitch: -0.35, pace: 0.78, loudness: 1.5  }; // Bhagwan ki awaaz — deep, slow, commanding
-  if (id === 'gita')      return { speaker: 'arya',     pitch: -0.05, pace: 0.86, loudness: 1.15 }; // philosophical, contemplative
-  if (id === 'tithi')     return { speaker: 'manisha',  pitch: 0,     pace: 0.95, loudness: 1.15 }; // calm calendar info, mature female
-  if (id === 'ramayan')   return { speaker: 'abhilash', pitch: -0.15, pace: 0.9,  loudness: 1.25 }; // epic storytelling, warm male
-  if (id === 'bharat')    return { speaker: 'hitesh',   pitch: -0.1,  pace: 0.94, loudness: 1.3  }; // heroic, energetic
-  /* puranic / default */ return { speaker: 'karun',    pitch: -0.2,  pace: 0.86, loudness: 1.3  }; // mythological, gravitas
+  if (id === 'sandesh')   return { speaker: 'ashutosh', model: 'bulbul:v3', pace: 0.85 }; // Bhagwan ki awaaz — divine male
+  if (id === 'gita')      return { speaker: 'anand',    model: 'bulbul:v3', pace: 0.88 }; // sage, philosophical
+  if (id === 'tithi')     return { speaker: 'aditya',   model: 'bulbul:v3', pace: 0.95 }; // mature, calm narrator
+  if (id === 'ramayan')   return { speaker: 'kabir',    model: 'bulbul:v3', pace: 0.92 }; // warm storyteller
+  if (id === 'bharat')    return { speaker: 'vijay',    model: 'bulbul:v3', pace: 0.95 }; // heroic, confident
+  /* puranic / default */ return { speaker: 'gokul',    model: 'bulbul:v3', pace: 0.9  }; // peaceful, divine
 }
 
 // Cache key — sandesh & puranic vary by deity; rest are shared.

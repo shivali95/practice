@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akshaya Tritiya · Festival</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { font-family:'JioType'; -webkit-font-smoothing:antialiased; }
+body { background:#f0f0f0; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #141414; box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden; position:relative; background:#ffffff; }
+.notch { background:#141414; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#141414; border-radius:0 0 14px 14px; }
+.statusbar { padding:6px 20px; display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#141414; background:#ffffff; }
+
+.screen { position:relative; background:#ffffff; color:#141414; height:760px; overflow-y:auto; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* HERO — saffron secondary tone, JDS-compliant */
+.hero {
+  position:relative; padding:16px 16px 28px;
+  background:#fef7e9;
+}
+.h-top { display:flex; justify-content:space-between; align-items:center; }
+.icon-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:#ffffff; border:none; color:#170054;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.icon-btn svg { width:20px; height:20px; }
+.h-save {
+  height:36px; padding:0 14px; border-radius:999px;
+  background:#3535f3; color:#ffffff; border:none;
+  font-family:inherit; font-size:13px; font-weight:700;
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.h-save svg { width:14px; height:14px; }
+
+.h-title-block { margin-top:24px; }
+.h-tag {
+  display:inline-block; font-size:11px; font-weight:700;
+  background:#ffffff; color:#7f4b10; padding:4px 10px; border-radius:999px;
+  letter-spacing:0.5px;
+}
+.h-title { font-size:32px; font-weight:900; color:#141414; line-height:1.1; margin-top:8px; letter-spacing:-0.5px; }
+.h-tith { font-size:13px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:6px; }
+
+.h-cd-row {
+  margin-top:16px; display:flex; align-items:flex-end; gap:12px;
+  background:#ffffff; border-radius:16px;
+  padding:14px 16px; border:1px solid rgba(36,38,43,0.12);
+}
+.h-cd-num { font-size:44px; font-weight:900; color:#141414; line-height:1; letter-spacing:-1px; }
+.h-cd-meta { padding-bottom:6px; }
+.h-cd-label { font-size:11px; font-weight:700; color:#7f4b10; text-transform:uppercase; letter-spacing:0.5px; }
+.h-cd-sub { font-size:14px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+
+/* QUICK STATS RIBBON */
+.stats-row {
+  margin:12px 16px 0;
+  padding:14px 16px; border-radius:16px;
+  background:#ffffff;
+  border:1px solid rgba(36,38,43,0.12);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.sr-item { text-align:center; }
+.sr-val { font-size:13px; font-weight:700; color:#141414; }
+.sr-lbl { font-size:10px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+.sr-div { width:1px; height:22px; background:rgba(36,38,43,0.12); }
+
+/* SECTIONS */
+.section { padding:16px; }
+.sec-label { font-size:11px; font-weight:700; letter-spacing:0.5px; color:#7f4b10; text-transform:uppercase; margin-bottom:10px; }
+
+/* KATHA card — JDS Card */
+.katha-card {
+  padding:16px; border-radius:16px;
+  background:#ffffff;
+  border:1px solid rgba(36,38,43,0.12);
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+}
+.kc-title { font-size:18px; font-weight:700; color:#141414; line-height:1.25; }
+.kc-sub { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:4px; margin-bottom:12px; }
+.kc-text { font-size:13px; font-weight:500; line-height:1.6; color:rgba(25,27,30,0.65); }
+.kc-text b { color:#141414; font-weight:700; }
+.kc-play {
+  margin-top:14px; display:flex; align-items:center; gap:12px;
+  padding:10px; background:#eeeeef; border-radius:12px;
+  cursor:pointer; border:none; width:100%; font-family:inherit; text-align:left;
+}
+.kp-ic {
+  width:40px; height:40px; border-radius:50%; flex-shrink:0;
+  background:#3535f3;
+  display:flex; align-items:center; justify-content:center;
+  color:#ffffff;
+}
+.kp-ic svg { width:18px; height:18px; }
+.kp-body { flex:1; }
+.kp-title { font-size:13px; font-weight:700; color:#141414; }
+.kp-meta { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:1px; }
+
+/* RITUALS TIMELINE */
+.rit-list {
+  border-radius:16px; overflow:hidden;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+}
+.rit-row {
+  padding:13px 16px; display:flex; gap:12px; align-items:flex-start;
+  border-bottom:1px solid rgba(36,38,43,0.12);
+}
+.rit-row:last-child { border-bottom:0; }
+.rit-time {
+  width:58px; font-size:11px; font-weight:700; color:#7f4b10;
+  padding-top:2px; flex-shrink:0;
+}
+.rit-body { flex:1; }
+.rit-title { font-size:13px; font-weight:700; color:#141414; }
+.rit-desc { font-size:12px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:3px; line-height:1.5; }
+.rit-tag {
+  display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px;
+  background:#e8faf7; color:#0e5c4f; margin-top:5px;
+}
+
+/* DO AT HOME GRID */
+.home-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.hg-card {
+  padding:14px; border-radius:16px;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+  cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  text-align:left;
+}
+.hg-ic {
+  width:40px; height:40px; border-radius:12px;
+  background:#e7e9ff;
+  display:flex; align-items:center; justify-content:center;
+  color:#170054; margin-bottom:10px;
+}
+.hg-ic svg { width:20px; height:20px; }
+.hg-title { font-size:13px; font-weight:700; color:#141414; line-height:1.35; }
+.hg-sub { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:3px; line-height:1.4; }
+
+/* OFFER */
+.offer {
+  padding:16px; border-radius:16px;
+  background:#fef7e9;
+  border:1px solid rgba(247,171,32,0.4);
+  display:flex; align-items:center; gap:14px;
+  cursor:pointer;
+}
+.of-ic {
+  width:54px; height:54px; border-radius:14px; flex-shrink:0;
+  background:#f7ab20;
+  display:flex; align-items:center; justify-content:center;
+  color:#ffffff;
+}
+.of-ic svg { width:26px; height:26px; }
+.of-body { flex:1; min-width:0; }
+.of-label { font-size:11px; font-weight:700; color:#7f4b10; letter-spacing:0.5px; text-transform:uppercase; }
+.of-title { font-size:14px; font-weight:700; color:#141414; margin-top:2px; }
+.of-sub { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+.of-arrow { color:#170054; flex-shrink:0; }
+.of-arrow svg { width:20px; height:20px; }
+
+/* REGIONAL */
+.region-strip { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.region-strip::-webkit-scrollbar { display:none; }
+.rg-card {
+  flex-shrink:0; width:160px; padding:14px; border-radius:16px;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+}
+.rg-flag {
+  width:40px; height:40px; border-radius:12px;
+  background:#fef7e9; color:#7f4b10;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:10px;
+}
+.rg-flag svg { width:20px; height:20px; }
+.rg-region { font-size:12px; font-weight:700; color:#141414; }
+.rg-custom { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:4px; line-height:1.45; }
+
+/* LIVE COVERAGE */
+.live-strip { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.live-strip::-webkit-scrollbar { display:none; }
+.lv-card {
+  flex-shrink:0; width:200px; border-radius:16px; overflow:hidden;
+  background:#ffffff; border:1px solid rgba(36,38,43,0.12);
+  cursor:pointer; position:relative;
+}
+.lv-art {
+  height:110px; position:relative; display:flex; align-items:center; justify-content:center;
+  background:#fef7e9;
+  color:#7f4b10;
+}
+.lv-art svg { width:40px; height:40px; }
+.lv-live-badge {
+  position:absolute; top:8px; left:8px;
+  background:#fa2f40; padding:4px 10px; border-radius:999px;
+  font-size:10px; font-weight:700; letter-spacing:0.5px; color:#ffffff;
+}
+.lv-viewers {
+  position:absolute; bottom:8px; right:8px;
+  background:rgba(20,20,20,0.66); color:#ffffff;
+  padding:3px 8px; border-radius:999px;
+  font-size:10px; font-weight:700;
+}
+.lv-body { padding:10px 12px; }
+.lv-temple { font-size:12px; font-weight:700; color:#141414; }
+.lv-loc { font-size:11px; font-weight:500; color:rgba(25,27,30,0.65); margin-top:2px; }
+
+/* BIG CTA — JDS primary button */
+.big-cta {
+  height:52px; border-radius:999px; width:100%; text-align:center;
+  background:#3535f3; border:none;
+  color:#ffffff; font-family:inherit; font-size:14px; font-weight:700;
+  cursor:pointer;
+}
+
+/* Toast */
+.toast {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:#141414; color:#ffffff; padding:12px 20px; border-radius:999px;
+  font-size:13px; font-weight:500; z-index:50; opacity:0; transition:all 300ms ease;
+  pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div></div></div>
+  <div class="statusbar"><span>9:41</span><span>5G</span></div>
+
+  <div class="screen">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="h-top">
+        <button class="icon-btn" onclick="goHome()" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M2.29 12.71l6 6a1.004 1.004 0 101.42-1.42L5.41 13H21a1 1 0 100-2H5.41l4.3-4.29a1 1 0 000-1.42 1 1 0 00-1.42 0l-6 6a1 1 0 000 1.42z" fill="currentColor"/></svg>
+        </button>
+        <button class="h-save" onclick="toast('Reminder laga diya')">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M19 2H7a3 3 0 00-3 3v14a3 3 0 003 3h12a1 1 0 001-1V3a1 1 0 00-1-1zm-1 18H7a1 1 0 010-2h11v2zm0-4H7a3 3 0 00-1 .18V5a1 1 0 011-1h11v12z" fill="currentColor"/></svg>
+          Reminder
+        </button>
+      </div>
+
+      <div class="h-title-block">
+        <div class="h-tag">VAISHAKH SHUKLA TRITIYA</div>
+        <div class="h-title">Akshaya Tritiya</div>
+        <div class="h-tith">Shukravar . 30 April . Dhan-laxmi ka parv</div>
+
+        <div class="h-cd-row">
+          <div class="h-cd-num">9</div>
+          <div class="h-cd-meta">
+            <div class="h-cd-label">Parv mein baaki</div>
+            <div class="h-cd-sub">din</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="sr-item">
+        <div class="sr-val">24 ghante</div>
+        <div class="sr-lbl">Shubh</div>
+      </div>
+      <div class="sr-div"></div>
+      <div class="sr-item">
+        <div class="sr-val">Sona</div>
+        <div class="sr-lbl">Khareed</div>
+      </div>
+      <div class="sr-div"></div>
+      <div class="sr-item">
+        <div class="sr-val">Lakshmi</div>
+        <div class="sr-lbl">Aradhana</div>
+      </div>
+      <div class="sr-div"></div>
+      <div class="sr-item">
+        <div class="sr-val">Daan</div>
+        <div class="sr-lbl">Akshay</div>
+      </div>
+    </div>
+
+    <!-- KATHA -->
+    <div class="section">
+      <div class="sec-label">Kyun manate hain?</div>
+      <div class="katha-card">
+        <div class="kc-title">Akshay = Jo kabhi kshay na ho</div>
+        <div class="kc-sub">Tretayug ki mahatvapurn gatha</div>
+        <div class="kc-text">
+          Is din Bhagwan <b>Parashuram</b> ka avatar hua tha. <b>Ma Ganga</b> dharti par utri thin. <b>Ved Vyas</b> ne Mahabharat likhna shuru kiya tha. Yahi din Yudhishthir ko <b>akshay patra</b> mila tha — jisse bhojan kabhi khatam nahi hota tha.
+          <br><br>
+          Is din jo bhi <b>shubh karya, daan, ya nayi shuruaat</b> ki jaaye — uska phal kabhi kshay nahi hota. Hamesha badhta rehta hai.
+        </div>
+        <button class="kc-play" onclick="toast('Morari Bapu ki awaaz mein katha shuru')">
+          <div class="kp-ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z" fill="currentColor"/></svg>
+          </div>
+          <div class="kp-body">
+            <div class="kp-title">Puri katha . Morari Bapu</div>
+            <div class="kp-meta">22 min . Hindi</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- RITUALS -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">Ghar Par Vidhi</div>
+      <div class="rit-list">
+        <div class="rit-row">
+          <div class="rit-time">4:30<br>AM</div>
+          <div class="rit-body">
+            <div class="rit-title">Brahma Muhurta mein snan</div>
+            <div class="rit-desc">Ganga jal mila kar snan karein. Shuddh vastra dharein.</div>
+            <span class="rit-tag">Shuddhi</span>
+          </div>
+        </div>
+        <div class="rit-row">
+          <div class="rit-time">5:30<br>AM</div>
+          <div class="rit-body">
+            <div class="rit-title">Vishnu-Lakshmi Puja</div>
+            <div class="rit-desc">Sona ya chandi sikka rakh kar puja. Peele phool, tulsi patra, chandan.</div>
+            <span class="rit-tag">Prarambh</span>
+          </div>
+        </div>
+        <div class="rit-row">
+          <div class="rit-time">Dopahar</div>
+          <div class="rit-body">
+            <div class="rit-title">Sona ya nayi cheez khareedein</div>
+            <div class="rit-desc">Chote se kuch bhi — sikka, zevar, bartan. Jo bhi lenge woh akshay hoga.</div>
+            <span class="rit-tag">Labh</span>
+          </div>
+        </div>
+        <div class="rit-row">
+          <div class="rit-time">Sandhya</div>
+          <div class="rit-body">
+            <div class="rit-title">Daan . Annadaan</div>
+            <div class="rit-desc">Jal daan, vastra daan, phalon ka daan. Brahman ya jarooratmand ko.</div>
+            <span class="rit-tag">Punya</span>
+          </div>
+        </div>
+        <div class="rit-row">
+          <div class="rit-time">Raat</div>
+          <div class="rit-body">
+            <div class="rit-title">Vishnu Sahasranama paath</div>
+            <div class="rit-desc">108 naam japein. Mann shant karein. Kal ka sankalp lein.</div>
+            <span class="rit-tag">Samarpan</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DO AT HOME -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">Ghar Par Kya Karein</div>
+      <div class="home-grid">
+        <button class="hg-card" onclick="toast('Puja saamagri list khul rahi hai')">
+          <div class="hg-ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 18a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM3 4h2l3.6 7.59-1.35 2.45A2 2 0 009 17h11v-2H9.42a.25.25 0 01-.22-.37L10 13h7.45a2 2 0 001.79-1.11L22.92 5H6.21l-.94-2H3v1z" fill="currentColor"/></svg>
+          </div>
+          <div class="hg-title">Puja Saamagri list</div>
+          <div class="hg-sub">20 item . Ghar par delivery</div>
+        </button>
+        <button class="hg-card" onclick="toast('Mantra audio shuru')">
+          <div class="hg-ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M19.15 10.36l-10-7A2 2 0 006 5v14a2 2 0 003.15 1.64l10-7a2 2 0 000-3.28z" fill="currentColor"/></svg>
+          </div>
+          <div class="hg-title">Lakshmi Mantra 108x</div>
+          <div class="hg-sub">Japa guide . 18 min</div>
+        </button>
+        <button class="hg-card" onclick="toast('Decoration ideas khul rahi hain')">
+          <div class="hg-ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm0-13a5 5 0 105 5 5 5 0 00-5-5z" fill="currentColor"/></svg>
+          </div>
+          <div class="hg-title">Rangoli & Sajawat</div>
+          <div class="hg-sub">25 designs . Photo guide</div>
+        </button>
+        <button class="hg-card" onclick="toast('Bhog recipes khul rahi hain')">
+          <div class="hg-ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12z" fill="currentColor"/></svg>
+          </div>
+          <div class="hg-title">Akshay Patra Bhog</div>
+          <div class="hg-sub">5 pakvan . Recipes</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- OFFER -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">Shubh Khareed</div>
+      <div class="offer" onclick="toast('Digital Gold kharid shuru ho rahi hai')">
+        <div class="of-ic">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/></svg>
+        </div>
+        <div class="of-body">
+          <div class="of-label">Akshay Tritiya Special</div>
+          <div class="of-title">Digital Sona kharid . Rs 100 se shuru</div>
+          <div class="of-sub">SafeGold ke through . Locker ki zarurat nahi</div>
+        </div>
+        <div class="of-arrow">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGIONAL -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">Region-vise Parampara</div>
+      <div class="region-strip">
+        <div class="rg-card">
+          <div class="rg-flag">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v5l10 5 10-5v-5l-10 5z" fill="currentColor"/></svg>
+          </div>
+          <div class="rg-region">Uttar Bharat</div>
+          <div class="rg-custom">Sona khareedna, Lakshmi puja, Gangajal snan</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-flag">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor"/></svg>
+          </div>
+          <div class="rg-region">Odisha</div>
+          <div class="rg-custom">Akshaya Trutiya . Chandan Yatra Jagannath mein shuru</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-flag">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor"/></svg>
+          </div>
+          <div class="rg-region">Bengal</div>
+          <div class="rg-custom">Haal Khata . Naya vyapar khata shuru</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-flag">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor"/></svg>
+          </div>
+          <div class="rg-region">Dakshin Bharat</div>
+          <div class="rg-custom">Kubera Lakshmi pujan . Simhachalam chandan kaappu</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-flag">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor"/></svg>
+          </div>
+          <div class="rg-region">Uttarakhand</div>
+          <div class="rg-custom">Badrinath ke kapat isi din khulte hain</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE COVERAGE -->
+    <div class="section" style="padding-top:0;">
+      <div class="sec-label">Parv Par Live (30 April)</div>
+      <div class="live-strip">
+        <div class="lv-card" onclick="toast('Jagannath Puri live shuru ho raha hai')">
+          <div class="lv-art">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v5l10 5 10-5v-5l-10 5z" fill="currentColor"/></svg>
+            <div class="lv-live-badge">LIVE</div>
+            <div class="lv-viewers">2.1M</div>
+          </div>
+          <div class="lv-body">
+            <div class="lv-temple">Jagannath Puri</div>
+            <div class="lv-loc">Chandan Yatra . 42 din shuru</div>
+          </div>
+        </div>
+        <div class="lv-card" onclick="toast('Badrinath live shuru ho raha hai')">
+          <div class="lv-art">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v5l10 5 10-5v-5l-10 5z" fill="currentColor"/></svg>
+            <div class="lv-live-badge">LIVE</div>
+            <div class="lv-viewers">890K</div>
+          </div>
+          <div class="lv-body">
+            <div class="lv-temple">Badrinath Dham</div>
+            <div class="lv-loc">Kapat khulne ka udghatan</div>
+          </div>
+        </div>
+        <div class="lv-card" onclick="toast('Tirupati live shuru ho raha hai')">
+          <div class="lv-art">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v5l10 5 10-5v-5l-10 5z" fill="currentColor"/></svg>
+            <div class="lv-live-badge">LIVE</div>
+            <div class="lv-viewers">1.4M</div>
+          </div>
+          <div class="lv-body">
+            <div class="lv-temple">Tirupati Balaji</div>
+            <div class="lv-loc">Kubera-Lakshmi abhishek</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIG CTA -->
+    <div class="section" style="padding-top:0;">
+      <button class="big-cta" onclick="toast('Akshay Tritiya ki puri taiyari shuru')">Akshay Tritiya ki taiyari shuru karein</button>
+    </div>
+
+    <div style="height:24px;"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+function goHome(){
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+var _tt;
+function toast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+</script>
+</body>
+</html>

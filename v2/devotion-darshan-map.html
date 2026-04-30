@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=360, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Devotion — Live Darshan Map</title>
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-font-smoothing:antialiased; }
+html, body { font-family:'JioType','Noto Sans Devanagari',sans-serif; }
+body {
+  background:#0a0500;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:24px 0;
+}
+
+/* ── Phone Frame ── */
+.phone {
+  width:360px; height:820px;
+  background:#0a0500;
+  border-radius:40px; border:8px solid #141414;
+  box-shadow:0 24px 64px rgba(0,0,0,0.4);
+  overflow:hidden; position:relative;
+}
+.notch {
+  background:#141414; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; z-index:80;
+}
+.notch::after {
+  content:''; width:84px; height:18px; background:#141414;
+  border-radius:0 0 14px 14px;
+}
+.statusbar {
+  background:transparent; padding:6px 20px;
+  display:flex; justify-content:space-between;
+  font-size:12px; font-weight:500; color:rgba(255,241,194,0.9);
+  position:relative; z-index:80;
+}
+.statusbar .right { display:flex; gap:4px; align-items:center; }
+.statusbar .right svg { width:14px; height:14px; }
+
+/* ── Screen ── */
+.screen {
+  position:absolute; top:34px; left:0; right:0; bottom:0;
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 40%, #1a0a00 0%, #0a0500 80%);
+}
+
+/* ── Top bar ── */
+.top-nav {
+  position:absolute; top:0; left:0; right:0;
+  padding:14px 16px 16px;
+  display:flex; align-items:center; gap:12px;
+  z-index:40;
+  background:linear-gradient(180deg, rgba(10,5,0,0.88) 0%, rgba(10,5,0,0.0) 100%);
+}
+.icon-btn {
+  width:36px; height:36px; border-radius:18px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(255,241,194,0.85);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.icon-btn svg { width:16px; height:16px; }
+.top-title {
+  flex:1;
+}
+.top-title .t1 {
+  font-size:11px; color:rgba(255,241,194,0.6);
+  letter-spacing:2px; text-transform:uppercase;
+  font-weight:500;
+}
+.top-title .t2 {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:17px; font-weight:700; color:#fff1c2;
+  margin-top:1px;
+  display:flex; align-items:center; gap:8px;
+}
+.live-dot {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:2px 8px; border-radius:10px;
+  background:rgba(250,47,64,0.18);
+  border:1px solid rgba(250,47,64,0.35);
+  font-size:10px; font-weight:700; letter-spacing:1px;
+  color:#ff6d7a;
+}
+.live-dot .d {
+  width:5px; height:5px; border-radius:50%; background:#fa2f40;
+  animation:dotBlink 1.2s infinite;
+}
+@keyframes dotBlink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+/* Filter chips */
+.filter-row {
+  position:absolute; top:76px; left:0; right:0;
+  padding:0 16px;
+  display:flex; gap:8px;
+  overflow-x:auto;
+  z-index:40;
+}
+.filter-row::-webkit-scrollbar { display:none; }
+.chip {
+  flex-shrink:0;
+  padding:7px 14px; border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  font-size:12px; font-weight:500;
+  color:rgba(255,241,194,0.75);
+  cursor:pointer;
+  transition:all 220ms;
+  white-space:nowrap;
+}
+.chip.active {
+  background:rgba(247,171,32,0.18);
+  border-color:rgba(247,171,32,0.55);
+  color:#f7ab20;
+}
+.chip .count {
+  margin-left:4px; font-weight:700;
+  opacity:0.8;
+}
+
+/* ── Map canvas ── */
+.map-wrap {
+  position:absolute; top:120px; left:0; right:0; bottom:260px;
+  overflow:hidden;
+}
+.map-inner {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.map-inner svg {
+  width:100%; height:100%;
+  display:block;
+}
+
+/* Faint graticule grid background */
+.graticule line {
+  stroke:rgba(247,171,32,0.06);
+  stroke-width:0.5;
+}
+
+/* India silhouette */
+.india-shape {
+  fill:rgba(247,171,32,0.05);
+  stroke:rgba(247,171,32,0.28);
+  stroke-width:1.2;
+  stroke-linejoin:round;
+}
+
+/* Ambient floating ember on map */
+.map-ember {
+  position:absolute; width:2px; height:2px; border-radius:50%;
+  background:#f7ab20; box-shadow:0 0 4px rgba(247,171,32,0.8);
+  opacity:0;
+  animation:mapEmber 9s linear infinite;
+}
+@keyframes mapEmber {
+  0% { bottom:10%; opacity:0; }
+  10% { opacity:0.6; }
+  90% { opacity:0.3; }
+  100% { bottom:95%; opacity:0; }
+}
+
+/* Temple pin */
+.pin {
+  position:absolute;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  z-index:10;
+}
+.pin-glow {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:56px; height:56px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.55) 0%, rgba(247,171,32,0.15) 45%, transparent 70%);
+  pointer-events:none;
+  animation:pinGlow 2.4s ease-in-out infinite;
+}
+@keyframes pinGlow {
+  0%,100% { opacity:0.7; transform:translate(-50%,-50%) scale(0.9); }
+  50% { opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+}
+.pin-core {
+  position:relative; z-index:2;
+  width:14px; height:14px; border-radius:50%;
+  background:linear-gradient(180deg, #fff1c2, #f7ab20);
+  box-shadow:0 0 10px rgba(247,171,32,0.9), 0 0 20px rgba(247,171,32,0.5);
+}
+.pin.scheduled .pin-glow { display:none; }
+.pin.scheduled .pin-core {
+  width:8px; height:8px;
+  background:rgba(247,171,32,0.45);
+  box-shadow:none;
+}
+.pin.soon .pin-glow {
+  background:radial-gradient(circle, rgba(30,204,176,0.4) 0%, rgba(30,204,176,0.1) 50%, transparent 75%);
+  animation-duration:3s;
+}
+.pin.soon .pin-core {
+  background:linear-gradient(180deg, #a8f0e0, #1eccb0);
+  box-shadow:0 0 8px rgba(30,204,176,0.8);
+}
+.pin-label {
+  position:absolute; top:22px; left:50%;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  padding:3px 8px; border-radius:8px;
+  background:rgba(10,5,0,0.85);
+  border:1px solid rgba(247,171,32,0.2);
+  font-size:9px; font-weight:600;
+  color:#fff1c2;
+  letter-spacing:0.4px;
+  backdrop-filter:blur(4px);
+  pointer-events:none;
+}
+.pin.scheduled .pin-label { border-color:rgba(255,255,255,0.1); color:rgba(255,241,194,0.55); }
+.pin.soon .pin-label { border-color:rgba(30,204,176,0.3); }
+.pin.selected {
+  z-index:20;
+}
+.pin.selected .pin-core {
+  width:18px; height:18px;
+  box-shadow:0 0 18px rgba(247,171,32,1), 0 0 36px rgba(247,171,32,0.7);
+}
+.pin.selected .pin-glow { animation-duration:1.6s; }
+
+/* Live waves emanating from LIVE pin */
+.pin-wave {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:20px; height:20px;
+  border:1.5px solid rgba(247,171,32,0.5);
+  border-radius:50%;
+  animation:pinWave 2.4s ease-out infinite;
+  pointer-events:none;
+}
+.pin-wave.w2 { animation-delay:0.8s; }
+.pin-wave.w3 { animation-delay:1.6s; }
+@keyframes pinWave {
+  0% { opacity:0.7; transform:translate(-50%,-50%) scale(0.3); }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(3.4); }
+}
+
+/* ── Bottom sheet: live temples ── */
+.sheet {
+  position:absolute; left:0; right:0; bottom:0;
+  background:linear-gradient(180deg, rgba(26,10,0,0.0) 0%, rgba(10,5,0,0.96) 20%);
+  padding:20px 0 20px;
+  z-index:30;
+  transition:transform 400ms cubic-bezier(0.2,0,0,1);
+}
+.sheet-handle {
+  width:36px; height:4px; border-radius:2px;
+  background:rgba(255,241,194,0.25);
+  margin:0 auto 12px;
+}
+.sheet-head {
+  padding:0 16px 10px;
+  display:flex; justify-content:space-between; align-items:baseline;
+}
+.sheet-head .sh1 {
+  font-size:10px; color:rgba(255,241,194,0.55);
+  letter-spacing:2px; text-transform:uppercase; font-weight:500;
+}
+.sheet-head .sh2 {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:15px; color:#fff1c2; font-weight:700;
+  margin-top:2px;
+}
+.sheet-see {
+  font-size:12px; color:#f7ab20; font-weight:500;
+}
+.sheet-scroll {
+  display:flex; gap:10px;
+  padding:4px 16px 4px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+}
+.sheet-scroll::-webkit-scrollbar { display:none; }
+
+.live-card {
+  flex:0 0 210px;
+  background:rgba(26,10,0,0.7);
+  border:1px solid rgba(247,171,32,0.18);
+  border-radius:14px;
+  overflow:hidden;
+  scroll-snap-align:start;
+  cursor:pointer;
+  transition:all 240ms;
+  backdrop-filter:blur(6px);
+}
+.live-card:active { transform:scale(0.98); }
+.live-card.highlighted {
+  border-color:rgba(247,171,32,0.55);
+  box-shadow:0 8px 24px rgba(247,171,32,0.25);
+}
+.live-thumb {
+  height:96px; position:relative;
+  background:radial-gradient(circle at 50% 60%, #3d1a00 0%, #0a0500 100%);
+  overflow:hidden;
+}
+.live-thumb .mini-arch {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.live-thumb .mini-arch svg { width:72%; height:78%; }
+.live-thumb .mini-om {
+  position:absolute; left:50%; top:58%;
+  transform:translate(-50%,-50%);
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:34px; font-weight:900;
+  color:#f7ab20;
+  text-shadow:0 0 14px rgba(247,171,32,0.7);
+}
+.live-chip {
+  position:absolute; top:8px; left:8px;
+  display:flex; align-items:center; gap:4px;
+  padding:3px 7px; border-radius:6px;
+  background:#fa2f40;
+  font-size:9px; font-weight:700; letter-spacing:0.6px;
+  color:#fff;
+}
+.live-chip .d {
+  width:4px; height:4px; border-radius:50%; background:#fff;
+  animation:dotBlink 1.2s infinite;
+}
+.live-chip.soon { background:#1eccb0; color:#062c27; }
+.viewer-chip {
+  position:absolute; top:8px; right:8px;
+  padding:3px 7px; border-radius:6px;
+  background:rgba(10,5,0,0.78);
+  border:1px solid rgba(255,255,255,0.12);
+  font-size:9px; font-weight:600;
+  color:#fff1c2;
+  letter-spacing:0.2px;
+}
+.live-meta { padding:10px 12px 12px; }
+.live-name {
+  font-size:13px; font-weight:700; color:#fff1c2;
+  margin-bottom:3px;
+}
+.live-sub {
+  font-size:11px; color:rgba(255,241,194,0.6);
+  display:flex; align-items:center; gap:4px;
+  margin-bottom:8px;
+}
+.live-aarti {
+  display:flex; align-items:center; gap:5px;
+  padding:4px 8px; border-radius:999px;
+  background:rgba(247,171,32,0.12);
+  border:1px solid rgba(247,171,32,0.25);
+  font-size:10px; font-weight:500;
+  color:#f7ab20;
+  width:fit-content;
+}
+.live-aarti .ic {
+  width:9px; height:9px; border-radius:50%; background:#f7ab20;
+  box-shadow:0 0 4px rgba(247,171,32,0.8);
+}
+
+/* ── Temple detail overlay ── */
+.temple-overlay {
+  position:absolute; inset:0;
+  background:#0a0500;
+  z-index:70;
+  opacity:0; pointer-events:none;
+  transform:translateY(30px);
+  transition:opacity 500ms cubic-bezier(0.2,0,0,1), transform 500ms cubic-bezier(0.2,0,0,1);
+  overflow-y:auto;
+}
+.temple-overlay.show {
+  opacity:1; pointer-events:auto;
+  transform:translateY(0);
+}
+.temple-overlay::-webkit-scrollbar { display:none; }
+
+.to-hero {
+  position:relative;
+  height:360px;
+  background:radial-gradient(ellipse at 50% 50%, #3d1a00 0%, #1a0a00 60%, #0a0500 100%);
+  overflow:hidden;
+}
+.to-arch {
+  position:absolute; top:10%; left:50%;
+  transform:translateX(-50%);
+  width:280px; height:320px;
+  opacity:0.4;
+  pointer-events:none;
+}
+.to-arch svg { width:100%; height:100%; }
+.to-halo {
+  position:absolute; left:50%; top:48%;
+  transform:translate(-50%,-50%);
+  width:280px; height:280px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,171,32,0.4) 0%, rgba(247,171,32,0.1) 50%, transparent 75%);
+  animation:haloBreath 5s ease-in-out infinite;
+}
+@keyframes haloBreath {
+  0%,100% { opacity:0.8; transform:translate(-50%,-50%) scale(1); }
+  50% { opacity:1; transform:translate(-50%,-50%) scale(1.08); }
+}
+.to-deity {
+  position:absolute; left:50%; top:48%;
+  transform:translate(-50%,-50%);
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:120px; font-weight:900; color:#f7ab20;
+  text-shadow:0 0 36px rgba(247,171,32,0.85), 0 0 72px rgba(247,171,32,0.4);
+  line-height:1;
+  animation:deityBreath 5s ease-in-out infinite;
+}
+@keyframes deityBreath {
+  0%,100% { transform:translate(-50%,-50%) scale(1); }
+  50% { transform:translate(-50%,-50%) scale(1.03); }
+}
+@keyframes flameFlicker {
+  0% { transform:scale(1) rotate(-2deg); }
+  100% { transform:scale(1.07) rotate(2deg); }
+}
+
+/* Live badge big */
+.to-live {
+  position:absolute; top:16px; left:16px;
+  display:flex; align-items:center; gap:6px;
+  padding:6px 12px; border-radius:999px;
+  background:rgba(250,47,64,0.18);
+  border:1px solid rgba(250,47,64,0.5);
+  font-size:11px; font-weight:700; letter-spacing:1.5px;
+  color:#ff6d7a;
+  backdrop-filter:blur(8px);
+}
+.to-live .d { width:6px; height:6px; border-radius:50%; background:#fa2f40; animation:dotBlink 1.2s infinite; }
+.to-close {
+  position:absolute; top:16px; right:16px;
+  width:36px; height:36px; border-radius:18px;
+  background:rgba(10,5,0,0.7);
+  border:1px solid rgba(255,255,255,0.14);
+  color:rgba(255,241,194,0.85);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+}
+.to-close svg { width:16px; height:16px; }
+.to-viewers {
+  position:absolute; top:16px; left:50%;
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:6px;
+  padding:6px 12px; border-radius:999px;
+  background:rgba(10,5,0,0.7);
+  border:1px solid rgba(255,255,255,0.14);
+  font-size:11px; font-weight:600; color:#fff1c2;
+  backdrop-filter:blur(8px);
+}
+.to-viewers svg { width:12px; height:12px; }
+
+.to-aarti-label {
+  position:absolute; bottom:22px; left:0; right:0;
+  text-align:center;
+  color:rgba(255,241,194,0.9);
+}
+.to-aarti-label .tl1 {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:#f7ab20; font-weight:700;
+  margin-bottom:4px;
+}
+.to-aarti-label .tl2 {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:18px; font-weight:700;
+}
+
+/* Temple info */
+.to-info {
+  padding:20px 20px 12px;
+}
+.to-title {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:22px; font-weight:700; color:#fff1c2;
+  margin-bottom:4px;
+}
+.to-location {
+  font-size:13px; color:rgba(255,241,194,0.6);
+  display:flex; align-items:center; gap:5px;
+  margin-bottom:16px;
+}
+.to-location svg { width:12px; height:12px; color:#f7ab20; }
+
+.to-join {
+  width:100%;
+  background:linear-gradient(135deg, #f7ab20 0%, #f06d0f 100%);
+  color:#3d1a00;
+  border:none; border-radius:999px;
+  padding:16px 24px;
+  font-family:'JioType','Noto Sans Devanagari',sans-serif;
+  font-size:15px; font-weight:700;
+  letter-spacing:0.3px;
+  cursor:pointer;
+  box-shadow:0 10px 32px rgba(247,171,32,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition:transform 200ms;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.to-join:active { transform:scale(0.97); }
+.to-join .pulsewave {
+  width:6px; height:6px; border-radius:50%; background:#3d1a00;
+  box-shadow:0 0 0 0 rgba(61,26,0,0.6);
+  animation:joinPulse 1.6s ease-out infinite;
+}
+@keyframes joinPulse {
+  0% { box-shadow:0 0 0 0 rgba(61,26,0,0.6); }
+  100% { box-shadow:0 0 0 12px rgba(61,26,0,0); }
+}
+
+.to-actions-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  margin-top:12px;
+}
+.to-act {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:12px;
+  display:flex; align-items:center; gap:10px;
+  cursor:pointer;
+}
+.to-act:active { background:rgba(255,255,255,0.1); }
+.to-act-ic {
+  width:30px; height:30px; border-radius:15px;
+  background:rgba(247,171,32,0.15);
+  display:flex; align-items:center; justify-content:center;
+  color:#f7ab20;
+  flex-shrink:0;
+}
+.to-act-ic svg { width:14px; height:14px; }
+.to-act-txt {
+  display:flex; flex-direction:column;
+  font-size:12px; font-weight:600; color:#fff1c2;
+}
+.to-act-txt small {
+  font-size:10px; font-weight:400;
+  color:rgba(255,241,194,0.55);
+  letter-spacing:0.2px;
+  margin-top:2px;
+}
+
+/* Aarti progress + timeline */
+.to-section {
+  padding:20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.to-section-head {
+  font-size:10px; color:rgba(255,241,194,0.55);
+  letter-spacing:2px; text-transform:uppercase; font-weight:500;
+  margin-bottom:10px;
+}
+.aarti-row {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px;
+  background:rgba(247,171,32,0.08);
+  border:1px solid rgba(247,171,32,0.25);
+  border-radius:12px;
+  margin-bottom:8px;
+}
+.aarti-row.past { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); opacity:0.6; }
+.aarti-row.next { background:rgba(30,204,176,0.08); border-color:rgba(30,204,176,0.22); }
+.aarti-time {
+  font-size:11px; font-weight:700;
+  color:#f7ab20;
+  letter-spacing:0.5px;
+  width:50px; flex-shrink:0;
+  text-align:center;
+}
+.aarti-row.past .aarti-time { color:rgba(255,241,194,0.45); }
+.aarti-row.next .aarti-time { color:#1eccb0; }
+.aarti-info { flex:1; }
+.aarti-nm {
+  font-family:'JioType','Noto Sans Devanagari',serif;
+  font-size:13px; font-weight:600; color:#fff1c2;
+}
+.aarti-dur {
+  font-size:10px; color:rgba(255,241,194,0.55);
+  margin-top:1px;
+}
+.aarti-now {
+  display:flex; align-items:center; gap:4px;
+  padding:2px 6px; border-radius:6px;
+  background:#fa2f40;
+  font-size:9px; font-weight:700; color:#fff;
+  letter-spacing:0.4px;
+}
+.aarti-now .d { width:4px; height:4px; border-radius:50%; background:#fff; animation:dotBlink 1.2s infinite; }
+
+/* Blessings feed */
+.bless-list {
+  display:flex; flex-direction:column; gap:8px;
+  max-height:160px; overflow:hidden;
+  position:relative;
+}
+.bless-list::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:40px;
+  background:linear-gradient(180deg, transparent, #0a0500);
+  pointer-events:none;
+}
+.bless {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px;
+  background:rgba(255,255,255,0.04);
+  border-radius:10px;
+  animation:blessIn 600ms cubic-bezier(0.2,0,0,1);
+}
+@keyframes blessIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.bless-ava {
+  width:22px; height:22px; border-radius:11px;
+  background:linear-gradient(135deg, #f7ab20, #f06d0f);
+  display:flex; align-items:center; justify-content:center;
+  color:#3d1a00; font-size:10px; font-weight:700;
+  flex-shrink:0;
+}
+.bless-txt {
+  font-size:11px; color:rgba(255,241,194,0.78);
+  line-height:1.3;
+}
+.bless-txt b { color:#fff1c2; font-weight:600; }
+
+/* Legend */
+.legend {
+  position:absolute; bottom:250px; right:12px;
+  background:rgba(10,5,0,0.78);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:10px; color:rgba(255,241,194,0.75);
+  display:flex; flex-direction:column; gap:4px;
+  z-index:15;
+  backdrop-filter:blur(8px);
+}
+.legend-row { display:flex; align-items:center; gap:6px; }
+.legend-dot { width:7px; height:7px; border-radius:50%; }
+.legend-dot.live { background:#f7ab20; box-shadow:0 0 6px rgba(247,171,32,0.8); }
+.legend-dot.soon { background:#1eccb0; box-shadow:0 0 6px rgba(30,204,176,0.6); }
+.legend-dot.sched { background:rgba(247,171,32,0.45); }
+
+/* Watching now banner (FOMO without being tacky) */
+.watching-strip {
+  position:absolute; top:120px; left:50%;
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:8px;
+  padding:6px 14px; border-radius:999px;
+  background:rgba(10,5,0,0.8);
+  border:1px solid rgba(247,171,32,0.25);
+  font-size:11px; color:rgba(255,241,194,0.85);
+  z-index:38;
+  backdrop-filter:blur(8px);
+  animation:stripPulse 4s ease-in-out infinite;
+}
+.watching-strip strong { color:#f7ab20; font-weight:700; }
+.watching-strip .tiny-dot {
+  width:5px; height:5px; border-radius:50%; background:#fa2f40;
+  animation:dotBlink 1.2s infinite;
+}
+@keyframes stripPulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(247,171,32,0); }
+  50% { box-shadow:0 0 24px rgba(247,171,32,0.2); }
+}
+
+/* Toast */
+.toast {
+  position:absolute; left:50%; bottom:180px;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(20,20,20,0.94);
+  color:#fff1c2;
+  padding:10px 18px; border-radius:12px;
+  font-size:12px; font-weight:500;
+  border:1px solid rgba(247,171,32,0.25);
+  opacity:0; pointer-events:none;
+  transition:all 260ms;
+  z-index:90;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="right">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h2v-6H2v6zm4 0h2V12H6v10zm4 0h2V8h-2v14zm4 0h2V4h-2v18zm4 0h2V16h-2v6z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2H6v2H3v16h14V4zm-2 14H5V6h2v2h6V6h2v12z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v14H3V5zm2 2v10h14V7H5z"/></svg>
+    </span>
+  </div>
+
+  <div class="screen">
+
+    <!-- Top nav -->
+    <div class="top-nav">
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 7l-5 5 5 5V7z"/></svg>
+      </div>
+      <div class="top-title">
+        <div class="t1">Mandir Locator</div>
+        <div class="t2">
+          Live Darshan
+          <span class="live-dot"><span class="d"></span>6 LIVE</span>
+        </div>
+      </div>
+      <div class="icon-btn" id="searchBtn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="filter-row">
+      <div class="chip active">Sabhi <span class="count">12</span></div>
+      <div class="chip">Jyotirling <span class="count">6</span></div>
+      <div class="chip">Shakti Peeth <span class="count">4</span></div>
+      <div class="chip">Char Dham</div>
+      <div class="chip">Aapke Isht Dev</div>
+    </div>
+
+    <!-- FOMO-lite watching strip -->
+    <div class="watching-strip">
+      <span class="tiny-dot"></span>
+      <span><strong>47.3K bhakt</strong> abhi darshan kar rahe hain</span>
+    </div>
+
+    <!-- Map canvas -->
+    <div class="map-wrap">
+      <!-- Ambient embers -->
+      <div class="map-ember" style="left:15%; animation-delay:0s;"></div>
+      <div class="map-ember" style="left:40%; animation-delay:3s;"></div>
+      <div class="map-ember" style="left:62%; animation-delay:5s;"></div>
+      <div class="map-ember" style="left:85%; animation-delay:7s;"></div>
+
+      <div class="map-inner">
+        <svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- Graticule grid -->
+          <g class="graticule">
+            <line x1="0" y1="60" x2="300" y2="60"/>
+            <line x1="0" y1="120" x2="300" y2="120"/>
+            <line x1="0" y1="180" x2="300" y2="180"/>
+            <line x1="0" y1="240" x2="300" y2="240"/>
+            <line x1="0" y1="300" x2="300" y2="300"/>
+            <line x1="60" y1="0" x2="60" y2="360"/>
+            <line x1="120" y1="0" x2="120" y2="360"/>
+            <line x1="180" y1="0" x2="180" y2="360"/>
+            <line x1="240" y1="0" x2="240" y2="360"/>
+          </g>
+          <!-- India silhouette (simplified, stylized) -->
+          <path class="india-shape" d="M100 30 Q 120 22 145 26 L 170 22 Q 190 28 205 40 L 225 44 Q 240 50 250 66 L 260 82 Q 268 100 268 118 L 270 140 Q 270 162 264 180 L 258 205 Q 250 225 238 244 L 220 264 Q 205 282 188 298 L 172 316 Q 158 328 145 332 L 130 328 Q 112 318 98 298 L 86 278 Q 78 260 70 240 L 60 220 Q 52 200 46 180 L 42 160 Q 40 140 44 120 L 52 100 Q 62 80 76 62 L 90 46 Z"/>
+          <!-- North mountain accent (Himalayas) -->
+          <path d="M78 45 Q 120 30 160 38 L 210 42 Q 240 52 252 66" stroke="rgba(247,171,32,0.35)" stroke-width="1" fill="none"/>
+          <!-- Sri Lanka dot -->
+          <circle cx="170" cy="350" r="4" fill="rgba(247,171,32,0.12)" stroke="rgba(247,171,32,0.25)" stroke-width="0.8"/>
+        </svg>
+      </div>
+
+      <!-- Temple pins -->
+      <!-- Vaishno Devi (LIVE) — J&K top -->
+      <div class="pin" style="left:28%; top:10%;" data-id="vaishno" onclick="openTemple('vaishno')">
+        <div class="pin-wave"></div>
+        <div class="pin-wave w2"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Vaishno Devi</div>
+      </div>
+
+      <!-- Kedarnath (LIVE) — Uttarakhand -->
+      <div class="pin" style="left:42%; top:15%;" data-id="kedarnath" onclick="openTemple('kedarnath')">
+        <div class="pin-wave"></div>
+        <div class="pin-wave w2"></div>
+        <div class="pin-wave w3"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Kedarnath</div>
+      </div>
+
+      <!-- Kashi Vishwanath (LIVE) — Varanasi -->
+      <div class="pin" style="left:56%; top:32%;" data-id="kashi" onclick="openTemple('kashi')">
+        <div class="pin-wave"></div>
+        <div class="pin-wave w2"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Kashi Vishwanath</div>
+      </div>
+
+      <!-- Somnath (SOON) — Gujarat -->
+      <div class="pin soon" style="left:20%; top:42%;" data-id="somnath" onclick="openTemple('somnath')">
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Somnath · 8 min</div>
+      </div>
+
+      <!-- Mahakaleshwar (LIVE) — Ujjain -->
+      <div class="pin" style="left:40%; top:42%;" data-id="mahakal" onclick="openTemple('mahakal')">
+        <div class="pin-wave"></div>
+        <div class="pin-wave w2"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Mahakaleshwar</div>
+      </div>
+
+      <!-- Jagannath Puri (SOON) — Odisha -->
+      <div class="pin soon" style="left:68%; top:52%;" data-id="puri" onclick="openTemple('puri')">
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Puri · 24 min</div>
+      </div>
+
+      <!-- Kamakhya (SCHEDULED) — Assam -->
+      <div class="pin scheduled" style="left:80%; top:28%;" data-id="kamakhya" onclick="openTemple('kamakhya')">
+        <div class="pin-core"></div>
+        <div class="pin-label">Kamakhya · 7 PM</div>
+      </div>
+
+      <!-- Tirupati (LIVE) — AP -->
+      <div class="pin" style="left:46%; top:74%;" data-id="tirupati" onclick="openTemple('tirupati')">
+        <div class="pin-wave"></div>
+        <div class="pin-wave w2"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Tirupati</div>
+      </div>
+
+      <!-- Rameshwaram (LIVE) — TN tip -->
+      <div class="pin" style="left:50%; top:88%;" data-id="rameshwar" onclick="openTemple('rameshwar')">
+        <div class="pin-wave"></div>
+        <div class="pin-glow"></div>
+        <div class="pin-core"></div>
+        <div class="pin-label">Rameshwaram</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-row"><span class="legend-dot live"></span>Abhi Live</div>
+      <div class="legend-row"><span class="legend-dot soon"></span>Shuru hone wala</div>
+      <div class="legend-row"><span class="legend-dot sched"></span>Baad mein</div>
+    </div>
+
+    <!-- Bottom sheet -->
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="sh1">Abhi Chal Raha Hai</div>
+          <div class="sh2">Live Darshan · 6 Mandir</div>
+        </div>
+        <span class="sheet-see">Sabhi</span>
+      </div>
+      <div class="sheet-scroll">
+        <div class="live-card" onclick="openTemple('kedarnath')">
+          <div class="live-thumb">
+            <div class="mini-arch">
+              <svg viewBox="0 0 100 100"><path d="M20 100 L20 55 Q20 20 50 20 Q80 20 80 55 L80 100" fill="none" stroke="#f7ab20" stroke-width="1.2" opacity="0.5"/><path d="M50 8 L42 24 L58 24 Z" fill="#f7ab20" opacity="0.5"/></svg>
+            </div>
+            <div class="mini-om">ॐ</div>
+            <div class="live-chip"><span class="d"></span>LIVE</div>
+            <div class="viewer-chip">12.4K</div>
+          </div>
+          <div class="live-meta">
+            <div class="live-name">Kedarnath Dham</div>
+            <div class="live-sub">Uttarakhand · Jyotirling</div>
+            <div class="live-aarti"><span class="ic"></span>Sandhya Aarti</div>
+          </div>
+        </div>
+
+        <div class="live-card" onclick="openTemple('mahakal')">
+          <div class="live-thumb">
+            <div class="mini-arch">
+              <svg viewBox="0 0 100 100"><path d="M20 100 L20 55 Q20 20 50 20 Q80 20 80 55 L80 100" fill="none" stroke="#f7ab20" stroke-width="1.2" opacity="0.5"/><path d="M50 8 L42 24 L58 24 Z" fill="#f7ab20" opacity="0.5"/></svg>
+            </div>
+            <div class="mini-om">ॐ</div>
+            <div class="live-chip"><span class="d"></span>LIVE</div>
+            <div class="viewer-chip">18.2K</div>
+          </div>
+          <div class="live-meta">
+            <div class="live-name">Mahakaleshwar</div>
+            <div class="live-sub">Ujjain · Jyotirling</div>
+            <div class="live-aarti"><span class="ic"></span>Sandhya Aarti</div>
+          </div>
+        </div>
+
+        <div class="live-card" onclick="openTemple('tirupati')">
+          <div class="live-thumb">
+            <div class="mini-arch">
+              <svg viewBox="0 0 100 100"><path d="M20 100 L20 55 Q20 20 50 20 Q80 20 80 55 L80 100" fill="none" stroke="#f7ab20" stroke-width="1.2" opacity="0.5"/><path d="M50 8 L42 24 L58 24 Z" fill="#f7ab20" opacity="0.5"/></svg>
+            </div>
+            <div class="mini-om">ॐ</div>
+            <div class="live-chip"><span class="d"></span>LIVE</div>
+            <div class="viewer-chip">9.1K</div>
+          </div>
+          <div class="live-meta">
+            <div class="live-name">Tirupati Balaji</div>
+            <div class="live-sub">Andhra Pradesh</div>
+            <div class="live-aarti"><span class="ic"></span>Ekanta Seva</div>
+          </div>
+        </div>
+
+        <div class="live-card" onclick="openTemple('somnath')">
+          <div class="live-thumb">
+            <div class="mini-arch">
+              <svg viewBox="0 0 100 100"><path d="M20 100 L20 55 Q20 20 50 20 Q80 20 80 55 L80 100" fill="none" stroke="#1eccb0" stroke-width="1.2" opacity="0.5"/><path d="M50 8 L42 24 L58 24 Z" fill="#1eccb0" opacity="0.5"/></svg>
+            </div>
+            <div class="mini-om" style="color:#1eccb0; text-shadow:0 0 14px rgba(30,204,176,0.6);">ॐ</div>
+            <div class="live-chip soon">8 MIN</div>
+            <div class="viewer-chip">3.4K waiting</div>
+          </div>
+          <div class="live-meta">
+            <div class="live-name">Somnath Mandir</div>
+            <div class="live-sub">Gujarat · Jyotirling</div>
+            <div class="live-aarti" style="background:rgba(30,204,176,0.12); border-color:rgba(30,204,176,0.25); color:#1eccb0;"><span class="ic" style="background:#1eccb0;"></span>Mahaarti aa rahi hai</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Temple detail overlay -->
+    <div class="temple-overlay" id="templeOverlay">
+      <div class="to-hero">
+        <div class="to-arch">
+          <svg viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 320 L20 120 Q20 20 140 20 Q260 20 260 120 L260 320" fill="none" stroke="#f7ab20" stroke-width="1.2" opacity="0.4"/>
+            <path d="M50 320 L50 130 Q50 50 140 50 Q230 50 230 130 L230 320" fill="none" stroke="#f7ab20" stroke-width="1" opacity="0.25"/>
+            <path d="M140 0 L130 26 L150 26 Z" fill="#f7ab20" opacity="0.55"/>
+            <circle cx="140" cy="-2" r="3" fill="#fff1c2"/>
+            <line x1="82" y1="86" x2="82" y2="108" stroke="#f7ab20" stroke-width="1" opacity="0.4"/>
+            <path d="M76 108 Q82 118 88 108 L88 112 Q82 114 76 112 Z" fill="#f7ab20" opacity="0.7"/>
+            <line x1="198" y1="86" x2="198" y2="108" stroke="#f7ab20" stroke-width="1" opacity="0.4"/>
+            <path d="M192 108 Q198 118 204 108 L204 112 Q198 114 192 112 Z" fill="#f7ab20" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="to-halo"></div>
+        <div class="to-deity" id="toDeity">ॐ</div>
+
+        <div class="to-live" id="toLive"><span class="d"></span>LIVE</div>
+        <div class="to-close" onclick="closeTemple()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </div>
+        <div class="to-viewers">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          <span id="toViewers">12.4K dekh rahe hain</span>
+        </div>
+        <div class="to-aarti-label">
+          <div class="tl1" id="toAartiLabel">Abhi Chal Raha Hai</div>
+          <div class="tl2" id="toAartiName">Sandhya Aarti</div>
+        </div>
+      </div>
+
+      <div class="to-info">
+        <div class="to-title" id="toTitle">Kedarnath Dham</div>
+        <div class="to-location">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+          <span id="toLocation">Garhwal · Uttarakhand · Jyotirling</span>
+        </div>
+        <button class="to-join" onclick="joinDarshan()">
+          <span class="pulsewave"></span>
+          Aarti mein shamil hon
+        </button>
+        <div class="to-actions-row">
+          <div class="to-act" onclick="showToast('🪔 Online diya prajwalit')">
+            <div class="to-act-ic">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2c-1 3-4 4-4 8a4.5 4.5 0 009 0c0-1.5-.5-2.5-1-3.5.5 1.5-1 2.5-2 2 .5-1.5 1-3-.5-4-1 1-1 2.5-1.5 3 .5-2 .5-4 0-5.5zM7 18h10l-1 3H8z"/></svg>
+            </div>
+            <div class="to-act-txt">Online Diya<small>₹51 se shuru</small></div>
+          </div>
+          <div class="to-act" onclick="showToast('📿 Prasad bhej diya jayega')">
+            <div class="to-act-ic">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"/></svg>
+            </div>
+            <div class="to-act-txt">Online Puja<small>Pandit ke saath</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aarti Timeline -->
+      <div class="to-section">
+        <div class="to-section-head">Aaj ka Aarti Schedule</div>
+        <div class="aarti-row past">
+          <div class="aarti-time">4:00<br/>AM</div>
+          <div class="aarti-info">
+            <div class="aarti-nm">Mangla Aarti</div>
+            <div class="aarti-dur">Pehli aarti · 45 min</div>
+          </div>
+        </div>
+        <div class="aarti-row past">
+          <div class="aarti-time">12:00<br/>PM</div>
+          <div class="aarti-info">
+            <div class="aarti-nm">Bhog Aarti</div>
+            <div class="aarti-dur">Madhyan aarti · 30 min</div>
+          </div>
+        </div>
+        <div class="aarti-row">
+          <div class="aarti-time">6:30<br/>PM</div>
+          <div class="aarti-info">
+            <div class="aarti-nm">Sandhya Aarti</div>
+            <div class="aarti-dur">Shaam ki aarti · Chal rahi hai</div>
+          </div>
+          <div class="aarti-now"><span class="d"></span>LIVE</div>
+        </div>
+        <div class="aarti-row next">
+          <div class="aarti-time">8:30<br/>PM</div>
+          <div class="aarti-info">
+            <div class="aarti-nm">Shayan Aarti</div>
+            <div class="aarti-dur">Shuru hone mein 1 ghanta 48 min</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blessings feed -->
+      <div class="to-section">
+        <div class="to-section-head">🙏 Bhaktgan ke Aashirvaad</div>
+        <div class="bless-list" id="blessList">
+          <div class="bless">
+            <div class="bless-ava">R</div>
+            <div class="bless-txt"><b>Ravi, Pune</b> — Har Har Mahadev 🙏</div>
+          </div>
+          <div class="bless">
+            <div class="bless-ava">P</div>
+            <div class="bless-txt"><b>Priya, Mumbai</b> — Kedarnath ke darshan se dhanya hui</div>
+          </div>
+          <div class="bless">
+            <div class="bless-ava">S</div>
+            <div class="bless-txt"><b>Suresh, Delhi</b> — ॐ नमः शिवाय</div>
+          </div>
+          <div class="bless">
+            <div class="bless-ava">M</div>
+            <div class="bless-txt"><b>Meera, Jaipur</b> — Aaj pehli baar darshan kiye, mann shant ho gaya</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:32px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var temples = {
+  vaishno:   { title:'Vaishno Devi', deity:'ॐ', loc:'Katra · Jammu-Kashmir · Shakti Peeth', viewers:'8.2K dekh rahe hain', live:true,  aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Aarti Darshan' },
+  kedarnath: { title:'Kedarnath Dham', deity:'ॐ', loc:'Garhwal · Uttarakhand · Jyotirling', viewers:'12.4K dekh rahe hain', live:true, aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Sandhya Aarti' },
+  kashi:     { title:'Kashi Vishwanath', deity:'ॐ', loc:'Varanasi · UP · Jyotirling',       viewers:'24.6K dekh rahe hain', live:true, aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Sapt Rishi Aarti' },
+  somnath:   { title:'Somnath Mandir', deity:'ॐ', loc:'Gir Somnath · Gujarat · Jyotirling',  viewers:'3.4K intezaar mein',   live:false,aartiLabel:'Shuru Hone Wala Hai',    aartiName:'Mahaarti · 8 min' },
+  mahakal:   { title:'Mahakaleshwar', deity:'ॐ', loc:'Ujjain · MP · Jyotirling',             viewers:'18.2K dekh rahe hain', live:true, aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Sandhya Aarti' },
+  puri:      { title:'Jagannath Puri', deity:'ॐ', loc:'Puri · Odisha · Char Dham',           viewers:'2.8K intezaar mein',   live:false,aartiLabel:'Shuru Hone Wala Hai',    aartiName:'Sandhya Dhoop · 24 min' },
+  kamakhya:  { title:'Kamakhya Devi', deity:'ॐ', loc:'Guwahati · Assam · Shakti Peeth',      viewers:'—',                    live:false,aartiLabel:'Aaj Shaam',              aartiName:'Sandhya Aarti · 7:00 PM' },
+  tirupati:  { title:'Tirupati Balaji', deity:'ॐ', loc:'Tirumala · Andhra Pradesh',          viewers:'9.1K dekh rahe hain',  live:true, aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Ekanta Seva' },
+  rameshwar: { title:'Rameshwaram', deity:'ॐ', loc:'Ramanathapuram · TN · Jyotirling',        viewers:'2.4K dekh rahe hain',  live:true, aartiLabel:'Abhi Chal Raha Hai',     aartiName:'Abhishek Darshan' }
+};
+
+function openTemple(id) {
+  var t = temples[id]; if (!t) return;
+  // Highlight pin
+  document.querySelectorAll('.pin').forEach(function(p){ p.classList.remove('selected'); });
+  var pin = document.querySelector('.pin[data-id="'+id+'"]');
+  if (pin) pin.classList.add('selected');
+
+  // Fill data
+  document.getElementById('toDeity').textContent = t.deity;
+  document.getElementById('toTitle').textContent = t.title;
+  document.getElementById('toLocation').textContent = t.loc;
+  document.getElementById('toViewers').textContent = t.viewers;
+  document.getElementById('toAartiLabel').textContent = t.aartiLabel;
+  document.getElementById('toAartiName').textContent = t.aartiName;
+
+  var liveBadge = document.getElementById('toLive');
+  if (t.live) {
+    liveBadge.innerHTML = '<span class="d"></span>LIVE';
+    liveBadge.style.background = 'rgba(250,47,64,0.18)';
+    liveBadge.style.borderColor = 'rgba(250,47,64,0.5)';
+    liveBadge.style.color = '#ff6d7a';
+  } else {
+    liveBadge.innerHTML = '⏳ SOON';
+    liveBadge.style.background = 'rgba(30,204,176,0.18)';
+    liveBadge.style.borderColor = 'rgba(30,204,176,0.5)';
+    liveBadge.style.color = '#1eccb0';
+  }
+
+  document.getElementById('templeOverlay').classList.add('show');
+
+  // Stream live blessings
+  startBlessingStream();
+}
+
+function closeTemple() {
+  document.getElementById('templeOverlay').classList.remove('show');
+  stopBlessingStream();
+  document.querySelectorAll('.pin').forEach(function(p){ p.classList.remove('selected'); });
+}
+
+function joinDarshan() {
+  showToast('🙏 Aarti mein shamil ho gaye · Har Har Mahadev');
+}
+
+var blessingTimer = null;
+var blessingPool = [
+  { n:'Aarav, Bangalore', m:'Har Har Mahadev 🙏' },
+  { n:'Sneha, Kolkata', m:'Jai Bhole Nath' },
+  { n:'Vikram, Ahmedabad', m:'ॐ नमः शिवाय' },
+  { n:'Kavita, Lucknow', m:'Pehli baar live darshan kiye' },
+  { n:'Rahul, Chennai', m:'Mere ghar mein sukh aaye' },
+  { n:'Anjali, Indore', m:'Parivar ki raksha kijiye' },
+  { n:'Manoj, Pune', m:'Bhole Baba ka aashirvaad mile' }
+];
+
+function startBlessingStream() {
+  var list = document.getElementById('blessList');
+  clearInterval(blessingTimer);
+  blessingTimer = setInterval(function(){
+    var b = blessingPool[Math.floor(Math.random()*blessingPool.length)];
+    var row = document.createElement('div');
+    row.className = 'bless';
+    row.innerHTML = '<div class="bless-ava">'+b.n.charAt(0)+'</div><div class="bless-txt"><b>'+b.n+'</b> — '+b.m+'</div>';
+    list.insertBefore(row, list.firstChild);
+    while (list.children.length > 5) list.removeChild(list.lastChild);
+  }, 2400);
+}
+function stopBlessingStream() {
+  clearInterval(blessingTimer);
+}
+
+var toastTimer = null;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+
+// Chip interactions
+document.querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click', function(){
+    document.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('active'); });
+    c.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

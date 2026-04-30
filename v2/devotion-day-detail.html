@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Parv Saathi · Day Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+@font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:500; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:700; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+@font-face { font-family:'JioType'; font-weight:900; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { font-family:'JioType', -apple-system, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:#050000; display:flex; align-items:flex-start; justify-content:center; padding:24px 0; min-height:100vh; }
+
+.phone { width:360px; border-radius:40px; border:8px solid #1a1a1a; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; position:relative; background:#0a0400; }
+.notch { background:#1a1a1a; height:32px; display:flex; align-items:center; justify-content:center; }
+.notch > div { width:80px; height:20px; background:#1a1a1a; border-radius:0 0 14px 14px; }
+
+.screen { position:relative; background:linear-gradient(180deg, #1a0a00 0%, #0a0400 100%); color:#fff; height:760px; display:flex; flex-direction:column; overflow:hidden; }
+
+/* TOP BAR */
+.topbar {
+  padding:14px 16px 10px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,200,140,0.14);
+  background:linear-gradient(180deg, rgba(80,30,0,0.65), transparent);
+  position:relative; z-index:5;
+}
+.back {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,200,140,0.12); color:#ffce99;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  border:1px solid rgba(255,200,140,0.2);
+}
+.back:active { transform:scale(0.92); }
+.topbar-title { flex:1; min-width:0; }
+.topbar-title .t { font-size:15px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.topbar-title .s { font-size:11px; color:#ffb874; margin-top:1px; }
+.topbar-av {
+  width:34px; height:34px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #ffdeb0, #d94a1a);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+
+/* CHAT AREA */
+.chat { flex:1; overflow-y:auto; padding:16px 14px 12px; scroll-behavior:smooth; }
+.chat::-webkit-scrollbar { display:none; }
+
+.msg { max-width:92%; margin-bottom:10px; animation:msgIn 450ms ease-out; }
+@keyframes msgIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+.msg.ai { display:flex; gap:8px; align-items:flex-start; }
+.msg.ai .av {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0; margin-top:2px;
+  background:radial-gradient(circle at 30% 30%, #ffdeb0, #d94a1a);
+  color:#3d1a00; font-size:11px; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+}
+.msg.ai .bubble {
+  background:rgba(255,200,140,0.08); border:1px solid rgba(255,200,140,0.18);
+  border-radius:4px 16px 16px 16px; padding:11px 13px;
+  font-size:13.5px; color:#ffe8cc; line-height:1.55; min-width:0;
+}
+.msg.ai .bubble b { color:#ffce99; font-weight:800; }
+.msg.ai .bubble h4 {
+  font-size:12px; font-weight:900; color:#ffb874;
+  letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;
+}
+.msg.ai .bubble ul { margin:4px 0 0 18px; }
+.msg.ai .bubble li { margin:3px 0; font-size:13px; }
+
+.msg.user { margin-left:auto; max-width:80%; }
+.msg.user .bubble {
+  background:linear-gradient(135deg, #ff8a2e, #d94a1a);
+  border-radius:16px 16px 4px 16px; padding:9px 13px;
+  font-size:13.5px; color:#fff; font-weight:500;
+}
+
+/* HERO CARD (event) */
+.hero {
+  max-width:96%; margin:4px 0 14px 34px;
+  background:linear-gradient(160deg, #4a1d00 0%, #2a0d00 60%, #180600 100%);
+  border:1px solid rgba(255,200,140,0.3); border-radius:18px;
+  overflow:hidden; animation:msgIn 500ms ease-out;
+  position:relative;
+}
+.hero-art {
+  height:150px; position:relative; overflow:hidden;
+  background: radial-gradient(ellipse at 70% 40%, rgba(255,180,90,0.5), transparent 60%),
+              linear-gradient(180deg, #6b2c0e 0%, #2a0d00 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-emoji {
+  font-size:72px; filter: drop-shadow(0 0 22px rgba(255,200,140,0.7));
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+.hero-type-pill {
+  position:absolute; top:12px; left:12px;
+  padding:4px 10px; border-radius:6px;
+  background:rgba(0,0,0,0.55); color:#ffd669;
+  font-size:10px; font-weight:900; letter-spacing:1.2px;
+  backdrop-filter:blur(6px);
+}
+.hero-date-pill {
+  position:absolute; top:12px; right:12px;
+  padding:4px 10px; border-radius:999px;
+  background:rgba(255,214,105,0.18); color:#ffe39b;
+  font-size:10px; font-weight:800; letter-spacing:0.5px;
+  border:1px solid rgba(255,214,105,0.35);
+}
+.hero-foot {
+  padding:12px 14px 14px;
+}
+.hero-title { font-size:18px; font-weight:900; color:#fff; letter-spacing:0.2px; }
+.hero-sub { font-size:11px; color:#ffce99; margin-top:3px; }
+.hero-tithi {
+  margin-top:8px; padding-top:8px;
+  border-top:1px dashed rgba(255,200,140,0.2);
+  font-size:11px; color:#c4a78a; line-height:1.5;
+}
+.hero-tithi b { color:#ffe39b; font-weight:700; }
+
+/* SUGGESTION CHIPS */
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px 34px; }
+.chip {
+  background:rgba(255,200,140,0.10); border:1px solid rgba(255,200,140,0.28);
+  color:#ffce99; font-family:inherit; font-size:12px; font-weight:700;
+  padding:7px 12px; border-radius:999px; cursor:pointer;
+  display:inline-flex; align-items:center; gap:5px;
+  animation:msgIn 400ms ease-out;
+}
+.chip:active { transform:scale(0.96); }
+.chip:hover { background:rgba(255,200,140,0.18); }
+.chip .icn { font-size:13px; }
+
+/* AUDIO CARD (katha narration) */
+.audio-card {
+  max-width:94%; margin:4px 0 10px 34px;
+  background:rgba(255,200,140,0.08); border:1px solid rgba(255,200,140,0.22);
+  border-radius:14px; padding:10px 12px;
+  display:flex; align-items:center; gap:10px;
+  animation:msgIn 450ms ease-out;
+}
+.audio-play {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(180deg, #ff8a2e, #d94a1a); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; cursor:pointer; font-size:14px;
+}
+.audio-play:active { transform:scale(0.94); }
+.audio-meta { flex:1; min-width:0; }
+.audio-title { font-size:12px; font-weight:800; color:#fff; }
+.audio-sub { font-size:10px; color:#a89078; margin-top:1px; }
+.audio-wave {
+  display:flex; align-items:center; gap:2px; height:18px; margin-top:4px;
+}
+.audio-wave span {
+  width:2px; background:#ffb874; border-radius:1px;
+  animation:wave 1s ease-in-out infinite;
+}
+.audio-wave span:nth-child(1) { height:40%; animation-delay:0s; }
+.audio-wave span:nth-child(2) { height:70%; animation-delay:0.1s; }
+.audio-wave span:nth-child(3) { height:90%; animation-delay:0.2s; }
+.audio-wave span:nth-child(4) { height:60%; animation-delay:0.3s; }
+.audio-wave span:nth-child(5) { height:80%; animation-delay:0.4s; }
+.audio-wave span:nth-child(6) { height:45%; animation-delay:0.5s; }
+.audio-wave span:nth-child(7) { height:70%; animation-delay:0.6s; }
+.audio-wave span:nth-child(8) { height:50%; animation-delay:0.7s; }
+@keyframes wave { 0%,100% { opacity:0.45; transform:scaleY(0.6); } 50% { opacity:1; transform:scaleY(1); } }
+.audio-card.paused .audio-wave span { animation-play-state:paused; opacity:0.3; }
+.audio-card.paused .audio-play { background:linear-gradient(180deg, #a8602e, #6b2810); }
+.audio-progress {
+  height:3px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:6px; overflow:hidden;
+}
+.audio-progress-fill {
+  height:100%; width:0%; background:linear-gradient(90deg, #ffb874, #ff6b35);
+  border-radius:2px; transition:width 0.2s linear;
+}
+.audio-time { font-size:9px; color:#a89078; margin-top:3px; font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* TYPING INDICATOR */
+.typing {
+  display:flex; gap:8px; align-items:center;
+  margin-bottom:12px; animation:msgIn 300ms ease-out;
+}
+.typing .av {
+  width:26px; height:26px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #ffdeb0, #d94a1a);
+  color:#3d1a00; font-size:11px; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+}
+.typing .dots {
+  background:rgba(255,200,140,0.08); border:1px solid rgba(255,200,140,0.18);
+  padding:11px 14px; border-radius:4px 16px 16px 16px;
+  display:flex; gap:4px;
+}
+.typing .dots span {
+  width:6px; height:6px; border-radius:50%; background:#ffb874;
+  animation:bounce 1.2s ease-in-out infinite;
+}
+.typing .dots span:nth-child(2) { animation-delay:0.2s; }
+.typing .dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes bounce { 0%,80%,100% { transform:translateY(0); opacity:0.5; } 40% { transform:translateY(-5px); opacity:1; } }
+
+/* INPUT BAR */
+.input-bar {
+  padding:10px 14px 14px; background:rgba(10,4,0,0.9);
+  border-top:1px solid rgba(255,200,140,0.14);
+  display:flex; gap:8px; align-items:center;
+}
+.input-field {
+  flex:1; height:42px; border-radius:999px;
+  background:rgba(255,200,140,0.08); border:1px solid rgba(255,200,140,0.22);
+  padding:0 16px; font-size:13px; color:#fff; font-family:inherit; outline:none;
+}
+.input-field::placeholder { color:#a89078; }
+.input-send {
+  width:42px; height:42px; border-radius:50%; border:none;
+  background:linear-gradient(180deg, #ff8a2e, #d94a1a); color:#fff;
+  font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.input-send:active { transform:scale(0.92); }
+
+.cta-row-inline {
+  display:flex; gap:8px; margin:4px 0 10px 34px;
+}
+.cta-inline {
+  flex:1 1 0; height:40px; border-radius:999px;
+  font-family:inherit; font-size:12px; font-weight:800; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  border:none; white-space:nowrap; padding:0 12px;
+}
+.cta-inline.primary {
+  background:linear-gradient(180deg, #ff8a2e, #d94a1a); color:#fff;
+  box-shadow:0 4px 12px rgba(217,74,26,0.35);
+}
+.cta-inline.ghost {
+  background:rgba(255,255,255,0.08); color:#fff;
+  border:1px solid rgba(255,200,140,0.25);
+}
+.cta-inline:active { transform:scale(0.96); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"><div></div></div>
+
+  <div class="screen">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <button class="back" onclick="goBack()" aria-label="Wapas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <div class="topbar-title">
+        <div class="t" id="tbTitle">Day Detail</div>
+        <div class="s" id="tbSub">Parv Saathi</div>
+      </div>
+      <div class="topbar-av">🪔</div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat" id="chat"></div>
+
+    <!-- INPUT -->
+    <div class="input-bar">
+      <input class="input-field" id="chatInput" placeholder="Koi aur baat poochein..." onkeydown="if(event.key==='Enter')sendUser()"/>
+      <button class="input-send" onclick="sendUser()" aria-label="Bhejein">➤</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  EVENT CONTENT REGISTRY
+// ══════════════════════════════════════════════════════════
+const EVENTS = {
+  'Buddha Purnima': {
+    emoji:'☸️', type:'PARV', deity:'Bhagwan Buddha', color:'#ffd669',
+    tagline:'Bhagwan Buddha ka janma, gyaan-prapti aur nirvan — teeno Vaishakh Purnima ko',
+    date:'Shukravar, 24 Vaishakh · Vaishakh Purnima',
+    tithi:'Shukla Purnima', nakshatra:'Vishakha', vaar:'Shukravar',
+    muhurat:'Snaan muhurat: Brahm muhurat 4:10 — 5:20 AM',
+    mahatva:'Buddha Purnima triguna pavitra hai — <b>janma</b>, <b>sambodhi (gyaan-prapti)</b> aur <b>mahaparinirvan</b>, teeno Vaishakh Purnima ko hue. Is din Ganga snaan, daan aur dhyan ka akshay punya milta hai. <b>Satyanarayan katha</b> bhi aaj suni jaati hai.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Brahm muhurat me Ganga ya kisi pavitra nadi me snaan</li>'+
+        '<li>Safed vastra dharan karein</li>'+
+        '<li>Buddha pratima ya Vishnu ji ke samaksh deep prajjvalit karein</li>'+
+        '<li>"Buddham Sharanam Gacchhami" mantra ka jaap</li>'+
+        '<li>Satyanarayan katha shravan</li>'+
+        '<li>Garibon ko anna, vastra, chappal daan karein</li>'+
+        '<li>Chandrodaya par kheer ya dugdh-arpan</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li><b>Ahimsa</b> ka paalan — kisi jeev ko kasht na dein</li>'+
+        '<li>Satya bolein, daan karein</li>'+
+        '<li>Maun vrat rakhein to shreshth</li>'+
+        '<li>Dhyan aur prayer</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Maans-madira, pyaaz-lehsun tyaag</li>'+
+        '<li>Krodh, kalah, jhooth na bolein</li>'+
+        '<li>Pashu-himsa varjit</li>'+
+      '</ul>',
+    kathaTitle:'Buddha ke Gyaan-Prapti ki Katha',
+    kathaDur:'8 min',
+    chips:['vidhi-more','mantra','satyanarayan','reminder']
+  },
+  'Varuthini Ekadashi': {
+    emoji:'🕉️', type:'EKADASHI', deity:'Bhagwan Vishnu', color:'#4a9dff',
+    tagline:'Paap-naashak, Mokshdayak vrat · sab Ekadashiyon me shreshth',
+    date:'Somvar, 6 Vaishakh · Krishna Ekadashi',
+    tithi:'Krishna Ekadashi', nakshatra:'Dhanishta', vaar:'Somvar',
+    muhurat:'Paran samay: 7 Vaishakh subah 5:42 — 8:14',
+    mahatva:'Varuthini Ekadashi ka vrat <b>1000 saal ke tapasya</b> ke barabar phal deta hai — aisa Bhagwan Krishna ne Yudhishthir ko Bhavishya Puran me bataya. Is vrat se paap nasht hote hain, daridrata door hoti hai, aur <b>moksha</b> ki prapti hoti hai. Rajashri Mandhata ne isi vrat se swarg-prapti ki thi.',
+    vidhi:'<h4>Vrat Vidhi</h4>'+
+      '<ul>'+
+        '<li>Dashmi ki raat satvik bhojan, fir upvaas sankalp</li>'+
+        '<li>Ekadashi ko snaan, peela vastra dharan</li>'+
+        '<li>Bhagwan Vishnu ki moorti ke samaksh tulsi, phool, deep</li>'+
+        '<li>"Om Namo Bhagavate Vasudevaya" ka 108 baar jaap</li>'+
+        '<li>Vishnu Sahasranaam ka paath</li>'+
+        '<li>Raatri jagran — Bhagwan ka bhajan-keertan</li>'+
+        '<li>Dwadashi ko paran samay brahmin ko bhojan kara ke upvas todein</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Phal, dugdh, kuttu, sabudana, aloo sevan</li>'+
+        '<li>Tulsi-jal se achman</li>'+
+        '<li>Daan — anna, vastra, gau-daan</li>'+
+        '<li>Satya aur brahmacharya ka paalan</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li><b>Anna (chawal, gehu, dal)</b> varjit</li>'+
+        '<li>Pyaaz, lehsun, tamasic bhojan tyaag</li>'+
+        '<li>Krodh, nindaa, asatya se duri</li>'+
+        '<li>Din me sona nishedh</li>'+
+      '</ul>',
+    kathaTitle:'Raja Mandhata aur Varuthini Vrat',
+    kathaDur:'6 min',
+    chips:['vidhi-more','mantra','paran','samagri']
+  },
+  'Akshaya Tritiya': {
+    emoji:'🪙', type:'PARV', deity:'Laxmi-Narayan', color:'#ffd669',
+    tagline:'Akshay (kabhi ksheen na hone wala) punya ka din — swarna, daan, naye karya',
+    date:'Shukravar, 10 Vaishakh',
+    tithi:'Shukla Tritiya', nakshatra:'Rohini', vaar:'Shukravar',
+    muhurat:'Sampoorn din shubh · visheshta: 5:42 AM — 12:18 PM',
+    mahatva:'Akshaya Tritiya ka arth hai <b>"kabhi kshay na hone wala"</b>. Is din kiya gaya daan, japa, havan, tapa — sab akshaya phal dete hain. <b>Bhagwan Parshuram ka janma</b> bhi aaj hi hua. Treta Yug ka aarambh isi din hua maana jata hai. Dwar Yug me Krishna-Sudama milan, Ganga-avataran, Badri-Kedar ke kapaat khulna — sab aaj hi hota hai.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Subah snaan, pitron ka tarpan</li>'+
+        '<li>Laxmi-Narayan ki sanyukt pooja</li>'+
+        '<li>Swarna, rajat ya naye vastra ki khareed</li>'+
+        '<li>Jau, satu, sharbat, pankha daan</li>'+
+        '<li>Naye vyapaar, naye ghar ka aarambh shubh</li>'+
+        '<li>Sham ko Lakshmi ji ka puja aur diyaa prajjvalan</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Daan karein — anna, jal, chhatra, chappal</li>'+
+        '<li>Maata-pita aur guru ka aashirvad lein</li>'+
+        '<li>Naye karya arambh karein</li>'+
+        '<li>Tulsi-jal se deity abhishek</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Lobh-krodh se dur rahein</li>'+
+        '<li>Jhooth aur chori se bachein</li>'+
+        '<li>Mansahar, madira varjit</li>'+
+      '</ul>',
+    kathaTitle:'Krishna-Sudama Milan aur Akshay Patra',
+    kathaDur:'7 min',
+    chips:['mantra','daan','khareed','reminder']
+  },
+  'Mohini Ekadashi': {
+    emoji:'🌺', type:'EKADASHI', deity:'Bhagwan Vishnu (Mohini roop)', color:'#4a9dff',
+    tagline:'Vishnu ji ke Mohini roop ka vrat · moha-nash, sukh-prapti',
+    date:'Somvar, 20 Vaishakh · Shukla Ekadashi',
+    tithi:'Shukla Ekadashi', nakshatra:'Uttara Ashadha', vaar:'Somvar',
+    muhurat:'Paran samay: 21 Vaishakh subah 5:40 — 8:12',
+    mahatva:'Samudra manthan me jab amrit nikla, tab asuron ne usse cheen liya. Tab Bhagwan Vishnu ne <b>Mohini roop</b> dharan kar asuron ko moh me daal kar devton ko amrit pilaya. Is vrat se har prakar ke moh, shok aur paap ka nash hota hai — Yudhishthir ko Krishna ne ye Kurma Puran me bataya.',
+    vidhi:'<h4>Vrat Vidhi</h4>'+
+      '<ul>'+
+        '<li>Dashami ko satvik bhojan, sankalp</li>'+
+        '<li>Ekadashi ko snaan, peela ya safed vastra</li>'+
+        '<li>Mohini roop ya Vishnu ji ki pooja</li>'+
+        '<li>"Om Namo Bhagavate Vasudevaya" jaap</li>'+
+        '<li>Vishnu Sahasranaam paath</li>'+
+        '<li>Dwadashi ko paran karein</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Phalaahar, dugdh, sabudana</li>'+
+        '<li>Raatri jagran, bhajan</li>'+
+        '<li>Daan — vastra, anna, jal</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Anna, pyaaz, lehsun varjit</li>'+
+        '<li>Krodh, irshya tyaag</li>'+
+      '</ul>',
+    kathaTitle:'Mohini Avatar aur Samudra Manthan',
+    kathaDur:'7 min',
+    chips:['vidhi-more','mantra','paran','samagri']
+  },
+  'Narasimha Jayanti': {
+    emoji:'🦁', type:'PARV', deity:'Bhagwan Narasimha', color:'#ffd669',
+    tagline:'Prahlad ki raksha · Bhagwan Narasimha ka prakatotsav · Vaishakh Shukla Chaturdashi',
+    date:'Budhvar, 22 Vaishakh',
+    tithi:'Shukla Chaturdashi', nakshatra:'Swati', vaar:'Budhvar',
+    muhurat:'Madhyaahn vyapini · Sandhya muhurat 6:14 — 7:42 PM (Narasimha-prakat samay)',
+    mahatva:'Hiranyakashipu ne apne putra Prahlad par ghor atyachar kiye, kyunki Prahlad Vishnu-bhakt the. Tab Bhagwan Vishnu <b>Narasimha roop</b> (aadha manushya, aadha sinh) me khambhe se prakat hue — na din me, na raat me (sandhya); na ghar me, na bahar (dehleez par); na astra se, na shastra se (nakhon se) — isi se Hiranyakashipu ko mara aur Prahlad ki raksha ki.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Vrat aur upvaas</li>'+
+        '<li>Sandhya samay Narasimha Bhagwan ki pooja</li>'+
+        '<li>Til, gud, kumkum, vastra arpan</li>'+
+        '<li>"Om Ugraya Veeraya Maha-Vishnave Namah" mantra jaap</li>'+
+        '<li>Narasimha Stotra aur Prahlad-charitra paath</li>'+
+        '<li>Chandrodaya ke baad paran</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Bhakti aur daan</li>'+
+        '<li>Vipatti se raksha ka aashirvad mangein</li>'+
+        '<li>Prahlad charitra sunaayein</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Ahankaar, krodh, himsaa tyaag</li>'+
+        '<li>Tamasic aahar nishedh</li>'+
+      '</ul>',
+    kathaTitle:'Prahlad aur Narasimha Avatar ki Katha',
+    kathaDur:'9 min',
+    chips:['mantra','stotra','prahlad-katha','reminder']
+  },
+  'Vaishakhi': {
+    emoji:'🌾', type:'PARV', deity:'Surya-Maa Ganga', color:'#ffd669',
+    tagline:'Baisakhi · Nayi fasal ka anand utsav · Surya ki Mesh sankranti',
+    date:'Mangalvar, 14 Vaishakh',
+    tithi:'Shukla Saptami', nakshatra:'Pushya', vaar:'Mangalvar',
+    muhurat:'Snaan aur punya-kaal: Brahm muhurat 4:08 — 5:22 AM',
+    mahatva:'Vaishakhi Surya ke Mesh rashi me pravesh ka din hai — jise <b>Mesh Sankranti</b> kahte hain. Uttar Bharat me nayi rabi fasal ki kataayi ka utsav. Sikh samaj me isi din Guru Gobind Singh ji ne <b>Khalsa Panth</b> ki sthapna ki thi (1699). Ganga-snaan aur daan ka akshay phal.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Brahm muhurat me Ganga ya pavitra nadi me snaan</li>'+
+        '<li>Surya-arghya aur Gayatri jaap</li>'+
+        '<li>Anna daan, jal daan, chhatra daan</li>'+
+        '<li>Nayi fasal ka bhog Bhagwan ko arpan</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Daan-punya, sevak ka aahar</li>'+
+        '<li>Ghar saaf karein, nayi shuruvat</li>'+
+        '<li>Parivar ke saath utsav manayein</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Kalah, irshya, lobh tyaag</li>'+
+      '</ul>',
+    kathaTitle:'Khalsa Panth ki Sthapna',
+    kathaDur:'6 min',
+    chips:['mantra','daan','khalsa-itihaas']
+  },
+  'Sankashti Chaturthi': {
+    emoji:'🐘', type:'VRAT', deity:'Bhagwan Ganesh', color:'#5ec77f',
+    tagline:'Sankashti Chaturthi · Ganesh ji ka vrat · dukh-haran ke liye',
+    date:'Chaturthi Tithi · Chandra-darshan ke baad paran',
+    tithi:'Krishna Chaturthi', nakshatra:'Bharani', vaar:'—',
+    muhurat:'Chandrodaya: raatri 8:42 PM (aapke sthan ke anusaar)',
+    mahatva:'Sankashti ka arth hai <b>"sankat se mukti"</b>. Jo bhakt Chaturthi ka vrat rakh kar Ganesh ji ki aradhana karte hain, unke sab vighna, rog aur sankat door hote hain. Har masa ki Krishna Chaturthi ko ye vrat rakha jata hai.',
+    vidhi:'<h4>Vrat Vidhi</h4>'+
+      '<ul>'+
+        '<li>Subah snaan, laal ya peela vastra</li>'+
+        '<li>Ganesh ji ko durva, laal phool, modak arpan</li>'+
+        '<li>"Om Gan Ganapataye Namah" mala</li>'+
+        '<li>Sankashti Chaturthi vrat katha paath</li>'+
+        '<li>Din bhar upvaas ya phalaahar</li>'+
+        '<li>Chandrodaya par chandra-darshan, arghya, fir paran</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Ganesh Atharvashirsha paath</li>'+
+        '<li>21 durva chadhayein</li>'+
+        '<li>Garib ko modak ya anna daan</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Chandra-darshan ke baad hi paran karein</li>'+
+        '<li>Anna-daal varjit (saadha upvaas)</li>'+
+      '</ul>',
+    kathaTitle:'Sankashti Chaturthi Vrat Katha',
+    kathaDur:'5 min',
+    chips:['mantra','durva','modak-vidhi']
+  },
+  'Chaitra Amavasya': {
+    emoji:'🌑', type:'AMAVASYA', deity:'Pitr · Shiva', color:'#9c7cff',
+    tagline:'Pitron ka tarpan · snaan aur daan ka mukhya din',
+    date:'Budhvar, 8 Vaishakh',
+    tithi:'Amavasya', nakshatra:'Ashwini', vaar:'Budhvar',
+    muhurat:'Snaan muhurat: 4:10 AM — 5:18 AM',
+    mahatva:'Amavasya ko pitra log apne vanshajon ke paas aate hain — unka <b>tarpan</b>, <b>shraddh</b> aur <b>daan</b> karne se <b>pitr-rin</b> chukta hota hai. Pitron ka aashirvad vansh ki samriddhi ke liye mahatvapurn hai.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Pavitra nadi me snaan, til arpan</li>'+
+        '<li>Pitron ka tarpan aur pind-daan</li>'+
+        '<li>Brahmin ko bhojan, vastra daan</li>'+
+        '<li>Peepal vriksha par jal-arpan</li>'+
+        '<li>Shiv ji ka abhishek</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Maun aur dhyan</li>'+
+        '<li>Satya, brahmacharya paalan</li>'+
+        '<li>Gau-seva, garib-seva</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Maans-madira, tamasic bhojan varjit</li>'+
+        '<li>Nau karya aarambh na karein</li>'+
+        '<li>Krodh, kalah se duri</li>'+
+      '</ul>',
+    kathaTitle:'Pitr-tarpan ki Mahima',
+    kathaDur:'5 min',
+    chips:['tarpan-vidhi','mantra','peepal-daan']
+  },
+  'Ganga Saptami': {
+    emoji:'🌊', type:'VRAT', deity:'Maa Ganga', color:'#5ec77f',
+    tagline:'Maa Ganga ke prakat hone ka pavitra divas',
+    date:'Guruvar, 16 Vaishakh',
+    tithi:'Shukla Saptami', nakshatra:'Pushya', vaar:'Guruvar',
+    muhurat:'Snaan muhurat: Brahm muhurat 4:10 AM — 5:20 AM',
+    mahatva:'Vaishakh Shukla Saptami ko Maa Ganga Bhagwan Shiv ki jataon me se dharti par utri theen — aisa Ganga ji ka <b>dwitiya prakat divas</b> maana jata hai. Is din Ganga-snaan aur daan ka phal hazaaron ashwamedh yagya ke barabar hota hai.',
+    vidhi:'<h4>Aaj ka Vidhi</h4>'+
+      '<ul>'+
+        '<li>Ganga ya kisi pavitra nadi me snaan</li>'+
+        '<li>Maa Ganga ki aarti, chunari arpan</li>'+
+        '<li>Deep daan</li>'+
+        '<li>Anna aur vastra daan</li>'+
+      '</ul>',
+    dos:'<h4>Kya karein</h4>'+
+      '<ul>'+
+        '<li>Ganga stuti paath</li>'+
+        '<li>Ghar me Ganga-jal chidak karein</li>'+
+      '</ul>',
+    donts:'<h4>Kya na karein</h4>'+
+      '<ul>'+
+        '<li>Krodh, jhooth se duri</li>'+
+        '<li>Tamasic aahar tyaag</li>'+
+      '</ul>',
+    kathaTitle:'Ganga-Avataran ki Katha',
+    kathaDur:'7 min',
+    chips:['aarti','snaan','daan']
+  }
+};
+
+const CHIP_LIBRARY = {
+  'vidhi-more':  { label:'Vidhi aur vistaar se', icn:'📜', reply:'Kripya vidhi karein — har step ki timing, mantra aur samagri ke saath.' },
+  'mantra':      { label:'Mantra sunayein',      icn:'🔔', reply:'Is parv ke mantra aur unka ucchaaran bataayein.' },
+  'satyanarayan':{ label:'Satyanarayan katha',   icn:'📿', reply:'Satyanarayan ji ki katha sunaayein.' },
+  'reminder':    { label:'Reminder lagayein',    icn:'⏰', reply:'Is din ke liye mujhe reminder set kar dein.' },
+  'paran':       { label:'Paran samay',          icn:'🌅', reply:'Vrat ka paran samay aur vidhi bataayein.' },
+  'samagri':     { label:'Samagri list',         icn:'🛒', reply:'Pooja ki samagri list bhejein.' },
+  'daan':        { label:'Daan kya karein',      icn:'🎁', reply:'Is din kis cheez ka daan shubh hota hai?' },
+  'khareed':     { label:'Kya khareedein',       icn:'🛍️', reply:'Akshaya Tritiya par kya khareedna shubh hai?' },
+  'stotra':      { label:'Narasimha Stotra',     icn:'📖', reply:'Narasimha stotra ka paath karayein.' },
+  'prahlad-katha':{ label:'Prahlad ki poori katha', icn:'📖', reply:'Bhakt Prahlad ki poori katha sunaayein.' },
+  'khalsa-itihaas':{ label:'Khalsa ka itihaas', icn:'🗡️', reply:'Khalsa Panth ki sthapna ka itihaas bataayein.' },
+  'durva':       { label:'Durva arpan',         icn:'🌿', reply:'21 durva kaise arpan karein?' },
+  'modak-vidhi': { label:'Modak kaise banayein', icn:'🍡', reply:'Ghar me modak banane ki vidhi bataayein.' },
+  'tarpan-vidhi':{ label:'Tarpan vidhi',         icn:'💧', reply:'Ghar par tarpan kaise karein — poori vidhi.' },
+  'peepal-daan': { label:'Peepal par jal',       icn:'🌳', reply:'Peepal par jal aur daan ki vidhi bataayein.' },
+  'aarti':       { label:'Aarti sunayein',       icn:'🪔', reply:'Maa Ganga ki aarti sunaayein.' },
+  'snaan':       { label:'Ghar par Ganga-snaan', icn:'💧', reply:'Ghar par Ganga-snaan ka vidhi bataayein.' }
+};
+
+// ══════════════════════════════════════════════════════════
+//  URL PARAM → EVENT LOOKUP
+// ══════════════════════════════════════════════════════════
+function getEvent() {
+  const qs = new URLSearchParams(location.search);
+  const name = qs.get('event') || 'Buddha Purnima';
+  // Exact match
+  if (EVENTS[name]) return { key: name, data: EVENTS[name] };
+  // Fuzzy match on first word
+  const firstWord = (name.split(/\s+/)[0] || '').toLowerCase();
+  const key = Object.keys(EVENTS).find(k => k.toLowerCase().startsWith(firstWord));
+  if (key) return { key, data: EVENTS[key] };
+  // Fallback: generic
+  return { key:name, data:{
+    emoji:'🪔', type:(qs.get('type') || 'parv').toUpperCase(), deity:'Parv Saathi', color:'#ffd669',
+    tagline: name + ' · mahatva aur vidhi',
+    date: (qs.get('day') ? qs.get('day') + ' Vaishakh' : 'Vaishakh'),
+    tithi:'—', nakshatra:'—', vaar:'—',
+    muhurat:'Sthan ke anusaar muhurat',
+    mahatva:'Ye ek shubh din hai. Vidhi aur mahatva ke liye vistaar jald jodenge.',
+    vidhi:'<h4>Samanya Vidhi</h4><ul><li>Snaan</li><li>Pooja aur deep</li><li>Daan</li></ul>',
+    dos:'', donts:'',
+    kathaTitle: name + ' ki katha',
+    kathaDur:'5 min',
+    chips:['mantra','samagri','reminder']
+  }};
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDERING
+// ══════════════════════════════════════════════════════════
+const CHAT = () => document.getElementById('chat');
+const scrollBottom = () => { const c = CHAT(); c.scrollTo({ top: c.scrollHeight, behavior:'smooth' }); };
+
+function addHero(ev) {
+  const h = document.createElement('div');
+  h.className = 'hero';
+  h.innerHTML =
+    '<div class="hero-art">'+
+      '<div class="hero-emoji">' + ev.data.emoji + '</div>'+
+      '<div class="hero-type-pill">' + ev.data.type + '</div>'+
+      '<div class="hero-date-pill">' + ev.data.date.split(' · ')[0] + '</div>'+
+    '</div>'+
+    '<div class="hero-foot">'+
+      '<div class="hero-title">' + ev.key + '</div>'+
+      '<div class="hero-sub">' + ev.data.tagline + '</div>'+
+      '<div class="hero-tithi">'+
+        '<b>Tithi:</b> ' + ev.data.tithi + ' · <b>Nakshatra:</b> ' + ev.data.nakshatra + '<br/>'+
+        '<b>Muhurat:</b> ' + ev.data.muhurat +
+      '</div>'+
+    '</div>';
+  CHAT().appendChild(h);
+  scrollBottom();
+}
+
+function addAI(html, delay=0) {
+  return new Promise(resolve => {
+    // show typing first
+    const typ = document.createElement('div');
+    typ.className = 'typing';
+    typ.innerHTML = '<div class="av">स</div><div class="dots"><span></span><span></span><span></span></div>';
+    CHAT().appendChild(typ);
+    scrollBottom();
+    setTimeout(() => {
+      typ.remove();
+      const m = document.createElement('div');
+      m.className = 'msg ai';
+      m.innerHTML = '<div class="av">स</div><div class="bubble">' + html + '</div>';
+      CHAT().appendChild(m);
+      scrollBottom();
+      resolve();
+    }, 600 + delay);
+  });
+}
+
+function addAudio(ev) {
+  const a = document.createElement('div');
+  a.className = 'audio-card paused';
+  a.id = 'kathaAudioCard';
+  a.innerHTML =
+    '<div class="audio-play" id="kathaPlayBtn" onclick="playKatha()">▶</div>'+
+    '<div class="audio-meta">'+
+      '<div class="audio-title">' + ev.data.kathaTitle + '</div>'+
+      '<div class="audio-sub">' + ev.data.kathaDur + ' · Saathi ki awaaz me</div>'+
+      '<div class="audio-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>'+
+      '<div class="audio-progress"><div class="audio-progress-fill" id="kathaProgress"></div></div>'+
+      '<div class="audio-time" id="kathaTime">0:00 / —</div>'+
+    '</div>';
+  CHAT().appendChild(a);
+  scrollBottom();
+}
+
+// -------- VRAT KATHA AUDIO PLAYBACK --------
+const VRAT_KATHA_MP3 = 'assets/audio/vrat-katha.mp3';
+let kathaAudio = null;
+
+function fmtTime(s) {
+  if (!isFinite(s)) return '—';
+  const m = Math.floor(s / 60);
+  const ss = Math.floor(s % 60).toString().padStart(2,'0');
+  return m + ':' + ss;
+}
+
+function playKatha() {
+  const card = document.getElementById('kathaAudioCard');
+  const btn  = document.getElementById('kathaPlayBtn');
+  const progress = document.getElementById('kathaProgress');
+  const timeEl   = document.getElementById('kathaTime');
+
+  // First tap — create audio and start
+  if (!kathaAudio) {
+    kathaAudio = new Audio(VRAT_KATHA_MP3);
+    kathaAudio.volume = 0.95;
+    kathaAudio.addEventListener('timeupdate', () => {
+      if (!kathaAudio) return;
+      const dur = kathaAudio.duration || 0;
+      const cur = kathaAudio.currentTime || 0;
+      if (progress) progress.style.width = (dur ? (cur/dur*100) : 0) + '%';
+      if (timeEl)   timeEl.textContent   = fmtTime(cur) + ' / ' + fmtTime(dur);
+    });
+    kathaAudio.addEventListener('ended', () => {
+      if (card) card.classList.add('paused');
+      if (btn)  btn.textContent = '▶';
+      if (progress) progress.style.width = '0%';
+    });
+    kathaAudio.play().then(() => {
+      if (card) card.classList.remove('paused');
+      if (btn)  btn.textContent = '❚❚';
+    }).catch(e => {
+      console.warn('katha play failed', e);
+      alert('Audio play nahi ho sakta. Browser ne block kiya ho sakta hai.');
+    });
+    return;
+  }
+
+  // Subsequent taps — toggle
+  if (kathaAudio.paused) {
+    kathaAudio.play().then(() => {
+      if (card) card.classList.remove('paused');
+      if (btn)  btn.textContent = '❚❚';
+    }).catch(()=>{});
+  } else {
+    kathaAudio.pause();
+    if (card) card.classList.add('paused');
+    if (btn)  btn.textContent = '▶';
+  }
+}
+
+// Stop audio when navigating away
+window.addEventListener('beforeunload', () => {
+  if (kathaAudio) { try { kathaAudio.pause(); kathaAudio.src=''; } catch(e){} }
+});
+
+function addCTAs(ev) {
+  const row = document.createElement('div');
+  row.className = 'cta-row-inline';
+  row.innerHTML =
+    '<button class="cta-inline ghost" onclick="shareEvent()"><span>🔗</span> Share</button>'+
+    '<button class="cta-inline primary" onclick="goSeva()"><span>🌸</span> Sankalp karein</button>';
+  CHAT().appendChild(row);
+  scrollBottom();
+}
+
+function addChips(chipIds) {
+  const row = document.createElement('div');
+  row.className = 'chips';
+  chipIds.forEach(id => {
+    const c = CHIP_LIBRARY[id];
+    if (!c) return;
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.innerHTML = '<span class="icn">' + c.icn + '</span>' + c.label;
+    b.onclick = () => chipTap(id);
+    row.appendChild(b);
+  });
+  CHAT().appendChild(row);
+  scrollBottom();
+}
+
+function addUser(text) {
+  const m = document.createElement('div');
+  m.className = 'msg user';
+  m.innerHTML = '<div class="bubble">' + text + '</div>';
+  CHAT().appendChild(m);
+  scrollBottom();
+}
+
+// ══════════════════════════════════════════════════════════
+//  FLOW
+// ══════════════════════════════════════════════════════════
+let currentEvent = null;
+
+async function boot() {
+  currentEvent = getEvent();
+  // Top bar
+  document.getElementById('tbTitle').textContent = currentEvent.key;
+  document.getElementById('tbSub').textContent = currentEvent.data.date;
+
+  // Initial AI greeting
+  await addAI('<b>' + pickGreet() + '!</b> ' + currentEvent.key + ' ke baare me sab kuch bata rahi hoon — mahatva, vidhi, katha aur kya karein-kya na karein. 🪔');
+
+  // Hero card
+  addHero(currentEvent);
+  await new Promise(r=>setTimeout(r,500));
+
+  // Mahatva
+  await addAI('<h4>Mahatva</h4>' + currentEvent.data.mahatva);
+
+  // Vidhi
+  await addAI(currentEvent.data.vidhi);
+
+  // Dos / Donts (if present)
+  if (currentEvent.data.dos) await addAI(currentEvent.data.dos);
+  if (currentEvent.data.donts) await addAI(currentEvent.data.donts);
+
+  // Katha audio card
+  await addAI('<b>' + currentEvent.data.kathaTitle + '</b> sunna chahenge? 👇');
+  addAudio(currentEvent);
+
+  // CTAs
+  addCTAs(currentEvent);
+
+  // Suggestion chips
+  await new Promise(r=>setTimeout(r,300));
+  await addAI('Kuch aur jaanna chahenge?');
+  addChips(currentEvent.data.chips);
+}
+
+function pickGreet() {
+  const hr = new Date().getHours();
+  if (hr < 12) return 'Suprabhat';
+  if (hr < 17) return 'Namaskar';
+  return 'Shubh sandhya';
+}
+
+function chipTap(id) {
+  const c = CHIP_LIBRARY[id];
+  if (!c) return;
+  addUser(c.label);
+  setTimeout(() => addAI(genericReply(c, currentEvent)), 400);
+}
+
+function genericReply(chip, ev) {
+  const templates = {
+    'mantra': '<h4>Mantra</h4><p style="font-size:14px; color:#ffce99; font-weight:700;">' + (ev.key === 'Varuthini Ekadashi' || ev.key === 'Mohini Ekadashi' ? '॥ Om Namo Bhagavate Vasudevaya ॥' : ev.key === 'Narasimha Jayanti' ? '॥ Om Ugraya Veeraya Maha-Vishnave Namah ॥' : ev.key.includes('Sankashti') ? '॥ Om Gan Ganapataye Namah ॥' : '॥ Om Namah Shivaya ॥') + '</p><p style="margin-top:6px;">Is mantra ka 108 baar jaap karein — Rudraksh ya Tulsi mala par. Subah snaan ke baad shreshth.</p>',
+    'reminder': '<b>Reminder set ho gaya!</b> ⏰<br/>Aapko ' + ev.data.date.split(' · ')[0] + ' ko subah 5:30 par notification milegi — snaan aur puja ke liye.',
+    'samagri': '<h4>Samagri list</h4><ul><li>Deep, ghee, kapoor</li><li>Phool, tulsi dal</li><li>Roli, chawal, kumkum</li><li>Phal, mithai, dugdh</li><li>Naariyal, paan-supari</li><li>Ganga-jal</li></ul><p style="margin-top:6px; color:#ffb874;">JioMart par "Pooja Kit" order kar sakte hain.</p>',
+    'paran': '<h4>Paran samay</h4>' + ev.data.muhurat + '<br/><br/>Paran ke samay pehle Bhagwan ko bhog arpan karein, fir brahmin ya garib ko bhojan karayein — iske baad svayam paran karein.',
+    'daan': '<h4>Daan — aaj ke shubh daan</h4><ul><li>Anna-daan (chawal, dal, aata)</li><li>Jal-daan (chhabi, chhatra)</li><li>Vastra-daan</li><li>Gau-daan ya gau-seva</li><li>Guru dakshina</li></ul>',
+    'aarti': '<h4>Aarti</h4><p>Maa Ganga ki aarti "Om Jai Gange Mata" ka paath sham 7:00 baje shreshth hota hai. Aap audio sunkar saath me gaa sakte hain.</p>',
+    'khareed': '<h4>Akshaya Tritiya khareed</h4><ul><li><b>Swarna / rajat</b> — dhan-laxmi ke liye</li><li><b>Naya vastra</b></li><li><b>Naya bartan, ghar ki cheezein</b></li><li><b>Vahan, bhumi, bhavan</b> — bhi shubh</li></ul>'
+  };
+  return templates[chip === 'vidhi-more' ? 'mantra' : (chip === 'satyanarayan' ? 'aarti' : 'mantra')] || ('<p>' + chip.label + ' ke baare me vistaar jald jodenge.</p>');
+}
+
+function sendUser() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  addUser(text);
+  inp.value = '';
+  setTimeout(() => addAI('<p>Bahut sundar prashn. Iska uttar vistaar se jald jodenge — abhi aap chips pe tap karke bhi vistrit jaankari paa sakti hain. 🪔</p>'), 500);
+}
+
+function shareEvent() { if (navigator.share) navigator.share({ title: currentEvent.key, text: currentEvent.data.tagline, url: location.href }).catch(()=>{}); else alert('Link copy ho gaya'); }
+function goSeva() {
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  window.location.href = 'devotion-seva.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+function goBack() {
+  // Always go back to home, preserving the deity query param so the user lands
+  // on the same personalized home they left instead of deity selection.
+  const d = new URLSearchParams(location.search).get('deity') || '';
+  location.href = 'devotion-home-focused.html' + (d ? '?deity=' + encodeURIComponent(d) : '');
+}
+
+boot();
+</script>
+</body>
+</html>
