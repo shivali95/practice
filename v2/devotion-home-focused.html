@@ -55,6 +55,50 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
 .deity-card .name { font-size:13px; font-weight:700; color:#fff; margin-top:8px; z-index:2; position:relative; }
 .deity-card .epithet { font-size:10px; color:#ffce99; margin-top:2px; z-index:2; position:relative; }
 
+/* ============ V2 FAITH PICKER (step 0) ============ */
+.faith-picker {
+  position:absolute; inset:0; z-index:70; background:#0a0500;
+  padding:80px 24px 32px; display:flex; flex-direction:column;
+  transition: opacity 520ms ease, transform 520ms ease;
+}
+.faith-picker.hide { opacity:0; transform:scale(0.96); pointer-events:none; }
+.faith-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:24px;
+}
+.faith-card {
+  position:relative; aspect-ratio:1;
+  border-radius:18px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+  overflow:hidden;
+  background:rgba(255,200,140,0.04);
+  border:1px solid rgba(255,180,100,0.18);
+}
+.faith-card:active { transform:scale(0.97); }
+.faith-card.hindu    { background:linear-gradient(160deg, rgba(255,138,46,0.12), rgba(247,171,32,0.05)); border-color:rgba(255,180,100,0.32); }
+.faith-card.muslim   { background:linear-gradient(160deg, rgba(45,138,78,0.18), rgba(45,138,78,0.04)); border-color:rgba(110,200,150,0.30); }
+.faith-card.sikh     { background:linear-gradient(160deg, rgba(247,171,32,0.16), rgba(255,200,80,0.04)); border-color:rgba(255,206,153,0.30); }
+.faith-card.christian{ background:linear-gradient(160deg, rgba(120,160,255,0.14), rgba(60,90,200,0.04)); border-color:rgba(160,190,255,0.30); }
+.faith-symbol {
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(0,0,0,0.35);
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; line-height:1;
+  border:1px solid rgba(255,255,255,0.08);
+  margin-bottom:12px;
+}
+.faith-card .name { font-size:14px; font-weight:800; color:#fff; }
+.faith-card .lbl  { font-size:10px; color:rgba(255,236,210,0.62); margin-top:3px; letter-spacing:0.5px; }
+.faith-soon-toast {
+  position:absolute; bottom:32px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(0,0,0,0.9); color:#ffd9a8; padding:10px 18px; border-radius:999px;
+  border:1px solid rgba(255,200,120,0.32);
+  font-size:12px; font-weight:600; opacity:0; pointer-events:none;
+  transition:opacity 240ms ease, transform 240ms ease; white-space:nowrap;
+  z-index:80;
+}
+.faith-soon-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
 /* ============ V2 GREETING FOLD ============ */
 .greeting-fold {
   padding:40px 20px 28px;
@@ -1193,8 +1237,40 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   <div class="screen" id="screen">
     <div class="statusbar"><span>9:41</span><span>●●● ▲ ▮</span></div>
 
-    <!-- STEP 1 — DEITY PICKER -->
-    <div class="picker" id="picker">
+    <!-- STEP 0 — FAITH PICKER (V2) -->
+    <div class="faith-picker" id="faithPicker">
+      <div class="picker-label">Aastha</div>
+      <div class="picker-title">Aapki aastha kya hai?</div>
+      <div class="picker-sub">Hum aapka mandir personalise karenge</div>
+
+      <div class="faith-grid">
+        <div class="faith-card hindu" onclick="pickFaith('hindu')">
+          <div class="faith-symbol">ॐ</div>
+          <div class="name">Hindu</div>
+          <div class="lbl">MANDIR · BHAJAN · POOJA</div>
+        </div>
+        <div class="faith-card muslim" onclick="pickFaith('muslim')">
+          <div class="faith-symbol">☪</div>
+          <div class="name">Muslim</div>
+          <div class="lbl">MASJID · SALAH · QURAN</div>
+        </div>
+        <div class="faith-card sikh" onclick="pickFaith('sikh')">
+          <div class="faith-symbol">☬</div>
+          <div class="name">Sikh</div>
+          <div class="lbl">GURUDWARA · KIRTAN · PATH</div>
+        </div>
+        <div class="faith-card christian" onclick="pickFaith('christian')">
+          <div class="faith-symbol">✝</div>
+          <div class="name">Christian</div>
+          <div class="lbl">CHURCH · PRAYER · MASS</div>
+        </div>
+      </div>
+
+      <div class="faith-soon-toast" id="faithSoonToast">Jaldi aane wala hai</div>
+    </div>
+
+    <!-- STEP 1 — DEITY PICKER (shown after 'Hindu' is picked) -->
+    <div class="picker hide" id="picker">
       <div class="picker-label">Mera Mandir</div>
       <div class="picker-title">Aap kisko maante ho?</div>
       <div class="picker-sub">Apna ishta chuniye</div>
@@ -2110,6 +2186,31 @@ function withDeity(href) {
   const sep = href.indexOf('?') === -1 ? '?' : '&';
   if (/[?&]deity=/.test(href)) return href;
   return href + sep + 'deity=' + encodeURIComponent(currentDeity);
+}
+
+// -------- V2 FAITH PICKER (step 0) --------
+let _soonTimer = null;
+function pickFaith(faith) {
+  if (faith === 'hindu') {
+    // Reveal the deity picker, hide the faith picker.
+    const fp = document.getElementById('faithPicker');
+    const dp = document.getElementById('picker');
+    if (fp) fp.classList.add('hide');
+    if (dp) dp.classList.remove('hide');
+    return;
+  }
+  // Muslim / Sikh / Christian — placeholder in this prototype.
+  const t = document.getElementById('faithSoonToast');
+  if (!t) return;
+  const labels = {
+    muslim: 'Islamic Saathi jaldi aa raha hai',
+    sikh: 'Sikh Saathi jaldi aa raha hai',
+    christian: 'Christian Saathi jaldi aa raha hai'
+  };
+  t.textContent = labels[faith] || 'Jaldi aane wala hai';
+  t.classList.add('show');
+  if (_soonTimer) clearTimeout(_soonTimer);
+  _soonTimer = setTimeout(()=>t.classList.remove('show'), 2400);
 }
 
 // -------- PICK / APPLY --------
@@ -3127,6 +3228,9 @@ renderDarshan();
 // home. Without this, pressing "back" from any sub-page lands the user on the
 // deity-selection screen even though we already know which deity they picked.
 if (DEITY_FROM_URL) {
+  // Returning user — skip both faith and deity onboarding, drop straight to home.
+  const fp = document.getElementById('faithPicker');
+  if (fp) fp.classList.add('hide');
   const picker = document.getElementById('picker');
   if (picker) picker.classList.add('hide');
   // Apply deity state (image, greeting, sections) silently — no TTS greeting, no mantra,
