@@ -2910,6 +2910,7 @@ function openKatha(id) {
     // Engage full-screen Shorts mode — covers the entire phone screen.
     player.classList.add('video-mode');
     if (dpImg)   dpImg.style.display = 'none';
+    let videoReadyPromise = Promise.resolve();
     if (dpVideo) {
       dpVideo.style.display = 'block';
       // Support either a single video id or an array of ids to chain.
@@ -2918,6 +2919,15 @@ function openKatha(id) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       const mainId = ids[0];
       const playlist = ids.length > 1 ? ids.slice(1).join(',') : mainId;
+      // Show YouTube thumbnail behind the iframe so the screen isn't blank
+      // while the embed is downloading. Iframe covers it once it renders.
+      const dpHero = document.querySelector('.dp-hero');
+      if (dpHero) {
+        dpHero.style.backgroundImage = 'url(https://img.youtube.com/vi/' + mainId + '/maxresdefault.jpg)';
+        dpHero.style.backgroundSize = 'cover';
+        dpHero.style.backgroundPosition = 'center';
+        dpHero.style.backgroundColor = '#000';
+      }
       // Strip every bit of YouTube chrome we can:
       //   controls=0          → hide play/pause + progress bar
       //   modestbranding=1    → minimise YouTube logo
@@ -2933,7 +2943,17 @@ function openKatha(id) {
               + '?autoplay=1&playsinline=1&controls=0&modestbranding=1&rel=0'
               + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + playlist;
       if (cfg.mute) url += '&mute=1';
-      dpVideo.src = url;
+      // Wait for the iframe to actually load before starting our audio so the
+      // narration doesn't begin while the video is still a blank rectangle.
+      // Safety timeout (3.5s) so audio still plays if the load event never
+      // fires (e.g. embed disabled / network error).
+      videoReadyPromise = new Promise(resolve => {
+        let done = false;
+        const finish = () => { if (!done) { done = true; resolve(); } };
+        dpVideo.addEventListener('load', finish, { once: true });
+        setTimeout(finish, 3500);
+        dpVideo.src = url;
+      });
     }
     if (cfg.useTTS) {
       // Prefer a per-deity synced-script if one exists for this card.
@@ -2946,12 +2966,21 @@ function openKatha(id) {
       } else if (KATHA_SYNCED_SCRIPTS[id]) {
         scriptKey = id; syncedScript = KATHA_SYNCED_SCRIPTS[id];
       }
-      if (syncedScript) {
-        try { stopStoryTTS(); } catch(e){}  // wipe any old single-chunk narration
-        playSyncedScript(syncedScript, id, scriptKey);
-      } else if (narrationText) {
-        playStoryTTS(narrationText, id);
-      }
+      // Hold off on starting audio until the iframe has actually loaded —
+      // otherwise narration can play over a blank rectangle if the video is
+      // slow / blocked. videoReadyPromise resolves on iframe `load` or after
+      // a 3.5s safety timeout.
+      const startedKathaId = id;
+      videoReadyPromise.then(() => {
+        // Bail if the user closed or switched cards while we were waiting.
+        if (currentKathaId !== startedKathaId) return;
+        if (syncedScript) {
+          try { stopStoryTTS(); } catch(e){}
+          playSyncedScript(syncedScript, id, scriptKey);
+        } else if (narrationText) {
+          playStoryTTS(narrationText, id);
+        }
+      });
     } else {
       try { stopStoryTTS(); } catch(e){}
     }
