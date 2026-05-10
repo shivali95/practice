@@ -2719,15 +2719,15 @@ function stopSyncedScript() {
 
 // Per-katha synced narration scripts. Each chunk fires at startMs after the
 // video begins. Keep chunks short and timing aligned to the visuals.
-// Total duration target is ~15s for short Shorts-style videos.
+// Total duration target is ~20s for the Samudra Manthan video.
 const KATHA_SYNCED_SCRIPTS = {
-  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY (~15s total)
-    { text: 'समुद्र मंथन की कथा।',                            startMs:   400 },
-    { text: 'देवताओं और असुरों ने मिलकर मंथन किया।',           startMs:  3000 },
-    { text: 'पहले निकला हलाहल विष।',                            startMs:  6500 },
-    { text: 'सृष्टि जलने लगी।',                                  startMs:  9000 },
-    { text: 'महादेव ने स्वयं वह विष पी लिया।',                   startMs: 11000 },
-    { text: 'तभी से वे नीलकंठ कहलाए।',                          startMs: 13500 }
+  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY (~20s total)
+    { text: 'आज की कथा है समुद्र मंथन की कथा।',                 startMs:   500 },
+    { text: 'देवताओं और असुरों ने मिलकर मंथन किया।',             startMs:  4500 },
+    { text: 'पहले निकला हलाहल विष।',                              startMs:  9000 },
+    { text: 'सृष्टि जलने लगी।',                                    startMs: 12000 },
+    { text: 'महादेव ने स्वयं वह विष पी लिया।',                     startMs: 14500 },
+    { text: 'तभी से वे नीलकंठ कहलाए।',                            startMs: 17500 }
   ]
 };
 
