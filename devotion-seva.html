@@ -182,9 +182,30 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
 .vo-frame-wrap {
   position:relative; width:100%; aspect-ratio:9/16; max-height:520px;
   background:#000;
+  overflow:hidden;  /* clip the oversized iframe so YouTube chrome is hidden */
 }
+/* Oversize the iframe and offset it so YouTube's channel info, share/sub
+   buttons, controls bar and Shorts logo all fall outside the visible
+   window. The wrapper's overflow:hidden does the cropping. */
 .vo-frame-wrap iframe {
-  position:absolute; inset:0; width:100%; height:100%; border:0;
+  position:absolute !important;
+  top:-14% !important; left:-10% !important;
+  width:120% !important; height:130% !important;
+  border:0;
+  pointer-events:none;  /* user can't accidentally tap into YouTube UI */
+}
+/* Soft top + bottom gradient masks for any residual YouTube overlay that
+   creeps back in (e.g. when the iframe finishes loading). */
+.vo-frame-wrap .yt-mask {
+  position:absolute; left:0; right:0; pointer-events:none; z-index:3;
+}
+.vo-frame-wrap .yt-mask-top {
+  top:0; height:60px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+}
+.vo-frame-wrap .yt-mask-bottom {
+  bottom:0; height:80px;
+  background:linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
 }
 .vo-live-badge {
   position:absolute; top:10px; left:10px; z-index:4;
@@ -656,6 +677,9 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
     <div class="vo-frame-wrap">
       <span class="vo-live-badge">LIVE</span>
       <iframe id="voFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <!-- Edge masks to hide any YouTube chrome that bleeds through -->
+      <div class="yt-mask yt-mask-top"></div>
+      <div class="yt-mask yt-mask-bottom"></div>
     </div>
     <div class="vo-pulse">
       <div class="vo-pulse-dot"></div>
@@ -771,9 +795,17 @@ function openSankalpVideo(idx) {
   document.getElementById('voSankalp').textContent = s.sankalp;
   document.getElementById('voPandit').textContent  = s.pandit;
   document.getElementById('voPulseName').textContent = YJ_NAME.split(' ')[0] + ' aur ' + YJ_GOTRA + ' gotra';
-  // Set iframe src — autoplay
+  // Set iframe src — strip every bit of YouTube chrome we can:
+  //   controls=0          → hide play/pause + progress bar
+  //   modestbranding=1    → minimise YouTube logo
+  //   rel=0               → no related videos at end
+  //   iv_load_policy=3    → no annotations / cards
+  //   disablekb=1         → no keyboard interactions
+  //   fs=0                → no fullscreen button
+  //   loop+playlist       → loop the short like a real Shorts experience
   var src = 'https://www.youtube.com/embed/' + s.videoId
-          + '?autoplay=1&playsinline=1&modestbranding=1&rel=0';
+          + '?autoplay=1&playsinline=1&controls=0&modestbranding=1&rel=0'
+          + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + s.videoId;
   document.getElementById('voFrame').src = src;
   // Anchor overlay near the top of the user's current viewport (since it's
   // position:absolute inside .phone — phone is much taller than viewport).
