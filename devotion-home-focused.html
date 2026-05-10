@@ -2520,10 +2520,10 @@ const storyAudioInFlight = {};
 function sarvamVoiceFor(id) {
   if (id === 'sandesh')   return { speaker: 'ashutosh', model: 'bulbul:v3', pace: 0.85 }; // Bhagwan ki awaaz — divine male
   if (id === 'gita')      return { speaker: 'anand',    model: 'bulbul:v3', pace: 0.88 }; // sage, philosophical
-  if (id === 'tithi')     return { speaker: 'aditya',   model: 'bulbul:v3', pace: 0.95 }; // mature, calm narrator
+  if (id === 'tithi')     return { speaker: 'aditya',   model: 'bulbul:v3', pace: 0.95 }; // mature, calm narrator (Buddha Purnima)
   if (id === 'ramayan')   return { speaker: 'kabir',    model: 'bulbul:v3', pace: 0.92 }; // warm storyteller
   if (id === 'bharat')    return { speaker: 'vijay',    model: 'bulbul:v3', pace: 0.95 }; // heroic, confident
-  /* puranic / default */ return { speaker: 'gokul',    model: 'bulbul:v3', pace: 0.9  }; // peaceful, divine
+  /* puranic / default */ return { speaker: 'aditya',   model: 'bulbul:v3', pace: 0.95 }; // matches Buddha Purnima — same calm narrator for Samudra Manthan
 }
 
 // Cache key — sandesh & puranic vary by deity; rest are shared.
@@ -2710,11 +2710,15 @@ function _syncedVoiceCfg(id) {
 }
 
 // Fetch (or return cached) the audio URL for one chunk.
+// Cache key includes the voice config so switching speaker/pace busts the
+// cache and the new voice gets fetched fresh on next play.
 function _fetchSyncedChunk(script, idx, id, scriptKey) {
-  const cacheKey = (scriptKey || id) + ':' + idx;
+  const vcfg = _syncedVoiceCfg(id);
+  const voiceTag = (vcfg.speaker || 'def') + '@' + (vcfg.pace || 1);
+  const cacheKey = (scriptKey || id) + ':' + idx + ':' + voiceTag;
   if (syncedChunkCache[cacheKey]) return Promise.resolve(syncedChunkCache[cacheKey]);
   if (syncedChunkInFlight[cacheKey]) return syncedChunkInFlight[cacheKey];
-  const p = sarvamSpeak(script[idx].text, _syncedVoiceCfg(id))
+  const p = sarvamSpeak(script[idx].text, vcfg)
     .then(url => {
       if (url) syncedChunkCache[cacheKey] = url;
       return url;
@@ -2739,8 +2743,10 @@ function playSyncedScript(script, id, scriptKey) {
   stopSyncedScript();
   const playStartMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   const myGen = ++syncedGen;
+  const vcfg = _syncedVoiceCfg(id);
+  const voiceTag = (vcfg.speaker || 'def') + '@' + (vcfg.pace || 1);
   script.forEach((s, idx) => {
-    const cacheKey = (scriptKey || id) + ':' + idx;
+    const cacheKey = (scriptKey || id) + ':' + idx + ':' + voiceTag;
     const schedulePlay = (url) => {
       if (!url || myGen !== syncedGen) return;
       const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
