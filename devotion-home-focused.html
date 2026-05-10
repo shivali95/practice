@@ -2564,6 +2564,17 @@ function warmAllStoriesForDeity() {
       const k = getKatha(id);
       if (k && k.narration) warmStoryAudio(k.narration, id);
     });
+    // Pre-fetch any synced-script chunks that match the current deity so the
+    // multi-chunk narration plays with zero round-trip lag on tap.
+    if (typeof KATHA_SYNCED_SCRIPTS !== 'undefined') {
+      Object.keys(KATHA_SYNCED_SCRIPTS).forEach(key => {
+        const colon = key.indexOf(':');
+        const id = colon > -1 ? key.slice(0, colon) : key;
+        const deity = colon > -1 ? key.slice(colon + 1) : null;
+        if (deity && deity !== currentDeity) return;  // skip scripts for other deities
+        warmSyncedScript(KATHA_SYNCED_SCRIPTS[key], id, key);
+      });
+    }
   } catch(e) { console.warn('warmAllStoriesForDeity error', e); }
 }
 
@@ -2684,31 +2695,77 @@ function stopStoryTTS() {
 // Plays a sequence of TTS chunks at exact time offsets so the narration
 // matches specific moments in a video. Used for video-backed kathas where
 // we want the audio to land on visual beats (e.g. Samudra Manthan).
+//
+// Each chunk is fetched once and cached so subsequent opens (and warm-up)
+// play instantly with no Sarvam round-trip lag.
 let syncedTimers = [];
 let syncedAudios = [];
-async function playSyncedScript(script, id) {
-  stopSyncedScript();
+const syncedChunkCache = {};   // key: scriptKey + ':' + chunkIdx → blob URL
+const syncedChunkInFlight = {}; // dedupe in-flight warm-ups
+
+function _syncedVoiceCfg(id) {
   // Synced narration overrides the default pace so each line keeps up with
   // the video — drama-narrator pace is too slow for short chunks.
-  const voiceCfg = Object.assign({}, sarvamVoiceFor(id), { pace: 1.05 });
-  // Fetch every chunk in parallel so they're all ready before scheduling
-  // playback (avoids drift if one chunk is slow to fetch).
-  const urls = await Promise.all(script.map(s => {
-    return sarvamSpeak(s.text, voiceCfg).catch(() => null);
-  }));
+  return Object.assign({}, sarvamVoiceFor(id), { pace: 1.05 });
+}
+
+// Fetch (or return cached) the audio URL for one chunk.
+function _fetchSyncedChunk(script, idx, id, scriptKey) {
+  const cacheKey = (scriptKey || id) + ':' + idx;
+  if (syncedChunkCache[cacheKey]) return Promise.resolve(syncedChunkCache[cacheKey]);
+  if (syncedChunkInFlight[cacheKey]) return syncedChunkInFlight[cacheKey];
+  const p = sarvamSpeak(script[idx].text, _syncedVoiceCfg(id))
+    .then(url => {
+      if (url) syncedChunkCache[cacheKey] = url;
+      return url;
+    })
+    .catch(() => null)
+    .finally(() => { delete syncedChunkInFlight[cacheKey]; });
+  syncedChunkInFlight[cacheKey] = p;
+  return p;
+}
+
+// Pre-fetch every chunk in the script — call this on page load so playback
+// has zero lag when the user actually taps the card.
+function warmSyncedScript(script, id, scriptKey) {
+  if (!script || !script.length) return;
+  script.forEach((_, idx) => { _fetchSyncedChunk(script, idx, id, scriptKey); });
+}
+
+// Fire-and-forget: schedule every chunk independently. Cached chunks
+// schedule immediately; uncached chunks schedule when their fetch resolves
+// (with the offset clamped to 0 so they play ASAP if they arrive late).
+function playSyncedScript(script, id, scriptKey) {
+  stopSyncedScript();
+  const playStartMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const myGen = ++syncedGen;
   script.forEach((s, idx) => {
-    const url = urls[idx];
-    if (!url) return;
-    const t = setTimeout(() => {
-      const a = new Audio(url);
-      a.volume = 0.95;
-      syncedAudios.push(a);
-      a.play().catch(e => console.warn('synced chunk play failed', idx, e));
-    }, s.startMs || 0);
-    syncedTimers.push(t);
+    const cacheKey = (scriptKey || id) + ':' + idx;
+    const schedulePlay = (url) => {
+      if (!url || myGen !== syncedGen) return;
+      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const elapsed = now - playStartMs;
+      const wait = Math.max(0, (s.startMs || 0) - elapsed);
+      const t = setTimeout(() => {
+        if (myGen !== syncedGen) return;
+        const a = new Audio(url);
+        a.volume = 0.95;
+        syncedAudios.push(a);
+        a.play().catch(e => console.warn('synced chunk play failed', idx, e));
+      }, wait);
+      syncedTimers.push(t);
+    };
+    const cached = syncedChunkCache[cacheKey];
+    if (cached) {
+      schedulePlay(cached);
+    } else {
+      _fetchSyncedChunk(script, idx, id, scriptKey).then(schedulePlay);
+    }
   });
 }
+let syncedGen = 0;
 function stopSyncedScript() {
+  syncedGen++;
   syncedTimers.forEach(clearTimeout);
   syncedTimers = [];
   syncedAudios.forEach(a => {
@@ -2838,7 +2895,7 @@ function openKatha(id) {
     sandesh:   { videoId: 'ECTuILfIjyM', mute: false, useTTS: false }, // Krishna sandesh
     gita:      { videoId: '7jicfqSGeMI', mute: false, useTTS: false }, // gita sandesh
     shivstuti: { videoId: 'SHnHU1D56Oc', mute: false, useTTS: false }, // shiv stuti
-    tithi:     { videoId: ['985IGL7GQUI','cihb9mmFJj8'], mute: true, useTTS: true }, // Buddha Purnima — chain 2 videos, our narration on top
+    tithi:     { videoId: '985IGL7GQUI', mute: true, useTTS: true }, // Buddha Purnima — single video, our narration on top
     puranic:   { byDeity: { shiva: 'OF_RpYFbTzY' }, mute: true, useTTS: true } // Samudra Manthan — only when shiva is selected
   };
   const cfg     = KATHA_VIDEO[id];
@@ -2881,11 +2938,17 @@ function openKatha(id) {
     if (cfg.useTTS) {
       // Prefer a per-deity synced-script if one exists for this card.
       // Falls back to a single continuous narration otherwise.
-      const scriptKey = id + ':' + currentDeity;
-      const syncedScript = KATHA_SYNCED_SCRIPTS[scriptKey] || KATHA_SYNCED_SCRIPTS[id];
+      const deityKey = id + ':' + currentDeity;
+      let scriptKey = null;
+      let syncedScript = null;
+      if (KATHA_SYNCED_SCRIPTS[deityKey]) {
+        scriptKey = deityKey; syncedScript = KATHA_SYNCED_SCRIPTS[deityKey];
+      } else if (KATHA_SYNCED_SCRIPTS[id]) {
+        scriptKey = id; syncedScript = KATHA_SYNCED_SCRIPTS[id];
+      }
       if (syncedScript) {
         try { stopStoryTTS(); } catch(e){}  // wipe any old single-chunk narration
-        playSyncedScript(syncedScript, id);
+        playSyncedScript(syncedScript, id, scriptKey);
       } else if (narrationText) {
         playStoryTTS(narrationText, id);
       }
