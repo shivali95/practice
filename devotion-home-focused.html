@@ -1631,6 +1631,9 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
     </button>
     <div class="dp-hero">
       <img id="dpImg" src="" alt=""/>
+      <!-- For 'gita' card we swap a YouTube short in place of the static image. -->
+      <iframe id="dpVideo" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;z-index:2;"
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
       <div class="dp-hero-grad"></div>
       <div class="dp-hero-ribbon" id="dpRibbon">Katha</div>
       <div class="dp-hero-ambient"></div>
@@ -2696,6 +2699,28 @@ function openKatha(id) {
   // Kill any other audio that might be playing (mantra on home, previous story)
   try { stopShivMantra(); } catch(e){}
 
+  // ─── Gita card uses a real video instead of static image + Sarvam narration ───
+  const KATHA_VIDEO = {
+    gita: '7jicfqSGeMI'   // https://www.youtube.com/shorts/7jicfqSGeMI — gita sandesh
+  };
+  const videoId = KATHA_VIDEO[id];
+  const dpVideo = document.getElementById('dpVideo');
+  const dpImg   = document.getElementById('dpImg');
+  if (videoId) {
+    // Stop any TTS that might already be queued for this card and swap to video.
+    try { stopStoryTTS(); } catch(e){}
+    if (dpImg)   dpImg.style.display = 'none';
+    if (dpVideo) {
+      dpVideo.style.display = 'block';
+      dpVideo.src = 'https://www.youtube.com/embed/' + videoId
+                  + '?autoplay=1&playsinline=1&modestbranding=1&rel=0';
+    }
+    return;  // skip TTS
+  }
+  // Non-video card — restore image, hide iframe, run TTS as usual
+  if (dpVideo) { dpVideo.style.display = 'none'; dpVideo.src = ''; }
+  if (dpImg)   dpImg.style.display = '';
+
   // Per-story unique Hindi TTS narration — auto-plays as soon as the card opens.
   if (narrationText) {
     playStoryTTS(narrationText, id);
@@ -2706,6 +2731,11 @@ function closeKatha() {
   document.getElementById('darshanPlayer').classList.remove('active');
   document.getElementById('darshanBack').classList.remove('active');
   stopStoryTTS();
+  // Clear the video iframe so the YouTube short stops playing.
+  const dpVideo = document.getElementById('dpVideo');
+  if (dpVideo) { dpVideo.src = ''; dpVideo.style.display = 'none'; }
+  const dpImg = document.getElementById('dpImg');
+  if (dpImg) dpImg.style.display = '';
   currentKathaId = null;
 }
 
