@@ -2426,6 +2426,15 @@ const DAILY_KATHAS = {
     para:'Varanasi ke <b>Dashashwamedh Ghat</b> par har sandhya <b>7 pujari</b> saath mein, ek hi laya mein, Maa Ganga ki aarti karte hain. <b>3000 saal</b> se yeh parampara ek din bhi nahi tooti — na yuddh mein, na mahamari mein, na akaal mein. Puri Kashi us samay ek hi dhun mein doobti hai.',
     learn:'Parampara wohi jeevit rehti hai jiska palan kisi ek par nirbhar na ho. Yehi hamari sanatan sanskriti ka marm hai.',
     narration:'आज की भारत गाथा है काशी की गंगा आरती की। वाराणसी के दशाश्वमेध घाट पर हर संध्या सात पुजारी एक साथ, एक ही लय में, माँ गंगा की आरती करते हैं। तीन हज़ार साल से यह परंपरा एक दिन भी नहीं टूटी — न युद्ध में, न महामारी में, न अकाल में। जब शंख बजते हैं, दीप जलते हैं, और मंत्र गूँजते हैं — तो पूरी काशी एक ही धुन में डूब जाती है। यह गाथा हमें सिखाती है कि परंपरा वही जीवित रहती है जिसका पालन किसी एक व्यक्ति पर निर्भर न हो। यही हमारी सनातन संस्कृति का मर्म है।'
+  },
+  shivstuti: {
+    ribbon:'Aaj ki Shiv Stuti', dur:'0:55',
+    title:'Shiv Stuti', sub:'Mahadev ki mahima',
+    img:WIKI+'Shiva_Bangalore.jpg?width=720', imgFallback:DEITIES_SRC.shiva,
+    quote:'"Karpur Gauram Karunavataram, Sansaarsaram Bhujagendra Haaram."',
+    para:'Aaj ki <b>Shiv Stuti</b> Bhagwan Mahadev ko samarpit hai. Karpur ke samaan goryan, karuna ke avatar, sansar mein saar (essence) saman, sarpon ki mala dhaaran karne wale, sada Parvati ji ke saath virajamaan, prasanna mukh wale Mahadev — unka aaradhana karke mann shaant hota hai aur sab vighn mit jaate hain.',
+    learn:'Shiv ji ka smaran hi sabse bada raksha-kavach hai. Shiv stuti se mann shudh hota hai aur pura din shubh rehta hai.',
+    narration:'आज की शिव स्तुति। कर्पूर गौरम् करुणावतारम्, संसारसारम् भुजगेन्द्रहारम्। सदा वसन्तं हृदयारविन्दे, भवं भवानीसहितं नमामि। महादेव जी की महिमा अनंत है। उनके स्मरण मात्र से मन शांत होता है, सब विघ्न दूर हो जाते हैं। ॐ नमः शिवाय।'
   }
 };
 
@@ -2481,13 +2490,18 @@ function warmStoryAudio(text, id) {
   return p;
 }
 
-// Kick off background prefetches for all 5 katha cards + sandesh.
-// Called on page load and whenever the deity changes.
+// Kick off background prefetches for narration-backed katha cards.
+// Skips cards that play a YouTube video (sandesh, gita, shivstuti) since
+// their Sarvam narration is never used.
+const VIDEO_KATHA_IDS = new Set(['sandesh','gita','shivstuti']);
 function warmAllStoriesForDeity() {
   try {
-    const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
-    warmStoryAudio(s.narration, 'sandesh');
-    ['puranic','gita','ramayan','tithi','bharat'].forEach(id => {
+    if (!VIDEO_KATHA_IDS.has('sandesh')) {
+      const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
+      warmStoryAudio(s.narration, 'sandesh');
+    }
+    ['puranic','gita','ramayan','tithi','bharat','shivstuti'].forEach(id => {
+      if (VIDEO_KATHA_IDS.has(id)) return;
       const k = getKatha(id);
       if (k && k.narration) warmStoryAudio(k.narration, id);
     });
@@ -2627,8 +2641,8 @@ function renderDarshan() {
       '<div class="kc-sub">Aaj ke din aapke liye ek sandesh</div>' +
     '</div>';
 
-  // The 5 katha stories (card tap itself opens + auto-plays narration)
-  const ids = ['puranic','gita','ramayan','tithi','bharat'];
+  // The katha stories (card tap itself opens + auto-plays narration or video)
+  const ids = ['shivstuti','puranic','gita','ramayan','tithi','bharat'];
   const scroll = document.getElementById('kathaScroll');
   if (!scroll) return;
   const storyCards = ids.map(id => {
@@ -2699,9 +2713,11 @@ function openKatha(id) {
   // Kill any other audio that might be playing (mantra on home, previous story)
   try { stopShivMantra(); } catch(e){}
 
-  // ─── Gita card uses a real video instead of static image + Sarvam narration ───
+  // ─── These cards play a real video in place of the static image + Sarvam narration ───
   const KATHA_VIDEO = {
-    gita: '7jicfqSGeMI'   // https://www.youtube.com/shorts/7jicfqSGeMI — gita sandesh
+    sandesh:   'ECTuILfIjyM',  // https://www.youtube.com/shorts/ECTuILfIjyM — Bhagwan ka sandesh
+    gita:      '7jicfqSGeMI',  // https://www.youtube.com/shorts/7jicfqSGeMI — gita sandesh
+    shivstuti: 'SHnHU1D56Oc'   // https://www.youtube.com/shorts/SHnHU1D56Oc — shiv stuti
   };
   const videoId = KATHA_VIDEO[id];
   const dpVideo = document.getElementById('dpVideo');

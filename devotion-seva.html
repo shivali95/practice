@@ -771,13 +771,25 @@ function openSankalpVideo(idx) {
   document.getElementById('voSankalp').textContent = s.sankalp;
   document.getElementById('voPandit').textContent  = s.pandit;
   document.getElementById('voPulseName').textContent = YJ_NAME.split(' ')[0] + ' aur ' + YJ_GOTRA + ' gotra';
-  // Set iframe src — autoplay, mute=0, looped short
+  // Set iframe src — autoplay
   var src = 'https://www.youtube.com/embed/' + s.videoId
           + '?autoplay=1&playsinline=1&modestbranding=1&rel=0';
   document.getElementById('voFrame').src = src;
-  // Show overlay
-  document.getElementById('videoBack').classList.add('active');
-  document.getElementById('videoOverlay').classList.add('active');
+  // Anchor overlay near the top of the user's current viewport (since it's
+  // position:absolute inside .phone — phone is much taller than viewport).
+  var ov = document.getElementById('videoOverlay');
+  var back = document.getElementById('videoBack');
+  var topY = (window.scrollY || window.pageYOffset || 0) + 60;
+  ov.style.top = topY + 'px';
+  ov.style.transform = 'translate(-50%, 0) scale(0.96)';
+  back.style.top = (window.scrollY || 0) + 'px';
+  back.style.height = window.innerHeight + 'px';
+  back.classList.add('active');
+  ov.classList.add('active');
+  // Snap to final transform
+  requestAnimationFrame(function(){
+    ov.style.transform = 'translate(-50%, 0) scale(1)';
+  });
 }
 
 function closeSankalpVideo() {
