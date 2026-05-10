@@ -2690,7 +2690,7 @@ async function playSyncedScript(script, id) {
   stopSyncedScript();
   // Synced narration overrides the default pace so each line keeps up with
   // the video — drama-narrator pace is too slow for short chunks.
-  const voiceCfg = Object.assign({}, sarvamVoiceFor(id), { pace: 1.15 });
+  const voiceCfg = Object.assign({}, sarvamVoiceFor(id), { pace: 1.05 });
   // Fetch every chunk in parallel so they're all ready before scheduling
   // playback (avoids drift if one chunk is slow to fetch).
   const urls = await Promise.all(script.map(s => {
@@ -2719,14 +2719,15 @@ function stopSyncedScript() {
 
 // Per-katha synced narration scripts. Each chunk fires at startMs after the
 // video begins. Keep chunks short and timing aligned to the visuals.
-// Total duration target is ~10–12s for short Shorts-style videos.
+// Total duration target is ~15s for short Shorts-style videos.
 const KATHA_SYNCED_SCRIPTS = {
-  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY (~11s total)
-    { text: 'समुद्र मंथन की कथा।',                          startMs:   300 },
-    { text: 'देवताओं और असुरों ने मिलकर मंथन किया।',          startMs:  2200 },
-    { text: 'पहले निकला हलाहल विष।',                          startMs:  4800 },
-    { text: 'महादेव ने स्वयं वह विष पी लिया।',                 startMs:  7000 },
-    { text: 'तभी से वे नीलकंठ कहलाए।',                        startMs:  9500 }
+  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY (~15s total)
+    { text: 'समुद्र मंथन की कथा।',                            startMs:   400 },
+    { text: 'देवताओं और असुरों ने मिलकर मंथन किया।',           startMs:  3000 },
+    { text: 'पहले निकला हलाहल विष।',                            startMs:  6500 },
+    { text: 'सृष्टि जलने लगी।',                                  startMs:  9000 },
+    { text: 'महादेव ने स्वयं वह विष पी लिया।',                   startMs: 11000 },
+    { text: 'तभी से वे नीलकंठ कहलाए।',                          startMs: 13500 }
   ]
 };
 
