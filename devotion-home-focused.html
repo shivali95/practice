@@ -56,8 +56,10 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
 .deity-card .epithet { font-size:10px; color:#ffce99; margin-top:2px; z-index:2; position:relative; }
 
 /* ============ FAITH PICKER (step 0) ============ */
+/* z-index above .qseva-row (100) and any fold 1 chrome so the
+   underlying deity hero/seva buttons don't bleed through. */
 .faith-picker {
-  position:absolute; inset:0; z-index:70; background:#0a0500;
+  position:absolute; inset:0; z-index:120; background:#0a0500;
   padding:80px 24px 32px; display:flex; flex-direction:column;
   transition: opacity 520ms ease, transform 520ms ease;
 }
@@ -95,7 +97,7 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   border:1px solid rgba(255,200,120,0.32);
   font-size:12px; font-weight:600; opacity:0; pointer-events:none;
   transition:opacity 240ms ease, transform 240ms ease; white-space:nowrap;
-  z-index:80;
+  z-index:130;
 }
 .faith-soon-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
