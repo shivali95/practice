@@ -3060,46 +3060,114 @@ function goChadhava() { window.location.href = withDeity('devotion-seva.html'); 
 function openNotif()  { /* stub */ }
 
 // ============ MAAS KA PANCHANG ============
-const MAAS_EVENTS = {
-  3:  { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh ji ka chaturthi vrat · chandra darshan ke baad paran karein' },
-  6:  { type:'ekadashi', title:'Varuthini Ekadashi',  desc:'Paap-naashak vrat · Vishnu ji ki kripa · sab ekadashiyon me shreshth' },
-  8:  { type:'amavasya', title:'Chaitra Amavasya',    desc:'Pitru tarpan, snaan aur daan ka mukhya din' },
-  10: { type:'festival', title:'Akshaya Tritiya',     desc:'Swarn khareed, daan aur naye karya arambh ka shubh din',
-        secondary:{ type:'vrat', title:'Parshuram Jayanti', desc:'Bhagwan Parshuram ka prakatotsav' } },
-  14: { type:'festival', title:'Vaishakhi',           desc:'Baisakhi · nayi fasal ka anand utsav' },
-  16: { type:'vrat',     title:'Ganga Saptami',       desc:'Maa Ganga ke prakat hone ka pavitra divas' },
-  20: { type:'ekadashi', title:'Mohini Ekadashi',     desc:'Bhagwan Vishnu ke Mohini roop ka mangal vrat' },
-  22: { type:'festival', title:'Narasimha Jayanti',   desc:'Bhakt Prahlad ki raksha · Narasimha Bhagwan ka prakatotsav' },
-  24: { type:'festival', title:'Buddha Purnima',      desc:'Bhagwan Buddha ka prakat-nirvan diwas · Vaishakh Purnima snaan · Satyanarayan vrat' },
-  28: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh chaturthi vrat — dukh-haran ke liye' }
-};
+// Multi-month dataset — user can navigate ‹ / › between months.
+const MONTHS = [
+  // ---------- CHAITRA / March 2026 ----------
+  { hi:'Chaitra', en:'March 2026', days:31, firstWeekday:0, paksh:'Shukla',
+    events:{
+      3:  { type:'festival', title:'Holika Dahan',       desc:'Buraai par achai ki vijay · Holi se ek raat pehle' },
+      4:  { type:'festival', title:'Holi',               desc:'Rangon ka tyohaar · Phaalgun Purnima ke baad' },
+      14: { type:'ekadashi', title:'Papamochani Ekadashi', desc:'Paap-naashak ekadashi vrat · Bhagwan Vishnu ki kripa' },
+      18: { type:'amavasya', title:'Chaitra Amavasya',   desc:'Pitru tarpan, snaan aur daan ka mukhya din' },
+      19: { type:'festival', title:'Gudi Padwa',         desc:'Hindu Nav Varsh · Chaitra Navratri prarambh',
+            secondary:{ type:'festival', title:'Ugadi', desc:'Telugu/Kannada nav varsh' } },
+      27: { type:'festival', title:'Ram Navami',         desc:'Bhagwan Ram ka prakatotsav' },
+      28: { type:'festival', title:'Chaitra Navratri samapan', desc:'Nau dino ki Devi aaradhana ka antim din' },
+      31: { type:'purnima',  title:'Hanuman Jayanti',    desc:'Bajrangbali ka prakat-divas · Chaitra Purnima' }
+    }
+  },
+  // ---------- VAISHAKH / April 2026 (TODAY) ----------
+  { hi:'Vaishakh', en:'April 2026', days:30, firstWeekday:3, paksh:'Shukla', today:24,
+    events:{
+      3:  { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh ji ka chaturthi vrat · chandra darshan ke baad paran karein' },
+      6:  { type:'ekadashi', title:'Varuthini Ekadashi',  desc:'Paap-naashak vrat · Vishnu ji ki kripa · sab ekadashiyon me shreshth' },
+      8:  { type:'amavasya', title:'Vaishakh Amavasya',   desc:'Pitru tarpan, snaan aur daan ka mukhya din' },
+      10: { type:'festival', title:'Akshaya Tritiya',     desc:'Swarn khareed, daan aur naye karya arambh ka shubh din',
+            secondary:{ type:'vrat', title:'Parshuram Jayanti', desc:'Bhagwan Parshuram ka prakatotsav' } },
+      14: { type:'festival', title:'Vaishakhi',           desc:'Baisakhi · nayi fasal ka anand utsav' },
+      16: { type:'vrat',     title:'Ganga Saptami',       desc:'Maa Ganga ke prakat hone ka pavitra divas' },
+      20: { type:'ekadashi', title:'Mohini Ekadashi',     desc:'Bhagwan Vishnu ke Mohini roop ka mangal vrat' },
+      22: { type:'festival', title:'Narasimha Jayanti',   desc:'Bhakt Prahlad ki raksha · Narasimha Bhagwan ka prakatotsav' },
+      24: { type:'purnima',  title:'Buddha Purnima',      desc:'Bhagwan Buddha ka prakat-nirvan diwas · Vaishakh Purnima snaan · Satyanarayan vrat' },
+      28: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh chaturthi vrat — dukh-haran ke liye' }
+    }
+  },
+  // ---------- JYESHTHA / May 2026 ----------
+  { hi:'Jyeshtha', en:'May 2026', days:31, firstWeekday:5, paksh:'Shukla',
+    events:{
+      6:  { type:'ekadashi', title:'Apara Ekadashi',      desc:'Apaar punya dene wala vrat · Krishna paksha' },
+      8:  { type:'vrat',     title:'Pradosh Vrat',        desc:'Shiv ji ka pradosh kaal vrat · sandhya samay puja' },
+      11: { type:'amavasya', title:'Vat Savitri Amavasya',desc:'Suhagin striyon ka pati ki dirgaayu hetu vrat · vat-vriksh puja' },
+      18: { type:'vrat',     title:'Vinayaka Chaturthi',  desc:'Ganesh ji ka shukla paksha chaturthi vrat' },
+      21: { type:'festival', title:'Ganga Dussehra',      desc:'Maa Ganga ke prithvi par avtaran ka divas' },
+      22: { type:'ekadashi', title:'Nirjala Ekadashi',    desc:'Bhima Ekadashi · sab ekadashiyon mein shreshth · jal bhi varjit' },
+      25: { type:'purnima',  title:'Jyeshtha Purnima',    desc:'Vat Purnima vrat · suhagin vrat aur Satyanarayan katha' },
+      28: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Ganesh ji ka chaturthi vrat — krishna paksha' }
+    }
+  },
+  // ---------- ASHADHA / June 2026 ----------
+  { hi:'Ashadha', en:'June 2026', days:30, firstWeekday:1, paksh:'Shukla',
+    events:{
+      4:  { type:'ekadashi', title:'Yogini Ekadashi',     desc:'Paap-naashak vrat · krishna paksha' },
+      8:  { type:'vrat',     title:'Pradosh Vrat',        desc:'Shiv ji ka pradosh vrat' },
+      14: { type:'amavasya', title:'Ashadha Amavasya',    desc:'Halhaarini Amavasya · krishi-arambh ka shubh din' },
+      16: { type:'festival', title:'Jagannath Rath Yatra', desc:'Bhagwan Jagannath ki vishv-prasiddh rath yatra · Puri' },
+      20: { type:'ekadashi', title:'Devshayani Ekadashi', desc:'Bhagwan Vishnu ka chaturmas shayan prarambh · 4 maas tak vivah varjit' },
+      24: { type:'purnima',  title:'Guru Purnima',        desc:'Ved Vyas ji aur sabhi gurujano ka pavitra divas' },
+      27: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Krishna paksha chaturthi vrat' }
+    }
+  },
+  // ---------- SHRAVAN / July 2026 ----------
+  { hi:'Shravan', en:'July 2026', days:31, firstWeekday:3, paksh:'Shukla',
+    events:{
+      1:  { type:'festival', title:'Shravan maas prarambh', desc:'Bhagwan Shiv ka pavitra maas · sabhi somvaar vrat' },
+      4:  { type:'ekadashi', title:'Kamika Ekadashi',     desc:'Manokamna purna karne wala vrat' },
+      9:  { type:'amavasya', title:'Hariyali Amavasya',   desc:'Vriksh aaropan ka shubh din · Shiv aaradhana' },
+      11: { type:'festival', title:'Hariyali Teej',       desc:'Suhagin striyon ka jhula utsav · Parvati-Shiv ka milan' },
+      13: { type:'festival', title:'Naag Panchami',       desc:'Naag devta ki puja · Sheshnaag aur Shiv' },
+      19: { type:'ekadashi', title:'Putrada Ekadashi',    desc:'Santaan-prapti ka vrat' },
+      22: { type:'purnima',  title:'Raksha Bandhan',      desc:'Bhai-behen ka pavitra bandhan · Shravan Purnima' },
+      26: { type:'vrat',     title:'Sankashti Chaturthi', desc:'Bahula Chaturthi · gau-mata aur Krishna ji ki puja' }
+    }
+  }
+];
+const CURRENT_MONTH_IDX = 1;  // Vaishakh / April 2026
 
-const TODAY_DAY       = 24;         // Apr 24, 2026
-const MONTH_DAYS      = 30;         // April
-const FIRST_WEEKDAY   = 3;          // Apr 1, 2026 = Wed (0=Ravivar)
 const WEEKDAY_HI      = ['Ravivar','Somvar','Mangalvar','Budhvar','Guruvar','Shukravar','Shanivar'];
 const TYPE_LABEL      = { festival:'PARV', purnima:'PURNIMA', amavasya:'AMAVASYA', ekadashi:'EKADASHI', vrat:'VRAT' };
 
-let selectedDay = TODAY_DAY;
+let currentMonthIdx = CURRENT_MONTH_IDX;
+let selectedDay = MONTHS[CURRENT_MONTH_IDX].today;
+
+// Live-bound shorthands so the rest of the calendar code reads naturally.
+function _M()           { return MONTHS[currentMonthIdx]; }
+function MAAS_EVENTS_()  { return _M().events; }
+function MONTH_DAYS_()   { return _M().days; }
+function FIRST_WEEKDAY_(){ return _M().firstWeekday; }
+function TODAY_DAY_()    { return _M().today || -1; }  // -1 means "today not in this month"
 
 function renderMonthCal() {
   const grid = document.getElementById('calGrid');
   if (!grid) return;
   grid.innerHTML = '';
+  const events       = MAAS_EVENTS_();
+  const monthDays    = MONTH_DAYS_();
+  const firstWeekday = FIRST_WEEKDAY_();
+  const today        = TODAY_DAY_();
   // Leading empty cells
-  for (let i = 0; i < FIRST_WEEKDAY; i++) {
+  for (let i = 0; i < firstWeekday; i++) {
     const c = document.createElement('div');
     c.className = 'cd cd-empty';
     c.innerHTML = '<div class="cd-num"></div>';
     grid.appendChild(c);
   }
   // Day cells
-  for (let d = 1; d <= MONTH_DAYS; d++) {
+  for (let d = 1; d <= monthDays; d++) {
     const c  = document.createElement('div');
-    const ev = MAAS_EVENTS[d];
+    const ev = events[d];
     let cls  = 'cd';
     if (ev)                 cls += ' cd-' + ev.type;
-    if (d === TODAY_DAY)    cls += ' cd-today';
+    if (d === today)        cls += ' cd-today';
     if (d === selectedDay)  cls += ' cd-selected';
     c.className = cls;
     c.innerHTML = '<div class="cd-num">' + d + '</div>' + (ev ? '<div class="cd-mark"></div>' : '');
@@ -3107,7 +3175,7 @@ function renderMonthCal() {
     grid.appendChild(c);
   }
   // Trailing empty cells so row grid is clean
-  const total = FIRST_WEEKDAY + MONTH_DAYS;
+  const total = firstWeekday + monthDays;
   const trail = (7 - (total % 7)) % 7;
   for (let i = 0; i < trail; i++) {
     const c = document.createElement('div');
@@ -3115,6 +3183,12 @@ function renderMonthCal() {
     c.innerHTML = '<div class="cd-num"></div>';
     grid.appendChild(c);
   }
+
+  // Update header title (Hindi + English)
+  const hiEl = document.getElementById('calHi');
+  const enEl = document.getElementById('calEn');
+  if (hiEl) hiEl.textContent = _M().hi;
+  if (enEl) enEl.textContent = _M().en;
 }
 
 function selectDay(d) {
@@ -3124,8 +3198,10 @@ function selectDay(d) {
 }
 
 function findNextEvent(fromDay) {
-  for (let d = fromDay + 1; d <= MONTH_DAYS; d++) {
-    if (MAAS_EVENTS[d]) return { day:d, ev:MAAS_EVENTS[d] };
+  const events    = MAAS_EVENTS_();
+  const monthDays = MONTH_DAYS_();
+  for (let d = fromDay + 1; d <= monthDays; d++) {
+    if (events[d]) return { day:d, ev:events[d] };
   }
   return null;
 }
@@ -3133,11 +3209,16 @@ function findNextEvent(fromDay) {
 function renderEventDetail() {
   const box = document.getElementById('eventDetail');
   if (!box) return;
-  const ev       = MAAS_EVENTS[selectedDay];
-  const isToday  = selectedDay === TODAY_DAY;
-  const wkIdx    = (FIRST_WEEKDAY + selectedDay - 1) % 7;
-  const dayLabel = WEEKDAY_HI[wkIdx];
-  const dateStr  = dayLabel + ', ' + selectedDay + ' Vaishakh';
+  const events       = MAAS_EVENTS_();
+  const firstWeekday = FIRST_WEEKDAY_();
+  const today        = TODAY_DAY_();
+  const monthName    = _M().hi;
+  const paksh        = _M().paksh || 'Shukla';
+  const ev           = events[selectedDay];
+  const isToday      = selectedDay === today;
+  const wkIdx        = (firstWeekday + selectedDay - 1) % 7;
+  const dayLabel     = WEEKDAY_HI[wkIdx];
+  const dateStr      = dayLabel + ', ' + selectedDay + ' ' + monthName;
 
   // Clear classes
   box.className = 'ed-card';
@@ -3153,7 +3234,7 @@ function renderEventDetail() {
           (isToday ? '<span class="ed-today-pill">AAJ</span>' : '') +
           '<div class="ed-title">' + ev.title + '</div>' +
         '</div>' +
-        '<div class="ed-row2">' + dateStr + ' · Shukla ' + tithiFor(selectedDay) + '</div>' +
+        '<div class="ed-row2">' + dateStr + ' · ' + paksh + ' ' + tithiFor(selectedDay) + '</div>' +
       '</div>' +
       '<div class="ed-arrow">›</div>';
   } else {
@@ -3183,12 +3264,40 @@ function tithiFor(d) {
 }
 
 function changeMonth(delta) {
-  // Prototype: visual acknowledgement only — stays on April 2026
-  const title = document.getElementById('calHi');
-  if (!title) return;
-  title.style.transition = 'opacity 200ms ease';
-  title.style.opacity = '0.3';
-  setTimeout(() => { title.style.opacity = '1'; }, 280);
+  const next = currentMonthIdx + delta;
+  if (next < 0 || next >= MONTHS.length) {
+    // Bounce the title to signal "no more months" instead of doing nothing.
+    const t = document.getElementById('calHi');
+    if (t) {
+      t.style.transition = 'transform 220ms ease';
+      t.style.transform  = 'translateX(' + (delta < 0 ? '6px' : '-6px') + ')';
+      setTimeout(()=> t.style.transform = '', 220);
+    }
+    return;
+  }
+  currentMonthIdx = next;
+  // Reset selection to the new month's "today" if it's the current month,
+  // else first event of the month, else day 1.
+  const m = _M();
+  if (m.today) selectedDay = m.today;
+  else {
+    const keys = Object.keys(m.events).map(n => parseInt(n,10)).sort((a,b)=>a-b);
+    selectedDay = keys.length ? keys[0] : 1;
+  }
+  // Animate the swap
+  const calCard = document.querySelector('.maas-card');
+  if (calCard) {
+    calCard.style.transition = 'opacity 180ms ease';
+    calCard.style.opacity = '0.35';
+    setTimeout(()=> {
+      renderMonthCal();
+      renderEventDetail();
+      calCard.style.opacity = '1';
+    }, 160);
+  } else {
+    renderMonthCal();
+    renderEventDetail();
+  }
 }
 
 function openEventDetail(type, title) {
