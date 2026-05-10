@@ -476,7 +476,7 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
           <div class="sk-label">✦ Aapke Sankalp</div>
           <div class="sk-title">Booked Poojas</div>
         </div>
-        <div class="sk-count">3 LIVE</div>
+        <div class="sk-count" id="skCount">3 LIVE</div>
       </div>
       <div class="sankalp-strip" id="sankalpStrip">
         <!-- populated by JS so we can keep details centralised -->
@@ -731,6 +731,17 @@ var SANKALPS = [
     videoId:'gJNTWZanFWk'
   },
   {
+    pooja:'Online Hawan',
+    mandir:'Trimbakeshwar · Nashik',
+    timeLabel:'ABHI LIVE',
+    isLive:true,
+    deity:'🔥',
+    thumbBg:'linear-gradient(160deg, #6a2810 0%, #3a1505 60%, #0a0500 100%)',
+    sankalp:'Grih shanti aur navagrah dosh nivaran hetu',
+    pandit:'Pt. Bhaskar Joshi',
+    videoId:'bPShEJ5w9KU'
+  },
+  {
     pooja:'Rudrabhishek',
     mandir:'Mahakaleshwar · Ujjain',
     timeLabel:'Kal · 4:00 AM',
@@ -757,6 +768,10 @@ var SANKALPS = [
 function renderSankalps() {
   var strip = document.getElementById('sankalpStrip');
   if (!strip) return;
+  // Keep the LIVE badge count in sync with the data
+  var liveCount = SANKALPS.filter(function(s){ return s.isLive; }).length;
+  var sk = document.getElementById('skCount');
+  if (sk) sk.textContent = liveCount + ' LIVE';
   strip.innerHTML = SANKALPS.map(function(s, i) {
     var thumbHtml =
       '<div class="sk-thumb" style="background:' + s.thumbBg + ';">' +
