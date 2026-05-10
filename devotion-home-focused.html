@@ -884,6 +884,43 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   display:flex; flex-direction:column; overflow:hidden;
 }
 .darshan-player.active { transform:translate(-50%,0); }
+
+/* ===== VIDEO MODE — full-screen YouTube Shorts experience =====
+   When the katha is video-backed (sandesh / gita / shivstuti), the player
+   takes over the entire phone screen, hides all narration chrome, and the
+   YouTube iframe fills the viewport like a Shorts. */
+.darshan-player.video-mode {
+  height:100%; max-height:100%;
+  border-top-left-radius:0; border-top-right-radius:0;
+  background:#000;
+}
+.darshan-player.video-mode .dp-handle,
+.darshan-player.video-mode .dp-meta,
+.darshan-player.video-mode .dp-wave,
+.darshan-player.video-mode .dp-controls,
+.darshan-player.video-mode .dp-loading,
+.darshan-player.video-mode .dp-body,
+.darshan-player.video-mode .dp-hero-grad,
+.darshan-player.video-mode .dp-hero-ribbon,
+.darshan-player.video-mode .dp-hero-ambient,
+.darshan-player.video-mode #dpImg {
+  display:none !important;
+}
+.darshan-player.video-mode .dp-hero {
+  position:absolute; inset:0;
+  height:100%; width:100%;
+  margin:0; border-radius:0;
+  box-shadow:none;
+}
+.darshan-player.video-mode #dpVideo {
+  position:absolute !important; inset:0 !important;
+  width:100% !important; height:100% !important;
+}
+.darshan-player.video-mode .dp-close {
+  top:14px; right:14px; z-index:20;
+  background:rgba(0,0,0,0.7);
+  border:1px solid rgba(255,255,255,0.18);
+}
 .dp-handle { width:46px; height:4px; border-radius:2px; background:rgba(255,210,150,0.32); margin:10px auto 2px; flex-shrink:0; }
 .dp-close {
   position:absolute; top:14px; right:14px; z-index:5;
@@ -2630,14 +2667,17 @@ function getKatha(id) {
 function renderDarshan() {
   // Sandesh is now the FIRST story card (not a separate hero).
   // All 6 cards render into the same horizontal scroll.
-  const s = DAILY_SANDESH[currentDeity] || DAILY_SANDESH.ganesh;
-  const sandeshFbAttr = s.fallback ? ' onerror="this.onerror=null;this.src=\'' + s.fallback + '\'"' : '';
+  // The video for sandesh is Krishna-themed, so the card always reads
+  // "Sri Krishna kehte hain" regardless of the user's chosen deity.
+  const krishnaImg     = (DAILY_SANDESH.krishna && DAILY_SANDESH.krishna.img)      || DEITIES_SRC.krishna;
+  const krishnaFallback = (DAILY_SANDESH.krishna && DAILY_SANDESH.krishna.fallback) || DEITIES_SRC.krishna;
+  const sandeshFbAttr = ' onerror="this.onerror=null;this.src=\'' + krishnaFallback + '\'"';
   const sandeshCard =
     '<div class="katha-card is-sandesh" onclick="openKatha(\'sandesh\')">' +
-      '<img src="'+s.img+'"'+sandeshFbAttr+' alt=""/>' +
+      '<img src="'+krishnaImg+'"'+sandeshFbAttr+' alt=""/>' +
       '<div class="kc-ribbon">Bhagwan ka Sandesh</div>' +
-      '<div class="kc-dur"><span class="kc-dur-ic"></span>'+(s.dur||'0:45')+'</div>' +
-      '<div class="kc-title">'+s.from+'</div>' +
+      '<div class="kc-dur"><span class="kc-dur-ic"></span>0:45</div>' +
+      '<div class="kc-title">Sri Krishna kehte hain</div>' +
       '<div class="kc-sub">Aaj ke din aapke liye ek sandesh</div>' +
     '</div>';
 
@@ -2715,7 +2755,7 @@ function openKatha(id) {
 
   // ─── These cards play a real video in place of the static image + Sarvam narration ───
   const KATHA_VIDEO = {
-    sandesh:   'ECTuILfIjyM',  // https://www.youtube.com/shorts/ECTuILfIjyM — Bhagwan ka sandesh
+    sandesh:   'ECTuILfIjyM',  // https://www.youtube.com/shorts/ECTuILfIjyM — Krishna sandesh
     gita:      '7jicfqSGeMI',  // https://www.youtube.com/shorts/7jicfqSGeMI — gita sandesh
     shivstuti: 'SHnHU1D56Oc'   // https://www.youtube.com/shorts/SHnHU1D56Oc — shiv stuti
   };
@@ -2725,15 +2765,18 @@ function openKatha(id) {
   if (videoId) {
     // Stop any TTS that might already be queued for this card and swap to video.
     try { stopStoryTTS(); } catch(e){}
+    // Engage full-screen Shorts mode — covers the entire phone screen.
+    player.classList.add('video-mode');
     if (dpImg)   dpImg.style.display = 'none';
     if (dpVideo) {
       dpVideo.style.display = 'block';
       dpVideo.src = 'https://www.youtube.com/embed/' + videoId
-                  + '?autoplay=1&playsinline=1&modestbranding=1&rel=0';
+                  + '?autoplay=1&playsinline=1&modestbranding=1&rel=0&loop=1&playlist=' + videoId;
     }
     return;  // skip TTS
   }
-  // Non-video card — restore image, hide iframe, run TTS as usual
+  // Non-video card — exit video mode, restore image, hide iframe, run TTS as usual
+  player.classList.remove('video-mode');
   if (dpVideo) { dpVideo.style.display = 'none'; dpVideo.src = ''; }
   if (dpImg)   dpImg.style.display = '';
 
@@ -2744,7 +2787,9 @@ function openKatha(id) {
 }
 
 function closeKatha() {
-  document.getElementById('darshanPlayer').classList.remove('active');
+  const player = document.getElementById('darshanPlayer');
+  player.classList.remove('active');
+  player.classList.remove('video-mode');  // exit fullscreen Shorts mode
   document.getElementById('darshanBack').classList.remove('active');
   stopStoryTTS();
   // Clear the video iframe so the YouTube short stops playing.
