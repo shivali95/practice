@@ -911,10 +911,29 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   height:100%; width:100%;
   margin:0; border-radius:0;
   box-shadow:none;
+  overflow:hidden;
 }
+/* Oversize the iframe and offset it so the YouTube chrome (channel info,
+   Shorts logo, controls bar, share/subscribe column) falls outside the
+   visible window. The dp-hero's overflow:hidden clips it. */
 .darshan-player.video-mode #dpVideo {
-  position:absolute !important; inset:0 !important;
-  width:100% !important; height:100% !important;
+  position:absolute !important;
+  top:-14% !important; left:-10% !important;
+  width:120% !important; height:130% !important;
+  pointer-events:none;  /* user can't accidentally tap into YouTube UI */
+}
+/* Subtle edge masks to hide any residual YouTube overlay that creeps
+   back in (e.g. when the iframe finishes loading). */
+.darshan-player.video-mode .yt-mask {
+  position:absolute; left:0; right:0; pointer-events:none; z-index:6;
+}
+.darshan-player.video-mode .yt-mask-top {
+  top:0; height:90px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 50%, transparent 100%);
+}
+.darshan-player.video-mode .yt-mask-bottom {
+  bottom:0; height:120px;
+  background:linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 50%, transparent 100%);
 }
 .darshan-player.video-mode .dp-close {
   top:14px; right:14px; z-index:20;
@@ -1668,9 +1687,12 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
     </button>
     <div class="dp-hero">
       <img id="dpImg" src="" alt=""/>
-      <!-- For 'gita' card we swap a YouTube short in place of the static image. -->
+      <!-- For video-backed kathas we swap a YouTube short in place of the static image. -->
       <iframe id="dpVideo" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;z-index:2;"
               allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <!-- Edge masks to hide any YouTube chrome that bleeds through in video-mode -->
+      <div class="yt-mask yt-mask-top"></div>
+      <div class="yt-mask yt-mask-bottom"></div>
       <div class="dp-hero-grad"></div>
       <div class="dp-hero-ribbon" id="dpRibbon">Katha</div>
       <div class="dp-hero-ambient"></div>
@@ -2447,7 +2469,7 @@ const DAILY_KATHAS = {
   },
   tithi: {
     ribbon:'Aaj ki Tithi', dur:'1:00',
-    title:'Vaishakh Purnima', sub:'Buddha Purnima — gyaan ka prakash',
+    title:'Buddha Purnima', sub:'Vaishakh Purnima — gyaan ka prakash',
     img:WIKI+'Buddha_Purnima.jpg?width=720',
     imgFallback:WIKI+'Bodh_Gaya_-_Maha_Bodhi_Tree.jpg?width=720',
     quote:'"Aaj ki raat chandra apni poorn kala mein hai — aur Bhagwan Buddha ka gyaan bhi."',
@@ -2753,27 +2775,47 @@ function openKatha(id) {
   // Kill any other audio that might be playing (mantra on home, previous story)
   try { stopShivMantra(); } catch(e){}
 
-  // ─── These cards play a real video in place of the static image + Sarvam narration ───
+  // ─── Cards that play a YouTube short instead of (or alongside) Sarvam narration ───
+  // mute:true + useTTS:true means the YouTube audio is silenced and our own
+  // Sarvam narration plays over the visuals (used for Buddha Purnima where
+  // the video is just imagery but the narration is our scripted explainer).
   const KATHA_VIDEO = {
-    sandesh:   'ECTuILfIjyM',  // https://www.youtube.com/shorts/ECTuILfIjyM — Krishna sandesh
-    gita:      '7jicfqSGeMI',  // https://www.youtube.com/shorts/7jicfqSGeMI — gita sandesh
-    shivstuti: 'SHnHU1D56Oc'   // https://www.youtube.com/shorts/SHnHU1D56Oc — shiv stuti
+    sandesh:   { videoId: 'ECTuILfIjyM', mute: false, useTTS: false }, // Krishna sandesh
+    gita:      { videoId: '7jicfqSGeMI', mute: false, useTTS: false }, // gita sandesh
+    shivstuti: { videoId: 'SHnHU1D56Oc', mute: false, useTTS: false }, // shiv stuti
+    tithi:     { videoId: '_aRq6CEzQPM', mute: true,  useTTS: true  }  // Buddha Purnima — visuals only, our narration on top
   };
-  const videoId = KATHA_VIDEO[id];
+  const cfg     = KATHA_VIDEO[id];
   const dpVideo = document.getElementById('dpVideo');
   const dpImg   = document.getElementById('dpImg');
-  if (videoId) {
-    // Stop any TTS that might already be queued for this card and swap to video.
-    try { stopStoryTTS(); } catch(e){}
+  if (cfg) {
+    const videoId = cfg.videoId;
     // Engage full-screen Shorts mode — covers the entire phone screen.
     player.classList.add('video-mode');
     if (dpImg)   dpImg.style.display = 'none';
     if (dpVideo) {
       dpVideo.style.display = 'block';
-      dpVideo.src = 'https://www.youtube.com/embed/' + videoId
-                  + '?autoplay=1&playsinline=1&modestbranding=1&rel=0&loop=1&playlist=' + videoId;
+      // Strip every bit of YouTube chrome we can:
+      //   controls=0          → hide play/pause + progress bar
+      //   modestbranding=1    → minimise YouTube logo
+      //   rel=0               → no related videos at end
+      //   iv_load_policy=3    → no annotations / cards
+      //   disablekb=1         → no keyboard interactions
+      //   fs=0                → no fullscreen button
+      //   loop+playlist       → loop the short like a real Shorts experience
+      var url = 'https://www.youtube-nocookie.com/embed/' + videoId
+              + '?autoplay=1&playsinline=1&controls=0&modestbranding=1&rel=0'
+              + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + videoId;
+      if (cfg.mute) url += '&mute=1';
+      dpVideo.src = url;
     }
-    return;  // skip TTS
+    if (cfg.useTTS && narrationText) {
+      // Play Sarvam narration on top of the muted video.
+      playStoryTTS(narrationText, id);
+    } else {
+      try { stopStoryTTS(); } catch(e){}
+    }
+    return;  // we've handled this card
   }
   // Non-video card — exit video mode, restore image, hide iframe, run TTS as usual
   player.classList.remove('video-mode');
