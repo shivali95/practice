@@ -2777,19 +2777,26 @@ function openKatha(id) {
 
   // ─── Cards that play a YouTube short instead of (or alongside) Sarvam narration ───
   // mute:true + useTTS:true means the YouTube audio is silenced and our own
-  // Sarvam narration plays over the visuals (used for Buddha Purnima where
-  // the video is just imagery but the narration is our scripted explainer).
+  // Sarvam narration plays over the visuals (used when the video is just
+  // imagery but the narration is our scripted explainer).
+  // byDeity allows a per-deity video override for the puranic card whose
+  // story changes with the chosen deity.
   const KATHA_VIDEO = {
     sandesh:   { videoId: 'ECTuILfIjyM', mute: false, useTTS: false }, // Krishna sandesh
     gita:      { videoId: '7jicfqSGeMI', mute: false, useTTS: false }, // gita sandesh
     shivstuti: { videoId: 'SHnHU1D56Oc', mute: false, useTTS: false }, // shiv stuti
-    tithi:     { videoId: '_aRq6CEzQPM', mute: true,  useTTS: true  }  // Buddha Purnima — visuals only, our narration on top
+    tithi:     { videoId: '_aRq6CEzQPM', mute: true,  useTTS: true  }, // Buddha Purnima — visuals only, our narration on top
+    puranic:   { byDeity: { shiva: 'OF_RpYFbTzY' }, mute: true, useTTS: true } // Samudra Manthan — only when shiva is selected
   };
   const cfg     = KATHA_VIDEO[id];
   const dpVideo = document.getElementById('dpVideo');
   const dpImg   = document.getElementById('dpImg');
-  if (cfg) {
-    const videoId = cfg.videoId;
+  // Resolve the video id — direct .videoId or per-deity from .byDeity
+  const resolvedVideoId = cfg
+    ? (cfg.videoId || (cfg.byDeity && cfg.byDeity[currentDeity]))
+    : null;
+  if (cfg && resolvedVideoId) {
+    const videoId = resolvedVideoId;
     // Engage full-screen Shorts mode — covers the entire phone screen.
     player.classList.add('video-mode');
     if (dpImg)   dpImg.style.display = 'none';
