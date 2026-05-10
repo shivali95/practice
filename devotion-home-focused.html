@@ -2676,7 +2676,57 @@ function stopStoryTTS() {
     try { window.speechSynthesis.cancel(); } catch(e){}
   }
   fallbackUtterance = null;
+  // Cancel any scheduled synced-narration chunks too.
+  stopSyncedScript();
 }
+
+// ---- SYNCED SCRIPT PLAYBACK ----
+// Plays a sequence of TTS chunks at exact time offsets so the narration
+// matches specific moments in a video. Used for video-backed kathas where
+// we want the audio to land on visual beats (e.g. Samudra Manthan).
+let syncedTimers = [];
+let syncedAudios = [];
+async function playSyncedScript(script, id) {
+  stopSyncedScript();
+  const voiceCfg = sarvamVoiceFor(id);
+  // Fetch every chunk in parallel so they're all ready before scheduling
+  // playback (avoids drift if one chunk is slow to fetch).
+  const urls = await Promise.all(script.map(s => {
+    return sarvamSpeak(s.text, voiceCfg).catch(() => null);
+  }));
+  script.forEach((s, idx) => {
+    const url = urls[idx];
+    if (!url) return;
+    const t = setTimeout(() => {
+      const a = new Audio(url);
+      a.volume = 0.95;
+      syncedAudios.push(a);
+      a.play().catch(e => console.warn('synced chunk play failed', idx, e));
+    }, s.startMs || 0);
+    syncedTimers.push(t);
+  });
+}
+function stopSyncedScript() {
+  syncedTimers.forEach(clearTimeout);
+  syncedTimers = [];
+  syncedAudios.forEach(a => {
+    try { a.pause(); a.currentTime = 0; a.src = ''; } catch(e){}
+  });
+  syncedAudios = [];
+}
+
+// Per-katha synced narration scripts. Each chunk fires at startMs after the
+// video begins. Keep chunks short and timing aligned to the visuals.
+const KATHA_SYNCED_SCRIPTS = {
+  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY
+    { text: 'सुनो... आज की कथा है समुद्र मंथन की।',                                  startMs:  1200 },
+    { text: 'देवताओं और असुरों ने मिलकर अमृत के लिए समुद्र मंथन किया।',              startMs:  6500 },
+    { text: 'मंथन से सबसे पहले निकला... हलाहल विष।',                                  startMs: 13500 },
+    { text: 'इतना विषैला, कि पूरी सृष्टि जलने लगी।',                                   startMs: 19000 },
+    { text: 'तब आगे बढ़े स्वयं महादेव। और वह सारा विष पी लिया।',                      startMs: 24000 },
+    { text: 'और तभी से वे... नीलकंठ कहलाए।',                                          startMs: 30000 }
+  ]
+};
 
 function getKatha(id) {
   if (id === 'puranic') {
@@ -2816,9 +2866,17 @@ function openKatha(id) {
       if (cfg.mute) url += '&mute=1';
       dpVideo.src = url;
     }
-    if (cfg.useTTS && narrationText) {
-      // Play Sarvam narration on top of the muted video.
-      playStoryTTS(narrationText, id);
+    if (cfg.useTTS) {
+      // Prefer a per-deity synced-script if one exists for this card.
+      // Falls back to a single continuous narration otherwise.
+      const scriptKey = id + ':' + currentDeity;
+      const syncedScript = KATHA_SYNCED_SCRIPTS[scriptKey] || KATHA_SYNCED_SCRIPTS[id];
+      if (syncedScript) {
+        try { stopStoryTTS(); } catch(e){}  // wipe any old single-chunk narration
+        playSyncedScript(syncedScript, id);
+      } else if (narrationText) {
+        playStoryTTS(narrationText, id);
+      }
     } else {
       try { stopStoryTTS(); } catch(e){}
     }
