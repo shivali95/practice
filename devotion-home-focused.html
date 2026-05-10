@@ -2688,7 +2688,9 @@ let syncedTimers = [];
 let syncedAudios = [];
 async function playSyncedScript(script, id) {
   stopSyncedScript();
-  const voiceCfg = sarvamVoiceFor(id);
+  // Synced narration overrides the default pace so each line keeps up with
+  // the video — drama-narrator pace is too slow for short chunks.
+  const voiceCfg = Object.assign({}, sarvamVoiceFor(id), { pace: 1.15 });
   // Fetch every chunk in parallel so they're all ready before scheduling
   // playback (avoids drift if one chunk is slow to fetch).
   const urls = await Promise.all(script.map(s => {
@@ -2717,14 +2719,14 @@ function stopSyncedScript() {
 
 // Per-katha synced narration scripts. Each chunk fires at startMs after the
 // video begins. Keep chunks short and timing aligned to the visuals.
+// Total duration target is ~10–12s for short Shorts-style videos.
 const KATHA_SYNCED_SCRIPTS = {
-  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY
-    { text: 'सुनो... आज की कथा है समुद्र मंथन की।',                                  startMs:  1200 },
-    { text: 'देवताओं और असुरों ने मिलकर अमृत के लिए समुद्र मंथन किया।',              startMs:  6500 },
-    { text: 'मंथन से सबसे पहले निकला... हलाहल विष।',                                  startMs: 13500 },
-    { text: 'इतना विषैला, कि पूरी सृष्टि जलने लगी।',                                   startMs: 19000 },
-    { text: 'तब आगे बढ़े स्वयं महादेव। और वह सारा विष पी लिया।',                      startMs: 24000 },
-    { text: 'और तभी से वे... नीलकंठ कहलाए।',                                          startMs: 30000 }
+  'puranic:shiva': [   // Samudra Manthan — synced to OF_RpYFbTzY (~11s total)
+    { text: 'समुद्र मंथन की कथा।',                          startMs:   300 },
+    { text: 'देवताओं और असुरों ने मिलकर मंथन किया।',          startMs:  2200 },
+    { text: 'पहले निकला हलाहल विष।',                          startMs:  4800 },
+    { text: 'महादेव ने स्वयं वह विष पी लिया।',                 startMs:  7000 },
+    { text: 'तभी से वे नीलकंठ कहलाए।',                        startMs:  9500 }
   ]
 };
 
