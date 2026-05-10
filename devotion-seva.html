@@ -57,6 +57,183 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%); color:#2a1400; border-color:transparent;
 }
 
+/* ===== AAPKE SANKALP (booked poojas) ===== */
+.sankalp-wrap { padding:16px 20px 0; }
+.sankalp-head {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-bottom:10px;
+}
+.sk-label { font-size:10px; font-weight:700; letter-spacing:1.8px; color:#ffc870; text-transform:uppercase; }
+.sk-title { font-size:16px; font-weight:900; color:#fff8e1; margin-top:3px; }
+.sk-count { font-size:10px; font-weight:700; color:#ffc870; padding:4px 10px; border-radius:999px; background:rgba(247,171,32,0.14); border:1px solid rgba(247,171,32,0.32); }
+
+.sankalp-strip {
+  display:flex; gap:12px; overflow-x:auto; padding-bottom:8px;
+  scroll-snap-type:x mandatory;
+}
+.sankalp-strip::-webkit-scrollbar { display:none; }
+
+.sankalp-card {
+  flex:0 0 270px; scroll-snap-align:start;
+  background:linear-gradient(160deg, #2a1308 0%, #0a0500 100%);
+  border:1px solid rgba(255,200,120,0.22);
+  border-radius:18px; overflow:hidden; cursor:pointer;
+  transition:transform 220ms ease, border-color 220ms ease;
+  position:relative;
+}
+.sankalp-card:active { transform:scale(0.98); }
+.sk-thumb {
+  position:relative; height:140px; overflow:hidden;
+  background:linear-gradient(160deg, #3a1505 0%, #0a0300 100%);
+}
+.sk-thumb img { width:100%; height:100%; object-fit:cover; }
+.sk-thumb::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%);
+}
+.sk-play-disc {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:46px; height:46px; border-radius:50%;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  border:1.5px solid rgba(255,206,153,0.7);
+  display:flex; align-items:center; justify-content:center;
+  z-index:3; color:#fff8e1;
+}
+.sk-play-disc svg { width:18px; height:18px; margin-left:2px; }
+.sk-live-badge {
+  position:absolute; top:10px; left:10px; z-index:3;
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 9px; border-radius:6px;
+  background:#fa2f40; color:#fff;
+  font-size:9.5px; font-weight:900; letter-spacing:0.6px;
+}
+.sk-live-badge::before {
+  content:""; width:6px; height:6px; border-radius:50%; background:#fff;
+  animation:skLivePulse 1.3s ease-in-out infinite;
+}
+@keyframes skLivePulse { 0%,100% {opacity:1;} 50% {opacity:0.4;} }
+.sk-time-pill {
+  position:absolute; top:10px; right:10px; z-index:3;
+  padding:4px 9px; border-radius:999px;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,206,153,0.32);
+  color:#ffd9a8; font-size:10px; font-weight:700;
+}
+.sk-mandir-tag {
+  position:absolute; bottom:10px; left:10px; right:10px; z-index:3;
+  font-size:11px; font-weight:700; color:#fff;
+  text-shadow:0 1px 6px rgba(0,0,0,0.7);
+}
+
+.sk-body { padding:12px 14px 14px; }
+.sk-pooja-name { font-size:14px; font-weight:800; color:#fff8e1; line-height:1.25; }
+.sk-meta { font-size:11px; color:rgba(255,220,178,0.66); margin-top:4px; line-height:1.4; }
+.sk-cta-row {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:10px; padding-top:10px;
+  border-top:1px solid rgba(255,200,120,0.16);
+}
+.sk-name-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:10px; font-weight:700; color:#ffd9a8;
+}
+.sk-name-tag::before { content:"✦"; color:#f7ab20; font-size:9px; }
+.sk-watch {
+  font-size:10px; font-weight:800; color:#2a1400;
+  background:linear-gradient(135deg, #ffdc80, #f7ab20);
+  padding:5px 11px; border-radius:999px; letter-spacing:0.3px;
+}
+
+/* ===== VIDEO OVERLAY (sankalp playback) ===== */
+.video-back {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.78); backdrop-filter:blur(4px);
+  opacity:0; pointer-events:none;
+  transition:opacity 280ms ease;
+}
+.video-back.active { opacity:1; pointer-events:auto; }
+.video-overlay {
+  position:fixed; left:50%; top:50%;
+  transform:translate(-50%, -45%) scale(0.96);
+  width:340px; max-width:92vw; max-height:88vh;
+  z-index:210; opacity:0; pointer-events:none;
+  background:linear-gradient(180deg, #1a0a00 0%, #0a0500 100%);
+  border:1px solid rgba(255,200,120,0.32); border-radius:22px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.7);
+  overflow:hidden;
+  transition:opacity 320ms ease, transform 320ms cubic-bezier(.2,.8,.2,1);
+  display:flex; flex-direction:column;
+}
+.video-overlay.active { opacity:1; transform:translate(-50%, -50%) scale(1); pointer-events:auto; }
+
+.vo-close {
+  position:absolute; top:10px; right:10px; z-index:5;
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,206,153,0.32);
+  color:#ffd9a8; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.vo-close:active { transform:scale(0.9); }
+
+.vo-frame-wrap {
+  position:relative; width:100%; aspect-ratio:9/16; max-height:520px;
+  background:#000;
+}
+.vo-frame-wrap iframe {
+  position:absolute; inset:0; width:100%; height:100%; border:0;
+}
+.vo-live-badge {
+  position:absolute; top:10px; left:10px; z-index:4;
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 9px; border-radius:6px;
+  background:#fa2f40; color:#fff;
+  font-size:10px; font-weight:900; letter-spacing:0.6px;
+}
+.vo-live-badge::before {
+  content:""; width:6px; height:6px; border-radius:50%; background:#fff;
+  animation:skLivePulse 1.3s ease-in-out infinite;
+}
+
+.vo-pulse {
+  background:rgba(247,171,32,0.12);
+  border-top:1px solid rgba(247,171,32,0.28);
+  padding:11px 16px;
+  display:flex; align-items:center; gap:10px;
+}
+.vo-pulse-dot {
+  width:8px; height:8px; border-radius:50%; background:#f7ab20;
+  flex-shrink:0;
+  animation:voPulse 1.5s ease-in-out infinite;
+}
+@keyframes voPulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(247,171,32,0.55); }
+  50% { box-shadow:0 0 0 10px rgba(247,171,32,0); }
+}
+.vo-pulse-text { font-size:11.5px; font-weight:700; color:#ffd9a8; line-height:1.35; }
+.vo-pulse-text b { color:#fff8e1; font-weight:900; }
+
+.vo-sankalp {
+  padding:14px 18px 18px;
+}
+.vo-pooja {
+  font-size:14px; font-weight:900; color:#fff8e1; line-height:1.25;
+}
+.vo-mandir {
+  font-size:11px; color:rgba(255,220,178,0.66); margin-top:3px; font-weight:600;
+}
+.vo-divider {
+  height:1px; background:rgba(255,200,120,0.16);
+  margin:12px 0;
+}
+.vo-row {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  font-size:11px; line-height:1.5;
+  margin-bottom:6px;
+}
+.vo-row-k { color:rgba(255,220,178,0.55); font-weight:600; letter-spacing:0.3px; text-transform:uppercase; font-size:9.5px; }
+.vo-row-v { color:#fff8e1; font-weight:700; text-align:right; max-width:60%; }
+
 /* ===== FEATURED (ONLINE PUJA AT TEMPLE) ===== */
 .featured {
   margin:16px 20px 0; border-radius:20px; overflow:hidden; position:relative;
@@ -268,6 +445,20 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
       <div class="ct">Subscription</div>
     </div>
 
+    <!-- AAPKE SANKALP — booked poojas / aartis -->
+    <div class="sankalp-wrap">
+      <div class="sankalp-head">
+        <div>
+          <div class="sk-label">✦ Aapke Sankalp</div>
+          <div class="sk-title">Booked Poojas</div>
+        </div>
+        <div class="sk-count">3 LIVE</div>
+      </div>
+      <div class="sankalp-strip" id="sankalpStrip">
+        <!-- populated by JS so we can keep details centralised -->
+      </div>
+    </div>
+
     <!-- FEATURED -->
     <div class="featured">
       <div class="ft-hero">
@@ -454,6 +645,29 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
     <div style="height:24px;"></div>
     <div class="toast" id="toast"></div>
   </div>
+
+  <!-- VIDEO OVERLAY — sankalp pooja playback with personalised blessings -->
+  <div class="video-back" id="videoBack" onclick="closeSankalpVideo()"></div>
+  <div class="video-overlay" id="videoOverlay" role="dialog" aria-label="Aapki Sankalp Pooja">
+    <button class="vo-close" onclick="closeSankalpVideo()" aria-label="Band karein">✕</button>
+    <div class="vo-frame-wrap">
+      <span class="vo-live-badge">LIVE</span>
+      <iframe id="voFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="vo-pulse">
+      <div class="vo-pulse-dot"></div>
+      <div class="vo-pulse-text">Pandit ji aapka <b id="voPulseName">naam</b> le rahe hain · sankalp jaari hai</div>
+    </div>
+    <div class="vo-sankalp">
+      <div class="vo-pooja" id="voPooja">Shringar Aarti</div>
+      <div class="vo-mandir" id="voMandir">Kashi Vishwanath · Varanasi</div>
+      <div class="vo-divider"></div>
+      <div class="vo-row"><div class="vo-row-k">Yajmaan</div>           <div class="vo-row-v" id="voName">Shivali Wason</div></div>
+      <div class="vo-row"><div class="vo-row-k">Gotra</div>             <div class="vo-row-v" id="voGotra">Bharadwaj</div></div>
+      <div class="vo-row"><div class="vo-row-k">Sankalp</div>           <div class="vo-row-v" id="voSankalp">Mata-pita ke kushal-laabh hetu</div></div>
+      <div class="vo-row"><div class="vo-row-k">Pandit ji</div>         <div class="vo-row-v" id="voPandit">Acharya Ramanand Shastri</div></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -471,6 +685,108 @@ function toast(text) {
   clearTimeout(_tt);
   _tt = setTimeout(function(){ t.classList.remove('show'); }, 2400);
 }
+// ====== AAPKE SANKALP — booked poojas ======
+// All sankalps point to the same demo YouTube short for now; in production each
+// would carry its own live stream id. The personalised "Pandit ji aapka naam le
+// rahe hain" overlay reads from the per-card sankalp data below.
+var YJ_NAME  = 'Shivali Wason';
+var YJ_GOTRA = 'Bharadwaj';
+var SANKALPS = [
+  {
+    pooja:'Shringar Aarti',
+    mandir:'Kashi Vishwanath · Varanasi',
+    timeLabel:'ABHI LIVE',
+    isLive:true,
+    deity:'☥',  // shiva
+    thumbBg:'linear-gradient(160deg, #5a2510 0%, #3a1505 60%, #0a0500 100%)',
+    sankalp:'Mata-pita ke kushal-laabh hetu',
+    pandit:'Acharya Ramanand Shastri',
+    videoId:'gJNTWZanFWk'
+  },
+  {
+    pooja:'Rudrabhishek',
+    mandir:'Mahakaleshwar · Ujjain',
+    timeLabel:'Kal · 4:00 AM',
+    isLive:false,
+    deity:'ॐ',
+    thumbBg:'linear-gradient(160deg, #2f1538 0%, #1a0f24 60%, #0a0500 100%)',
+    sankalp:'Saubhagya aur arogya hetu',
+    pandit:'Pt. Mohan Lal Vyas',
+    videoId:'gJNTWZanFWk'
+  },
+  {
+    pooja:'Satyanarayan Katha',
+    mandir:'Tirupati Balaji · Andhra Pradesh',
+    timeLabel:'Ravivaar · 11 AM',
+    isLive:false,
+    deity:'ॐ',
+    thumbBg:'linear-gradient(160deg, #4a2f10 0%, #2a1908 60%, #0a0500 100%)',
+    sankalp:'Parivar ki sukh-shanti hetu',
+    pandit:'Acharya Venkatraman Shastri',
+    videoId:'gJNTWZanFWk'
+  }
+];
+
+function renderSankalps() {
+  var strip = document.getElementById('sankalpStrip');
+  if (!strip) return;
+  strip.innerHTML = SANKALPS.map(function(s, i) {
+    var thumbHtml =
+      '<div class="sk-thumb" style="background:' + s.thumbBg + ';">' +
+        '<img src="https://img.youtube.com/vi/' + s.videoId + '/hqdefault.jpg" alt="" ' +
+             'onerror="this.style.display=\'none\'"/>' +
+        (s.isLive
+          ? '<span class="sk-live-badge">LIVE</span>'
+          : '<span class="sk-time-pill">' + s.timeLabel + '</span>') +
+        '<div class="sk-play-disc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>' +
+        '<div class="sk-mandir-tag">' + s.mandir + '</div>' +
+      '</div>';
+    return (
+      '<div class="sankalp-card" onclick="openSankalpVideo(' + i + ')">' +
+        thumbHtml +
+        '<div class="sk-body">' +
+          '<div class="sk-pooja-name">' + s.pooja + '</div>' +
+          '<div class="sk-meta">' + (s.isLive ? 'Pandit ji aapka naam le rahe hain' : s.timeLabel + ' · sankalp confirmed') + '</div>' +
+          '<div class="sk-cta-row">' +
+            '<div class="sk-name-tag">' + YJ_GOTRA + ' gotra</div>' +
+            '<div class="sk-watch">' + (s.isLive ? 'Watch LIVE →' : 'Reminder →') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function openSankalpVideo(idx) {
+  var s = SANKALPS[idx];
+  if (!s) return;
+  // Populate overlay text
+  document.getElementById('voPooja').textContent   = s.pooja;
+  document.getElementById('voMandir').textContent  = s.mandir;
+  document.getElementById('voName').textContent    = YJ_NAME;
+  document.getElementById('voGotra').textContent   = YJ_GOTRA;
+  document.getElementById('voSankalp').textContent = s.sankalp;
+  document.getElementById('voPandit').textContent  = s.pandit;
+  document.getElementById('voPulseName').textContent = YJ_NAME.split(' ')[0] + ' aur ' + YJ_GOTRA + ' gotra';
+  // Set iframe src — autoplay, mute=0, looped short
+  var src = 'https://www.youtube.com/embed/' + s.videoId
+          + '?autoplay=1&playsinline=1&modestbranding=1&rel=0';
+  document.getElementById('voFrame').src = src;
+  // Show overlay
+  document.getElementById('videoBack').classList.add('active');
+  document.getElementById('videoOverlay').classList.add('active');
+}
+
+function closeSankalpVideo() {
+  document.getElementById('videoBack').classList.remove('active');
+  document.getElementById('videoOverlay').classList.remove('active');
+  // Clear iframe src to stop playback (also releases YouTube's audio focus)
+  var f = document.getElementById('voFrame');
+  if (f) f.src = '';
+}
+
+renderSankalps();
+
 document.querySelectorAll('.ct').forEach(function(c) {
   c.addEventListener('click', function() {
     document.querySelectorAll('.ct').forEach(function(x){ x.classList.remove('active'); });
