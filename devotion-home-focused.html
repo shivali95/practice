@@ -2869,7 +2869,10 @@ function openKatha(id) {
       //   disablekb=1         → no keyboard interactions
       //   fs=0                → no fullscreen button
       //   loop+playlist       → loop the short like a real Shorts experience
-      var url = 'https://www.youtube-nocookie.com/embed/' + mainId
+      // youtube-nocookie.com refuses to embed some Shorts ("video unavailable").
+      // Plain youtube.com is more permissive while still respecting the chrome-
+      // hide URL params below.
+      var url = 'https://www.youtube.com/embed/' + mainId
               + '?autoplay=1&playsinline=1&controls=0&modestbranding=1&rel=0'
               + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + playlist;
       if (cfg.mute) url += '&mute=1';
