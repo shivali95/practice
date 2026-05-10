@@ -2838,7 +2838,7 @@ function openKatha(id) {
     sandesh:   { videoId: 'ECTuILfIjyM', mute: false, useTTS: false }, // Krishna sandesh
     gita:      { videoId: '7jicfqSGeMI', mute: false, useTTS: false }, // gita sandesh
     shivstuti: { videoId: 'SHnHU1D56Oc', mute: false, useTTS: false }, // shiv stuti
-    tithi:     { videoId: '985IGL7GQUI', mute: true,  useTTS: true  }, // Buddha Purnima — visuals only, our narration on top
+    tithi:     { videoId: ['985IGL7GQUI','cihb9mmFJj8'], mute: true, useTTS: true }, // Buddha Purnima — chain 2 videos, our narration on top
     puranic:   { byDeity: { shiva: 'OF_RpYFbTzY' }, mute: true, useTTS: true } // Samudra Manthan — only when shiva is selected
   };
   const cfg     = KATHA_VIDEO[id];
@@ -2855,6 +2855,12 @@ function openKatha(id) {
     if (dpImg)   dpImg.style.display = 'none';
     if (dpVideo) {
       dpVideo.style.display = 'block';
+      // Support either a single video id or an array of ids to chain.
+      // YouTube's `playlist` param queues up videos to play after the main
+      // one in the URL path, and `loop=1` cycles the whole chain.
+      const ids = Array.isArray(videoId) ? videoId : [videoId];
+      const mainId = ids[0];
+      const playlist = ids.length > 1 ? ids.slice(1).join(',') : mainId;
       // Strip every bit of YouTube chrome we can:
       //   controls=0          → hide play/pause + progress bar
       //   modestbranding=1    → minimise YouTube logo
@@ -2863,9 +2869,9 @@ function openKatha(id) {
       //   disablekb=1         → no keyboard interactions
       //   fs=0                → no fullscreen button
       //   loop+playlist       → loop the short like a real Shorts experience
-      var url = 'https://www.youtube-nocookie.com/embed/' + videoId
+      var url = 'https://www.youtube-nocookie.com/embed/' + mainId
               + '?autoplay=1&playsinline=1&controls=0&modestbranding=1&rel=0'
-              + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + videoId;
+              + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + playlist;
       if (cfg.mute) url += '&mute=1';
       dpVideo.src = url;
     }
