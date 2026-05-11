@@ -1954,9 +1954,6 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
       <button class="ss-tab"        data-tab="mukut"  onclick="switchTab('mukut')">Mukut</button>
       <button class="ss-tab"        data-tab="vastra" onclick="switchTab('vastra')">Vastra</button>
       <button class="ss-tab"        data-tab="mala"   onclick="switchTab('mala')">Mala</button>
-      <button class="ss-tab"        data-tab="pushp"  onclick="switchTab('pushp')">Pushp</button>
-      <button class="ss-tab"        data-tab="tilak"  onclick="switchTab('tilak')">Tilak</button>
-      <button class="ss-tab"        data-tab="diya"   onclick="switchTab('diya')">Diya</button>
     </div>
 
     <!-- TRAY — options for the active tab -->
@@ -3793,45 +3790,25 @@ const SHRINGARS = [
   { id:'vasant',           name:'Vasant Shringar',      bhavna:'Anand',     bhavnaLine:'Vasant aur Holi ka roop',      img:'assets/shringar/krishna/shringar-9.jpg', fallback: SHRINGAR_UNIVERSAL_FALLBACK }
 ];
 
-// ─── Layer options per category — pure emoji/CSS so no asset uploads needed ───
+// ─── Demo-only options. Each option corresponds to a real swaroop photo
+// where the deity is visibly wearing/using that thing. We deliberately
+// keep this list SHORT so every chip click produces a believable result.
 const MUKUT_OPTIONS = [
   { id:'mor',     icon:'🦚', label:'Mor' },
   { id:'crown',   icon:'👑', label:'Swarn' },
-  { id:'pagri',   icon:'🪖', label:'Pagri' },
-  { id:'phool',   icon:'🌸', label:'Phool' },
-  { id:'none',    icon:'✦',  label:'Saadha' }
+  { id:'phool',   icon:'🌸', label:'Phool' }
 ];
 const VASTRA_OPTIONS = [
-  { id:'kesari',  swatch:'linear-gradient(135deg,#ff8a2e,#f7ab20)', label:'Kesari' },
-  { id:'neel',    swatch:'linear-gradient(135deg,#3b5cff,#1a2b7a)', label:'Neel'  },
-  { id:'shyam',   swatch:'linear-gradient(135deg,#6a2480,#3a0050)', label:'Shyam' },
-  { id:'peet',    swatch:'linear-gradient(135deg,#ffd24a,#e89240)', label:'Peet'  },
-  { id:'rakta',   swatch:'linear-gradient(135deg,#d23c3c,#7a0f0f)', label:'Rakta' },
-  { id:'hari',    swatch:'linear-gradient(135deg,#3bcf6a,#0f6a32)', label:'Hari'  }
+  { id:'kesari',     swatch:'linear-gradient(135deg,#ff8a2e,#f7ab20)', label:'Kesari'     },
+  { id:'neel',       swatch:'linear-gradient(135deg,#3b5cff,#1a2b7a)', label:'Neel'       },
+  { id:'hari',       swatch:'linear-gradient(135deg,#3bcf6a,#0f6a32)', label:'Hari'       },
+  { id:'bahurangi',  swatch:'linear-gradient(135deg,#c845d6,#3b5cff,#f7ab20)', label:'Bahurangi' }
 ];
 const MALA_OPTIONS = [
-  { id:'vaijayanti', icon:'🌼🌼🌼', label:'Vaijayanti' },
-  { id:'tulsi',      icon:'🍃🍃🍃', label:'Tulsi' },
-  { id:'mogra',      icon:'🪷🪷🪷', label:'Mogra' },
-  { id:'gulab',      icon:'🌹🌹🌹', label:'Gulab' },
-  { id:'moti',       icon:'⚪⚪⚪', label:'Moti' },
-  { id:'neel',       icon:'🔵🔵🔵', label:'Neel' },
-  { id:'none',       icon:'✦',     label:'None' }
+  { id:'neel',   icon:'🔵🔵🔵', label:'Neel' },
+  { id:'moti',   icon:'⚪⚪⚪', label:'Moti' },
+  { id:'phool',  icon:'🪷🪷🪷', label:'Phool' }
 ];
-const PUSHP_OPTIONS = [
-  { id:'kamal',  icon:'🪷', label:'Kamal'  },
-  { id:'gulab',  icon:'🌹', label:'Gulab'  },
-  { id:'mogra',  icon:'🌼', label:'Mogra'  },
-  { id:'tagar',  icon:'🌸', label:'Tagar'  },
-  { id:'none',   icon:'✦',  label:'Saadha' }
-];
-const TILAK_OPTIONS = [
-  { id:'urdhva', icon:'╿', label:'Urdhva'  },
-  { id:'tripundra', icon:'≡', label:'Tripundra' },
-  { id:'chandan',  icon:'·',  label:'Chandan' },
-  { id:'none',     icon:'✦',  label:'None' }
-];
-const DIYA_COUNTS = [0, 1, 3, 5, 7];
 
 // Active state for all layers
 const ssState = {
@@ -3893,7 +3870,7 @@ function switchTab(tab) {
   document.querySelectorAll('.ss-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   const tray = document.getElementById('ssTray');
   const title = document.getElementById('ssTitle');
-  const titles = { roop:'Krishna ji ka roop', mukut:'Mukut chuniye', vastra:'Vastra ka rang', mala:'Mala chadhayein', pushp:'Pushp arpan', tilak:'Tilak lagayein', diya:'Diya jalayein' };
+  const titles = { roop:'Krishna ji ka roop', mukut:'Mukut chuniye', vastra:'Vastra ka rang', mala:'Mala chadhayein' };
   if (title) title.textContent = titles[tab] || 'Shringar karein';
   if (!tray) return;
   tray.className = 'ss-tray has-labels';
@@ -3922,25 +3899,6 @@ function switchTab(tab) {
         o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
       '</div>'
     ).join('');
-  } else if (tab === 'pushp') {
-    tray.innerHTML = PUSHP_OPTIONS.map(o =>
-      '<div class="ss-opt' + (ssState.pushp === o.id ? ' active':'') + '" onclick="pickLayer(\'pushp\',\'' + o.id + '\')">' +
-        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
-      '</div>'
-    ).join('');
-  } else if (tab === 'tilak') {
-    tray.innerHTML = TILAK_OPTIONS.map(o =>
-      '<div class="ss-opt' + (ssState.tilak === o.id ? ' active':'') + '" onclick="pickLayer(\'tilak\',\'' + o.id + '\')" style="font-size:34px;line-height:1;">' +
-        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
-      '</div>'
-    ).join('');
-  } else if (tab === 'diya') {
-    tray.innerHTML = DIYA_COUNTS.map(n =>
-      '<div class="ss-opt' + (ssState.diya === n ? ' active':'') + '" onclick="pickLayer(\'diya\',' + n + ')" style="font-size:14px;line-height:1.2;flex-direction:column;">' +
-        (n === 0 ? '✦' : '🪔') + '<div style="font-size:11px;font-weight:800;color:#ffd9a8;margin-top:2px;">' + n + '</div>' +
-        '<span class="ss-opt-label">' + (n === 0 ? 'None' : (n + ' diya')) + '</span>' +
-      '</div>'
-    ).join('');
   }
 }
 
@@ -3948,61 +3906,35 @@ function switchTab(tab) {
 // different one of the 9 photos. The mukut/vastra/mala chips are just
 // placeholder picks — the *appearance* of layering is created entirely
 // by swapping the full deity photo underneath.
-// Each option maps to a colour-coordinated Shrinathji photo (0-indexed
-// into the 9 images). The mapping is intentional, not random:
-//   shringar-1: saffron pichhwai, blue bg
-//   shringar-2: deep blue starry bg
-//   shringar-3: multi-colour framed gold halo
-//   shringar-4: yellow vintage pichhwai
-//   shringar-5: pink/rose with pearls
-//   shringar-6: silver/peacock chandrika
-//   shringar-7: navy + gold + orange
-//   shringar-8: dark/black with gold + blue lotus  (2nd-last)
-//   shringar-9: green pichhwai, lotus base          (last)
+// Each option maps to a SPECIFIC swaroop where the deity visibly wears
+// that thing. Options that don't have a clear match were removed entirely
+// so every chip click is honest.
+//
+//   shringar-1 (idx 0):  saffron / simple
+//   shringar-2 (idx 1):  blue starry bg + multi-color jewels — Mor mukut visible
+//   shringar-3 (idx 2):  multi-color + gold halo mukut
+//   shringar-4 (idx 3):  multi-color purple/blue ornate vastra, lotus base
+//   shringar-5 (idx 4):  heavy pearl/gold + SWARN mukut prominent
+//   shringar-6 (idx 5):  silver/chandrika simple
+//   shringar-7 (idx 6):  navy + gold + pearl-heavy, peacock-feather mukut
+//   shringar-8 (idx 7):  dark + gold royal + BLUE lotus mala  (2nd-last)
+//   shringar-9 (idx 8):  green pichhwai, cream vastra, lotus base  (last)
 const OPTION_TO_SHRINGAR = {
-  // Mukut tab — match the dominant ornamental theme
-  'mukut:mor':       2,   // peacock → 3rd swaroop
-  'mukut:crown':     4,   // golden crown → 5th swaroop
-  'mukut:pagri':     6,   // turban → navy+gold pagri vibe
-  'mukut:phool':     8,   // flower mukut → green lotus pichhwai
-  'mukut:none':      3,   // saadha → simple yellow vintage
+  // Mukut — only options the deity actually wears in one of the photos
+  'mukut:mor':       2,   // 🦚 Mor mukut → 3rd swaroop (peacock-feather mukut)
+  'mukut:crown':     1,   // 👑 Swarn mukut → 2nd swaroop
+  'mukut:phool':     8,   // 🌸 Phool mukut → 9th swaroop (lotus + simple flower mukut)
 
-  // Vastra tab — colour matches the dominant backdrop
-  'vastra:kesari':   0,   // saffron → saffron pichhwai
-  'vastra:neel':     1,   // blue → blue-bg deep starry
-  'vastra:shyam':    7,   // dark → dark+gold royal
-  'vastra:peet':     3,   // yellow → yellow vintage
-  'vastra:rakta':    4,   // red → pink/red roses
-  'vastra:hari':     8,   // green → green pichhwai  (last)
+  // Vastra — colour matches the swaroop
+  'vastra:kesari':     0,   // Saffron → 1st swaroop
+  'vastra:neel':       1,   // Blue → 2nd swaroop (blue starry bg)
+  'vastra:hari':       8,   // Green → 9th swaroop (last, green pichhwai)
+  'vastra:bahurangi':  3,   // Multi-color → 4th swaroop (purple/multi ornate)
 
-  // Mala tab — colour of the garland matches the photo
-  'mala:vaijayanti': 0,   // yellow marigold → saffron
-  'mala:tulsi':      8,   // green leaves → green pichhwai
-  'mala:mogra':      2,   // white jasmine → gold-multi
-  'mala:gulab':      4,   // red rose → pink/rose
-  'mala:moti':       6,   // pearl → navy+gold pearl-heavy
-  'mala:neel':       7,   // BLUE mala → dark + blue lotus (2nd-last)
-  'mala:none':       1,   // none → deep blue starry
-
-  // Pushp tab
-  'pushp:kamal':     8,   // lotus → green pichhwai (lotus base)
-  'pushp:gulab':     4,   // rose → pink/rose
-  'pushp:mogra':     2,   // white jasmine → gold-multi
-  'pushp:tagar':     6,   // white tagar → navy+gold
-  'pushp:none':      3,   // none → yellow vintage
-
-  // Tilak tab
-  'tilak:urdhva':    1,   // urdhva → blue
-  'tilak:tripundra': 5,   // tripundra → silver
-  'tilak:chandan':   0,   // chandan → saffron
-  'tilak:none':      3,   // none → yellow vintage
-
-  // Diya count
-  'diya:0':          1,
-  'diya:1':          3,
-  'diya:3':          0,
-  'diya:5':          2,
-  'diya:7':          7    // 7 diyas → dark+gold royal (2nd-last)
+  // Mala — colour of the garland matches what's on the deity
+  'mala:neel':   7,   // Blue mala → 8th swaroop (2nd-last, blue lotus mala)
+  'mala:moti':   6,   // Pearl mala → 7th swaroop (pearl-heavy)
+  'mala:phool':  8    // Flower (lotus) mala → 9th swaroop (lotus theme)
 };
 
 function pickLayer(layer, value) {
