@@ -475,30 +475,78 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   100% { opacity:0; transform:scale(1.08); }
 }
 
-.ss-name { text-align:center; font-size:16px; font-weight:800; color:#ffd9a8; margin:4px 22px 2px; flex-shrink:0; }
-.ss-bhavna { text-align:center; font-size:10.5px; font-weight:600; color:rgba(255,220,178,0.55); margin:0 22px 10px; letter-spacing:0.5px; flex-shrink:0; }
+/* LAYER OVERLAYS — emoji/SVG visual layers stacked over the base image */
+.ss-layer { position:absolute; pointer-events:none; transition:opacity 360ms ease, transform 360ms ease; }
+.ss-l-mukut  { top:6%;  left:50%; transform:translateX(-50%); font-size:60px; line-height:1; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+.ss-l-tilak  { top:28%; left:50%; transform:translateX(-50%); font-size:18px; line-height:1; color:#ff5a2e; }
+.ss-l-mala   { top:42%; left:50%; transform:translateX(-50%); font-size:30px; line-height:1; letter-spacing:-6px; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.45)); }
+.ss-l-pushp  { top:0; left:0; right:0; bottom:0; display:flex; align-items:flex-start; justify-content:space-around; padding:6px; font-size:22px; }
+.ss-l-diya   { bottom:6%; left:0; right:0; display:flex; align-items:flex-end; justify-content:center; gap:8px; font-size:22px; filter:drop-shadow(0 0 10px #ff8a2e) drop-shadow(0 0 18px rgba(255,138,46,0.55)); }
+.ss-tint     { position:absolute; inset:0; pointer-events:none; mix-blend-mode:overlay; opacity:0; transition:opacity 420ms ease, background 420ms ease; }
 
-/* Tray of 5 shringar thumbnails */
+/* TABS strip */
+.ss-tabs {
+  display:flex; gap:6px; padding:8px 16px 0; overflow-x:auto;
+  scroll-snap-type:x mandatory; flex-shrink:0;
+}
+.ss-tabs::-webkit-scrollbar { display:none; }
+.ss-tab {
+  flex:0 0 auto; padding:8px 14px; border-radius:999px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,200,120,0.18);
+  color:#fff8e1; font-family:inherit; font-size:12px; font-weight:700;
+  cursor:pointer; scroll-snap-align:start;
+  transition:background 180ms ease, border-color 180ms ease;
+}
+.ss-tab.active {
+  background:linear-gradient(135deg, #ffdc80, #f7ab20);
+  color:#2a1400; border-color:transparent;
+}
+.ss-tab:active { transform:scale(0.94); }
+
+/* Tray of option chips */
 .ss-tray {
-  display:flex; gap:10px; padding:6px 18px 6px; overflow-x:auto;
+  display:flex; gap:10px; padding:10px 16px 8px; overflow-x:auto;
   scroll-snap-type:x mandatory; flex-shrink:0;
 }
 .ss-tray::-webkit-scrollbar { display:none; }
-.ss-thumb {
-  flex:0 0 auto; width:60px; height:78px; border-radius:12px;
-  overflow:hidden; cursor:pointer;
-  border:2px solid rgba(255,200,120,0.18);
+
+/* Generic option chip (used for emoji-based picks: mukut, mala, pushp, tilak, diya) */
+.ss-opt {
+  flex:0 0 auto; width:64px; height:64px; border-radius:50%;
+  background:rgba(255,200,120,0.06); border:2px solid rgba(255,200,120,0.18);
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; cursor:pointer;
   transition:transform 220ms ease, border-color 220ms ease;
   scroll-snap-align:start; position:relative;
-  background:#1a0a00;
 }
-.ss-thumb img { width:100%; height:100%; object-fit:cover; }
-.ss-thumb.active {
+.ss-opt.active {
   border-color:#ffce99;
-  transform:scale(1.04);
-  box-shadow:0 0 0 1px rgba(255,200,120,0.4), 0 8px 18px rgba(247,150,30,0.35);
+  transform:scale(1.06);
+  box-shadow:0 0 0 1px rgba(255,200,120,0.4), 0 8px 18px rgba(247,150,30,0.4);
 }
-.ss-thumb:active { transform:scale(0.95); }
+.ss-opt:active { transform:scale(0.92); }
+.ss-opt-label {
+  position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+  font-size:9.5px; font-weight:700; color:rgba(255,220,178,0.7);
+  white-space:nowrap; letter-spacing:0.3px;
+}
+
+/* Vastra (color/fabric swatch) chip — overrides ss-opt look */
+.ss-opt.ss-swatch { background:var(--swatch); border-color:rgba(255,255,255,0.18); }
+.ss-opt.ss-swatch.active { border-color:#ffce99; }
+
+/* Roop (preset image) thumb — taller portrait */
+.ss-opt.ss-thumb {
+  width:64px; height:84px; border-radius:14px;
+  background:#1a0a00; overflow:hidden; padding:0;
+}
+.ss-opt.ss-thumb img { width:100%; height:100%; object-fit:cover; }
+.ss-opt.ss-thumb.active {
+  border-color:#ffce99;
+}
+
+/* Padding around tray so the tab labels under chips don't clip */
+.ss-tray.has-labels { padding-bottom:24px; }
 
 /* Primary CTA — samarpit karein */
 .ss-cta {
@@ -1885,18 +1933,36 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
     </button>
     <div class="ss-header">
-      <div class="ss-label">✦ Aaj ka Shringar</div>
-      <div class="ss-title">Shrinathji ko sajayein</div>
-      <div class="ss-sub" id="ssSubtitle">Roz ka shringar chuniye</div>
+      <div class="ss-label">✦ Shrinathji ka Shringar</div>
+      <div class="ss-title" id="ssTitle">Shringar karein</div>
     </div>
     <div class="ss-stage">
       <img class="ss-image" id="ssImage" alt="shringar darshan"/>
+      <!-- Live layer overlays — appear as you pick options in each tab -->
+      <div class="ss-layer ss-l-mukut"   id="ssLayerMukut"></div>
+      <div class="ss-layer ss-l-mala"    id="ssLayerMala"></div>
+      <div class="ss-layer ss-l-pushp"   id="ssLayerPushp"></div>
+      <div class="ss-layer ss-l-tilak"   id="ssLayerTilak"></div>
+      <div class="ss-layer ss-l-diya"    id="ssLayerDiya"></div>
+      <div class="ss-tint" id="ssTint"></div>
       <div class="ss-rays" id="ssRays"></div>
     </div>
-    <div class="ss-name"   id="ssName">Saffron Pichhwai</div>
-    <div class="ss-bhavna" id="ssBhavna">— Kripa · Roz ki seva</div>
-    <div class="ss-tray" id="ssTray"><!-- thumbnails injected by JS --></div>
-    <button class="ss-cta" onclick="saveShringar()">Aaj ka shringar samarpit karein</button>
+
+    <!-- TABS -->
+    <div class="ss-tabs" id="ssTabs">
+      <button class="ss-tab active" data-tab="roop"   onclick="switchTab('roop')">Roop</button>
+      <button class="ss-tab"        data-tab="mukut"  onclick="switchTab('mukut')">Mukut</button>
+      <button class="ss-tab"        data-tab="vastra" onclick="switchTab('vastra')">Vastra</button>
+      <button class="ss-tab"        data-tab="mala"   onclick="switchTab('mala')">Mala</button>
+      <button class="ss-tab"        data-tab="pushp"  onclick="switchTab('pushp')">Pushp</button>
+      <button class="ss-tab"        data-tab="tilak"  onclick="switchTab('tilak')">Tilak</button>
+      <button class="ss-tab"        data-tab="diya"   onclick="switchTab('diya')">Diya</button>
+    </div>
+
+    <!-- TRAY — options for the active tab -->
+    <div class="ss-tray" id="ssTray"><!-- options injected by JS --></div>
+
+    <button class="ss-cta" onclick="saveShringar()">Shringar samarpit karein</button>
   </div>
 
   <!-- Darshan reveal — fires after samarpit -->
@@ -3727,7 +3793,56 @@ const SHRINGARS = [
   { id:'vasant',           name:'Vasant Shringar',      bhavna:'Anand',     bhavnaLine:'Vasant aur Holi ka roop',      img:'assets/shringar/krishna/shringar-9.jpg', fallback: SHRINGAR_UNIVERSAL_FALLBACK }
 ];
 
-let currentShringarIdx = 0;
+// ─── Layer options per category — pure emoji/CSS so no asset uploads needed ───
+const MUKUT_OPTIONS = [
+  { id:'mor',     icon:'🦚', label:'Mor' },
+  { id:'crown',   icon:'👑', label:'Swarn' },
+  { id:'pagri',   icon:'🪖', label:'Pagri' },
+  { id:'phool',   icon:'🌸', label:'Phool' },
+  { id:'none',    icon:'✦',  label:'Saadha' }
+];
+const VASTRA_OPTIONS = [
+  { id:'kesari',  swatch:'linear-gradient(135deg,#ff8a2e,#f7ab20)', label:'Kesari' },
+  { id:'neel',    swatch:'linear-gradient(135deg,#3b5cff,#1a2b7a)', label:'Neel'  },
+  { id:'shyam',   swatch:'linear-gradient(135deg,#6a2480,#3a0050)', label:'Shyam' },
+  { id:'peet',    swatch:'linear-gradient(135deg,#ffd24a,#e89240)', label:'Peet'  },
+  { id:'rakta',   swatch:'linear-gradient(135deg,#d23c3c,#7a0f0f)', label:'Rakta' },
+  { id:'hari',    swatch:'linear-gradient(135deg,#3bcf6a,#0f6a32)', label:'Hari'  }
+];
+const MALA_OPTIONS = [
+  { id:'vaijayanti', icon:'🌼🌼🌼', label:'Vaijayanti' },
+  { id:'tulsi',      icon:'🍃🍃🍃', label:'Tulsi' },
+  { id:'mogra',      icon:'🪷🪷🪷', label:'Mogra' },
+  { id:'gulab',      icon:'🌹🌹🌹', label:'Gulab' },
+  { id:'moti',       icon:'⚪⚪⚪', label:'Moti' },
+  { id:'none',       icon:'✦',     label:'None' }
+];
+const PUSHP_OPTIONS = [
+  { id:'kamal',  icon:'🪷', label:'Kamal'  },
+  { id:'gulab',  icon:'🌹', label:'Gulab'  },
+  { id:'mogra',  icon:'🌼', label:'Mogra'  },
+  { id:'tagar',  icon:'🌸', label:'Tagar'  },
+  { id:'none',   icon:'✦',  label:'Saadha' }
+];
+const TILAK_OPTIONS = [
+  { id:'urdhva', icon:'╿', label:'Urdhva'  },
+  { id:'tripundra', icon:'≡', label:'Tripundra' },
+  { id:'chandan',  icon:'·',  label:'Chandan' },
+  { id:'none',     icon:'✦',  label:'None' }
+];
+const DIYA_COUNTS = [0, 1, 3, 5, 7];
+
+// Active state for all layers
+const ssState = {
+  roop:    0,            // index into SHRINGARS
+  mukut:   'mor',
+  vastra:  'kesari',
+  mala:    'vaijayanti',
+  pushp:   'kamal',
+  tilak:   'urdhva',
+  diya:    3,
+  tab:     'roop'
+};
 
 function updateShringarPillVisibility() {
   const pill = document.getElementById('shringarPill');
@@ -3736,13 +3851,11 @@ function updateShringarPillVisibility() {
 }
 
 function applySavedShringarToHero() {
-  // If Krishna is selected AND user has saved a shringar today, replace the
-  // hero deityImg with that shringar.
   if (currentDeity !== 'krishna') return;
   try {
-    const savedId = localStorage.getItem('shringar:krishna');
-    if (!savedId) return;
-    const s = SHRINGARS.find(x => x.id === savedId);
+    const saved = JSON.parse(localStorage.getItem('shringar:krishna') || 'null');
+    if (!saved || typeof saved.roop !== 'number') return;
+    const s = SHRINGARS[saved.roop];
     if (!s) return;
     const img = document.getElementById('deityImg');
     if (img) {
@@ -3757,15 +3870,13 @@ function applySavedShringarToHero() {
 
 function openShringarStudio() {
   if (currentDeity !== 'krishna') return;
-  renderShringarTray();
-  // Default to the last-saved shringar, else first.
-  let startIdx = 0;
+  // Restore saved state if any
   try {
-    const savedId = localStorage.getItem('shringar:krishna');
-    const found = SHRINGARS.findIndex(s => s.id === savedId);
-    if (found >= 0) startIdx = found;
+    const saved = JSON.parse(localStorage.getItem('shringar:krishna') || 'null');
+    if (saved) Object.assign(ssState, saved);
   } catch(e){}
-  selectShringar(startIdx, true);  // silent: skip the rays flash on initial open
+  switchTab(ssState.tab || 'roop');
+  applyAllLayers(true);
   document.getElementById('shringarBack').classList.add('active');
   document.getElementById('shringarStudio').classList.add('active');
 }
@@ -3775,69 +3886,125 @@ function closeShringarStudio() {
   document.getElementById('shringarStudio').classList.remove('active');
 }
 
-function renderShringarTray() {
+// Switch which tab's options are showing in the tray
+function switchTab(tab) {
+  ssState.tab = tab;
+  document.querySelectorAll('.ss-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   const tray = document.getElementById('ssTray');
+  const title = document.getElementById('ssTitle');
+  const titles = { roop:'Krishna ji ka roop', mukut:'Mukut chuniye', vastra:'Vastra ka rang', mala:'Mala chadhayein', pushp:'Pushp arpan', tilak:'Tilak lagayein', diya:'Diya jalayein' };
+  if (title) title.textContent = titles[tab] || 'Shringar karein';
   if (!tray) return;
-  tray.innerHTML = SHRINGARS.map((s, i) =>
-    '<div class="ss-thumb" onclick="selectShringar(' + i + ')" data-i="' + i + '" aria-label="' + s.name + '">' +
-      '<img src="' + s.img + '" alt="" ' +
-        'data-fb="' + (s.fallback || SHRINGAR_UNIVERSAL_FALLBACK) + '" ' +
-        'onerror="if(!this.dataset.fbDone){this.dataset.fbDone=1;this.src=this.dataset.fb;}else{this.src=\'' + SHRINGAR_UNIVERSAL_FALLBACK + '\';}"/>' +
-    '</div>'
-  ).join('');
+  tray.className = 'ss-tray has-labels';
+  if (tab === 'roop') {
+    tray.innerHTML = SHRINGARS.map((s, i) =>
+      '<div class="ss-opt ss-thumb' + (ssState.roop === i ? ' active':'') + '" onclick="pickLayer(\'roop\',' + i + ')">' +
+        '<img src="' + s.img + '" alt="" data-fb="' + (s.fallback || SHRINGAR_UNIVERSAL_FALLBACK) + '" ' +
+          'onerror="if(!this.dataset.fbDone){this.dataset.fbDone=1;this.src=this.dataset.fb;}else{this.src=\'' + SHRINGAR_UNIVERSAL_FALLBACK + '\';}"/>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'mukut') {
+    tray.innerHTML = MUKUT_OPTIONS.map(o =>
+      '<div class="ss-opt' + (ssState.mukut === o.id ? ' active':'') + '" onclick="pickLayer(\'mukut\',\'' + o.id + '\')">' +
+        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'vastra') {
+    tray.innerHTML = VASTRA_OPTIONS.map(o =>
+      '<div class="ss-opt ss-swatch' + (ssState.vastra === o.id ? ' active':'') + '" style="--swatch:' + o.swatch + ';background:' + o.swatch + ';" onclick="pickLayer(\'vastra\',\'' + o.id + '\')">' +
+        '<span class="ss-opt-label">' + o.label + '</span>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'mala') {
+    tray.innerHTML = MALA_OPTIONS.map(o =>
+      '<div class="ss-opt' + (ssState.mala === o.id ? ' active':'') + '" onclick="pickLayer(\'mala\',\'' + o.id + '\')" style="font-size:16px;letter-spacing:-3px;">' +
+        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'pushp') {
+    tray.innerHTML = PUSHP_OPTIONS.map(o =>
+      '<div class="ss-opt' + (ssState.pushp === o.id ? ' active':'') + '" onclick="pickLayer(\'pushp\',\'' + o.id + '\')">' +
+        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'tilak') {
+    tray.innerHTML = TILAK_OPTIONS.map(o =>
+      '<div class="ss-opt' + (ssState.tilak === o.id ? ' active':'') + '" onclick="pickLayer(\'tilak\',\'' + o.id + '\')" style="font-size:34px;line-height:1;">' +
+        o.icon + '<span class="ss-opt-label">' + o.label + '</span>' +
+      '</div>'
+    ).join('');
+  } else if (tab === 'diya') {
+    tray.innerHTML = DIYA_COUNTS.map(n =>
+      '<div class="ss-opt' + (ssState.diya === n ? ' active':'') + '" onclick="pickLayer(\'diya\',' + n + ')" style="font-size:14px;line-height:1.2;flex-direction:column;">' +
+        (n === 0 ? '✦' : '🪔') + '<div style="font-size:11px;font-weight:800;color:#ffd9a8;margin-top:2px;">' + n + '</div>' +
+        '<span class="ss-opt-label">' + (n === 0 ? 'None' : (n + ' diya')) + '</span>' +
+      '</div>'
+    ).join('');
+  }
 }
 
-function selectShringar(idx, silent) {
-  const s = SHRINGARS[idx];
-  if (!s) return;
-  currentShringarIdx = idx;
+// User picked an option in a layer tab
+function pickLayer(layer, value) {
+  ssState[layer] = value;
+  applyAllLayers();
+  // Re-render the active tab so the selection highlight updates
+  switchTab(ssState.tab);
+  // Gentle rays flash to acknowledge
+  const raysEl = document.getElementById('ssRays');
+  if (raysEl) { raysEl.classList.remove('flash'); void raysEl.offsetWidth; raysEl.classList.add('flash'); }
+}
 
-  const imgEl   = document.getElementById('ssImage');
-  const nameEl  = document.getElementById('ssName');
-  const subEl   = document.getElementById('ssSubtitle');
-  const bhavEl  = document.getElementById('ssBhavna');
-  const raysEl  = document.getElementById('ssRays');
-
-  // Cross-fade the deity image
+// Render all active layers onto the stage
+function applyAllLayers(silent) {
+  const roop = SHRINGARS[ssState.roop] || SHRINGARS[0];
+  // Base image (roop)
+  const imgEl = document.getElementById('ssImage');
   if (imgEl) {
-    imgEl.classList.add('swapping');
-    setTimeout(() => {
-      imgEl.onerror = function() {
-        // Local missing → swap to per-shringar fallback, then universal fallback
-        imgEl.onerror = function() {
-          imgEl.onerror = null;
-          imgEl.src = SHRINGAR_UNIVERSAL_FALLBACK;
-        };
-        imgEl.src = s.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
-      };
-      imgEl.src = s.img;
-      imgEl.classList.remove('swapping');
-    }, 220);
+    imgEl.onerror = function() {
+      imgEl.onerror = function() { imgEl.onerror = null; imgEl.src = SHRINGAR_UNIVERSAL_FALLBACK; };
+      imgEl.src = roop.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
+    };
+    imgEl.src = roop.img;
   }
-  if (nameEl) nameEl.textContent = s.name;
-  if (subEl)  subEl.textContent  = 'Shrinathji ko sajayein';
-  if (bhavEl) bhavEl.textContent = '— ' + s.bhavna + ' · ' + s.bhavnaLine;
-
-  // Highlight active thumb
-  document.querySelectorAll('.ss-thumb').forEach((el, i) => {
-    el.classList.toggle('active', i === idx);
-    if (i === idx) el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-  });
-
-  // Gentle golden-rays flash on every swap (skipped on initial open)
-  if (!silent && raysEl) {
-    raysEl.classList.remove('flash');
-    void raysEl.offsetWidth;  // reflow
-    raysEl.classList.add('flash');
+  // Mukut layer
+  const mu = MUKUT_OPTIONS.find(o => o.id === ssState.mukut);
+  document.getElementById('ssLayerMukut').textContent = (mu && mu.id !== 'none') ? mu.icon : '';
+  // Mala layer
+  const ma = MALA_OPTIONS.find(o => o.id === ssState.mala);
+  document.getElementById('ssLayerMala').textContent = (ma && ma.id !== 'none') ? ma.icon : '';
+  // Pushp layer — corner sprinkle
+  const ph = PUSHP_OPTIONS.find(o => o.id === ssState.pushp);
+  if (ph && ph.id !== 'none') {
+    document.getElementById('ssLayerPushp').innerHTML =
+      '<span>' + ph.icon + '</span><span>' + ph.icon + '</span><span>' + ph.icon + '</span>';
+  } else {
+    document.getElementById('ssLayerPushp').innerHTML = '';
+  }
+  // Tilak
+  const ti = TILAK_OPTIONS.find(o => o.id === ssState.tilak);
+  document.getElementById('ssLayerTilak').textContent = (ti && ti.id !== 'none') ? ti.icon : '';
+  // Diya count
+  const diyaEl = document.getElementById('ssLayerDiya');
+  diyaEl.innerHTML = '';
+  for (let i = 0; i < (ssState.diya || 0); i++) {
+    const d = document.createElement('span'); d.textContent = '🪔'; diyaEl.appendChild(d);
+  }
+  // Vastra tint
+  const va = VASTRA_OPTIONS.find(o => o.id === ssState.vastra);
+  const tint = document.getElementById('ssTint');
+  if (va && tint) {
+    tint.style.background = va.swatch;
+    tint.style.opacity = '0.18';
+  } else if (tint) {
+    tint.style.opacity = '0';
   }
 }
 
 function saveShringar() {
-  const s = SHRINGARS[currentShringarIdx];
-  if (!s) return;
-  // Persist for the home hero + future opens
-  try { localStorage.setItem('shringar:krishna', s.id); } catch(e){}
-  // Update the home's deity image immediately (with fallback chain)
+  // Persist the full state
+  try { localStorage.setItem('shringar:krishna', JSON.stringify(ssState)); } catch(e){}
+  const s = SHRINGARS[ssState.roop] || SHRINGARS[0];
+  // Update the home's deity image immediately
   const deityImg = document.getElementById('deityImg');
   if (deityImg) {
     deityImg.onerror = function() {
@@ -3846,7 +4013,6 @@ function saveShringar() {
     };
     deityImg.src = s.img;
   }
-  // Close the studio & play the reveal
   closeShringarStudio();
   const reveal = document.getElementById('ssReveal');
   const revImg = document.getElementById('ssRevealImg');
@@ -3860,7 +4026,7 @@ function saveShringar() {
     revImg.src = s.img;
   }
   if (revSub) revSub.textContent = '— ' + s.name;
-  if (sevaTx) sevaTx.textContent = s.name + ' ki same arpan mandir mein';
+  if (sevaTx) sevaTx.textContent = s.name + ' — mandir mein same arpan';
   setTimeout(() => reveal && reveal.classList.add('active'), 200);
 }
 
@@ -3870,9 +4036,9 @@ function closeShringarReveal() {
 }
 
 function goShringarSeva() {
-  // Route to Seva Arpan with a query hint so the user lands on Krishna seva.
   closeShringarReveal();
-  window.location.href = withDeity('devotion-seva.html') + '&shringar=' + encodeURIComponent(SHRINGARS[currentShringarIdx].id);
+  const s = SHRINGARS[ssState.roop] || SHRINGARS[0];
+  window.location.href = withDeity('devotion-seva.html') + '&shringar=' + encodeURIComponent(s.id);
 }
 
 // ============ MAAS KA PANCHANG ============
