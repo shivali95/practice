@@ -4,6 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Live Darshan</title>
+<!-- Warm up the YouTube/ytimg connections so the iframe handshake is fast -->
+<link rel="preconnect" href="https://www.youtube.com" crossorigin>
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+<link rel="preconnect" href="https://yt3.ggpht.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.youtube.com">
+<link rel="dns-prefetch" href="https://i.ytimg.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
 @font-face { font-family:'JioType'; font-weight:400; src:url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
@@ -401,9 +407,29 @@ function renderTemple(t) {
   const imgEl   = document.getElementById('streamImg');
   const videoEl = document.getElementById('streamVideo');
   if (t.videoId && videoEl) {
-    // Show YouTube live stream / aarti video instead of the still image.
-    if (imgEl) imgEl.style.display = 'none';
+    // Show the YouTube thumbnail INSTANTLY so the user sees the deity even
+    // while the iframe is downloading. Once the iframe fires its `load`
+    // event we hide the image and the video takes over (it'll be already
+    // covering the image since z-index of iframe is on top).
+    if (imgEl) {
+      imgEl.style.display = '';
+      imgEl.src = 'https://i.ytimg.com/vi/' + t.videoId + '/maxresdefault.jpg';
+      imgEl.onerror = () => {
+        // Fall back through smaller thumbs → finally local temple image
+        if (imgEl.src.indexOf('maxresdefault') > -1) {
+          imgEl.src = 'https://i.ytimg.com/vi/' + t.videoId + '/hqdefault.jpg';
+        } else {
+          imgEl.src = t.img || 'assets/temples/kashi.jpg';
+        }
+      };
+    }
     videoEl.style.display = 'block';
+    videoEl.style.opacity = '0';  // fade-in once loaded
+    videoEl.style.transition = 'opacity 320ms ease';
+    videoEl.addEventListener('load', () => {
+      videoEl.style.opacity = '1';
+      if (imgEl) imgEl.style.display = 'none';
+    }, { once: true });
     videoEl.src = 'https://www.youtube.com/embed/' + t.videoId
                 + '?autoplay=1&playsinline=1&modestbranding=1&rel=0'
                 + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + t.videoId;
