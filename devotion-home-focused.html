@@ -1981,19 +1981,18 @@ function playShivMantra() {
   try {
     stopShivMantra();  // clean slate
 
-    const LEAD_DELAY_MS = 2000;   // wait before audio begins
-    const TARGET_VOL    = 0.85;
-    const FADE_IN_MS    = 1000;   // 1s gentle ramp-up
-    const TOTAL_PLAY_MS = 26000;  // ~26s total experience — clip loops while we control duration
-    const FADE_OUT_MS   = 7000;   // long 7-second taper at the end
-    const TICK_MS       = 50;
+    const LEAD_DELAY_MS    = 2000; // wait before audio begins
+    const TARGET_VOL       = 0.85;
+    const FADE_IN_MS       = 500;  // brief ramp-up so the file's short body still gets sustained volume
+    const FADE_OUT_TAIL_MS = 2200; // fade out the last ~2.2 seconds of the clip
+    const TICK_MS          = 50;
 
     shivMantraStartTimer = setTimeout(() => {
       shivMantraStartTimer = null;
       const audio = new Audio(SHIV_MANTRA_MP3);
       shivMantraAudio = audio;
       audio.volume = 0;
-      audio.loop = true;   // loop continuously — we control duration via fade-out timer
+      audio.loop = false;  // play once
 
       // --- fade-in ---
       const inStep = TARGET_VOL / (FADE_IN_MS / TICK_MS);
@@ -2010,26 +2009,37 @@ function playShivMantra() {
         }
       }, TICK_MS);
 
-      // --- schedule fade-out at fixed time so the mantra plays for a
-      //     predictable, longer duration regardless of clip length ---
-      shivMantraFadeOutTimer = setTimeout(() => {
-        if (shivMantraAudio !== audio) return;
-        const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
-        shivMantraFadeOutInterval = setInterval(() => {
-          if (shivMantraAudio !== audio) {
-            clearInterval(shivMantraFadeOutInterval);
-            shivMantraFadeOutInterval = null;
-            return;
-          }
-          audio.volume = Math.max(0, audio.volume - outStep);
-          if (audio.volume <= 0.001) {
-            clearInterval(shivMantraFadeOutInterval);
-            shivMantraFadeOutInterval = null;
-            try { audio.loop = false; audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-            if (shivMantraAudio === audio) shivMantraAudio = null;
-          }
-        }, TICK_MS);
-      }, TOTAL_PLAY_MS - FADE_OUT_MS);
+      // --- schedule fade-out so the last FADE_OUT_TAIL_MS of the clip
+      //     tapers to silence (avoids the source MP3's abrupt cut) ---
+      audio.addEventListener('loadedmetadata', () => {
+        const totalMs = (audio.duration || 0) * 1000;
+        if (!totalMs) return;
+        const fadeOutMs = Math.min(FADE_OUT_TAIL_MS, totalMs * 0.6);
+        const fadeStart = Math.max(0, totalMs - fadeOutMs);
+        shivMantraFadeOutTimer = setTimeout(() => {
+          if (shivMantraAudio !== audio) return;
+          const outStep = (audio.volume || TARGET_VOL) / (fadeOutMs / TICK_MS);
+          shivMantraFadeOutInterval = setInterval(() => {
+            if (shivMantraAudio !== audio) {
+              clearInterval(shivMantraFadeOutInterval);
+              shivMantraFadeOutInterval = null;
+              return;
+            }
+            audio.volume = Math.max(0, audio.volume - outStep);
+            if (audio.volume <= 0.001) {
+              clearInterval(shivMantraFadeOutInterval);
+              shivMantraFadeOutInterval = null;
+              try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+              if (shivMantraAudio === audio) shivMantraAudio = null;
+            }
+          }, TICK_MS);
+        }, fadeStart);
+      });
+
+      audio.addEventListener('ended', () => {
+        try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+        if (shivMantraAudio === audio) shivMantraAudio = null;
+      });
 
       audio.play().catch(e => console.warn('shiv mantra play failed', e));
     }, LEAD_DELAY_MS);
@@ -2051,8 +2061,10 @@ function stopShivMantra() {
 }
 
 // -------- SHANKH SOUND (real MP3) --------
-// Plays the full clip once. No loop, no premature cap.
+// Plays the clip exactly TWICE per click — first blow, then second blow,
+// then stops. Tapping again restarts the cycle.
 const SHANKH_MP3 = 'assets/audio/shankh.mp3';
+const SHANKH_PLAY_COUNT = 2;
 let shankhAudio = null;
 function stopShankh() {
   if (shankhAudio) {
@@ -2065,11 +2077,19 @@ function playShankh() {
     stopShankh();
     const audio = new Audio(SHANKH_MP3);
     shankhAudio = audio;
-    audio.loop = false;          // PLAY ONCE, no loop
+    audio.loop = false;
     audio.volume = 0.9;
+    let plays = 0;
     audio.addEventListener('ended', () => {
-      try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-      if (shankhAudio === audio) shankhAudio = null;
+      if (shankhAudio !== audio) return;       // user closed / replayed
+      plays++;
+      if (plays < SHANKH_PLAY_COUNT) {
+        // Replay the same Audio element for the second blow
+        try { audio.currentTime = 0; audio.play().catch(e => console.warn('shankh replay failed', e)); } catch(e){}
+      } else {
+        try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+        if (shankhAudio === audio) shankhAudio = null;
+      }
     });
     audio.play().catch(e => console.warn('shankh play failed', e));
   } catch(e) { console.warn('shankh failed', e); }
