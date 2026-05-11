@@ -3815,6 +3815,7 @@ const MALA_OPTIONS = [
   { id:'mogra',      icon:'🪷🪷🪷', label:'Mogra' },
   { id:'gulab',      icon:'🌹🌹🌹', label:'Gulab' },
   { id:'moti',       icon:'⚪⚪⚪', label:'Moti' },
+  { id:'neel',       icon:'🔵🔵🔵', label:'Neel' },
   { id:'none',       icon:'✦',     label:'None' }
 ];
 const PUSHP_OPTIONS = [
@@ -3947,44 +3948,61 @@ function switchTab(tab) {
 // different one of the 9 photos. The mukut/vastra/mala chips are just
 // placeholder picks — the *appearance* of layering is created entirely
 // by swapping the full deity photo underneath.
+// Each option maps to a colour-coordinated Shrinathji photo (0-indexed
+// into the 9 images). The mapping is intentional, not random:
+//   shringar-1: saffron pichhwai, blue bg
+//   shringar-2: deep blue starry bg
+//   shringar-3: multi-colour framed gold halo
+//   shringar-4: yellow vintage pichhwai
+//   shringar-5: pink/rose with pearls
+//   shringar-6: silver/peacock chandrika
+//   shringar-7: navy + gold + orange
+//   shringar-8: dark/black with gold + blue lotus  (2nd-last)
+//   shringar-9: green pichhwai, lotus base          (last)
 const OPTION_TO_SHRINGAR = {
-  // Mukut tab
-  'mukut:mor':       0,
-  'mukut:crown':     2,
-  'mukut:pagri':     3,
-  'mukut:phool':     4,
-  'mukut:none':      5,
-  // Vastra tab
-  'vastra:kesari':   0,
-  'vastra:neel':     1,
-  'vastra:shyam':    2,
-  'vastra:peet':     3,
-  'vastra:rakta':    4,
-  'vastra:hari':     8,
-  // Mala tab
-  'mala:vaijayanti': 4,
-  'mala:tulsi':      8,
-  'mala:mogra':      5,
-  'mala:gulab':      0,
-  'mala:moti':       7,
-  'mala:none':       1,
+  // Mukut tab — match the dominant ornamental theme
+  'mukut:mor':       5,   // peacock → silver/chandrika
+  'mukut:crown':     2,   // golden crown → gold-halo
+  'mukut:pagri':     6,   // turban → navy+gold pagri vibe
+  'mukut:phool':     4,   // flower mukut → flower-heavy shringar
+  'mukut:none':      3,   // saadha → simple yellow vintage
+
+  // Vastra tab — colour matches the dominant backdrop
+  'vastra:kesari':   0,   // saffron → saffron pichhwai
+  'vastra:neel':     1,   // blue → blue-bg deep starry
+  'vastra:shyam':    7,   // dark → dark+gold royal
+  'vastra:peet':     3,   // yellow → yellow vintage
+  'vastra:rakta':    4,   // red → pink/red roses
+  'vastra:hari':     8,   // green → green pichhwai  (last)
+
+  // Mala tab — colour of the garland matches the photo
+  'mala:vaijayanti': 0,   // yellow marigold → saffron
+  'mala:tulsi':      8,   // green leaves → green pichhwai
+  'mala:mogra':      2,   // white jasmine → gold-multi
+  'mala:gulab':      4,   // red rose → pink/rose
+  'mala:moti':       6,   // pearl → navy+gold pearl-heavy
+  'mala:neel':       7,   // BLUE mala → dark + blue lotus (2nd-last)
+  'mala:none':       1,   // none → deep blue starry
+
   // Pushp tab
-  'pushp:kamal':     1,
-  'pushp:gulab':     4,
-  'pushp:mogra':     5,
-  'pushp:tagar':     7,
-  'pushp:none':      3,
+  'pushp:kamal':     8,   // lotus → green pichhwai (lotus base)
+  'pushp:gulab':     4,   // rose → pink/rose
+  'pushp:mogra':     2,   // white jasmine → gold-multi
+  'pushp:tagar':     6,   // white tagar → navy+gold
+  'pushp:none':      3,   // none → yellow vintage
+
   // Tilak tab
-  'tilak:urdhva':    2,
-  'tilak:tripundra': 6,
-  'tilak:chandan':   8,
-  'tilak:none':      0,
-  // Diya tab
-  'diya:0':          6,
-  'diya:1':          1,
-  'diya:3':          4,
-  'diya:5':          7,
-  'diya:7':          2
+  'tilak:urdhva':    1,   // urdhva → blue
+  'tilak:tripundra': 5,   // tripundra → silver
+  'tilak:chandan':   0,   // chandan → saffron
+  'tilak:none':      3,   // none → yellow vintage
+
+  // Diya count
+  'diya:0':          1,
+  'diya:1':          3,
+  'diya:3':          0,
+  'diya:5':          2,
+  'diya:7':          7    // 7 diyas → dark+gold royal (2nd-last)
 };
 
 function pickLayer(layer, value) {
