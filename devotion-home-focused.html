@@ -2061,12 +2061,19 @@ function stopShivMantra() {
 }
 
 // -------- SHANKH SOUND (real MP3) --------
-// Plays the clip exactly TWICE per click — first blow, then second blow,
-// then stops. Tapping again restarts the cycle.
+// The source shankh.mp3 is ~5 minutes long (contains many blows). We cap
+// each tap to ~4 seconds — roughly two shankh blows — then fade out and
+// stop. Tapping again restarts the cycle.
 const SHANKH_MP3 = 'assets/audio/shankh.mp3';
-const SHANKH_PLAY_COUNT = 2;
+const SHANKH_PLAY_MS = 4000;   // ~2 blows worth of audio
+const SHANKH_FADE_MS = 600;    // soft taper at the end
 let shankhAudio = null;
+let shankhStopTimer = null;
+let shankhFadeInterval = null;
+
 function stopShankh() {
+  if (shankhStopTimer)   { clearTimeout(shankhStopTimer);   shankhStopTimer = null; }
+  if (shankhFadeInterval){ clearInterval(shankhFadeInterval); shankhFadeInterval = null; }
   if (shankhAudio) {
     try { shankhAudio.loop = false; shankhAudio.pause(); shankhAudio.currentTime = 0; shankhAudio.src = ''; } catch(e){}
     shankhAudio = null;
@@ -2079,19 +2086,26 @@ function playShankh() {
     shankhAudio = audio;
     audio.loop = false;
     audio.volume = 0.9;
-    let plays = 0;
-    audio.addEventListener('ended', () => {
-      if (shankhAudio !== audio) return;       // user closed / replayed
-      plays++;
-      if (plays < SHANKH_PLAY_COUNT) {
-        // Replay the same Audio element for the second blow
-        try { audio.currentTime = 0; audio.play().catch(e => console.warn('shankh replay failed', e)); } catch(e){}
-      } else {
-        try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-        if (shankhAudio === audio) shankhAudio = null;
-      }
-    });
     audio.play().catch(e => console.warn('shankh play failed', e));
+
+    // Schedule fade-out so the last SHANKH_FADE_MS tapers smoothly rather
+    // than cutting off mid-blow.
+    shankhStopTimer = setTimeout(() => {
+      if (shankhAudio !== audio) return;
+      const startVol = audio.volume || 0.9;
+      const step = startVol / (SHANKH_FADE_MS / 50);
+      shankhFadeInterval = setInterval(() => {
+        if (shankhAudio !== audio) {
+          clearInterval(shankhFadeInterval); shankhFadeInterval = null; return;
+        }
+        audio.volume = Math.max(0, audio.volume - step);
+        if (audio.volume <= 0.001) {
+          clearInterval(shankhFadeInterval); shankhFadeInterval = null;
+          try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+          if (shankhAudio === audio) shankhAudio = null;
+        }
+      }, 50);
+    }, SHANKH_PLAY_MS - SHANKH_FADE_MS);
   } catch(e) { console.warn('shankh failed', e); }
 }
 
