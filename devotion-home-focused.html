@@ -4015,38 +4015,12 @@ function applyAllLayers(silent) {
     };
     imgEl.src = roop.img;
   }
-  // Mukut layer
-  const mu = MUKUT_OPTIONS.find(o => o.id === ssState.mukut);
-  document.getElementById('ssLayerMukut').textContent = (mu && mu.id !== 'none') ? mu.icon : '';
-  // Mala layer
-  const ma = MALA_OPTIONS.find(o => o.id === ssState.mala);
-  document.getElementById('ssLayerMala').textContent = (ma && ma.id !== 'none') ? ma.icon : '';
-  // Pushp layer — corner sprinkle
-  const ph = PUSHP_OPTIONS.find(o => o.id === ssState.pushp);
-  if (ph && ph.id !== 'none') {
-    document.getElementById('ssLayerPushp').innerHTML =
-      '<span>' + ph.icon + '</span><span>' + ph.icon + '</span><span>' + ph.icon + '</span>';
-  } else {
-    document.getElementById('ssLayerPushp').innerHTML = '';
-  }
-  // Tilak
-  const ti = TILAK_OPTIONS.find(o => o.id === ssState.tilak);
-  document.getElementById('ssLayerTilak').textContent = (ti && ti.id !== 'none') ? ti.icon : '';
-  // Diya count
-  const diyaEl = document.getElementById('ssLayerDiya');
-  diyaEl.innerHTML = '';
-  for (let i = 0; i < (ssState.diya || 0); i++) {
-    const d = document.createElement('span'); d.textContent = '🪔'; diyaEl.appendChild(d);
-  }
-  // Vastra tint
-  const va = VASTRA_OPTIONS.find(o => o.id === ssState.vastra);
+  // Demo mode: no emoji overlays — the deity image swap below IS the
+  // visible change. Keep the overlay elements empty so nothing renders.
+  const ids = ['ssLayerMukut','ssLayerMala','ssLayerPushp','ssLayerTilak','ssLayerDiya'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
   const tint = document.getElementById('ssTint');
-  if (va && tint) {
-    tint.style.background = va.swatch;
-    tint.style.opacity = '0.18';
-  } else if (tint) {
-    tint.style.opacity = '0';
-  }
+  if (tint) tint.style.opacity = '0';
 }
 
 function saveShringar() {
