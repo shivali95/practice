@@ -137,16 +137,79 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
 }
 
 /* Reactions (floating hearts/flowers) */
-.reactions { position:absolute; right:14px; bottom:60px; z-index:5; pointer-events:none; width:40px; height:150px; overflow:hidden; }
-.rxn { position:absolute; bottom:0; right:0; font-size:22px; opacity:0; animation: rxnFloat 3.6s ease-out infinite; }
-.rxn.r1 { animation-delay:0s; }
-.rxn.r2 { animation-delay:1.2s; right:-6px; }
-.rxn.r3 { animation-delay:2.4s; right:8px; }
-@keyframes rxnFloat {
-  0%   { opacity:0; transform:translateY(0) scale(0.7); }
+/* Full-stream offering zone — covers the whole deity view so offerings
+   land ON the deity, not in a sidebar. */
+.offering-zone {
+  position:absolute; inset:0; z-index:5; pointer-events:none; overflow:hidden;
+}
+
+/* PHOOL — petals shower from top across the entire deity area */
+.off-petal {
+  position:absolute; top:-40px; font-size:24px; opacity:0;
+  text-shadow:0 2px 8px rgba(0,0,0,0.4);
+  animation: petalFall 3.8s linear forwards;
+}
+@keyframes petalFall {
+  0%   { opacity:0; transform:translateY(0)   rotate(0deg); }
+  10%  { opacity:1; }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translateY(700px) rotate(720deg); }
+}
+
+/* DIYA — flames rise at the deity's feet with a warm glow */
+.off-diya {
+  position:absolute; bottom:34%; font-size:34px; opacity:0;
+  filter: drop-shadow(0 0 14px #ff8a2e) drop-shadow(0 0 28px rgba(255,138,46,0.6));
+  animation: diyaRise 3s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes diyaRise {
+  0%   { opacity:0; transform:translateY(30px) scale(0.5); }
+  25%  { opacity:1; transform:translateY(0)     scale(1.05); }
+  60%  { opacity:1; transform:translateY(-12px) scale(1.08); }
+  100% { opacity:0; transform:translateY(-70px) scale(0.85); }
+}
+
+/* PRANAM — big 🙏 pulses in front of the deity, soft halo */
+.off-pranam {
+  position:absolute; top:38%; left:50%;
+  font-size:92px; opacity:0; transform:translate(-50%, -50%) scale(0.4);
+  filter: drop-shadow(0 0 30px rgba(255,210,150,0.7));
+  animation: pranamPulse 2.8s ease-out forwards;
+}
+@keyframes pranamPulse {
+  0%   { opacity:0; transform:translate(-50%, -50%) scale(0.4); }
+  25%  { opacity:1; transform:translate(-50%, -50%) scale(1.05); }
+  55%  { opacity:1; transform:translate(-50%, -50%) scale(1); }
+  100% { opacity:0; transform:translate(-50%, -50%) scale(1.15); }
+}
+
+/* GHANTI — bell swings in front of the deity */
+.off-ghanti {
+  position:absolute; top:40%; left:50%;
+  font-size:74px; opacity:0; transform-origin: top center;
+  filter: drop-shadow(0 0 18px rgba(255,210,150,0.55));
+  animation: ghantiRing 2.2s ease-out forwards;
+}
+@keyframes ghantiRing {
+  0%   { opacity:0; transform:translate(-50%, -50%) rotate(0deg); }
+  15%  { opacity:1; transform:translate(-50%, -50%) rotate(-22deg); }
+  30%  { transform:translate(-50%, -50%) rotate(18deg); }
+  45%  { transform:translate(-50%, -50%) rotate(-12deg); }
+  60%  { transform:translate(-50%, -50%) rotate(8deg); }
+  80%  { opacity:0.9; transform:translate(-50%, -50%) rotate(0deg); }
+  100% { opacity:0; transform:translate(-50%, -50%) rotate(0deg) scale(1.1); }
+}
+
+/* Subtle warm radial glow over the deity that pulses when an offering is made */
+.off-halo {
+  position:absolute; inset:0; pointer-events:none; opacity:0;
+  background: radial-gradient(ellipse 60% 45% at 50% 45%, rgba(255,180,80,0.32), transparent 65%);
+  animation: haloFlash 1.6s ease-out forwards;
+}
+@keyframes haloFlash {
+  0%   { opacity:0; }
   20%  { opacity:1; }
-  80%  { opacity:0.9; }
-  100% { opacity:0; transform:translateY(-150px) scale(1.15); }
+  100% { opacity:0; }
 }
 
 /* ============ INFO SHEET (bottom 38%) ============ */
@@ -243,19 +306,15 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
       <div class="diya d3" style="right:18%; bottom:38%;"></div>
       <div class="diya d4" style="right:32%; bottom:26%;"></div>
 
-      <!-- Reactions -->
-      <div class="reactions">
-        <div class="rxn r1">🪔</div>
-        <div class="rxn r2">🌼</div>
-        <div class="rxn r3">🙏</div>
-      </div>
+      <!-- Offerings land HERE — covers the whole deity stream area so
+           diya / phool / pranam / ghanti feel placed at the deity. -->
+      <div class="offering-zone" id="offeringZone"></div>
 
       <!-- Bottom info -->
       <div class="stream-foot">
         <div class="sf-left">
           <div class="sf-temple" id="sfTemple">Kashi Vishwanath</div>
           <div class="sf-place"  id="sfPlace">Varanasi, Uttar Pradesh</div>
-          <div class="srimandir-credit" style="margin-top:10px;">Powered by <b>Srimandir</b></div>
         </div>
       </div>
     </div>
@@ -268,10 +327,10 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
       </div>
 
       <div class="action-row">
-        <button class="action-btn" onclick="react('🪔')"><span class="ai">🪔</span><span class="al">Diya</span></button>
-        <button class="action-btn" onclick="react('🌼')"><span class="ai">🌼</span><span class="al">Phool</span></button>
-        <button class="action-btn" onclick="react('🙏')"><span class="ai">🙏</span><span class="al">Pranam</span></button>
-        <button class="action-btn" onclick="react('🔔')"><span class="ai">🔔</span><span class="al">Ghanti</span></button>
+        <button class="action-btn" onclick="react('diya')"><span class="ai">🪔</span><span class="al">Diya</span></button>
+        <button class="action-btn" onclick="react('phool')"><span class="ai">🌼</span><span class="al">Phool</span></button>
+        <button class="action-btn" onclick="react('pranam')"><span class="ai">🙏</span><span class="al">Pranam</span></button>
+        <button class="action-btn" onclick="react('ghanti')"><span class="ai">🔔</span><span class="al">Ghanti</span></button>
       </div>
 
       <div class="cta-row">
@@ -382,15 +441,58 @@ function renderTemple(t) {
 // ══════════════════════════════════════════════════════════
 //   Interactions
 // ══════════════════════════════════════════════════════════
-function react(emoji) {
-  const c = document.querySelector('.reactions');
-  const s = document.createElement('div');
-  s.className = 'rxn';
-  s.textContent = emoji;
-  s.style.animation = 'rxnFloat 2.8s ease-out forwards';
-  s.style.right = (6 + Math.random() * 22) + 'px';
-  c.appendChild(s);
-  setTimeout(() => s.remove(), 3000);
+// Offerings now land on / in front of the deity rather than floating off
+// to the side. Each kind has its own choreography.
+function react(kind) {
+  const zone = document.getElementById('offeringZone');
+  if (!zone) return;
+
+  // Warm halo pulse over the deity for every offering
+  const halo = document.createElement('div');
+  halo.className = 'off-halo';
+  zone.appendChild(halo);
+  setTimeout(() => halo.remove(), 1700);
+
+  if (kind === 'phool') {
+    // Petal shower from the top across the full deity area
+    const FLOWERS = ['🌼','🌸','🌺','🌹','🏵️'];
+    for (let i = 0; i < 14; i++) {
+      const p = document.createElement('div');
+      p.className = 'off-petal';
+      p.textContent = FLOWERS[i % FLOWERS.length];
+      p.style.left = (4 + Math.random() * 92) + '%';
+      p.style.fontSize = (18 + Math.random() * 14) + 'px';
+      p.style.animationDelay = (Math.random() * 0.5) + 's';
+      p.style.animationDuration = (3.2 + Math.random() * 1.2) + 's';
+      zone.appendChild(p);
+      setTimeout(() => p.remove(), 5000);
+    }
+  } else if (kind === 'diya') {
+    // 5 glowing flames at the deity's feet, staggered slightly
+    const POSITIONS = [22, 36, 50, 64, 78];   // percent across
+    POSITIONS.forEach((leftPct, i) => {
+      const d = document.createElement('div');
+      d.className = 'off-diya';
+      d.textContent = '🪔';
+      d.style.left = leftPct + '%';
+      d.style.animationDelay = (i * 0.1) + 's';
+      zone.appendChild(d);
+      setTimeout(() => d.remove(), 3200);
+    });
+  } else if (kind === 'pranam') {
+    const p = document.createElement('div');
+    p.className = 'off-pranam';
+    p.textContent = '🙏';
+    zone.appendChild(p);
+    setTimeout(() => p.remove(), 2900);
+  } else if (kind === 'ghanti') {
+    const g = document.createElement('div');
+    g.className = 'off-ghanti';
+    g.textContent = '🔔';
+    zone.appendChild(g);
+    setTimeout(() => g.remove(), 2300);
+  }
+
   bumpViewers();
 }
 
