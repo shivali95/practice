@@ -1981,10 +1981,11 @@ function playShivMantra() {
   try {
     stopShivMantra();  // clean slate
 
-    const LEAD_DELAY_MS = 2000;  // wait before audio begins
+    const LEAD_DELAY_MS = 2000;   // wait before audio begins
     const TARGET_VOL    = 0.85;
-    const FADE_IN_MS    = 800;
-    const FADE_OUT_MS   = 6000;  // ~6 second taper
+    const FADE_IN_MS    = 1000;   // 1s gentle ramp-up
+    const TOTAL_PLAY_MS = 26000;  // ~26s total experience — clip loops while we control duration
+    const FADE_OUT_MS   = 7000;   // long 7-second taper at the end
     const TICK_MS       = 50;
 
     shivMantraStartTimer = setTimeout(() => {
@@ -1992,7 +1993,7 @@ function playShivMantra() {
       const audio = new Audio(SHIV_MANTRA_MP3);
       shivMantraAudio = audio;
       audio.volume = 0;
-      audio.loop = false;
+      audio.loop = true;   // loop continuously — we control duration via fade-out timer
 
       // --- fade-in ---
       const inStep = TARGET_VOL / (FADE_IN_MS / TICK_MS);
@@ -2009,35 +2010,26 @@ function playShivMantra() {
         }
       }, TICK_MS);
 
-      // --- schedule fade-out (kicks in FADE_OUT_MS before natural end) ---
-      audio.addEventListener('loadedmetadata', () => {
-        const totalMs = (audio.duration || 0) * 1000;
-        if (!totalMs) return;
-        const fadeStart = Math.max(0, totalMs - FADE_OUT_MS);
-        shivMantraFadeOutTimer = setTimeout(() => {
-          if (shivMantraAudio !== audio) return;
-          const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
-          shivMantraFadeOutInterval = setInterval(() => {
-            if (shivMantraAudio !== audio) {
-              clearInterval(shivMantraFadeOutInterval);
-              shivMantraFadeOutInterval = null;
-              return;
-            }
-            audio.volume = Math.max(0, audio.volume - outStep);
-            if (audio.volume <= 0.001) {
-              clearInterval(shivMantraFadeOutInterval);
-              shivMantraFadeOutInterval = null;
-              try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-              if (shivMantraAudio === audio) shivMantraAudio = null;
-            }
-          }, TICK_MS);
-        }, fadeStart);
-      });
-
-      audio.addEventListener('ended', () => {
-        try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-        if (shivMantraAudio === audio) shivMantraAudio = null;
-      });
+      // --- schedule fade-out at fixed time so the mantra plays for a
+      //     predictable, longer duration regardless of clip length ---
+      shivMantraFadeOutTimer = setTimeout(() => {
+        if (shivMantraAudio !== audio) return;
+        const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
+        shivMantraFadeOutInterval = setInterval(() => {
+          if (shivMantraAudio !== audio) {
+            clearInterval(shivMantraFadeOutInterval);
+            shivMantraFadeOutInterval = null;
+            return;
+          }
+          audio.volume = Math.max(0, audio.volume - outStep);
+          if (audio.volume <= 0.001) {
+            clearInterval(shivMantraFadeOutInterval);
+            shivMantraFadeOutInterval = null;
+            try { audio.loop = false; audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+            if (shivMantraAudio === audio) shivMantraAudio = null;
+          }
+        }, TICK_MS);
+      }, TOTAL_PLAY_MS - FADE_OUT_MS);
 
       audio.play().catch(e => console.warn('shiv mantra play failed', e));
     }, LEAD_DELAY_MS);
