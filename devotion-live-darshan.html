@@ -183,21 +183,20 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
   100% { opacity:0; transform:translate(-50%, -50%) scale(1.15); }
 }
 
-/* GHANTI — bell swings in front of the deity */
-.off-ghanti {
-  position:absolute; top:40%; left:50%;
-  font-size:74px; opacity:0; transform-origin: top center;
-  filter: drop-shadow(0 0 18px rgba(255,210,150,0.55));
-  animation: ghantiRing 2.2s ease-out forwards;
+/* BHOG / PRASAD — a cluster of offerings rises from below the deity,
+   lingers in front of them as if presented on a thali, then fades. */
+.off-bhog {
+  position:absolute; bottom:30%;
+  font-size:32px; opacity:0;
+  filter: drop-shadow(0 0 14px rgba(255,200,120,0.65));
+  animation: bhogOffer 3.4s cubic-bezier(.2,.7,.2,1) forwards;
 }
-@keyframes ghantiRing {
-  0%   { opacity:0; transform:translate(-50%, -50%) rotate(0deg); }
-  15%  { opacity:1; transform:translate(-50%, -50%) rotate(-22deg); }
-  30%  { transform:translate(-50%, -50%) rotate(18deg); }
-  45%  { transform:translate(-50%, -50%) rotate(-12deg); }
-  60%  { transform:translate(-50%, -50%) rotate(8deg); }
-  80%  { opacity:0.9; transform:translate(-50%, -50%) rotate(0deg); }
-  100% { opacity:0; transform:translate(-50%, -50%) rotate(0deg) scale(1.1); }
+@keyframes bhogOffer {
+  0%   { opacity:0; transform:translateY(60px) scale(0.45); }
+  25%  { opacity:1; transform:translateY(0)    scale(1); }
+  50%  { opacity:1; transform:translateY(-18px) scale(1.06); }
+  78%  { opacity:1; transform:translateY(-40px) scale(1.02); }
+  100% { opacity:0; transform:translateY(-70px) scale(0.85); }
 }
 
 /* Subtle warm radial glow over the deity that pulses when an offering is made */
@@ -330,7 +329,7 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
         <button class="action-btn" onclick="react('diya')"><span class="ai">🪔</span><span class="al">Diya</span></button>
         <button class="action-btn" onclick="react('phool')"><span class="ai">🌼</span><span class="al">Phool</span></button>
         <button class="action-btn" onclick="react('pranam')"><span class="ai">🙏</span><span class="al">Pranam</span></button>
-        <button class="action-btn" onclick="react('ghanti')"><span class="ai">🔔</span><span class="al">Ghanti</span></button>
+        <button class="action-btn" onclick="react('bhog')"><span class="ai">🍯</span><span class="al">Bhog</span></button>
       </div>
 
       <div class="cta-row">
@@ -485,12 +484,21 @@ function react(kind) {
     p.textContent = '🙏';
     zone.appendChild(p);
     setTimeout(() => p.remove(), 2900);
-  } else if (kind === 'ghanti') {
-    const g = document.createElement('div');
-    g.className = 'off-ghanti';
-    g.textContent = '🔔';
-    zone.appendChild(g);
-    setTimeout(() => g.remove(), 2300);
+  } else if (kind === 'bhog') {
+    // Cluster of prasad items rises together in front of the deity, like
+    // a thali being offered.
+    const ITEMS = ['🥥','🍡','🍯','🌾','🪷'];
+    const positions = [36, 44, 50, 56, 64];  // percent across, clustered around centre
+    ITEMS.forEach((emoji, i) => {
+      const b = document.createElement('div');
+      b.className = 'off-bhog';
+      b.textContent = emoji;
+      b.style.left = positions[i] + '%';
+      b.style.transform = 'translateX(-50%)';
+      b.style.animationDelay = (i * 0.08) + 's';
+      zone.appendChild(b);
+      setTimeout(() => b.remove(), 3700);
+    });
   }
 
   bumpViewers();
