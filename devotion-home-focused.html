@@ -1966,30 +1966,81 @@ async function playGreeting(deity) {
 const SHIV_MANTRA_MP3 = 'assets/audio/om-namah-shivay.mp3';
 let shivMantraAudio = null;
 let shivMantraTimer = null;
+let shivMantraFadeInInterval = null;
+let shivMantraFadeOutInterval = null;
+let shivMantraFadeOutTimer = null;
+
+// Plays the Om Namah Shivay mantra with a soft fade-in at the start and a
+// graceful fade-out near the end so the clip never starts or ends abruptly.
 function playShivMantra() {
   try {
-    // Kill anything currently running
-    if (shivMantraTimer) { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
-    if (shivMantraAudio) {
-      try { shivMantraAudio.loop = false; shivMantraAudio.pause(); shivMantraAudio.currentTime = 0; shivMantraAudio.src = ''; } catch(e){}
-      shivMantraAudio = null;
-    }
+    stopShivMantra();  // clean slate
+
+    const TARGET_VOL    = 0.85;
+    const FADE_IN_MS    = 800;   // gentle ramp-up
+    const FADE_OUT_MS   = 1800;  // longer ramp-down so it tapers off
+    const TICK_MS       = 50;
 
     const audio = new Audio(SHIV_MANTRA_MP3);
     shivMantraAudio = audio;
-    audio.volume = 0.85;
-    audio.loop = false;   // PLAY ONCE, no loop
+    audio.volume = 0;     // start silent for fade-in
+    audio.loop = false;
+
+    // --- fade-in ---
+    const inStep = TARGET_VOL / (FADE_IN_MS / TICK_MS);
+    shivMantraFadeInInterval = setInterval(() => {
+      if (shivMantraAudio !== audio) {
+        clearInterval(shivMantraFadeInInterval);
+        shivMantraFadeInInterval = null;
+        return;
+      }
+      audio.volume = Math.min(TARGET_VOL, audio.volume + inStep);
+      if (audio.volume >= TARGET_VOL) {
+        clearInterval(shivMantraFadeInInterval);
+        shivMantraFadeInInterval = null;
+      }
+    }, TICK_MS);
+
+    // --- schedule fade-out (kicks in FADE_OUT_MS before natural end) ---
+    audio.addEventListener('loadedmetadata', () => {
+      const totalMs = (audio.duration || 0) * 1000;
+      if (!totalMs) return;
+      const fadeStart = Math.max(0, totalMs - FADE_OUT_MS);
+      shivMantraFadeOutTimer = setTimeout(() => {
+        if (shivMantraAudio !== audio) return;
+        const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
+        shivMantraFadeOutInterval = setInterval(() => {
+          if (shivMantraAudio !== audio) {
+            clearInterval(shivMantraFadeOutInterval);
+            shivMantraFadeOutInterval = null;
+            return;
+          }
+          audio.volume = Math.max(0, audio.volume - outStep);
+          if (audio.volume <= 0.001) {
+            clearInterval(shivMantraFadeOutInterval);
+            shivMantraFadeOutInterval = null;
+            try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+            if (shivMantraAudio === audio) shivMantraAudio = null;
+          }
+        }, TICK_MS);
+      }, fadeStart);
+    });
+
     audio.addEventListener('ended', () => {
       try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
       if (shivMantraAudio === audio) shivMantraAudio = null;
     });
+
     audio.play().catch(e => console.warn('shiv mantra play failed', e));
   } catch (e) { console.warn('playShivMantra error', e); }
 }
+
 function stopShivMantra() {
   try {
-    if (shivMantraTimer) { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
-    if (shivMantraFadeInterval) { clearInterval(shivMantraFadeInterval); shivMantraFadeInterval = null; }
+    if (shivMantraTimer)          { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
+    if (shivMantraFadeInInterval) { clearInterval(shivMantraFadeInInterval); shivMantraFadeInInterval = null; }
+    if (shivMantraFadeOutInterval){ clearInterval(shivMantraFadeOutInterval); shivMantraFadeOutInterval = null; }
+    if (shivMantraFadeOutTimer)   { clearTimeout(shivMantraFadeOutTimer); shivMantraFadeOutTimer = null; }
     if (shivMantraAudio) {
       try { shivMantraAudio.loop = false; shivMantraAudio.pause(); shivMantraAudio.currentTime = 0; shivMantraAudio.src = ''; } catch(e){}
       shivMantraAudio = null;
