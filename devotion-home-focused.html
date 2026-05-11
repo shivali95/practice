@@ -1969,74 +1969,84 @@ let shivMantraTimer = null;
 let shivMantraFadeInInterval = null;
 let shivMantraFadeOutInterval = null;
 let shivMantraFadeOutTimer = null;
+let shivMantraStartTimer = null;
 
-// Plays the Om Namah Shivay mantra with a soft fade-in at the start and a
-// graceful fade-out near the end so the clip never starts or ends abruptly.
+// Plays the Om Namah Shivay mantra. Behaviour:
+//   • 2-second delay after the user lands on the home page so they can
+//     register the visual transition before audio starts.
+//   • Soft 800ms fade-in.
+//   • Long 6-second fade-out so the mantra "lands" gracefully instead of
+//     getting cut off.
 function playShivMantra() {
   try {
     stopShivMantra();  // clean slate
 
+    const LEAD_DELAY_MS = 2000;  // wait before audio begins
     const TARGET_VOL    = 0.85;
-    const FADE_IN_MS    = 800;   // gentle ramp-up
-    const FADE_OUT_MS   = 3500;  // long graceful taper at the end
+    const FADE_IN_MS    = 800;
+    const FADE_OUT_MS   = 6000;  // ~6 second taper
     const TICK_MS       = 50;
 
-    const audio = new Audio(SHIV_MANTRA_MP3);
-    shivMantraAudio = audio;
-    audio.volume = 0;     // start silent for fade-in
-    audio.loop = false;
+    shivMantraStartTimer = setTimeout(() => {
+      shivMantraStartTimer = null;
+      const audio = new Audio(SHIV_MANTRA_MP3);
+      shivMantraAudio = audio;
+      audio.volume = 0;
+      audio.loop = false;
 
-    // --- fade-in ---
-    const inStep = TARGET_VOL / (FADE_IN_MS / TICK_MS);
-    shivMantraFadeInInterval = setInterval(() => {
-      if (shivMantraAudio !== audio) {
-        clearInterval(shivMantraFadeInInterval);
-        shivMantraFadeInInterval = null;
-        return;
-      }
-      audio.volume = Math.min(TARGET_VOL, audio.volume + inStep);
-      if (audio.volume >= TARGET_VOL) {
-        clearInterval(shivMantraFadeInInterval);
-        shivMantraFadeInInterval = null;
-      }
-    }, TICK_MS);
+      // --- fade-in ---
+      const inStep = TARGET_VOL / (FADE_IN_MS / TICK_MS);
+      shivMantraFadeInInterval = setInterval(() => {
+        if (shivMantraAudio !== audio) {
+          clearInterval(shivMantraFadeInInterval);
+          shivMantraFadeInInterval = null;
+          return;
+        }
+        audio.volume = Math.min(TARGET_VOL, audio.volume + inStep);
+        if (audio.volume >= TARGET_VOL) {
+          clearInterval(shivMantraFadeInInterval);
+          shivMantraFadeInInterval = null;
+        }
+      }, TICK_MS);
 
-    // --- schedule fade-out (kicks in FADE_OUT_MS before natural end) ---
-    audio.addEventListener('loadedmetadata', () => {
-      const totalMs = (audio.duration || 0) * 1000;
-      if (!totalMs) return;
-      const fadeStart = Math.max(0, totalMs - FADE_OUT_MS);
-      shivMantraFadeOutTimer = setTimeout(() => {
-        if (shivMantraAudio !== audio) return;
-        const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
-        shivMantraFadeOutInterval = setInterval(() => {
-          if (shivMantraAudio !== audio) {
-            clearInterval(shivMantraFadeOutInterval);
-            shivMantraFadeOutInterval = null;
-            return;
-          }
-          audio.volume = Math.max(0, audio.volume - outStep);
-          if (audio.volume <= 0.001) {
-            clearInterval(shivMantraFadeOutInterval);
-            shivMantraFadeOutInterval = null;
-            try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-            if (shivMantraAudio === audio) shivMantraAudio = null;
-          }
-        }, TICK_MS);
-      }, fadeStart);
-    });
+      // --- schedule fade-out (kicks in FADE_OUT_MS before natural end) ---
+      audio.addEventListener('loadedmetadata', () => {
+        const totalMs = (audio.duration || 0) * 1000;
+        if (!totalMs) return;
+        const fadeStart = Math.max(0, totalMs - FADE_OUT_MS);
+        shivMantraFadeOutTimer = setTimeout(() => {
+          if (shivMantraAudio !== audio) return;
+          const outStep = (audio.volume || TARGET_VOL) / (FADE_OUT_MS / TICK_MS);
+          shivMantraFadeOutInterval = setInterval(() => {
+            if (shivMantraAudio !== audio) {
+              clearInterval(shivMantraFadeOutInterval);
+              shivMantraFadeOutInterval = null;
+              return;
+            }
+            audio.volume = Math.max(0, audio.volume - outStep);
+            if (audio.volume <= 0.001) {
+              clearInterval(shivMantraFadeOutInterval);
+              shivMantraFadeOutInterval = null;
+              try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+              if (shivMantraAudio === audio) shivMantraAudio = null;
+            }
+          }, TICK_MS);
+        }, fadeStart);
+      });
 
-    audio.addEventListener('ended', () => {
-      try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
-      if (shivMantraAudio === audio) shivMantraAudio = null;
-    });
+      audio.addEventListener('ended', () => {
+        try { audio.pause(); audio.currentTime = 0; audio.src = ''; } catch(e){}
+        if (shivMantraAudio === audio) shivMantraAudio = null;
+      });
 
-    audio.play().catch(e => console.warn('shiv mantra play failed', e));
+      audio.play().catch(e => console.warn('shiv mantra play failed', e));
+    }, LEAD_DELAY_MS);
   } catch (e) { console.warn('playShivMantra error', e); }
 }
 
 function stopShivMantra() {
   try {
+    if (shivMantraStartTimer)     { clearTimeout(shivMantraStartTimer); shivMantraStartTimer = null; }
     if (shivMantraTimer)          { clearTimeout(shivMantraTimer); shivMantraTimer = null; }
     if (shivMantraFadeInInterval) { clearInterval(shivMantraFadeInInterval); shivMantraFadeInInterval = null; }
     if (shivMantraFadeOutInterval){ clearInterval(shivMantraFadeOutInterval); shivMantraFadeOutInterval = null; }
