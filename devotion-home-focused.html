@@ -3943,13 +3943,62 @@ function switchTab(tab) {
   }
 }
 
-// User picked an option in a layer tab
+// DEMO MAGIC: each option click rotates the base shringar image to a
+// different one of the 9 photos. The mukut/vastra/mala chips are just
+// placeholder picks — the *appearance* of layering is created entirely
+// by swapping the full deity photo underneath.
+const OPTION_TO_SHRINGAR = {
+  // Mukut tab
+  'mukut:mor':       0,
+  'mukut:crown':     2,
+  'mukut:pagri':     3,
+  'mukut:phool':     4,
+  'mukut:none':      5,
+  // Vastra tab
+  'vastra:kesari':   0,
+  'vastra:neel':     1,
+  'vastra:shyam':    2,
+  'vastra:peet':     3,
+  'vastra:rakta':    4,
+  'vastra:hari':     8,
+  // Mala tab
+  'mala:vaijayanti': 4,
+  'mala:tulsi':      8,
+  'mala:mogra':      5,
+  'mala:gulab':      0,
+  'mala:moti':       7,
+  'mala:none':       1,
+  // Pushp tab
+  'pushp:kamal':     1,
+  'pushp:gulab':     4,
+  'pushp:mogra':     5,
+  'pushp:tagar':     7,
+  'pushp:none':      3,
+  // Tilak tab
+  'tilak:urdhva':    2,
+  'tilak:tripundra': 6,
+  'tilak:chandan':   8,
+  'tilak:none':      0,
+  // Diya tab
+  'diya:0':          6,
+  'diya:1':          1,
+  'diya:3':          4,
+  'diya:5':          7,
+  'diya:7':          2
+};
+
 function pickLayer(layer, value) {
   ssState[layer] = value;
+  // Demo trick: rotate the base photo so every pick *visibly* changes
+  // the deity, even though no real compositing is happening.
+  if (layer === 'roop') {
+    ssState.roop = (typeof value === 'number') ? value : 0;
+  } else {
+    const swapIdx = OPTION_TO_SHRINGAR[layer + ':' + value];
+    if (typeof swapIdx === 'number') ssState.roop = swapIdx;
+  }
   applyAllLayers();
-  // Re-render the active tab so the selection highlight updates
   switchTab(ssState.tab);
-  // Gentle rays flash to acknowledge
   const raysEl = document.getElementById('ssRays');
   if (raysEl) { raysEl.classList.remove('flash'); void raysEl.offsetWidth; raysEl.classList.add('flash'); }
 }
