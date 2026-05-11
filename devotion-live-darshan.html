@@ -216,6 +216,12 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
     <!-- ═══════════ LIVE STREAM STAGE ═══════════ -->
     <div class="stream">
       <img class="stream-img" id="streamImg" alt="live darshan" />
+      <!-- For temples with a real video stream we hide the still image and
+           show this iframe filling the same area. -->
+      <iframe id="streamVideo" class="stream-img"
+              style="display:none;border:0;background:#000;"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowfullscreen></iframe>
 
       <!-- Top overlay -->
       <div class="top-bar">
@@ -287,7 +293,7 @@ body { background:#050000; display:flex; align-items:flex-start; justify-content
 //   Temple photo + metadata library — keyed by temple id
 // ══════════════════════════════════════════════════════════
 const TEMPLE_DATA = {
-  kashi:     { img:'assets/temples/kashi.jpg',     name:'Kashi Vishwanath', place:'Varanasi, Uttar Pradesh', aarti:'Mangala Aarti', deity:'Bhagwan Shiva',  viewers:'8.2K', next:'Sapta Rishi · 7:15 PM' },
+  kashi:     { img:'assets/temples/kashi.jpg',     name:'Kashi Vishwanath', place:'Varanasi, Uttar Pradesh', aarti:'Mangala Aarti', deity:'Bhagwan Shiva',  viewers:'8.2K', next:'Sapta Rishi · 7:15 PM', videoId:'djAqGUJEvuc' },
   kedarnath: { img:'assets/temples/kedarnath.jpg', name:'Kedarnath',        place:'Rudraprayag, Uttarakhand', aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'2.1K', next:'Mangla Aarti · 4:00 AM' },
   ujjain:    { img:'assets/temples/ujjain.jpg',    name:'Mahakaleshwar',    place:'Ujjain, Madhya Pradesh',  aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'4.1K', next:'Bhasma Aarti · 4:00 AM' },
   somnath:   { img:'assets/temples/somnath.jpg',   name:'Somnath',          place:'Veraval, Gujarat',        aarti:'Sandhya Aarti', deity:'Bhagwan Shiva',  viewers:'2.5K', next:'Prabhat Aarti · 7:00 AM' },
@@ -334,10 +340,23 @@ function getTempleFromQuery() {
 }
 
 function renderTemple(t) {
-  document.getElementById('streamImg').src = t.img;
-  document.getElementById('streamImg').onerror = () => {
-    document.getElementById('streamImg').src = 'assets/temples/kashi.jpg';
-  };
+  const imgEl   = document.getElementById('streamImg');
+  const videoEl = document.getElementById('streamVideo');
+  if (t.videoId && videoEl) {
+    // Show YouTube live stream / aarti video instead of the still image.
+    if (imgEl) imgEl.style.display = 'none';
+    videoEl.style.display = 'block';
+    videoEl.src = 'https://www.youtube.com/embed/' + t.videoId
+                + '?autoplay=1&playsinline=1&modestbranding=1&rel=0'
+                + '&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=' + t.videoId;
+  } else {
+    if (videoEl) { videoEl.style.display = 'none'; videoEl.src = ''; }
+    if (imgEl) {
+      imgEl.style.display = '';
+      imgEl.src = t.img;
+      imgEl.onerror = () => { imgEl.src = 'assets/temples/kashi.jpg'; };
+    }
+  }
   document.getElementById('sfTemple').textContent = t.name;
   document.getElementById('sfPlace').textContent  = t.place;
   document.getElementById('viewersTag').textContent = '👥 ' + t.viewers;
