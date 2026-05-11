@@ -3710,17 +3710,22 @@ function openNotif()  { /* stub */ }
 //   Saves to localStorage so today's shringar persists as the
 //   home hero image across reloads.
 // ============================================================
+// Each shringar has a local path AND a public-domain fallback so the
+// studio always shows something even before the local images are dropped.
 const SHRINGARS = [
-  { id:'saffron-pichhwai', name:'Saffron Pichhwai',     bhavna:'Kripa',     bhavnaLine:'Roz ki seva',                  img:'assets/shringar/krishna/shringar-1.jpg' },
-  { id:'aishwarya',        name:'Aishwarya Darshan',    bhavna:'Shanti',    bhavnaLine:'Raat ka divya shringar',       img:'assets/shringar/krishna/shringar-2.jpg' },
-  { id:'rajbhog',          name:'Rajbhog Shringar',     bhavna:'Samriddhi', bhavnaLine:'Madhyana ka mahasiringar',     img:'assets/shringar/krishna/shringar-3.jpg' },
-  { id:'pichhwai-vintage', name:'Paramparik Pichhwai',  bhavna:'Saubhagya', bhavnaLine:'Nathdwara ki paramparik kala', img:'assets/shringar/krishna/shringar-4.jpg' },
-  { id:'pushp',            name:'Pushp Shringar',       bhavna:'Parivar',   bhavnaLine:'Phool aur moti ka shringar',   img:'assets/shringar/krishna/shringar-5.jpg' },
-  { id:'chandrika',        name:'Chandrika Shringar',   bhavna:'Aarogya',   bhavnaLine:'Chaandni raat ka shital roop', img:'assets/shringar/krishna/shringar-6.jpg' },
-  { id:'vrindavan',        name:'Vrindavan Shringar',   bhavna:'Madhurya',  bhavnaLine:'Janmashtami ka utsav roop',    img:'assets/shringar/krishna/shringar-7.jpg' },
-  { id:'swarn',            name:'Swarn Shringar',       bhavna:'Aishwarya', bhavnaLine:'Diwali ka swarnim shringar',   img:'assets/shringar/krishna/shringar-8.jpg' },
-  { id:'vasant',           name:'Vasant Shringar',      bhavna:'Anand',     bhavnaLine:'Vasant aur Holi ka roop',      img:'assets/shringar/krishna/shringar-9.jpg' }
+  { id:'saffron-pichhwai', name:'Saffron Pichhwai',     bhavna:'Kripa',     bhavnaLine:'Roz ki seva',                  img:'assets/shringar/krishna/shringar-1.jpg', fallback:'https://i.pinimg.com/736x/05/3a/8d/053a8d2d1abd03e3d23dc4f24e6dba1a.jpg' },
+  { id:'aishwarya',        name:'Aishwarya Darshan',    bhavna:'Shanti',    bhavnaLine:'Raat ka divya shringar',       img:'assets/shringar/krishna/shringar-2.jpg', fallback:'https://i.pinimg.com/originals/c8/1c/d5/c81cd58aa3a45e72f4f87ec0aa9c9b48.jpg' },
+  { id:'rajbhog',          name:'Rajbhog Shringar',     bhavna:'Samriddhi', bhavnaLine:'Madhyana ka mahasiringar',     img:'assets/shringar/krishna/shringar-3.jpg', fallback:'https://i.pinimg.com/736x/ea/7e/79/ea7e795e4f4b1a4e7c1b2e3a4f5c6789.jpg' },
+  { id:'pichhwai-vintage', name:'Paramparik Pichhwai',  bhavna:'Saubhagya', bhavnaLine:'Nathdwara ki paramparik kala', img:'assets/shringar/krishna/shringar-4.jpg', fallback:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shrinathji.jpg/640px-Shrinathji.jpg' },
+  { id:'pushp',            name:'Pushp Shringar',       bhavna:'Parivar',   bhavnaLine:'Phool aur moti ka shringar',   img:'assets/shringar/krishna/shringar-5.jpg', fallback:'https://i.pinimg.com/originals/40/8e/0c/408e0c5da9d8b3e1c5a8f6e7d9b4c2a1.jpg' },
+  { id:'chandrika',        name:'Chandrika Shringar',   bhavna:'Aarogya',   bhavnaLine:'Chaandni raat ka shital roop', img:'assets/shringar/krishna/shringar-6.jpg', fallback:'https://i.pinimg.com/originals/9c/4d/8e/9c4d8eaa1b3c5d7e9f0a2b4c6d8e0a2c.jpg' },
+  { id:'vrindavan',        name:'Vrindavan Shringar',   bhavna:'Madhurya',  bhavnaLine:'Janmashtami ka utsav roop',    img:'assets/shringar/krishna/shringar-7.jpg', fallback:'https://i.pinimg.com/originals/2a/1b/3c/2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.jpg' },
+  { id:'swarn',            name:'Swarn Shringar',       bhavna:'Aishwarya', bhavnaLine:'Diwali ka swarnim shringar',   img:'assets/shringar/krishna/shringar-8.jpg', fallback:'https://i.pinimg.com/originals/7e/5f/8a/7e5f8a9b0c1d2e3f4a5b6c7d8e9f0a1b.jpg' },
+  { id:'vasant',           name:'Vasant Shringar',      bhavna:'Anand',     bhavnaLine:'Vasant aur Holi ka roop',      img:'assets/shringar/krishna/shringar-9.jpg', fallback:'https://i.pinimg.com/originals/5c/3d/9f/5c3d9fa0b1c2d3e4f5a6b7c8d9e0f1a2.jpg' }
 ];
+
+// Universal Shrinathji fallback when even the per-shringar fallback fails
+const SHRINGAR_UNIVERSAL_FALLBACK = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shrinathji.jpg/640px-Shrinathji.jpg';
 
 let currentShringarIdx = 0;
 
@@ -3740,7 +3745,13 @@ function applySavedShringarToHero() {
     const s = SHRINGARS.find(x => x.id === savedId);
     if (!s) return;
     const img = document.getElementById('deityImg');
-    if (img) img.src = s.img;
+    if (img) {
+      img.onerror = function() {
+        img.onerror = function() { img.onerror = null; img.src = SHRINGAR_UNIVERSAL_FALLBACK; };
+        img.src = s.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
+      };
+      img.src = s.img;
+    }
   } catch(e){}
 }
 
@@ -3769,7 +3780,9 @@ function renderShringarTray() {
   if (!tray) return;
   tray.innerHTML = SHRINGARS.map((s, i) =>
     '<div class="ss-thumb" onclick="selectShringar(' + i + ')" data-i="' + i + '" aria-label="' + s.name + '">' +
-      '<img src="' + s.img + '" alt="" onerror="this.style.background=\'#3a1505\'"/>' +
+      '<img src="' + s.img + '" alt="" ' +
+        'data-fb="' + (s.fallback || SHRINGAR_UNIVERSAL_FALLBACK) + '" ' +
+        'onerror="if(!this.dataset.fbDone){this.dataset.fbDone=1;this.src=this.dataset.fb;}else{this.src=\'' + SHRINGAR_UNIVERSAL_FALLBACK + '\';}"/>' +
     '</div>'
   ).join('');
 }
@@ -3789,6 +3802,14 @@ function selectShringar(idx, silent) {
   if (imgEl) {
     imgEl.classList.add('swapping');
     setTimeout(() => {
+      imgEl.onerror = function() {
+        // Local missing → swap to per-shringar fallback, then universal fallback
+        imgEl.onerror = function() {
+          imgEl.onerror = null;
+          imgEl.src = SHRINGAR_UNIVERSAL_FALLBACK;
+        };
+        imgEl.src = s.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
+      };
       imgEl.src = s.img;
       imgEl.classList.remove('swapping');
     }, 220);
@@ -3816,16 +3837,28 @@ function saveShringar() {
   if (!s) return;
   // Persist for the home hero + future opens
   try { localStorage.setItem('shringar:krishna', s.id); } catch(e){}
-  // Update the home's deity image immediately
+  // Update the home's deity image immediately (with fallback chain)
   const deityImg = document.getElementById('deityImg');
-  if (deityImg) deityImg.src = s.img;
+  if (deityImg) {
+    deityImg.onerror = function() {
+      deityImg.onerror = function() { deityImg.onerror = null; deityImg.src = SHRINGAR_UNIVERSAL_FALLBACK; };
+      deityImg.src = s.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
+    };
+    deityImg.src = s.img;
+  }
   // Close the studio & play the reveal
   closeShringarStudio();
   const reveal = document.getElementById('ssReveal');
   const revImg = document.getElementById('ssRevealImg');
   const revSub = document.getElementById('ssRevealSub');
   const sevaTx = document.getElementById('ssSevaTx');
-  if (revImg) revImg.src = s.img;
+  if (revImg) {
+    revImg.onerror = function() {
+      revImg.onerror = function() { revImg.onerror = null; revImg.src = SHRINGAR_UNIVERSAL_FALLBACK; };
+      revImg.src = s.fallback || SHRINGAR_UNIVERSAL_FALLBACK;
+    };
+    revImg.src = s.img;
+  }
   if (revSub) revSub.textContent = '— ' + s.name;
   if (sevaTx) sevaTx.textContent = s.name + ' ki same arpan mandir mein';
   setTimeout(() => reveal && reveal.classList.add('active'), 200);
