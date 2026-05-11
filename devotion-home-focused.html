@@ -385,6 +385,195 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
   text-shadow:0 1px 3px rgba(0,0,0,0.8);
 }
 
+/* ===========================================================
+   SHRINGAR — Krishna ji ka Shringar Studio
+   A preset-combo darshan-customisation experience. Lives on the
+   Krishna home only; never disrupts the existing flow.
+   =========================================================== */
+
+/* Floating pill on Krishna's hero — soft, magical, restrained */
+.shringar-pill {
+  position:absolute; top:104px; right:14px; z-index:14;
+  display:none;  /* shown by JS only when currentDeity === 'krishna' */
+  align-items:center; gap:7px;
+  padding:8px 14px 8px 11px; border-radius:999px;
+  background:linear-gradient(135deg, rgba(255,180,80,0.92), rgba(247,150,30,0.92));
+  border:1px solid rgba(255,236,200,0.55);
+  color:#2a1400; font-size:12px; font-weight:800; letter-spacing:0.2px;
+  font-family:inherit;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(247,150,30,0.45), 0 0 0 0 rgba(255,210,150,0.6);
+  animation:shringarPillBreath 3.8s ease-in-out infinite;
+}
+.shringar-pill:active { transform:scale(0.94); }
+.shringar-pill .sp-ic { font-size:14px; line-height:1; }
+@keyframes shringarPillBreath {
+  0%,100% { box-shadow:0 6px 18px rgba(247,150,30,0.45), 0 0 0 0 rgba(255,210,150,0.55); }
+  50%     { box-shadow:0 8px 22px rgba(247,150,30,0.65), 0 0 0 10px rgba(255,210,150,0); }
+}
+
+/* Studio overlay — same bottom-sheet vibe as darshan-player so it feels
+   native, but full-screen with a sacred glow. */
+.shringar-back {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,0.78); backdrop-filter:blur(6px);
+  z-index:140; opacity:0; pointer-events:none;
+  transition:opacity 380ms ease;
+}
+.shringar-back.active { opacity:1; pointer-events:auto; }
+
+.shringar-studio {
+  position:absolute; left:50%; bottom:0; transform:translate(-50%, 100%);
+  width:100%; max-width:390px; height:100%; max-height:100%;
+  background:radial-gradient(ellipse 80% 50% at 50% 20%, #3d2008 0%, #1a0a00 50%, #080200 100%);
+  z-index:150;
+  display:flex; flex-direction:column; overflow:hidden;
+  transition:transform .55s cubic-bezier(0.2,0.8,0.2,1);
+}
+.shringar-studio.active { transform:translate(-50%, 0); }
+
+.ss-handle { width:46px; height:4px; border-radius:2px; background:rgba(255,210,150,0.32); margin:10px auto 0; flex-shrink:0; }
+.ss-close {
+  position:absolute; top:14px; right:14px; z-index:5;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(8px); color:#fff;
+  border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.ss-header { padding:14px 22px 6px; flex-shrink:0; text-align:center; }
+.ss-label { font-size:10px; font-weight:800; letter-spacing:2.4px; color:#ffb874; text-transform:uppercase; }
+.ss-title { font-size:21px; font-weight:900; color:#fff8e1; margin-top:6px; letter-spacing:-0.2px; }
+.ss-sub   { font-size:11px; color:rgba(255,220,178,0.65); margin-top:4px; font-weight:600; }
+
+/* Stage — the deity image with subtle aura */
+.ss-stage {
+  position:relative; flex:1 1 auto; min-height:0;
+  margin:14px 22px 8px; border-radius:18px;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%, rgba(247,171,32,0.18), transparent 70%), #0a0400;
+  overflow:hidden;
+  border:1px solid rgba(255,200,120,0.22);
+}
+.ss-image {
+  position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+  transition: opacity 480ms ease;
+}
+.ss-image.swapping { opacity:0; }
+
+/* Golden rays / aura that flashes on each shringar swap */
+.ss-rays {
+  position:absolute; inset:0; pointer-events:none; opacity:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%, rgba(255,210,140,0.45), transparent 60%),
+    conic-gradient(from 90deg at 50% 50%, rgba(255,220,160,0.18), transparent 30%, rgba(255,220,160,0.18) 50%, transparent 80%, rgba(255,220,160,0.18));
+  mix-blend-mode:screen;
+}
+.ss-rays.flash { animation: ssRaysFlash 1.4s ease-out forwards; }
+@keyframes ssRaysFlash {
+  0%   { opacity:0; transform:scale(0.96); }
+  35%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.08); }
+}
+
+.ss-name { text-align:center; font-size:16px; font-weight:800; color:#ffd9a8; margin:4px 22px 2px; flex-shrink:0; }
+.ss-bhavna { text-align:center; font-size:10.5px; font-weight:600; color:rgba(255,220,178,0.55); margin:0 22px 10px; letter-spacing:0.5px; flex-shrink:0; }
+
+/* Tray of 5 shringar thumbnails */
+.ss-tray {
+  display:flex; gap:10px; padding:6px 18px 6px; overflow-x:auto;
+  scroll-snap-type:x mandatory; flex-shrink:0;
+}
+.ss-tray::-webkit-scrollbar { display:none; }
+.ss-thumb {
+  flex:0 0 auto; width:60px; height:78px; border-radius:12px;
+  overflow:hidden; cursor:pointer;
+  border:2px solid rgba(255,200,120,0.18);
+  transition:transform 220ms ease, border-color 220ms ease;
+  scroll-snap-align:start; position:relative;
+  background:#1a0a00;
+}
+.ss-thumb img { width:100%; height:100%; object-fit:cover; }
+.ss-thumb.active {
+  border-color:#ffce99;
+  transform:scale(1.04);
+  box-shadow:0 0 0 1px rgba(255,200,120,0.4), 0 8px 18px rgba(247,150,30,0.35);
+}
+.ss-thumb:active { transform:scale(0.95); }
+
+/* Primary CTA — samarpit karein */
+.ss-cta {
+  margin:12px 22px 18px; flex-shrink:0;
+  height:52px; border-radius:999px; border:none;
+  background:linear-gradient(135deg, #ffdc80 0%, #f7ab20 100%);
+  color:#2a1400; font-family:inherit; font-size:14px; font-weight:900;
+  letter-spacing:0.2px; cursor:pointer;
+  box-shadow:0 8px 22px rgba(247,171,32,0.45);
+}
+.ss-cta:active { transform:scale(0.98); }
+
+/* ─── Darshan reveal overlay (plays after Samarpit karein) ─── */
+.ss-reveal {
+  position:absolute; inset:0; z-index:160; pointer-events:none; opacity:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 38%, rgba(255,170,60,0.4), rgba(0,0,0,0.92) 60%);
+  transition:opacity 520ms ease;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.ss-reveal.active { opacity:1; pointer-events:auto; }
+.ss-reveal-img-wrap {
+  position:relative; width:280px; height:380px; border-radius:18px; overflow:hidden;
+  background:#0a0400;
+  box-shadow:0 0 80px rgba(255,180,80,0.55), 0 0 0 1px rgba(255,220,160,0.4);
+  transform:scale(0.85); opacity:0;
+  transition:transform 720ms cubic-bezier(.2,.7,.2,1) 120ms, opacity 520ms ease 120ms;
+}
+.ss-reveal.active .ss-reveal-img-wrap { transform:scale(1); opacity:1; }
+.ss-reveal-img { width:100%; height:100%; object-fit:cover; }
+
+/* Animated rays radiating outward from the deity */
+.ss-reveal-rays {
+  position:absolute; inset:0; pointer-events:none; opacity:0;
+  background:
+    conic-gradient(from 0deg at 50% 38%,
+      rgba(255,220,160,0.35), transparent 18deg,
+      rgba(255,220,160,0.35) 36deg, transparent 54deg,
+      rgba(255,220,160,0.35) 72deg, transparent 90deg,
+      rgba(255,220,160,0.35) 108deg, transparent 126deg,
+      rgba(255,220,160,0.35) 144deg, transparent 162deg,
+      rgba(255,220,160,0.35) 180deg, transparent 198deg,
+      rgba(255,220,160,0.35) 216deg, transparent 234deg,
+      rgba(255,220,160,0.35) 252deg, transparent 270deg,
+      rgba(255,220,160,0.35) 288deg, transparent 306deg,
+      rgba(255,220,160,0.35) 324deg, transparent 342deg);
+  mix-blend-mode:screen;
+  animation:ssRevealRaysSpin 18s linear infinite;
+}
+.ss-reveal.active .ss-reveal-rays { opacity:1; transition:opacity 700ms ease 280ms; }
+@keyframes ssRevealRaysSpin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.ss-reveal-text { margin-top:24px; text-align:center; padding:0 28px; opacity:0; transform:translateY(8px); }
+.ss-reveal.active .ss-reveal-text { opacity:1; transform:translateY(0); transition:opacity 600ms ease 480ms, transform 600ms ease 480ms; }
+.srt-line1 { font-size:18px; font-weight:900; color:#fff8e1; line-height:1.35; }
+.srt-line2 { font-size:12px; font-weight:600; color:#ffd9a8; margin-top:6px; }
+
+/* Real-seva extension card that appears after reveal */
+.ss-seva-card {
+  position:absolute; bottom:24px; left:18px; right:18px; z-index:165;
+  padding:14px 16px;
+  background:linear-gradient(135deg, rgba(80,40,8,0.96), rgba(40,20,4,0.96));
+  border:1px solid rgba(255,200,120,0.4);
+  border-radius:16px;
+  display:flex; align-items:center; gap:12px;
+  opacity:0; transform:translateY(20px);
+  transition:opacity 560ms ease 1200ms, transform 560ms ease 1200ms;
+  cursor:pointer;
+}
+.ss-reveal.active .ss-seva-card { opacity:1; transform:translateY(0); }
+.ss-seva-ic { font-size:24px; flex-shrink:0; }
+.ss-seva-body { flex:1; min-width:0; }
+.ss-seva-tt { font-size:10px; font-weight:800; letter-spacing:1.5px; color:#ffb874; text-transform:uppercase; }
+.ss-seva-tx { font-size:12px; font-weight:700; color:#fff8e1; margin-top:2px; line-height:1.35; }
+.ss-seva-ar { font-size:18px; color:#ffce99; flex-shrink:0; }
+
 /* MINIMAL SCROLL HINT at very bottom */
 .scroll-chev {
   position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:14;
@@ -1507,6 +1696,12 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
           <div class="swipe-label">Agla darshan</div>
         </button>
 
+        <!-- Krishna-only — floating pill that opens the Shringar Studio -->
+        <button class="shringar-pill" id="shringarPill" onclick="openShringarStudio()" aria-label="Shringar karein">
+          <span class="sp-ic">🪷</span>
+          <span class="sp-txt">Shringar</span>
+        </button>
+
         <!-- Seva quick icons — aarti, shankh, pushp -->
         <div class="qseva-row">
           <button class="qseva-btn" onclick="doSeva('aarti','🎵 Aarti shuru')" aria-label="Aarti">
@@ -1680,6 +1875,48 @@ body { background:#050200; display:flex; align-items:flex-start; justify-content
 
     </div>
 
+  </div>
+
+  <!-- ═══ SHRINGAR STUDIO — Krishna ji ka shringar (preset combos) ═══ -->
+  <div class="shringar-back" id="shringarBack" onclick="closeShringarStudio()"></div>
+  <div class="shringar-studio" id="shringarStudio" role="dialog" aria-label="Krishna ji ka Shringar">
+    <div class="ss-handle"></div>
+    <button class="ss-close" onclick="closeShringarStudio()" aria-label="Band karein">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <div class="ss-header">
+      <div class="ss-label">✦ Aaj ka Shringar</div>
+      <div class="ss-title">Shrinathji ko sajayein</div>
+      <div class="ss-sub" id="ssSubtitle">Roz ka shringar chuniye</div>
+    </div>
+    <div class="ss-stage">
+      <img class="ss-image" id="ssImage" alt="shringar darshan"/>
+      <div class="ss-rays" id="ssRays"></div>
+    </div>
+    <div class="ss-name"   id="ssName">Saffron Pichhwai</div>
+    <div class="ss-bhavna" id="ssBhavna">— Kripa · Roz ki seva</div>
+    <div class="ss-tray" id="ssTray"><!-- thumbnails injected by JS --></div>
+    <button class="ss-cta" onclick="saveShringar()">Aaj ka shringar samarpit karein</button>
+  </div>
+
+  <!-- Darshan reveal — fires after samarpit -->
+  <div class="ss-reveal" id="ssReveal" onclick="closeShringarReveal()">
+    <div class="ss-reveal-rays"></div>
+    <div class="ss-reveal-img-wrap">
+      <img class="ss-reveal-img" id="ssRevealImg" alt="darshan"/>
+    </div>
+    <div class="ss-reveal-text">
+      <div class="srt-line1">Krishna ji ne aapka shringar sweekar kiya</div>
+      <div class="srt-line2" id="ssRevealSub">— aaj ka darshan tayyar hai</div>
+    </div>
+    <div class="ss-seva-card" onclick="event.stopPropagation(); goShringarSeva()">
+      <div class="ss-seva-ic">🪷</div>
+      <div class="ss-seva-body">
+        <div class="ss-seva-tt">Mandir mein arpit karein</div>
+        <div class="ss-seva-tx" id="ssSevaTx">Same shringar Shrinathji ko Nathdwara mein</div>
+      </div>
+      <div class="ss-seva-ar">›</div>
+    </div>
   </div>
 
   <!-- DARSHAN PLAYER — audio-visual katha overlay -->
@@ -2402,6 +2639,12 @@ function applyDeity(id) {
   const img = document.getElementById('deityImg');
   img.onerror = function(){ this.onerror=null; this.src = form.fallback; };
   img.src = form.img;
+
+  // Krishna-only: show/hide the Shringar pill + restore any saved shringar
+  // as today's hero image. Runs after the default image is set so the saved
+  // shringar takes precedence.
+  if (typeof updateShringarPillVisibility === 'function') updateShringarPillVisibility();
+  if (typeof applySavedShringarToHero === 'function') applySavedShringarToHero();
 
   // Pill (hidden, kept for compat)
   document.getElementById('pillName').textContent = d.pillName;
@@ -3460,6 +3703,144 @@ function goDarshan(which) {
 function goMap()      { window.location.href = 'devotion-map.html?deity=' + encodeURIComponent(currentDeity); }
 function goChadhava() { window.location.href = withDeity('devotion-seva.html'); }
 function openNotif()  { /* stub */ }
+
+// ============================================================
+//   SHRINGAR STUDIO — Krishna ji ka preset-combo shringar flow
+//   Lives ONLY on the Krishna home (pill is hidden for others).
+//   Saves to localStorage so today's shringar persists as the
+//   home hero image across reloads.
+// ============================================================
+const SHRINGARS = [
+  { id:'saffron-pichhwai', name:'Saffron Pichhwai',     bhavna:'Kripa',     bhavnaLine:'Roz ki seva',                  img:'assets/shringar/krishna/shringar-1.jpg' },
+  { id:'aishwarya',        name:'Aishwarya Darshan',    bhavna:'Shanti',    bhavnaLine:'Raat ka divya shringar',       img:'assets/shringar/krishna/shringar-2.jpg' },
+  { id:'rajbhog',          name:'Rajbhog Shringar',     bhavna:'Samriddhi', bhavnaLine:'Madhyana ka mahasiringar',     img:'assets/shringar/krishna/shringar-3.jpg' },
+  { id:'pichhwai-vintage', name:'Paramparik Pichhwai',  bhavna:'Saubhagya', bhavnaLine:'Nathdwara ki paramparik kala', img:'assets/shringar/krishna/shringar-4.jpg' },
+  { id:'pushp',            name:'Pushp Shringar',       bhavna:'Parivar',   bhavnaLine:'Phool aur moti ka shringar',   img:'assets/shringar/krishna/shringar-5.jpg' },
+  { id:'chandrika',        name:'Chandrika Shringar',   bhavna:'Aarogya',   bhavnaLine:'Chaandni raat ka shital roop', img:'assets/shringar/krishna/shringar-6.jpg' },
+  { id:'vrindavan',        name:'Vrindavan Shringar',   bhavna:'Madhurya',  bhavnaLine:'Janmashtami ka utsav roop',    img:'assets/shringar/krishna/shringar-7.jpg' },
+  { id:'swarn',            name:'Swarn Shringar',       bhavna:'Aishwarya', bhavnaLine:'Diwali ka swarnim shringar',   img:'assets/shringar/krishna/shringar-8.jpg' },
+  { id:'vasant',           name:'Vasant Shringar',      bhavna:'Anand',     bhavnaLine:'Vasant aur Holi ka roop',      img:'assets/shringar/krishna/shringar-9.jpg' }
+];
+
+let currentShringarIdx = 0;
+
+function updateShringarPillVisibility() {
+  const pill = document.getElementById('shringarPill');
+  if (!pill) return;
+  pill.style.display = (currentDeity === 'krishna') ? 'inline-flex' : 'none';
+}
+
+function applySavedShringarToHero() {
+  // If Krishna is selected AND user has saved a shringar today, replace the
+  // hero deityImg with that shringar.
+  if (currentDeity !== 'krishna') return;
+  try {
+    const savedId = localStorage.getItem('shringar:krishna');
+    if (!savedId) return;
+    const s = SHRINGARS.find(x => x.id === savedId);
+    if (!s) return;
+    const img = document.getElementById('deityImg');
+    if (img) img.src = s.img;
+  } catch(e){}
+}
+
+function openShringarStudio() {
+  if (currentDeity !== 'krishna') return;
+  renderShringarTray();
+  // Default to the last-saved shringar, else first.
+  let startIdx = 0;
+  try {
+    const savedId = localStorage.getItem('shringar:krishna');
+    const found = SHRINGARS.findIndex(s => s.id === savedId);
+    if (found >= 0) startIdx = found;
+  } catch(e){}
+  selectShringar(startIdx, true);  // silent: skip the rays flash on initial open
+  document.getElementById('shringarBack').classList.add('active');
+  document.getElementById('shringarStudio').classList.add('active');
+}
+
+function closeShringarStudio() {
+  document.getElementById('shringarBack').classList.remove('active');
+  document.getElementById('shringarStudio').classList.remove('active');
+}
+
+function renderShringarTray() {
+  const tray = document.getElementById('ssTray');
+  if (!tray) return;
+  tray.innerHTML = SHRINGARS.map((s, i) =>
+    '<div class="ss-thumb" onclick="selectShringar(' + i + ')" data-i="' + i + '" aria-label="' + s.name + '">' +
+      '<img src="' + s.img + '" alt="" onerror="this.style.background=\'#3a1505\'"/>' +
+    '</div>'
+  ).join('');
+}
+
+function selectShringar(idx, silent) {
+  const s = SHRINGARS[idx];
+  if (!s) return;
+  currentShringarIdx = idx;
+
+  const imgEl   = document.getElementById('ssImage');
+  const nameEl  = document.getElementById('ssName');
+  const subEl   = document.getElementById('ssSubtitle');
+  const bhavEl  = document.getElementById('ssBhavna');
+  const raysEl  = document.getElementById('ssRays');
+
+  // Cross-fade the deity image
+  if (imgEl) {
+    imgEl.classList.add('swapping');
+    setTimeout(() => {
+      imgEl.src = s.img;
+      imgEl.classList.remove('swapping');
+    }, 220);
+  }
+  if (nameEl) nameEl.textContent = s.name;
+  if (subEl)  subEl.textContent  = 'Shrinathji ko sajayein';
+  if (bhavEl) bhavEl.textContent = '— ' + s.bhavna + ' · ' + s.bhavnaLine;
+
+  // Highlight active thumb
+  document.querySelectorAll('.ss-thumb').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+    if (i === idx) el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+  });
+
+  // Gentle golden-rays flash on every swap (skipped on initial open)
+  if (!silent && raysEl) {
+    raysEl.classList.remove('flash');
+    void raysEl.offsetWidth;  // reflow
+    raysEl.classList.add('flash');
+  }
+}
+
+function saveShringar() {
+  const s = SHRINGARS[currentShringarIdx];
+  if (!s) return;
+  // Persist for the home hero + future opens
+  try { localStorage.setItem('shringar:krishna', s.id); } catch(e){}
+  // Update the home's deity image immediately
+  const deityImg = document.getElementById('deityImg');
+  if (deityImg) deityImg.src = s.img;
+  // Close the studio & play the reveal
+  closeShringarStudio();
+  const reveal = document.getElementById('ssReveal');
+  const revImg = document.getElementById('ssRevealImg');
+  const revSub = document.getElementById('ssRevealSub');
+  const sevaTx = document.getElementById('ssSevaTx');
+  if (revImg) revImg.src = s.img;
+  if (revSub) revSub.textContent = '— ' + s.name;
+  if (sevaTx) sevaTx.textContent = s.name + ' ki same arpan mandir mein';
+  setTimeout(() => reveal && reveal.classList.add('active'), 200);
+}
+
+function closeShringarReveal() {
+  const reveal = document.getElementById('ssReveal');
+  if (reveal) reveal.classList.remove('active');
+}
+
+function goShringarSeva() {
+  // Route to Seva Arpan with a query hint so the user lands on Krishna seva.
+  closeShringarReveal();
+  window.location.href = withDeity('devotion-seva.html') + '&shringar=' + encodeURIComponent(SHRINGARS[currentShringarIdx].id);
+}
 
 // ============ MAAS KA PANCHANG ============
 // Multi-month dataset — user can navigate ‹ / › between months.
