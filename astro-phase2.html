@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Jio Astro — Phase 2: Astro Story Strip</title>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  @font-face { font-family: 'JioType'; font-weight: 400; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeVarW05-Regular.woff2') format('woff2'); }
+  @font-face { font-family: 'JioType'; font-weight: 500; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Medium.woff2') format('woff2'); }
+  @font-face { font-family: 'JioType'; font-weight: 700; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Bold.woff2') format('woff2'); }
+  @font-face { font-family: 'JioType'; font-weight: 900; src: url('https://raw.githubusercontent.com/sunit1986/JioBharatIQ_Server/main/assets/fonts/woff2/JioTypeW05-Black.woff2') format('woff2'); }
+
+  :root {
+    --primary-20: #e8e8fc; --primary-30: #9999ff; --primary-40: #6464ff;
+    --primary-50: #3535f3; --primary-60: #000093; --primary-70: #00004c;
+    --secondary-20: #fef7e9; --secondary-30: #ffe3ae; --secondary-40: #ffd947;
+    --secondary-50: #f7ab20; --secondary-60: #ac660c;
+    --sparkle-20: #e8faf7; --sparkle-40: #7aebd9; --sparkle-50: #1eccb0; --sparkle-60: #1e7b74;
+    --grey-100: #141414; --grey-80: rgba(0,0,0,0.66); --grey-60: #b5b5b5;
+    --grey-40: #e0e0e0; --grey-20: #f5f5f5; --white: #ffffff;
+    --surface-default: #ffffff; --surface-ghost: #eeeeef; --surface-ghost-icon: #e7e9ff;
+    --surface-bold: #3900ad; --surface-minimal: #f5f5f5;
+    --text-high: #141414; --text-low: rgba(25,27,30,0.65);
+    --text-disabled: rgba(25,27,30,0.38); --text-on-bold: #ffffff;
+    --stroke-subtle: rgba(36,38,43,0.12); --stroke-minimal: rgba(36,38,43,0.13);
+    --planet-sun: #f7ab20; --planet-moon: #b5b5b5; --planet-mars: #ff6644;
+    --planet-mercury: #1eccb0; --planet-jupiter: #3535f3; --planet-venus: #9999ff;
+    --planet-saturn: #141414; --planet-rahu: #000093; --planet-ketu: #3800ac;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--grey-20); display: flex; align-items: flex-start;
+    justify-content: center; padding: 32px 24px;
+    font-family: 'JioType', 'Outfit', sans-serif;
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .phone-frame { width: 360px; background: var(--white); border-radius: 40px; border: 8px solid #1a1a1a; box-shadow: 0 24px 64px rgba(0,0,0,0.18); overflow: hidden; position: relative; }
+  .notch { background: #1a1a1a; height: 32px; display: flex; align-items: center; justify-content: center; }
+  .notch-inner { width: 80px; height: 20px; background: #1a1a1a; border-radius: 0 0 14px 14px; }
+  .status-bar { background: var(--white); padding: 6px 20px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text-high); }
+  .screen { height: 700px; overflow: hidden; position: relative; background: var(--surface-minimal); }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInScale { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  @keyframes orbitSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 20px 4px; } }
+  @keyframes stag { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes countUp { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+  @keyframes fillBar { from { width: 0%; } to { width: var(--fill); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ═══════════════════════════════════════
+   PLANET ORB COMPONENT
+   ═══════════════════════════════════════ */
+const PlanetOrb = ({ name, abbr, color, size = 48, glow = false, glyph }) => (
+  <div style={{
+    width: size, height: size, borderRadius: 999,
+    background: color, display: 'flex', alignItems: 'center',
+    justifyContent: 'center', position: 'relative',
+    boxShadow: glow ? `0 0 24px 4px ${color}44, 0 0 8px 2px ${color}66` : 'none',
+    animation: glow ? 'breathe 3s ease-in-out infinite' : 'none',
+  }}>
+    <span style={{ color: '#fff', fontSize: size * 0.4, fontWeight: 900,
+      fontFamily: "'JioType','Outfit',sans-serif", opacity: 0.95 }}>
+      {glyph || abbr}
+    </span>
+  </div>
+);
+
+/* ═══════════════════════════════════════
+   MINI HERO HEADER
+   ═══════════════════════════════════════ */
+const MiniHeroHeader = () => (
+  <div style={{
+    height: 40, display: 'flex', alignItems: 'center',
+    padding: '0 16px', background: 'var(--white)',
+    borderBottom: '1px solid var(--stroke-minimal)',
+  }}>
+    <span style={{ fontSize: 16, color: 'var(--primary-50)', marginRight: 8 }}>♏</span>
+    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-high)' }}>Vrishchik</span>
+  </div>
+);
+
+/* ═══════════════════════════════════════
+   PROGRESS BAR
+   ═══════════════════════════════════════ */
+const ProgressBar = ({ current, total }) => (
+  <div style={{
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '10px 16px 6px', background: 'var(--white)',
+  }}>
+    <div style={{ flex: 1, display: 'flex', gap: 4 }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div key={i} style={{
+          flex: i === total - 1 ? 0.5 : 1, height: 3, borderRadius: 999,
+          background: i <= current ? 'var(--primary-50)' :
+            i === total - 1 ? 'var(--primary-20)' : 'var(--grey-40)',
+          transition: 'background 300ms ease-out',
+        }} />
+      ))}
+    </div>
+    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-low)',
+      marginLeft: 8, whiteSpace: 'nowrap' }}>
+      {Math.min(current + 1, total - 1)} of {total - 1}
+    </span>
+  </div>
+);
+
+
+/* ═══════════════════════════════════════
+   CARD 1 — YOUR RULING PLANET (Mars)
+   Visual: Large Mars orb + trait rays
+   ═══════════════════════════════════════ */
+const Card1_RulingPlanet = () => {
+  const traits = [
+    { label: 'Courage', angle: -30, delay: 400 },
+    { label: 'Ambition', angle: 0, delay: 500 },
+    { label: 'Intensity', angle: 30, delay: 600 },
+  ];
+
+  return (
+    <div style={{ padding: '0 20px 20px', animation: 'fadeIn 300ms ease-out both' }}>
+      {/* Visual zone — Mars with orbiting trait pills */}
+      <div style={{
+        height: 180, borderRadius: 20, background: 'linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', margin: '0 0 20px', overflow: 'hidden',
+      }}>
+        {/* Orbit ring */}
+        <div style={{
+          position: 'absolute', width: 140, height: 140, borderRadius: 999,
+          border: '1px dashed rgba(255,102,68,0.2)',
+          animation: 'orbitSlow 20s linear infinite',
+        }} />
+        {/* Mars orb — hero */}
+        <div style={{ animation: 'stag 400ms ease-out 200ms both' }}>
+          <PlanetOrb name="Mars" abbr="Ma" glyph="♂" color="var(--planet-mars)" size={64} glow />
+        </div>
+        {/* Floating trait pills */}
+        {traits.map((t, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            top: i === 0 ? 20 : i === 1 ? 148 : 24,
+            left: i === 0 ? 16 : i === 1 ? '50%' : 'auto',
+            right: i === 2 ? 16 : 'auto',
+            transform: i === 1 ? 'translateX(-50%)' : 'none',
+            background: 'var(--white)', borderRadius: 999,
+            padding: '4px 12px', fontSize: 11, fontWeight: 700,
+            color: 'var(--planet-mars)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            animation: `stag 300ms ease-out ${t.delay}ms both`,
+          }}>
+            {t.label}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--planet-mars)', marginBottom: 6,
+        animation: 'stag 300ms ease-out 100ms both' }}>
+        YOUR RULING PLANET
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-high)',
+        lineHeight: 1.2, marginBottom: 10, animation: 'stag 300ms ease-out 200ms both' }}>
+        Mars controls your destiny
+      </div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-high)',
+        lineHeight: 1.55, marginBottom: 16, animation: 'stag 300ms ease-out 300ms both' }}>
+        Mangal is your lagna lord and chart ruler. It gives you the instinct to lead, the nerve to take risks, and the fire that makes people either follow you or get out of your way.
+      </div>
+      {/* Power meter */}
+      <div style={{ animation: 'stag 300ms ease-out 450ms both' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-low)' }}>Mars Strength</span>
+          <span style={{ fontSize: 12, fontWeight: 900, color: 'var(--planet-mars)' }}>92%</span>
+        </div>
+        <div style={{ height: 6, borderRadius: 999, background: 'var(--grey-40)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', borderRadius: 999, background: 'var(--planet-mars)',
+            width: '92%', transition: 'width 1s ease-out',
+            animation: 'fadeIn 300ms ease-out 600ms both' }} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+/* ═══════════════════════════════════════
+   CARD 2 — YOUR STRONGEST HOUSES
+   Visual: Mini chart + house strength bars
+   ═══════════════════════════════════════ */
+const Card2_StrongHouses = () => {
+  const houses = [
+    { num: 1, label: 'Self & Identity', planet: 'Mars', color: 'var(--planet-mars)', strength: 95 },
+    { num: 2, label: 'Wealth & Speech', planet: 'Sun + Mercury', color: 'var(--planet-sun)', strength: 88 },
+    { num: 5, label: 'Wisdom & Fortune', planet: 'Jupiter', color: 'var(--planet-jupiter)', strength: 82 },
+    { num: 10, label: 'Career & Status', planet: 'Saturn', color: 'var(--planet-saturn)', strength: 78 },
+  ];
+
+  return (
+    <div style={{ padding: '0 20px 20px', animation: 'fadeIn 300ms ease-out both' }}>
+      {/* Visual — planet constellation */}
+      <div style={{
+        height: 120, borderRadius: 20, background: 'linear-gradient(135deg, var(--surface-ghost-icon) 0%, #f0f0ff 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 12, margin: '0 0 20px', padding: '0 20px',
+      }}>
+        {[
+          { abbr: 'Ma', color: 'var(--planet-mars)', size: 40, delay: 200 },
+          { abbr: 'Su', color: 'var(--planet-sun)', size: 32, delay: 300 },
+          { abbr: 'Ju', color: 'var(--planet-jupiter)', size: 36, delay: 400 },
+          { abbr: 'Sa', color: 'var(--planet-saturn)', size: 34, delay: 500 },
+        ].map((p, i) => (
+          <div key={i} style={{ animation: `stag 300ms ease-out ${p.delay}ms both` }}>
+            <PlanetOrb abbr={p.abbr} color={p.color} size={p.size} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--primary-50)', marginBottom: 6,
+        animation: 'stag 300ms ease-out 100ms both' }}>
+        YOUR POWER HOUSES
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-high)',
+        lineHeight: 1.2, marginBottom: 14, animation: 'stag 300ms ease-out 200ms both' }}>
+        Where your planets hit hardest
+      </div>
+
+      {/* House strength bars */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {houses.map((h, i) => (
+          <div key={i} style={{ animation: `stag 300ms ease-out ${350 + i * 100}ms both` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
+              <div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-high)' }}>
+                  {h.num}{h.num === 1 ? 'st' : h.num === 2 ? 'nd' : h.num === 5 ? 'th' : 'th'} House
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-low)', marginLeft: 6 }}>
+                  {h.label}
+                </span>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 900, color: h.color }}>{h.planet}</span>
+            </div>
+            <div style={{ height: 5, borderRadius: 999, background: 'var(--grey-40)', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: 999, background: h.color,
+                width: `${h.strength}%`, transition: 'width 1s ease-out',
+              }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+/* ═══════════════════════════════════════
+   CARD 3 — RUCHAKA MAHAPURUSH YOG (DARK)
+   Mars in own sign in kendra — one of 5 Mahapurush Yogs
+   ═══════════════════════════════════════ */
+const Card3_RareYog = () => (
+  <div style={{
+    background: 'var(--surface-bold)', borderRadius: 24,
+    margin: '0 16px', padding: '24px 20px',
+    animation: 'fadeInScale 400ms ease-out both',
+    position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Subtle background pattern */}
+    <div style={{
+      position: 'absolute', top: -20, right: -20, width: 120, height: 120,
+      borderRadius: 999, background: 'rgba(255,255,255,0.04)',
+    }} />
+
+    {/* Mars orb — hero */}
+    <div style={{
+      display: 'flex', justifyContent: 'center', marginBottom: 16,
+      animation: 'stag 300ms ease-out 150ms both',
+    }}>
+      <div style={{ position: 'relative' }}>
+        <PlanetOrb name="Mars" abbr="♂" color="var(--planet-mars)" size={56} glow />
+        {/* Crown / rarity badge */}
+        <div style={{
+          position: 'absolute', top: -8, right: -8,
+          background: 'var(--secondary-40)', borderRadius: 999,
+          width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 12, fontWeight: 900, color: 'var(--grey-100)',
+        }}>✦</div>
+      </div>
+    </div>
+
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8,
+      justifyContent: 'center', animation: 'stag 300ms ease-out 250ms both',
+    }}>
+      <span style={{ fontSize: 14, color: 'var(--sparkle-40)' }}>✦</span>
+      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--sparkle-40)' }}>
+        RARE MAHAPURUSH YOG
+      </span>
+    </div>
+
+    <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--text-on-bold)',
+      lineHeight: 1.15, textAlign: 'center', marginBottom: 6,
+      animation: 'stag 300ms ease-out 350ms both' }}>
+      Ruchaka Yog
+    </div>
+    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--secondary-40)',
+      textAlign: 'center', marginBottom: 14,
+      animation: 'stag 300ms ease-out 400ms both' }}>
+      Less than 5% of people have this
+    </div>
+
+    <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-on-bold)',
+      lineHeight: 1.55, opacity: 0.85, textAlign: 'center', marginBottom: 18,
+      animation: 'stag 300ms ease-out 450ms both' }}>
+      Mars sits in its own sign Scorpio in your 1st house — forming one of the 5 rarest Mahapurush Yogs in Vedic astrology. This makes you a natural commander.
+    </div>
+
+    {/* Callout box */}
+    <div style={{
+      border: '1px solid rgba(255,255,255,0.15)', borderRadius: 16,
+      padding: 14, animation: 'stag 400ms ease-out 600ms both',
+    }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sparkle-40)', marginBottom: 6 }}>
+        What Ruchaka gives you:
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-on-bold)',
+        lineHeight: 1.5, opacity: 0.9 }}>
+        Physical vitality, fearless leadership, and the ability to dominate any field you enter. People with Ruchaka Yog are remembered long after they leave a room.
+      </div>
+    </div>
+  </div>
+);
+
+
+/* ═══════════════════════════════════════
+   CARD 4 — CELEBRITY MATCH (Dhoni, 89%)
+   Side-by-side comparison
+   ═══════════════════════════════════════ */
+const MatchMeter = ({ value }) => {
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => { setTimeout(() => setAnimated(true), 500); }, []);
+  return (
+    <div style={{ textAlign: 'center', animation: 'stag 300ms ease-out 200ms both' }}>
+      <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 6px' }}>
+        <svg width={80} height={80} viewBox="0 0 80 80">
+          <circle cx={40} cy={40} r={34} fill="none" stroke="var(--grey-40)" strokeWidth={5} />
+          <circle cx={40} cy={40} r={34} fill="none" stroke="var(--sparkle-50)" strokeWidth={5}
+            strokeLinecap="round" strokeDasharray={213.6}
+            strokeDashoffset={animated ? 213.6 * (1 - value/100) : 213.6}
+            transform="rotate(-90 40 40)"
+            style={{ transition: 'stroke-dashoffset 1.2s ease-out' }} />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+          justifyContent: 'center', fontSize: 22, fontWeight: 900, color: 'var(--sparkle-60)' }}>
+          {animated ? value : 0}%
+        </div>
+      </div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-low)', textTransform: 'uppercase',
+        letterSpacing: '0.05em' }}>Kundli Match</div>
+    </div>
+  );
+};
+
+const Card4_CelebrityMatch = () => {
+  const sameTraits = [
+    { icon: '♏', label: 'Scorpio energy' },
+    { icon: '♂', label: 'Mars-dominated chart' },
+    { icon: '🧠', label: 'Strategic calm under pressure' },
+  ];
+  const diffTraits = [
+    { you: 'Mars in 1st — you lead from front', them: 'Mars in 10th — he leads from field' },
+    { you: 'Moon in 7th — emotional depth', them: 'Moon in 4th — grounded stability' },
+  ];
+
+  return (
+    <div style={{ padding: '0 16px 20px', animation: 'fadeIn 300ms ease-out both' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.06em', color: 'var(--primary-50)', marginBottom: 12,
+        textAlign: 'center', animation: 'stag 300ms ease-out 100ms both' }}>
+        COSMIC TWIN
+      </div>
+
+      {/* Side-by-side photos */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 16, marginBottom: 16, animation: 'stag 300ms ease-out 150ms both',
+      }}>
+        {/* You */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: 999,
+            background: 'linear-gradient(135deg, var(--primary-50), var(--primary-30))',
+            border: '2.5px solid var(--primary-50)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, fontWeight: 900, color: 'var(--white)', marginBottom: 4,
+          }}>S</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-high)' }}>Shivali</div>
+          <div style={{ fontSize: 10, fontWeight: 500, color: 'var(--text-low)' }}>Vrishchik</div>
+        </div>
+
+        {/* Match meter */}
+        <MatchMeter value={89} />
+
+        {/* Dhoni */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: 999,
+            background: 'linear-gradient(135deg, var(--secondary-50), var(--secondary-30))',
+            border: '2.5px solid var(--secondary-50)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, fontWeight: 900, color: 'var(--white)', marginBottom: 4,
+          }}>MSD</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-high)' }}>MS Dhoni</div>
+          <div style={{ fontSize: 10, fontWeight: 500, color: 'var(--text-low)' }}>Vrishchik</div>
+        </div>
+      </div>
+
+      {/* What's Same */}
+      <div style={{
+        background: 'var(--sparkle-20)', borderRadius: 14, padding: 14,
+        marginBottom: 10, animation: 'stag 300ms ease-out 350ms both',
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sparkle-60)', marginBottom: 8 }}>
+          What's the same:
+        </div>
+        {sameTraits.map((t, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            marginBottom: i < sameTraits.length - 1 ? 6 : 0,
+          }}>
+            <span style={{ fontSize: 14, width: 20, textAlign: 'center' }}>{t.icon}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-high)' }}>{t.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* What's Different */}
+      <div style={{
+        background: 'var(--secondary-20)', borderRadius: 14, padding: 14,
+        marginBottom: 14, animation: 'stag 300ms ease-out 500ms both',
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--secondary-60)', marginBottom: 8 }}>
+          Where you differ:
+        </div>
+        {diffTraits.map((d, i) => (
+          <div key={i} style={{
+            display: 'flex', gap: 6, marginBottom: i < diffTraits.length - 1 ? 8 : 0,
+            fontSize: 12, fontWeight: 500, lineHeight: 1.4,
+          }}>
+            <div style={{ flex: 1, color: 'var(--primary-50)' }}>
+              <div style={{ fontWeight: 700, fontSize: 10, marginBottom: 2, color: 'var(--text-low)' }}>You</div>
+              {d.you}
+            </div>
+            <div style={{ width: 1, background: 'var(--stroke-subtle)', margin: '0 2px' }} />
+            <div style={{ flex: 1, color: 'var(--secondary-60)' }}>
+              <div style={{ fontWeight: 700, fontSize: 10, marginBottom: 2, color: 'var(--text-low)' }}>Dhoni</div>
+              {d.them}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Body */}
+      <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-high)',
+        lineHeight: 1.5, marginBottom: 16, textAlign: 'center',
+        animation: 'stag 300ms ease-out 650ms both' }}>
+        Same Scorpio fire. Same Mars-driven calm. He finishes matches, you finish what you start.
+      </div>
+
+      {/* Save + Share */}
+      <div style={{
+        display: 'flex', gap: 12, justifyContent: 'center',
+        animation: 'stag 300ms ease-out 750ms both',
+      }}>
+        <button style={{
+          height: 44, padding: '0 20px', borderRadius: 999,
+          border: '1.5px solid var(--stroke-subtle)', background: 'var(--white)',
+          fontSize: 14, fontWeight: 700, color: 'var(--text-high)',
+          fontFamily: "'JioType','Outfit',sans-serif", cursor: 'pointer',
+        }}>★ Save</button>
+        <button style={{
+          height: 44, padding: '0 20px', borderRadius: 999,
+          border: 'none', background: 'var(--primary-50)',
+          fontSize: 14, fontWeight: 700, color: 'var(--text-on-bold)',
+          fontFamily: "'JioType','Outfit',sans-serif", cursor: 'pointer',
+        }}>↗ Share</button>
+      </div>
+    </div>
+  );
+};
+
+
+/* ═══════════════════════════════════════
+   CARD 5 — SOFT UNLOCK TEASER
+   ═══════════════════════════════════════ */
+const Card5_Teaser = ({ onContinue }) => (
+  <div style={{ padding: '0 20px 24px', animation: 'fadeIn 300ms ease-out both' }}>
+    <div style={{
+      height: 100, borderRadius: 20,
+      background: 'linear-gradient(135deg, var(--primary-20) 0%, var(--sparkle-20) 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      margin: '0 0 20px', gap: 12,
+    }}>
+      {['☽', '♃', '♄'].map((g, i) => (
+        <div key={i} style={{
+          width: 36, height: 36, borderRadius: 999,
+          background: 'var(--white)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', fontSize: 18, color: 'var(--primary-50)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          animation: `stag 300ms ease-out ${200 + i * 120}ms both`,
+          opacity: 0.6,
+        }}>{g}</div>
+      ))}
+    </div>
+    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+      letterSpacing: '0.06em', color: 'var(--primary-50)', marginBottom: 6,
+      animation: 'stag 300ms ease-out 100ms both' }}>
+      YOUR JOURNEY DEEPENS
+    </div>
+    <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-high)',
+      lineHeight: 1.2, marginBottom: 10, animation: 'stag 300ms ease-out 200ms both' }}>
+      More of you to discover
+    </div>
+    <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-low)',
+      lineHeight: 1.55, marginBottom: 24, animation: 'stag 300ms ease-out 300ms both' }}>
+      Your emotional patterns, Venus's influence on love, and Jupiter's promise for your future — all waiting to be revealed as your cosmic journey unfolds.
+    </div>
+    <button onClick={onContinue} style={{
+      width: '100%', height: 48, borderRadius: 999,
+      border: 'none', background: 'var(--primary-50)',
+      fontSize: 15, fontWeight: 700, color: 'var(--text-on-bold)',
+      fontFamily: "'JioType','Outfit',sans-serif", cursor: 'pointer',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+      animation: 'stag 300ms ease-out 400ms both',
+    }}>
+      Continue
+      <svg viewBox="0 0 24 24" width={16} height={16} fill="none">
+        <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>
+  </div>
+);
+
+
+/* ═══════════════════════════════════════
+   MAIN STORY STRIP
+   ═══════════════════════════════════════ */
+const TOTAL_CARDS = 5;
+
+const StoryStrip = () => {
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState('right');
+
+  const goNext = () => {
+    if (current < TOTAL_CARDS - 1) { setDirection('right'); setCurrent(c => c + 1); }
+  };
+  const goPrev = () => {
+    if (current > 0) { setDirection('left'); setCurrent(c => c - 1); }
+  };
+
+  const handleTap = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x < rect.width * 0.3) goPrev();
+    else goNext();
+  };
+
+  const renderCard = () => {
+    switch (current) {
+      case 0: return <Card1_RulingPlanet key="c1" />;
+      case 1: return <Card2_StrongHouses key="c2" />;
+      case 2: return <Card3_RareYog key="c3" />;
+      case 3: return <Card4_CelebrityMatch key="c4" />;
+      case 4: return <Card5_Teaser key="c5" onContinue={() => alert('→ Phase 3: Planetary Reels')} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--white)' }}>
+      <MiniHeroHeader />
+      <ProgressBar current={current} total={TOTAL_CARDS} />
+
+      <div onClick={handleTap} style={{
+        flex: 1, overflow: 'hidden', cursor: 'pointer',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        paddingTop: 4,
+      }}>
+        <div key={current} style={{
+          animation: `${direction === 'right' ? 'slideInRight' : 'slideInLeft'} 300ms ease-out both`,
+        }}>
+          {renderCard()}
+        </div>
+      </div>
+
+      {current === 0 && (
+        <div style={{ textAlign: 'center', paddingBottom: 14, animation: 'fadeIn 500ms ease-out 1500ms both' }}>
+          <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-disabled)' }}>
+            Tap to continue →
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+/* ═══════════════════════════════════════
+   APP
+   ═══════════════════════════════════════ */
+const App = () => (
+  <div className="phone-frame">
+    <div className="notch"><div className="notch-inner" /></div>
+    <div className="status-bar">
+      <span>9:41</span>
+      <span style={{ letterSpacing: '2px' }}>... </span>
+    </div>
+    <div className="screen">
+      <StoryStrip />
+    </div>
+  </div>
+);
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
